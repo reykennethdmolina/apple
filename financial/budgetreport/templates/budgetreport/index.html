@@ -24,6 +24,7 @@
                                 <option value="1">Schedule of Expenses by Department/Section</option>
                                 <option value="2">Schedule of Expenses by Department Group</option>
                                 <option value="3">Schedule of Expenses by Group</option>
+                                <option value="9">Schedule of Expenses by Year-to-date</option>
                                 <option value="4">Schedule of Expenses</option>
                                 <option value="5">Budget Status by Department/Section</option>
                                 <option value="6">Budget Status by Department Group</option>
@@ -108,7 +109,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12" style="min-height: 800px;">
+            <div class="col-md-12" style="min-height: 800px;overflow: scroll;">
                 <iframe src="{% url 'budgetreport:pdf' %}?report=1&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&filter=1&type=1&department=&product=" id="result" height="1200px" width="100%"></iframe>
                 <div id="iframe" frameborder="0" scrolling="yes"></div>
             </div>

@@ -887,6 +887,13 @@ class GeneratePDF(View):
             else:
                 list = query_scheduled_expense_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
                 title = "Schedule of Expenses - Group - Summary"
+        elif report == '9':
+            if type == '2':
+                list = query_scheduled_expense_yearend(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses -  Year-to-date - Detailed"
+            else:
+                list = query_scheduled_expense_yearend(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses - Year-to-date - Summary"
 
         # elif report == '4':
         #     if type == '2':
@@ -984,6 +991,13 @@ class GeneratePDF(View):
             else:
                 print 'summary'
                 return Render.render('budgetreport/budget_group_summary.html', context)
+        elif report == '9':
+            if type == '2':
+                print 'detail'
+                return Render.render('budgetreport/schedule_expenses_yearend_detail.html', context)
+            else:
+                print 'summary'
+                return Render.render('budgetreport/schedule_expenses_yearend_summary.html', context)
         else:
             return Render.render('budgetreport/department_summary.html', context)
 
@@ -1100,6 +1114,58 @@ def generate(request):
             context['counterminus'] = counter
             viewhtml = render_to_string('budgetreport/schedule_expenses_summary.html', context)
 
+    elif report == '8':
+        if type == '2':
+            list_dept = query_sched_expense_dept(type, filter, department, product, fromyear, frommonth, toyear,
+                                                 tomonth, prevyear, prevmonth)
+            dept = {}
+            deptname = {}
+            col_dept = ''
+            counter = 1
+            for c in list_dept:
+                if col_dept != c.dcode:
+                    dept.update({c.id: c.departmentname})
+                    deptname.update({c.id: c.departmentname})
+                    counter += 1
+                col_dept = c.dcode
+
+            dept = sorted(dept.items(), key=lambda kv: (kv[0]))
+            deptname = sorted(deptname.items(), key=lambda kv: (kv[0]))
+
+            list = query_sched_expense_row(dept, type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+            title = "Schedule of Budget - Detailed"
+            context['title'] = title
+            context['list'] = list
+            context['dept'] = deptname
+            context['counter'] = counter + 1
+            context['counterminus'] = counter
+            viewhtml = render_to_string('budgetreport/schedule_expenses_detail.html', context)
+        else:
+
+            list_dept = query_sched_expense_dept(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+            dept = {}
+            deptname = {}
+            col_dept = ''
+            counter = 1
+            for c in list_dept:
+                if col_dept != c.dcode:
+                    dept.update({c.id: c.departmentname})
+                    deptname.update({c.id: c.departmentname})
+                    counter += 1
+                col_dept = c.dcode
+
+            dept = sorted(dept.items(), key=lambda kv: (kv[0]))
+            deptname = sorted(deptname.items(), key=lambda kv: (kv[0]))
+
+            list = query_sched_expense_row(dept, type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+            title = "Schedule of Budget - Summary"
+            context['title'] = title
+            context['list'] = list
+            context['dept'] = deptname
+            context['counter'] = counter + 1
+            context['counterminus'] = counter
+            viewhtml = render_to_string('budgetreport/schedule_expenses_summary.html', context)
+
     data = {
         'status': 'success',
         'viewhtml': viewhtml,
@@ -1190,6 +1256,16 @@ class GenerateExcel(View):
                                                prevyear, prevmonth)
                 title = "Schedule of Expenses - Group - Summary"
                 filename = "schedexpenses-budgetreport-group-summary.xlsx"
+
+        elif report == '9':
+            if type == '2':
+                list = query_scheduled_expense_yearend(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses -  Year-to-date - Detailed"
+                filename = "schedexpenses-year-to-date-detailed.xlsx"
+            else:
+                list = query_scheduled_expense_yearend(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses - Year-to-date - Summary"
+                filename = "schedexpenses-year-to-date-summary.xlsx"
 
         elif report == '4':
             list_dept = query_sched_expense_dept(type, filter, department, product, fromyear, frommonth, toyear,
@@ -1703,6 +1779,260 @@ class GenerateExcel(View):
                         worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
                         worksheet.write(row, col + 4, float(format(totalvaramount, '.2f')))
                         worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
+                        row += 1
+                        row += 1
+
+        elif report == '9':
+            # header
+
+            worksheet.write('A5', '', bold)
+            worksheet.write('B5', 'January', bold)
+            worksheet.write('C5', 'February', bold)
+            worksheet.write('D5', 'March', bold)
+            worksheet.write('E5', 'April', bold)
+            worksheet.write('F5', 'May', bold)
+            worksheet.write('G5', 'June', bold)
+            worksheet.write('H5', 'July', bold)
+            worksheet.write('I5', 'August', bold)
+            worksheet.write('J5', 'September', bold)
+            worksheet.write('K5', 'October', bold)
+            worksheet.write('L5', 'November', bold)
+            worksheet.write('M5', 'December', bold)
+            worksheet.write('N5', 'Amount', bold)
+
+            row = 6
+            col = 0
+
+            if list:
+                if type == '1':
+                    print 'summary'
+                    for group, subgroup in df.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                        worksheet.write(row, col, str(group[0]), bold)
+                        row += 1
+
+                        totjan = 0
+                        totfeb = 0
+                        totmar = 0
+                        totapr = 0
+                        totmay = 0
+                        totjun = 0
+                        totjul = 0
+                        totaug = 0
+                        totsep = 0
+                        totoct = 0
+                        totnov = 0
+                        totdec = 0
+                        totamt = 0
+                        for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
+                            worksheet.write(row, col, '  ' + str(head[0]), bold)
+                            row += 1
+
+                            subjan = 0
+                            subfeb = 0
+                            submar = 0
+                            subapr = 0
+                            submay = 0
+                            subjun = 0
+                            subjul = 0
+                            subaug = 0
+                            subsep = 0
+                            suboct = 0
+                            subnov = 0
+                            subdec = 0
+                            subamt = 0
+                            for data, item in headgroup.iterrows():
+                                worksheet.write(row, col, '   ' + str(item.csubheaddescription))
+                                worksheet.write(row, col + 1, float(format(item.mjan, '.2f')))
+                                worksheet.write(row, col + 2, float(format(item.mfeb, '.2f')))
+                                worksheet.write(row, col + 3, float(format(item.mmar, '.2f')))
+                                worksheet.write(row, col + 4, float(format(item.mapr, '.2f')))
+                                worksheet.write(row, col + 5, float(format(item.mmay, '.2f')))
+                                worksheet.write(row, col + 6, float(format(item.mjun, '.2f')))
+                                worksheet.write(row, col + 7, float(format(item.mjul, '.2f')))
+                                worksheet.write(row, col + 8, float(format(item.maug, '.2f')))
+                                worksheet.write(row, col + 9, float(format(item.msep, '.2f')))
+                                worksheet.write(row, col + 10, float(format(item.moct, '.2f')))
+                                worksheet.write(row, col + 11, float(format(item.mnov, '.2f')))
+                                worksheet.write(row, col + 12, float(format(item.mdec, '.2f')))
+                                worksheet.write(row, col + 13, float(format(item.amount, '.2f')))
+                                subjan += item.mjan
+                                subfeb += item.mfeb
+                                submar += item.mmar
+                                subapr += item.mapr
+                                submay += item.mmay
+                                subjun += item.mjun
+                                subjul += item.mjul
+                                subaug += item.maug
+                                subsep += item.msep
+                                suboct += item.moct
+                                subnov += item.mnov
+                                subdec += item.mdec
+                                subamt += item.amount
+                                totjan += item.mjan
+                                totfeb += item.mfeb
+                                totmar += item.mmar
+                                totapr += item.mapr
+                                totmay += item.mmay
+                                totjun += item.mjun
+                                totjul += item.mjul
+                                totaug += item.maug
+                                totsep += item.msep
+                                totoct += item.moct
+                                totnov += item.mnov
+                                totdec += item.mdec
+                                totamt += item.amount
+                                row += 1
+
+
+                            worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                            worksheet.write(row, col + 1, float(format(subjan, '.2f')))
+                            worksheet.write(row, col + 2, float(format(subfeb, '.2f')))
+                            worksheet.write(row, col + 3, float(format(submar, '.2f')))
+                            worksheet.write(row, col + 4, float(format(subapr, '.2f')))
+                            worksheet.write(row, col + 5, float(format(submay, '.2f')))
+                            worksheet.write(row, col + 6, float(format(subjun, '.2f')))
+                            worksheet.write(row, col + 7, float(format(subjul, '.2f')))
+                            worksheet.write(row, col + 8, float(format(subaug, '.2f')))
+                            worksheet.write(row, col + 9, float(format(subsep, '.2f')))
+                            worksheet.write(row, col + 10, float(format(suboct, '.2f')))
+                            worksheet.write(row, col + 11, float(format(subnov, '.2f')))
+                            worksheet.write(row, col + 12, float(format(subdec, '.2f')))
+                            worksheet.write(row, col + 13, float(format(subamt, '.2f')))
+
+                            row += 1
+
+                        worksheet.write(row, col, 'Total - ' + str(group[0]))
+                        worksheet.write(row, col + 1, float(format(totjan, '.2f')))
+                        worksheet.write(row, col + 2, float(format(totfeb, '.2f')))
+                        worksheet.write(row, col + 3, float(format(totmar, '.2f')))
+                        worksheet.write(row, col + 4, float(format(totapr, '.2f')))
+                        worksheet.write(row, col + 5, float(format(totmay, '.2f')))
+                        worksheet.write(row, col + 6, float(format(totjun, '.2f')))
+                        worksheet.write(row, col + 7, float(format(totjul, '.2f')))
+                        worksheet.write(row, col + 8, float(format(totaug, '.2f')))
+                        worksheet.write(row, col + 9, float(format(totsep, '.2f')))
+                        worksheet.write(row, col + 10, float(format(totoct, '.2f')))
+                        worksheet.write(row, col + 11, float(format(totnov, '.2f')))
+                        worksheet.write(row, col + 12, float(format(totdec, '.2f')))
+                        worksheet.write(row, col + 13, float(format(totamt, '.2f')))
+                        row += 1
+                        row += 1
+                else:
+                    print 'detailed'
+                    for group, subgroup in df.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                        worksheet.write(row, col, str(group[0]), bold)
+                        row += 1
+
+                        totjan = 0
+                        totfeb = 0
+                        totmar = 0
+                        totapr = 0
+                        totmay = 0
+                        totjun = 0
+                        totjul = 0
+                        totaug = 0
+                        totsep = 0
+                        totoct = 0
+                        totnov = 0
+                        totdec = 0
+                        totamt = 0
+                        for head, headgroup in subgroup.fillna('NaN').groupby(
+                                ['csubgrouptitle', 'csubgroupdescription']):
+                            worksheet.write(row, col, '  ' + str(head[0]), bold)
+                            row += 1
+
+                            subjan = 0
+                            subfeb = 0
+                            submar = 0
+                            subapr = 0
+                            submay = 0
+                            subjun = 0
+                            subjul = 0
+                            subaug = 0
+                            subsep = 0
+                            suboct = 0
+                            subnov = 0
+                            subdec = 0
+                            subamt = 0
+                            for subhead, subheadgroup in headgroup.fillna('NaN').groupby(
+                                    ['csubheadtitle', 'csubheaddescription']):
+                                worksheet.write(row, col, '    ' + str(subhead[0]), bold)
+                                row += 1
+                                for data, item in subheadgroup.iterrows():
+                                    worksheet.write(row, col, '    ' + str(item.description))
+                                    worksheet.write(row, col + 1, float(format(item.mjan, '.2f')))
+                                    worksheet.write(row, col + 2, float(format(item.mfeb, '.2f')))
+                                    worksheet.write(row, col + 3, float(format(item.mmar, '.2f')))
+                                    worksheet.write(row, col + 4, float(format(item.mapr, '.2f')))
+                                    worksheet.write(row, col + 5, float(format(item.mmay, '.2f')))
+                                    worksheet.write(row, col + 6, float(format(item.mjun, '.2f')))
+                                    worksheet.write(row, col + 7, float(format(item.mjul, '.2f')))
+                                    worksheet.write(row, col + 8, float(format(item.maug, '.2f')))
+                                    worksheet.write(row, col + 9, float(format(item.msep, '.2f')))
+                                    worksheet.write(row, col + 10, float(format(item.moct, '.2f')))
+                                    worksheet.write(row, col + 11, float(format(item.mnov, '.2f')))
+                                    worksheet.write(row, col + 12, float(format(item.mdec, '.2f')))
+                                    worksheet.write(row, col + 13, float(format(item.amount, '.2f')))
+                                    subjan += item.mjan
+                                    subfeb += item.mfeb
+                                    submar += item.mmar
+                                    subapr += item.mapr
+                                    submay += item.mmay
+                                    subjun += item.mjun
+                                    subjul += item.mjul
+                                    subaug += item.maug
+                                    subsep += item.msep
+                                    suboct += item.moct
+                                    subnov += item.mnov
+                                    subdec += item.mdec
+                                    subamt += item.amount
+                                    totjan += item.mjan
+                                    totfeb += item.mfeb
+                                    totmar += item.mmar
+                                    totapr += item.mapr
+                                    totmay += item.mmay
+                                    totjun += item.mjun
+                                    totjul += item.mjul
+                                    totaug += item.maug
+                                    totsep += item.msep
+                                    totoct += item.moct
+                                    totnov += item.mnov
+                                    totdec += item.mdec
+                                    totamt += item.amount
+                                    row += 1
+
+
+                            worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                            worksheet.write(row, col + 1, float(format(subjan, '.2f')))
+                            worksheet.write(row, col + 2, float(format(subfeb, '.2f')))
+                            worksheet.write(row, col + 3, float(format(submar, '.2f')))
+                            worksheet.write(row, col + 4, float(format(subapr, '.2f')))
+                            worksheet.write(row, col + 5, float(format(submay, '.2f')))
+                            worksheet.write(row, col + 6, float(format(subjun, '.2f')))
+                            worksheet.write(row, col + 7, float(format(subjul, '.2f')))
+                            worksheet.write(row, col + 8, float(format(subaug, '.2f')))
+                            worksheet.write(row, col + 9, float(format(subsep, '.2f')))
+                            worksheet.write(row, col + 10, float(format(suboct, '.2f')))
+                            worksheet.write(row, col + 11, float(format(subnov, '.2f')))
+                            worksheet.write(row, col + 12, float(format(subdec, '.2f')))
+                            worksheet.write(row, col + 13, float(format(subamt, '.2f')))
+
+                            row += 1
+
+                        worksheet.write(row, col, '  Total - ' + str(group[0]))
+                        worksheet.write(row, col + 1, float(format(totjan, '.2f')))
+                        worksheet.write(row, col + 2, float(format(totfeb, '.2f')))
+                        worksheet.write(row, col + 3, float(format(totmar, '.2f')))
+                        worksheet.write(row, col + 4, float(format(totapr, '.2f')))
+                        worksheet.write(row, col + 5, float(format(totmay, '.2f')))
+                        worksheet.write(row, col + 6, float(format(totjun, '.2f')))
+                        worksheet.write(row, col + 7, float(format(totjul, '.2f')))
+                        worksheet.write(row, col + 8, float(format(totaug, '.2f')))
+                        worksheet.write(row, col + 9, float(format(totsep, '.2f')))
+                        worksheet.write(row, col + 10, float(format(totoct, '.2f')))
+                        worksheet.write(row, col + 11, float(format(totnov, '.2f')))
+                        worksheet.write(row, col + 12, float(format(totdec, '.2f')))
+                        worksheet.write(row, col + 13, float(format(totamt, '.2f')))
                         row += 1
                         row += 1
 
@@ -2911,7 +3241,7 @@ def query_budget_deptsection(type, expense, department, product, fromyear, fromm
             "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
             "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
             "FROM accountexpensebalance AS a " \
-            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = "+str(toyear)+" AND deptbud.department_id = a.department_id) " \
             "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
             "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
@@ -2944,7 +3274,7 @@ def query_budget_deptsection(type, expense, department, product, fromyear, fromm
             "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
             "FROM accountexpensebalance AS a " \
             "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
-            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = "+str(toyear)+" AND deptbud.department_id = a.department_id) " \
             "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
@@ -3040,7 +3370,7 @@ def query_budget_deptgroup(type, expense, department, product, fromyear, frommon
             "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
             "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
             "FROM accountexpensebalance AS a " \
-            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = "+str(toyear)+" AND deptbud.department_id = a.department_id) " \
             "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
             "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
@@ -3073,7 +3403,7 @@ def query_budget_deptgroup(type, expense, department, product, fromyear, frommon
             "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
             "FROM accountexpensebalance AS a " \
             "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
-            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = "+str(toyear)+" AND deptbud.department_id = a.department_id) " \
             "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
@@ -3169,7 +3499,7 @@ def query_budget_group(type, expense, department, product, fromyear, frommonth, 
             "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
             "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
             "FROM accountexpensebalance AS a " \
-            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = "+str(toyear)+" AND deptbud.department_id = a.department_id) " \
             "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
             "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
@@ -3202,7 +3532,7 @@ def query_budget_group(type, expense, department, product, fromyear, frommonth, 
             "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
             "FROM accountexpensebalance AS a " \
             "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
-            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = "+str(toyear)+" AND deptbud.department_id = a.department_id) " \
             "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
@@ -3330,9 +3660,157 @@ def query_sched_expense_dept(type, expense, department, product, fromyear, fromm
             "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
             "WHERE z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
             "ORDER BY d.departmentname DESC, z.accountcode, z.year ASC, z.month DESC"
-
+    #print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
+    print 'end'
+    return result
+
+def query_scheduled_expense_yearend(type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
+    print "Transaction Query Scheduled Expense"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    type_condition = ''
+    department_condition = ''
+    expense_condition = ''
+    product_condition = ''
+
+
+    print tomonth
+
+    if type == '2':
+        type_condition = "GROUP BY cgroup.description, c.description"
+    else:
+        type_condition = "GROUP BY cgroup.description, csubhead.title"
+
+    if expense != '':
+        expense_condition = "AND d.expchartofaccount_id = '" + str(expense) + "'"
+
+    if product != '':
+        product_condition = "AND d.product_id = '" + str(product) + "'"
+
+    if department != '':
+        department_condition = "AND a.department_id = '" + str(department) + "'"
+
+    print 'start'
+    query = "SELECT '' AS groupname, (IFNULL(mjan.amount, 0) + IFNULL(mfeb.amount, 0) + IFNULL(mmar.amount, 0) + IFNULL(mapr.amount, 0) + IFNULL(mmay.amount, 0) + IFNULL(mjun.amount, 0) + IFNULL(mjul.amount, 0) + IFNULL(maug.amount, 0) + IFNULL(msep.amount, 0) + IFNULL(moct.amount, 0) + IFNULL(mnov.amount, 0) + IFNULL(mdec.amount, 0)) AS amount, " \
+            "IFNULL(mjan.amount, 0) AS mjan, IFNULL(mfeb.amount, 0) AS mfeb, IFNULL(mmar.amount, 0) AS mmar, " \
+            "IFNULL(mapr.amount, 0) AS mapr, IFNULL(mmay.amount, 0) AS mmay, IFNULL(mjun.amount, 0) AS mjun, " \
+            "IFNULL(mjul.amount, 0) AS mjul, IFNULL(maug.amount, 0) AS maug, IFNULL(msep.amount, 0) AS msep, " \
+            "IFNULL(moct.amount, 0) AS moct, IFNULL(mnov.amount, 0) AS mnov, IFNULL(mdec.amount, 0) AS mdec, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 1 AND a.month <= "+str(tomonth)+" AND c.main = 5 " \
+            "   GROUP BY a.year, a.chartofaccount_id" \
+            ") AS mjan ON mjan.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a  " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 2 AND a.month <= "+str(tomonth)+" AND c.main = 5 " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS mfeb ON mfeb.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 3 AND a.month <= "+str(tomonth)+" AND c.main = 5 " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS mmar ON mmar.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 4 AND a.month <= "+str(tomonth)+" AND c.main = 5  " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS mapr ON mapr.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 5 AND a.month <= "+str(tomonth)+" AND c.main = 5 " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS mmay ON mmay.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 6 AND a.month <= "+str(tomonth)+" AND c.main = 5 " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS mjun ON mjun.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 7 AND a.month <= "+str(tomonth)+" AND c.main = 5  " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS mjul ON mjul.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a  " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 8 AND a.month <= "+str(tomonth)+" AND c.main = 5 " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS maug ON maug.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 9 AND a.month <= "+str(tomonth)+" AND c.main = 5  " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS msep ON msep.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 10 AND a.month <= "+str(tomonth)+" AND c.main = 5 " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS moct ON moct.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 11 AND a.month <= "+str(tomonth)+" AND c.main = 5 " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS mnov ON mnov.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "   a.code, a.chartofaccount_id, a.department_id " \
+            "   FROM accountexpensebalance AS a " \
+            "   LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "   WHERE a.year = "+str(toyear)+" AND a.month = 12 AND a.month <= "+str(tomonth)+" AND c.main = 5 " \
+            "   GROUP BY a.year, a.chartofaccount_id " \
+            ") AS mdec ON mdec.chartofaccount_id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "LEFT OUTER JOIN department AS d ON d.id = a.department_id " \
+            "WHERE a.year = "+str(toyear)+" AND a.month >= "+str(frommonth)+" AND a.month <= "+str(tomonth)+" AND c.main = 5 "+str(product_condition)+" "+" "+str(type_condition)+" "+str(expense_condition)+" " \
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
     print 'end'
     return result
