@@ -3682,9 +3682,9 @@ def query_scheduled_expense_yearend(type, expense, department, product, fromyear
     print tomonth
 
     if type == '2':
-        type_condition = "GROUP BY cgroup.description, c.description"
+        type_condition = "GROUP BY d.groupname, cgroup.description, c.description"
     else:
-        type_condition = "GROUP BY cgroup.description, csubhead.title"
+        type_condition = "GROUP BY d.groupname, cgroup.description, csubhead.title"
 
     if expense != '':
         expense_condition = "AND d.expchartofaccount_id = '" + str(expense) + "'"
@@ -3696,7 +3696,7 @@ def query_scheduled_expense_yearend(type, expense, department, product, fromyear
         department_condition = "AND a.department_id = '" + str(department) + "'"
 
     print 'start'
-    query = "SELECT '' AS dcode, (IFNULL(mjan.amount, 0) + IFNULL(mfeb.amount, 0) + IFNULL(mmar.amount, 0) + IFNULL(mapr.amount, 0) + IFNULL(mmay.amount, 0) + IFNULL(mjun.amount, 0) + IFNULL(mjul.amount, 0) + IFNULL(maug.amount, 0) + IFNULL(msep.amount, 0) + IFNULL(moct.amount, 0) + IFNULL(mnov.amount, 0) + IFNULL(mdec.amount, 0)) AS amount, " \
+    query = "SELECT d.code AS dcode, d.departmentname, (IFNULL(mjan.amount, 0) + IFNULL(mfeb.amount, 0) + IFNULL(mmar.amount, 0) + IFNULL(mapr.amount, 0) + IFNULL(mmay.amount, 0) + IFNULL(mjun.amount, 0) + IFNULL(mjul.amount, 0) + IFNULL(maug.amount, 0) + IFNULL(msep.amount, 0) + IFNULL(moct.amount, 0) + IFNULL(mnov.amount, 0) + IFNULL(mdec.amount, 0)) AS amount, " \
             "IFNULL(mjan.amount, 0) AS mjan, IFNULL(mfeb.amount, 0) AS mfeb, IFNULL(mmar.amount, 0) AS mmar, " \
             "IFNULL(mapr.amount, 0) AS mapr, IFNULL(mmay.amount, 0) AS mmay, IFNULL(mjun.amount, 0) AS mjun, " \
             "IFNULL(mjul.amount, 0) AS mjul, IFNULL(maug.amount, 0) AS maug, IFNULL(msep.amount, 0) AS msep, " \
