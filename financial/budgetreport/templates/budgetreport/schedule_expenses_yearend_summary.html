@@ -147,7 +147,7 @@
     {% for deptgroup in data %}
 
     <tr>
-        <td colspan="14" style="font-size:15px;"><b>{{ deptgroup.list.0.groupname }}</b></td>
+        <td colspan="14" style="font-size:15px;"><b>{{ deptgroup.list.0.dcode }} - {{ deptgroup.list.0.departmentname }}</b></td>
     </tr>
 
         {% regroup deptgroup.list by cgroupdescription as data %}
@@ -192,21 +192,21 @@
                 <td colspan="13" style="border-top:2px solid #000"></td>
             </tr>
             <tr>
-                <td style="font-size:12px;margin-left:15px;">sub-total - {{ subgroup.grouper }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_jan|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_feb|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_mar|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_apr|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_may|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_jun|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_jul|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_aug|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_sep|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_oct|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_nov|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_dec|floatformat:2|intcomma|to_negative }}</td>
-                <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|sum_amount|floatformat:2|intcomma|to_negative }}</td>
-            </tr>
+                    <td style="font-size:12px;margin-left:15px;">sub-total - {{ subgroup.grouper }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_jan|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_feb|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_mar|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_apr|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_may|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_jun|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_jul|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_aug|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_sep|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_oct|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_nov|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|subtotal_dec|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:180px;text-align:right;">{{ subgroup.list|sum_amount|floatformat:2|intcomma|to_negative }}</td>
+                </tr>
             <tr>
                 <td></td>
                 <td colspan="13" style="border-top:1px solid #000"></td>
@@ -246,6 +246,7 @@
         {% endfor %}
 
     {% endfor %}
+
 
     </tbody>
 </table>

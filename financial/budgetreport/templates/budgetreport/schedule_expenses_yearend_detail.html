@@ -142,12 +142,14 @@
 <table id="content-data">
     <tbody>
 
-    {% regroup list by groupname as data %}
+    <!-- Group Header -->
+
+    {% regroup list by dcode as data %}
 
     {% for deptgroup in data %}
 
     <tr>
-        <td colspan="14" style="font-size:15px;"><b>{{ deptgroup.list.0.groupname }}</b></td>
+        <td colspan="14" style="font-size:15px;"><b>{{ deptgroup.list.0.dcode }} - {{ deptgroup.list.0.departmentname }}</b></td>
     </tr>
 
         {% regroup deptgroup.list by cgroupdescription as data %}
@@ -260,6 +262,7 @@
         <td colspan="14" style="font-size:15px;"></td>
     </tr>
     {% endfor %}
+
 
     </tbody>
 </table>

@@ -1916,6 +1916,7 @@ class GenerateExcel(View):
                         worksheet.write(row, col + 12, float(format(totdec, '.2f')))
                         worksheet.write(row, col + 13, float(format(totamt, '.2f')))
                         row += 1
+
                         row += 1
                 else:
                     print 'detailed'
@@ -2102,7 +2103,6 @@ class GenerateExcel(View):
                             row += 1
                 else:
                     print 'detailed'
-                    print 'summary'
                     for deptx, department in df.fillna('NaN').groupby(['dcode', 'departmentname']):
 
                         for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
@@ -3007,12 +3007,12 @@ def query_scheduled_expense_deptsection(type, expense, department, product, from
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "WHERE a.year = "+str(fromyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
-            "GROUP BY c.accountcode " \
+            "GROUP BY a.department_id, c.accountcode " \
             ") AS z " \
             "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
             "WHERE d.isdeleted = 0 AND z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
             "ORDER BY d.code, z.accountcode, z.year ASC, z.month DESC"
-
+    print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
     print 'end'
@@ -3086,7 +3086,7 @@ def query_scheduled_expense_deptgroup(type, expense, department, product, fromye
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "WHERE a.year = "+str(fromyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
-            "GROUP BY c.accountcode " \
+            "GROUP BY a.department_id, c.accountcode " \
             ") AS z " \
             "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
             "WHERE d.isdeleted = 0 AND z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
@@ -3279,7 +3279,7 @@ def query_budget_deptsection(type, expense, department, product, fromyear, fromm
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "WHERE a.year = "+str(toyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
-            "GROUP BY c.accountcode " \
+            "GROUP BY a.department_id, c.accountcode " \
             "UNION " \
             "SELECT a.year, a.month, 0 AS budget, 0 AS amount, " \
             "0 cur_budytd, 0 AS cur_actualytd, 0 AS last_budytd, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS last_actualytd, " \
@@ -3295,7 +3295,7 @@ def query_budget_deptsection(type, expense, department, product, fromyear, fromm
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "WHERE a.year = "+str(lastyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
-            "GROUP BY c.accountcode) AS z " \
+            "GROUP BY a.department_id, c.accountcode ) AS z " \
             "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
             "WHERE z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
             "ORDER BY d.code, z.accountcode, z.year ASC, z.month DESC"
@@ -3408,7 +3408,7 @@ def query_budget_deptgroup(type, expense, department, product, fromyear, frommon
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "WHERE a.year = "+str(toyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
-            "GROUP BY c.accountcode " \
+            "GROUP BY a.department_id, c.accountcode " \
             "UNION " \
             "SELECT a.year, a.month, 0 AS budget, 0 AS amount, " \
             "0 cur_budytd, 0 AS cur_actualytd, 0 AS last_budytd, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS last_actualytd, " \
@@ -3424,7 +3424,7 @@ def query_budget_deptgroup(type, expense, department, product, fromyear, frommon
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "WHERE a.year = "+str(lastyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
-            "GROUP BY c.accountcode) AS z " \
+            "GROUP BY a.department_id, c.accountcode ) AS z " \
             "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
             "WHERE z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
             "ORDER BY d.code, z.accountcode, z.year ASC, z.month DESC"
@@ -3537,7 +3537,7 @@ def query_budget_group(type, expense, department, product, fromyear, frommonth, 
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "WHERE a.year = "+str(toyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
-            "GROUP BY c.accountcode " \
+            "GROUP BY a.department_id, c.accountcode " \
             "UNION " \
             "SELECT a.year, a.month, 0 AS budget, 0 AS amount, " \
             "0 cur_budytd, 0 AS cur_actualytd, 0 AS last_budytd, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS last_actualytd, " \
@@ -3553,7 +3553,7 @@ def query_budget_group(type, expense, department, product, fromyear, frommonth, 
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "WHERE a.year = "+str(lastyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
-            "GROUP BY c.accountcode) AS z " \
+            "GROUP BY a.department_id, c.accountcode ) AS z " \
             "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
             "WHERE z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
             "ORDER BY z.accountcode, z.year ASC, z.month DESC"
@@ -3655,7 +3655,7 @@ def query_sched_expense_dept(type, expense, department, product, fromyear, fromm
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "WHERE a.year = "+str(toyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
-            "GROUP BY c.accountcode " \
+            "GROUP BY a.department_id, c.accountcode " \
             ") AS z " \
             "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
             "WHERE z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
@@ -3677,6 +3677,7 @@ def query_scheduled_expense_yearend(type, expense, department, product, fromyear
     expense_condition = ''
     product_condition = ''
 
+    print type
 
     print tomonth
 
@@ -3695,7 +3696,7 @@ def query_scheduled_expense_yearend(type, expense, department, product, fromyear
         department_condition = "AND a.department_id = '" + str(department) + "'"
 
     print 'start'
-    query = "SELECT '' AS groupname, (IFNULL(mjan.amount, 0) + IFNULL(mfeb.amount, 0) + IFNULL(mmar.amount, 0) + IFNULL(mapr.amount, 0) + IFNULL(mmay.amount, 0) + IFNULL(mjun.amount, 0) + IFNULL(mjul.amount, 0) + IFNULL(maug.amount, 0) + IFNULL(msep.amount, 0) + IFNULL(moct.amount, 0) + IFNULL(mnov.amount, 0) + IFNULL(mdec.amount, 0)) AS amount, " \
+    query = "SELECT '' AS dcode, (IFNULL(mjan.amount, 0) + IFNULL(mfeb.amount, 0) + IFNULL(mmar.amount, 0) + IFNULL(mapr.amount, 0) + IFNULL(mmay.amount, 0) + IFNULL(mjun.amount, 0) + IFNULL(mjul.amount, 0) + IFNULL(maug.amount, 0) + IFNULL(msep.amount, 0) + IFNULL(moct.amount, 0) + IFNULL(mnov.amount, 0) + IFNULL(mdec.amount, 0)) AS amount, " \
             "IFNULL(mjan.amount, 0) AS mjan, IFNULL(mfeb.amount, 0) AS mfeb, IFNULL(mmar.amount, 0) AS mmar, " \
             "IFNULL(mapr.amount, 0) AS mapr, IFNULL(mmay.amount, 0) AS mmay, IFNULL(mjun.amount, 0) AS mjun, " \
             "IFNULL(mjul.amount, 0) AS mjul, IFNULL(maug.amount, 0) AS maug, IFNULL(msep.amount, 0) AS msep, " \
@@ -3808,7 +3809,7 @@ def query_scheduled_expense_yearend(type, expense, department, product, fromyear
             "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
             "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
             "LEFT OUTER JOIN department AS d ON d.id = a.department_id " \
-            "WHERE a.year = "+str(toyear)+" AND a.month >= "+str(frommonth)+" AND a.month <= "+str(tomonth)+" AND c.main = 5 "+str(product_condition)+" "+" "+str(type_condition)+" "+str(expense_condition)+" " \
+            "WHERE a.year = "+str(toyear)+" AND a.month >= "+str(frommonth)+" AND a.month <= "+str(tomonth)+" AND c.main = 5 "+str(product_condition)+" "+" "+str(type_condition)+" "+str(expense_condition)+" "+str(department_condition)+" " \
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
