@@ -13,7 +13,7 @@ from currency.models import Currency
 from branch.models import Branch
 from department.models import Department
 from operationalfund.models import Ofmain, Ofdetail, Ofitem
-from . models import Jvmain, Jvdetail, Jvdetailtemp, Jvdetailbreakdown, Jvdetailbreakdowntemp
+from . models import Jvmain, Jvdetail, Jvdetailtemp, Jvdetailbreakdown, Jvdetailbreakdowntemp, Jvupload
 from acctentry.views import updateallquery, validatetable, deleteallquery, generatekey, querystmtdetail, \
     querytotaldetail, savedetail, updatedetail
 from endless_pagination.views import AjaxListView
@@ -45,6 +45,7 @@ import io
 from django.shortcuts import render
 import os
 import xlsxwriter
+from django.core.files.storage import FileSystemStorage
 
 
 class IndexView(AjaxListView):
@@ -103,6 +104,8 @@ class DetailView(DetailView):
         context['ofcsvmain'] = Ofmain.objects.filter(isdeleted=0, jvmain=self.object.id).order_by('enterdate')
         jv_main_aggregate = Ofmain.objects.filter(isdeleted=0, jvmain=self.object.id).aggregate(Sum('amount'))
         context['repcsv_total_amount'] = jv_main_aggregate['amount__sum']
+
+        context['uploadlist'] = Jvupload.objects.filter(jvmain_id=self.object.pk).order_by('enterdate')
 
         return context
 
@@ -2184,3 +2187,20 @@ def searchforposting(request):
         }
 
     return JsonResponse(data)
+
+
+def upload(request):
+    folder = 'media/jvupload/'
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        id = request.POST['dataid']
+        fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
+        filename = fs.save(myfile.name, myfile)
+
+
+        upl = Jvupload(jvmain_id=id, filename=filename)
+        upl.save()
+
+        uploaded_file_url = fs.url(filename)
+        return HttpResponseRedirect('/journalvoucher/' + str(id) )
+    return HttpResponseRedirect('/journalvoucher/' + str(id) )

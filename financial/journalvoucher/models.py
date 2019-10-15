@@ -353,3 +353,27 @@ class Jvdetailbreakdowntemp(models.Model):
 
     def status_verbose(self):
         return dict(Jvdetailbreakdowntemp.STATUS_CHOICES)[self.status]
+
+
+class Jvupload(models.Model):
+    jvmain = models.ForeignKey('journalvoucher.Jvmain', related_name='jvmain_jvupload_id', null=True, blank=True)
+    filename = models.CharField(max_length=250, null=True, blank=True)
+    filetype = models.CharField(max_length=250, null=True, blank=True)
+    enterby = models.ForeignKey(User, default=1, related_name='jvupload_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='jvupload_modify')
+    modifydate = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'jvupload'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('jvupload:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.filename
+
+    def __unicode__(self):
+        return self.filename
+

@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
     url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^gounpost/$', views.gounpost, name='gounpost'),
+    url(r'^upload/$', views.upload, name='upload'),
 ]
