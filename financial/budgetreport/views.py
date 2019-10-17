@@ -2235,11 +2235,11 @@ class GenerateExcel(View):
                                     sublast_varamount += item.last_varamount
                                     row += 1
 
-                                if subvaramount > 0:
+                                if subbudget > 0:
                                     subvarpercent = (subvaramount/subbudget) * 100
-                                if subcur_varamount > 0:
+                                if subcur_actualytd > 0:
                                     subcur_varpercent = (subcur_varamount/subcur_actualytd) * 100
-                                if sublast_varamount > 0:
+                                if sublast_actualytd > 0:
                                     sublast_varpercent = (sublast_varamount/sublast_actualytd) * 100
 
                                 worksheet.write(row, col, '  Subtotal - '+str(head[0]))
@@ -2269,11 +2269,11 @@ class GenerateExcel(View):
 
                                 row += 1
 
-                            if totalvarpercent > 0:
+                            if totalbudget > 0:
                                 totalvarpercent = (totalvaramount / totalbudget) * 100
-                            if totalcur_varpercent > 0:
+                            if totalcur_actualytd > 0:
                                 totalcur_varpercent = (totalcur_varamount / totalcur_actualytd) * 100
-                            if totallast_varpercent > 0:
+                            if totallast_actualytd > 0:
                                 totallast_varpercent = (totallast_varamount / totallast_actualytd) * 100
 
                             worksheet.write(row, col, 'Total - ' + str(group[0]))
@@ -2353,11 +2353,11 @@ class GenerateExcel(View):
                                         sublast_varamount += item.last_varamount
                                         row += 1
 
-                                if subvaramount > 0:
+                                if subbudget > 0:
                                     subvarpercent = (subvaramount/subbudget) * 100
-                                if subcur_varamount > 0:
+                                if subcur_actualytd > 0:
                                     subcur_varpercent = (subcur_varamount/subcur_actualytd) * 100
-                                if sublast_varamount > 0:
+                                if sublast_actualytd > 0:
                                     sublast_varpercent = (sublast_varamount/sublast_actualytd) * 100
 
                                 worksheet.write(row, col, '  Subtotal - '+str(head[0]))
@@ -2387,11 +2387,11 @@ class GenerateExcel(View):
 
                                 row += 1
 
-                            if totalvarpercent > 0:
+                            if totalbudget > 0:
                                 totalvarpercent = (totalvaramount / totalbudget) * 100
-                            if totalcur_varpercent > 0:
+                            if totalcur_actualytd > 0:
                                 totalcur_varpercent = (totalcur_varamount / totalcur_actualytd) * 100
-                            if totallast_varpercent > 0:
+                            if totallast_actualytd > 0:
                                 totallast_varpercent = (totallast_varamount / totallast_actualytd) * 100
 
                             worksheet.write(row, col, 'Total - ' + str(group[0]))
