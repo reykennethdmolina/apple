@@ -2197,8 +2197,7 @@ def upload(request):
         fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
         filename = fs.save(myfile.name, myfile)
 
-
-        upl = Jvupload(jvmain_id=id, filename=filename)
+        upl = Jvupload(jvmain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
         upl.save()
 
         uploaded_file_url = fs.url(filename)

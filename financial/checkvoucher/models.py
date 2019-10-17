@@ -416,3 +416,26 @@ class Temp_digibanker(models.Model):
     def __unicode__(self):
         return unicode(self.pk)
 
+
+class Cvupload(models.Model):
+    cvmain = models.ForeignKey('checkvoucher.Cvmain', related_name='cvmain_cvupload_id', null=True,blank=True)
+    filename = models.CharField(max_length=250, null=True, blank=True)
+    filetype = models.CharField(max_length=240, null=True, blank=True)
+    enterby = models.ForeignKey(User, default=1, related_name='cvupload_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='cvupload_modify')
+    modifydate = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'cvupload'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('cvupload:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.filename
+
+    def __unicode__(self):
+        return self.filename
+

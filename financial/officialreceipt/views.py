@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from endless_pagination.views import AjaxListView
-from . models import Ormain, Ordetail, Ordetailtemp, Ordetailbreakdown, Ordetailbreakdowntemp
+from . models import Ormain, Ordetail, Ordetailtemp, Ordetailbreakdown, Ordetailbreakdowntemp, Orupload
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
     validatetable, deleteallquery
 from bankaccount.models import Bankaccount
@@ -62,6 +62,7 @@ import io
 import xlsxwriter
 import datetime
 from django.template.loader import render_to_string
+from django.core.files.storage import FileSystemStorage
 
 
 @method_decorator(login_required, name='dispatch')
@@ -126,6 +127,8 @@ class DetailView(DetailView):
         # context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         # context['pk'] = self.object.pk
         # data for lookup
+
+        context['uploadlist'] = Orupload.objects.filter(ormain_id=self.object.pk).order_by('enterdate')
 
         return context
 
@@ -2957,4 +2960,19 @@ def getARR():
 
     return list[:-1]
     #return result
+
+def upload(request):
+    folder = 'media/orupload/'
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        id = request.POST['dataid']
+        fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
+        filename = fs.save(myfile.name, myfile)
+
+        upl = Orupload(ormain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
+        upl.save()
+
+        uploaded_file_url = fs.url(filename)
+        return HttpResponseRedirect('/officialreceipt/' + str(id) )
+    return HttpResponseRedirect('/officialreceipt/' + str(id) )
 

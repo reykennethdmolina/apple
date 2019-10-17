@@ -25,7 +25,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from endless_pagination.views import AjaxListView
-from . models import Cvmain, Cvdetail, Cvdetailtemp, Cvdetailbreakdown, Cvdetailbreakdowntemp, Temp_digibanker
+from . models import Cvmain, Cvdetail, Cvdetailtemp, Cvdetailbreakdown, Cvdetailbreakdowntemp, Temp_digibanker, Cvupload
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from django.template.loader import render_to_string
 from easy_pdf.views import PDFTemplateView
@@ -62,6 +62,7 @@ from acctentry.views import generatekey
 from num2words import num2words
 from datetime import timedelta
 from string import digits
+from django.core.files.storage import FileSystemStorage
 
 
 upload_directory = 'processing_or/imported_main/'
@@ -145,6 +146,8 @@ class DetailView(DetailView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['aptrans'] = Apvcvtransaction.objects.filter(cvmain_id=self.object.pk)
         context['pk'] = self.object.pk
+        context['uploadlist'] = Cvupload.objects.filter(cvmain_id=self.object.pk).order_by('enterdate')
+
         # data for lookup
 
         return context
@@ -3132,6 +3135,22 @@ def acpdigibanker(request):
     data = {'status': 'success', 'fileurl': fileurl}
 
     return JsonResponse(data)
+
+
+def upload(request):
+    folder = 'media/cvupload/'
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        id = request.POST['dataid']
+        fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
+        filename = fs.save(myfile.name, myfile)
+
+        upl = Cvupload(cvmain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
+        upl.save()
+
+        uploaded_file_url = fs.url(filename)
+        return HttpResponseRedirect('/checkvoucher/' + str(id) )
+    return HttpResponseRedirect('/checkvoucher/' + str(id) )
 
 
 

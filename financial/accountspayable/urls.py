@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^gounpost/$', views.gounpost, name='gounpost'),
     url(r'^digibanker/$', views.digibanker, name='digibanker'),
+    url(r'^upload/$', views.upload, name='upload'),
     #url(r'^(?P<pk>[0-9]+)/disapproved/$', views.DisapprovedView.as_view(), name='disapproved'),
 ]

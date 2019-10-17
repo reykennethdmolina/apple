@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^searchforacp/$', views.searchforacp, name='searchforacp'),
     #url(r'^acp/$', views.GenerateACPExcel.as_view(), name='acp'),
     url(r'^acp/$', views.acpdigibanker, name='acp'),
+    url(r'^upload/$', views.upload, name='upload'),
 ]

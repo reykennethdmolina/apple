@@ -20,4 +20,5 @@ urlpatterns = [
     url(r'^gounpost/$', views.gounpost, name='gounpost'),
     url(r'^approve/$', views.approve, name='approve'),
     url(r'^disapprove/$', views.disapprove, name='disapprove'),
+    url(r'^upload/$', views.upload, name='upload'),
 ]

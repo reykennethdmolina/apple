@@ -32,7 +32,7 @@ from customer.models import Customer
 from annoying.functions import get_object_or_None
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
-from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp
+from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp, Apupload
 from django.template.loader import render_to_string
 from endless_pagination.views import AjaxListView
 from django.db.models import Q, Sum
@@ -54,6 +54,7 @@ import pandas as pd
 import io
 import xlsxwriter
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
 
 class IndexView(AjaxListView):
@@ -171,6 +172,7 @@ class DetailView(DetailView):
         context['wtaxrate'] = self.object.ataxrate
         context['potrans'] = Poapvtransaction.objects.filter(apmain_id=self.object.pk)
         context['cvtrans'] = Apvcvtransaction.objects.filter(apmain_id=self.object.pk)
+        context['uploadlist'] = Apupload.objects.filter(apmain_id=self.object.pk).order_by('enterdate')
 
         #print context['potrans']
 
@@ -3286,3 +3288,18 @@ def searchfordigibanker(request):
         }
 
     return JsonResponse(data)
+
+def upload(request):
+    folder = 'media/apupload/'
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        id = request.POST['dataid']
+        fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
+        filename = fs.save(myfile.name, myfile)
+
+        upl = Apupload(apmain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
+        upl.save()
+
+        uploaded_file_url = fs.url(filename)
+        return HttpResponseRedirect('/accountspayable/' + str(id) )
+    return HttpResponseRedirect('/accountspayable/' + str(id) )

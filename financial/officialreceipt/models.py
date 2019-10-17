@@ -419,3 +419,26 @@ class Ordetailbreakdowntemp(models.Model):
 
     def status_verbose(self):
         return dict(Ordetailbreakdowntemp.STATUS_CHOICES)[self.status]
+
+
+class Orupload(models.Model):
+    ormain = models.ForeignKey('officialreceipt.Ormain', related_name='ormain_orupload_id', null=True, blank=True)
+    filename = models.CharField(max_length=250, null=True, blank=True)
+    filetype = models.CharField(max_length=250, null=True, blank=True)
+    enterby = models.ForeignKey(User, default=1, related_name='orupload_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='orupload_modify')
+    modifydate = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'orupload'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('orupload:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.filename
+
+    def __unicode__(self):
+        return self.filename

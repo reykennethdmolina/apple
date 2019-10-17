@@ -86,7 +86,7 @@ class Apmain(models.Model):
     releasedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
-    digicvmain_id = models.IntegerField(default=0)
+    #digicvmain_id = models.IntegerField(default=0)
 
     # for CV
     cvamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -387,3 +387,26 @@ class Apdetailbreakdowntemp(models.Model):
 
     def status_verbose(self):
         return dict(Apdetailbreakdowntemp.STATUS_CHOICES)[self.status]
+
+
+class Apupload(models.Model):
+    apmain = models.ForeignKey('accountspayable.Apmain', related_name='apmain_apupload_id', null=True,blank=True)
+    filename = models.CharField(max_length=250, null=True, blank=True)
+    filetype = models.CharField(max_length=250, null=True, blank=True)
+    enterby = models.ForeignKey(User, default=1, related_name='apupload_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='apupload_modify')
+    modifydate = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'apupload'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('apupload:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.filename
+
+    def __unicode__(self):
+        return self.filename
