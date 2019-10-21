@@ -79,7 +79,6 @@ class Cvmain(models.Model):
     releaseto = models.CharField(max_length=250, null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
-    digicvmain_id = models.IntegerField(default=0)
 
     received = models.IntegerField(default=0)
     received_by = models.ForeignKey(User, default=1, related_name='cvmain_received', null=True)
