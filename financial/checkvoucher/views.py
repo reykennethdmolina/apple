@@ -555,7 +555,7 @@ class Pdf(PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super(PDFTemplateView, self).get_context_data(**kwargs)
 
-        context['cvmain'] = Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['cvmain'] = Cvmain.objects.get(pk=self.kwargs['pk'])
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         context['detail'] = Cvdetail.objects.filter(isdeleted=0). \
             filter(cvmain_id=self.kwargs['pk']).order_by('item_counter')
@@ -572,7 +572,7 @@ class Pdf(PDFTemplateView):
         context['orientation'] = 'portrait'
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
-        printedcv = Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        printedcv = Cvmain.objects.get(pk=self.kwargs['pk'])
         printedcv.print_ctr += 1
         printedcv.save()
         return context
@@ -586,7 +586,7 @@ class Voucher(PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super(PDFTemplateView, self).get_context_data(**kwargs)
 
-        context['cvmain'] = Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['cvmain'] = Cvmain.objects.get(pk=self.kwargs['pk'])
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         context['detail'] = Cvdetail.objects.filter(isdeleted=0). \
             filter(cvmain_id=self.kwargs['pk']).order_by('item_counter')
@@ -607,7 +607,7 @@ class Voucher(PDFTemplateView):
         context['orientation'] = 'portrait'
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
-        printedcv = Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        printedcv = Cvmain.objects.get(pk=self.kwargs['pk'])
         printedcv.print_ctr += 1
         printedcv.save()
         return context
