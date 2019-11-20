@@ -228,6 +228,8 @@ def transgenerate(request):
     if prevmonth != 12:
         prevyear = prevdate.year - 1
 
+    print prevyear
+
     begbalamount = 0
     endbalamount = 0
     endcode = 'D'
@@ -250,11 +252,13 @@ def transgenerate(request):
 
     begbal =Bankaccountsummary.objects.filter(year=prevyear, bankaccount_id=bankaccount).first()
     adtrans = query_sumtransaction(adfromdate, str(nfrom.year)+'-01-01', cashinbank, bankaccount)
+
     adtransnet = 0
     adtranscode = 'D'
     for adtrans in adtrans:
         adtransnet = float(adtrans.debitamount) - float(adtrans.creditamount)
         adtranscode = adtrans.balcode
+
 
     begcode = 'D'
     bbamount = 0
@@ -275,6 +279,9 @@ def transgenerate(request):
             begcode = begbal.beg_code
         else:
             begcode = adtranscode
+    else:
+        begbalamount =float(abs(adtransnet))
+        begcode = adtranscode
 
     if begcode == 'C':
         endbalamount = (float(begbalamount) * -1) + float(netamount)
@@ -283,9 +290,6 @@ def transgenerate(request):
 
     if float(endbalamount) < 0:
         endcode = 'C'
-
-    print endbalamount
-    print endcode
 
     context['result'] = query_transaction(dto, dfrom, cashinbank, bankaccount)
     context['dfrom'] = dfrom
@@ -307,6 +311,7 @@ def transgenerate(request):
 
 def query_sumtransaction(dto, dfrom, chart, bankaccount):
     dfrom  = str(dfrom)[0:11]
+    dto  = str(dto)[0:11]
     print "Transaction Query"
     ''' Create query '''
     cursor = connection.cursor()
@@ -326,19 +331,19 @@ def query_sumtransaction(dto, dfrom, chart, bankaccount):
             "LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
             "WHERE DATE(d.ap_date) >= '"+str(dfrom)+"' AND DATE(d.ap_date) <= '"+str(dto)+"' " \
             +str(chart_condition)+" "+str(chart_bankaccount)+"" \
-            "UNION " \
+            " UNION " \
             "SELECT 'CV' AS tran, d.item_counter, d.cv_num, d.cv_date, d.debitamount, d.creditamount, d.balancecode, d.bankaccount_id " \
             "FROM cvdetail AS d " \
             "LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
             "WHERE DATE(d.cv_date) >= '"+str(dfrom)+"' AND DATE(d.cv_date) <= '"+str(dto)+"' " \
             + str(chart_condition) + " " + str(chart_bankaccount) + "" \
-            "UNION " \
+            " UNION " \
             "SELECT 'JV' AS tran, d.item_counter, d.jv_num, d.jv_date, d.debitamount, d.creditamount, d.balancecode, d.bankaccount_id " \
             "FROM jvdetail AS d " \
             "LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
             "WHERE DATE(d.jv_date) >= '"+str(dfrom)+"' AND DATE(d.jv_date) <= '"+str(dto)+"' " \
             + str(chart_condition) + " " + str(chart_bankaccount) + "" \
-            "UNION " \
+            " UNION " \
             "SELECT 'OR' AS tran, d.item_counter, m.ornum, m.ordate, d.debitamount, d.creditamount, d.balancecode, d.bankaccount_id " \
             "FROM ormain AS m " \
             "LEFT OUTER JOIN ordetail AS d ON m.id = d.ormain_id " \
@@ -491,6 +496,9 @@ class GenerateTransExcel(View):
                 begcode = begbal.beg_code
             else:
                 begcode = adtranscode
+        else:
+            begbalamount = float(abs(adtransnet))
+            begcode = adtranscode
 
         if begcode == 'C':
             endbalamount = (float(begbalamount) * -1) + float(netamount)
@@ -644,7 +652,7 @@ def query_cashinbanktransaction(prevyear, dto, dfrom, chart, bankaccount):
     if bankaccount != '':
         chart_bankaccount = "AND d.bankaccount_id = '" + str(bankaccount) + "'"
 
-    query = "SELECT b.id, bank.code AS bankcode, bankaccounttype.description AS bankaccounttype, b.code, b.bankaccounttype_id, bs.accountnumber, IFNULL(bs.beg_amount, 0) AS beg_amount, bs.beg_code, bs.year, " \
+    query = "SELECT b.id, bank.code AS bankcode, bankaccounttype.description AS bankaccounttype, b.code, b.bankaccounttype_id, b.accountnumber, IFNULL(bs.beg_amount, 0) AS beg_amount, bs.beg_code, bs.year, " \
             "IFNULL(adtran.debitamount, 0) AS debitamount, IFNULL(adtran.creditamount, 0) AS creditamount, IFNULL(adtran.balcode, 'D') AS balcode, " \
             "IF (bs.beg_code = 'D' && IFNULL(adtran.balcode, 'D') = 'D' || bs.beg_code = 'C' && IFNULL(adtran.balcode, 'D') = 'C', (ABS(IFNULL(adtran.netamount, 0)) + IFNULL(bs.beg_amount, 0)), ABS((ABS(IFNULL(adtran.netamount, 0))) - IFNULL(bs.beg_amount, 0))) AS endamount, "\
             "IF (bs.beg_code = adtran.balcode, bs.beg_code, IF (ABS(IFNULL(adtran.netamount, 0)) > IFNULL(bs.beg_amount, 0), IFNULL(adtran.balcode, 'D'), IFNULL(bs.beg_code, 'D'))) AS endcode " \
@@ -684,7 +692,7 @@ def query_cashinbanktransaction(prevyear, dto, dfrom, chart, bankaccount):
             "LEFT OUTER JOIN bank AS bank ON bank.id = b.bank_id " \
             "WHERE b.isdeleted = 0 ORDER BY b.code"
 
-    print query
+    #   print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
