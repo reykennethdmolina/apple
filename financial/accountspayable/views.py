@@ -3303,3 +3303,433 @@ def upload(request):
         uploaded_file_url = fs.url(filename)
         return HttpResponseRedirect('/accountspayable/' + str(id) )
     return HttpResponseRedirect('/accountspayable/' + str(id) )
+
+
+class LedgerView(ListView):
+    model = Apmain
+    template_name = 'accountspayable/ledger/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+
+        return context
+
+def query_ledger(report, type, dfrom, dto, apnontrade, payee):
+
+    if dfrom <= '2018-12-31':
+        dfrom = '2019-01-01'
+    # print "Summary"
+
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    if report == 'detail':
+        query = "SELECT z.* " \
+                "FROM ( " \
+                "   SELECT 'AP' AS tran, d.ap_num AS trannum, d.ap_date AS trandate, IFNULL(d.debitamount, 0) AS debitamount, IFNULL(d.creditamount, 0) AS creditamount, (d.debitamount + d.creditamount) AS amount, d.balancecode, m.particulars " \
+                "   FROM apdetail AS d " \
+                "   LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
+                "   WHERE d.chartofaccount_id = '"+str(apnontrade)+"' AND m.payee_id = '"+str(payee)+"' AND d.supplier_id = '"+str(payee)+"' " \
+                "   AND d.ap_date >= '"+str(dfrom)+"' AND d.ap_date <= '"+str(dto)+"' " \
+                "   UNION " \
+                "   SELECT 'CV' AS tran, d.cv_num, d.cv_date, IFNULL(d.debitamount, 0) AS debitamount, IFNULL(d.creditamount, 0) AS creditamount, (d.debitamount + d.creditamount) AS amount, d.balancecode, m.particulars " \
+                "   FROM cvdetail AS d " \
+                "   LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
+                "   WHERE d.chartofaccount_id = '"+str(apnontrade)+"' AND m.payee_id = '"+str(payee)+"' AND d.supplier_id = '"+str(payee)+"' " \
+                "   AND d.cv_date >= '"+str(dfrom)+"' AND d.cv_date <= '"+str(dto)+"' " \
+                "   UNION " \
+                "   SELECT 'JV' AS tran, d.jv_num, d.jv_date, IFNULL(d.debitamount, 0) AS debitamount, IFNULL(d.creditamount, 0) AS creditamount, (d.debitamount + d.creditamount) AS amount, d.balancecode, m.particular " \
+                "   FROM jvdetail AS d " \
+                "   LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
+                "   WHERE d.chartofaccount_id = '"+str(apnontrade)+"' AND d.supplier_id = '"+str(payee)+"' " \
+                "   AND d.jv_date >= '"+str(dfrom)+"' AND d.jv_date <= '"+str(dto)+"' " \
+                ") AS z ORDER BY z.trandate, z.tran"
+    else:
+        con_ap = ""
+        con_cv = ""
+        con_jv = ""
+        con_beg = ""
+        if payee != 'all':
+            con_ap = "AND m.payee_id = '" + str(payee) + "' AND d.supplier_id = '" + str(payee) + "'"
+            con_cv = " AND m.payee_id = '" + str(payee) + "' AND d.supplier_id = '" + str(payee) + "'"
+            con_jv = "AND d.supplier_id = '" + str(payee) + "' "
+            con_beg = " AND d.code_id = '" + str(payee) + "' "
+
+        query = "SELECT s.code, s.name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, (SUM(z.debitamount) - SUM(z.creditamount)) AS balance, IF(SUM(z.debitamount) > SUM(z.creditamount), 'D', 'C') AS balancecode " \
+                "FROM ( " \
+                "   SELECT m.payee_id, 'AP' AS tran, d.ap_num AS trannum, d.ap_date AS trandate, SUM(IFNULL(d.debitamount, 0)) AS debitamount, SUM(IFNULL(d.creditamount, 0)) AS creditamount, d.balancecode " \
+                "   FROM apdetail AS d " \
+                "   LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
+                "   WHERE d.chartofaccount_id = '" + str(apnontrade) + "'" + str(con_ap) + " " \
+                "   AND d.ap_date >= '" + str(dfrom) + "' AND d.ap_date <= '" + str(dto) + "' " \
+                "   GROUP BY d.supplier_id" \
+                "   UNION " \
+                "   SELECT m.payee_id, 'CV' AS tran, d.cv_num, d.cv_date, SUM(IFNULL(d.debitamount, 0)) AS debitamount, SUM(IFNULL(d.creditamount, 0)) AS creditamount, d.balancecode " \
+                "   FROM cvdetail AS d " \
+                "   LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
+                "   WHERE d.chartofaccount_id = '" + str(apnontrade) + "'" + str(con_cv) + " " \
+                "   AND d.cv_date >= '" + str(dfrom) + "' AND d.cv_date <= '" + str(dto) + "' " \
+                "   GROUP BY d.supplier_id" \
+                "   UNION " \
+                "   SELECT d.supplier_id, 'JV' AS tran, d.jv_num, d.jv_date, SUM(IFNULL(d.debitamount, 0)) AS debitamount, SUM(IFNULL(d.creditamount, 0)) AS creditamount, d.balancecode " \
+                "   FROM jvdetail AS d " \
+                "   LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
+                "   WHERE d.chartofaccount_id = '" + str(apnontrade) + "'" + str(con_jv) + " " \
+                "   AND d.jv_date >= '" + str(dfrom) + "' AND d.jv_date <= '" + str(dto) + "' " \
+                "   GROUP BY d.supplier_id	UNION SELECT d.code_id, 'BEG' AS tran, '' AS trannum, d.beg_date, SUM(IF (d.beg_code = 'D', d.beg_amt, 0)) AS debitamount, SUM(IF (d.beg_code = 'C', d.beg_amt, 0)) AS creditamount, d.beg_code " \
+                "   FROM beginningbalance AS d " \
+                "   WHERE d.accountcode = '2111100000'" + str(con_beg) + " " \
+                "   GROUP BY d.code_id	" \
+                ") AS z LEFT OUTER JOIN supplier AS s ON s.id = z.payee_id WHERE z.payee_id IS NOT NULL GROUP BY z.payee_id ORDER BY s.name, s.code"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_begbalance(account, payee):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    con = ""
+    if payee != 'all':
+        con = "AND code_id = '" + str(payee) + "'"
+
+    query = "SELECT * FROM beginningbalance WHERE accountcode = '"+str(account)+"' "+str(con)+""
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+
+@method_decorator(login_required, name='dispatch')
+class GenerateLedgerPDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        type = request.GET['type']
+        payee = request.GET['payee']
+
+        title = "Accounts Payable Ledger"
+        list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
+
+        supplier = 'ALL'
+
+        begcode = 'C'
+        begamount = 0
+        runbalance = 0
+
+        if report == '1':
+            sup = Supplier.objects.filter(code=payee).first()
+            supplier = str(sup.code)+' - '+str(sup.name)
+            apnontrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
+
+            begbalance = query_begbalance(apnontrade.accountcode, sup.id)
+            apcode = apnontrade.balancecode
+
+            if (begbalance):
+                begcode = begbalance[0].beg_code
+                begamount = begbalance[0].beg_amt
+
+            if (apcode != begcode):
+                begamount = begamount * -1
+
+            addbeg = []
+            if dfrom > '2018-12-31':
+                addbeg = query_ledger('detail', type, '2019-01-01', dfrom, apnontrade.id, sup.id)
+
+                if addbeg:
+                    dfx = pd.DataFrame(addbeg)
+                    runbalancex = begamount
+                    amountx = 0
+                    for index, row in dfx.iterrows():
+                        if row.balancecode != apcode:
+                            amountx = row.amount * -1
+                        else:
+                            amountx = row.amount
+                        runbalancex += amountx
+
+                    begamount = runbalancex
+                    if begamount < 0:
+                        begcode = 'C'
+
+            q = query_ledger('detail', type, dfrom, dto, apnontrade.id, sup.id)
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                runbalance = begamount
+                amount = 0
+                for index, row in df.iterrows():
+                    if row.balancecode != apcode:
+                        amount = row.amount * -1
+                    else:
+                        amount = row.amount
+
+                    runbalance += amount
+
+                    new_list.append({'tran': row.tran, 'trannum': row.trannum, 'trandate': row.trandate,
+                         'debitamount': row.debitamount, 'creditamount': row.creditamount, 'balamount': runbalance, 'particular': row.particulars })
+
+                list = new_list
+
+        elif report == '2':
+            apnontrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
+            apcode = apnontrade.balancecode
+            if type == '1':
+                sup = Supplier.objects.filter(code=payee).first()
+                supplier = str(sup.code) + ' - ' + str(sup.name)
+                q = query_ledger('summary', type, dfrom, dto, apnontrade.id, sup.id)
+                #begbalance = query_begbalance(apnontrade.accountcode, sup.id)
+            else:
+                q = query_ledger('summary', type, dfrom, dto, apnontrade.id, 'all')
+                #begbalance = query_begbalance(apnontrade.accountcode, 'all')
+
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                for index, row in df.iterrows():
+
+                    if row['balancecode'] != apcode:
+                        amount = row['balance'] * -1
+                    else:
+                        amount = abs(row['balance'])
+
+                   # print str(row['code'])+' | '+str(amount)
+
+                    new_list.append({'code': row['code'], 'name': row['name'], 'balance': amount,
+                                    'balancecode': row['balancecode'],})
+
+                list = new_list
+
+        else:
+            list = []
+
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
+            "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
+            "username": request.user,
+            'begamount': begamount,
+            'endamount': runbalance,
+            'supplier': supplier,
+        }
+        if report == '1':
+            return Render.render('accountspayable/ledger/report_1.html', context)
+        elif report == '2':
+            return Render.render('accountspayable/ledger/report_2.html', context)
+        else:
+            return Render.render('accountspayable/ledger/report_1.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GenerateExcelLedger(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        type = request.GET['type']
+        payee = request.GET['payee']
+
+        title = "Accounts Payable Ledger"
+        list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
+
+        supplier = 'ALL'
+
+        begcode = 'C'
+        begamount = 0
+        runbalance = 0
+
+        if report == '1':
+            if type == '1':
+                title = "Accounts Payable Ledger - Per Supplier"
+            else:
+                title = "Accounts Payable Ledger - All Summary"
+            sup = Supplier.objects.filter(code=payee).first()
+            supplier = str(sup.code)+' - '+str(sup.name)
+            apnontrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
+
+            begbalance = query_begbalance(apnontrade.accountcode, sup.id)
+            apcode = apnontrade.balancecode
+
+            if (begbalance):
+                begcode = begbalance[0].beg_code
+                begamount = begbalance[0].beg_amt
+
+            if (apcode != begcode):
+                begamount = begamount * -1
+
+            addbeg = []
+            if dfrom > '2018-12-31':
+                addbeg = query_ledger('detail', type, '2019-01-01', dfrom, apnontrade.id, sup.id)
+
+                if addbeg:
+                    dfx = pd.DataFrame(addbeg)
+                    runbalancex = begamount
+                    amountx = 0
+                    for index, row in dfx.iterrows():
+                        if row.balancecode != apcode:
+                            amountx = row.amount * -1
+                        else:
+                            amountx = row.amount
+                        runbalancex += amountx
+
+                    begamount = runbalancex
+                    if begamount < 0:
+                        begcode = 'C'
+
+            q = query_ledger('detail', type, dfrom, dto, apnontrade.id, sup.id)
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                runbalance = begamount
+                amount = 0
+                for index, row in df.iterrows():
+                    if row.balancecode != apcode:
+                        amount = row.amount * -1
+                    else:
+                        amount = row.amount
+
+                    runbalance += amount
+
+                    new_list.append({'tran': row.tran, 'trannum': row.trannum, 'trandate': row.trandate,
+                         'debitamount': row.debitamount, 'creditamount': row.creditamount, 'balamount': runbalance, 'particular': row.particulars })
+
+                list = new_list
+
+        elif report == '2':
+            if type == '1':
+                title = "Accounts Payable Ledger - Summary - Per Supplier"
+            else:
+                title = "Accounts Payable Ledger - Summary - All Summary"
+            apnontrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
+            apcode = apnontrade.balancecode
+            if type == '1':
+                sup = Supplier.objects.filter(code=payee).first()
+                supplier = str(sup.code) + ' - ' + str(sup.name)
+                q = query_ledger('summary', type, dfrom, dto, apnontrade.id, sup.id)
+                #begbalance = query_begbalance(apnontrade.accountcode, sup.id)
+            else:
+                q = query_ledger('summary', type, dfrom, dto, apnontrade.id, 'all')
+                #begbalance = query_begbalance(apnontrade.accountcode, 'all')
+
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                for index, row in df.iterrows():
+
+                    if row['balancecode'] != apcode:
+                        amount = row['balance'] * -1
+                    else:
+                        amount = abs(row['balance'])
+
+                   # print str(row['code'])+' | '+str(amount)
+
+                    new_list.append({'code': row['code'], 'name': row['name'], 'balance': amount,
+                                    'balancecode': row['balancecode'],})
+
+                list = new_list
+
+        else:
+            list = []
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', str(title), bold)
+        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+        if report == '1':
+            worksheet.write('A3', str(supplier), bold)
+
+        filename = "accountspayableledger.xlsx"
+
+        if report == '1':
+            # header
+            worksheet.write('A5', 'Date', bold)
+            worksheet.write('B5', 'Ref', bold)
+            worksheet.write('C5', 'Number', bold)
+            worksheet.write('D5', 'Particulars', bold)
+            worksheet.write('E5', 'Debit', bold)
+            worksheet.write('F5', 'Credit', bold)
+            worksheet.write('G5', 'Balance', bold)
+
+            row = 5
+            col = 0
+
+            worksheet.write(row, col + 5, 'beginning balance')
+            worksheet.write(row, col + 6, float(format(begamount, '.2f')))
+            row += 1
+
+            for data in list:
+                worksheet.write(row, col, data['trandate'], formatdate)
+                worksheet.write(row, col + 1, data['tran'])
+                worksheet.write(row, col + 2, data['trannum'])
+                worksheet.write(row, col + 3, data['particular'])
+                worksheet.write(row, col + 4, float(format(data['debitamount'], '.2f')))
+                worksheet.write(row, col + 5, float(format(data['creditamount'], '.2f')))
+                worksheet.write(row, col + 6, float(format(data['balamount'], '.2f')))
+                row += 1
+
+            worksheet.write(row, col + 5, 'ending balance')
+            worksheet.write(row, col + 6, float(format(runbalance, '.2f')))
+
+            filename = "accountspayableledger.xlsx"
+
+        elif report == '2':
+            worksheet.write('A4', '', bold)
+            worksheet.write('B4', 'Supplier', bold)
+            worksheet.write('C4', 'Balance', bold)
+
+            row = 4
+            col = 0
+
+            for data in list:
+                worksheet.write(row, col, data['code'])
+                worksheet.write(row, col + 1, data['name'])
+                worksheet.write(row, col + 6, float(format(data['balance'], '.2f')))
+                row += 1
+
+            filename = "accountspayableledgersummary.xlsx"
+
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response

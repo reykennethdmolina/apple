@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    {% load custom %}
+    <meta charset="UTF-8">
+    <title>{{ report_type }} {{ report_subtype }}</title>
+    <style>
+        @page {
+            size: LETTER PORTRAIT;
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                right: 1cm;
+                top: 1cm;
+                height: 6cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
+            }
+            @frame content_frame {
+                top: 6.3cm; left: 1cm; width: 19.5cm; height: 21.5cm;
+            }
+        }
+        body{
+            font-size: 12px;
+            font-family: 'Times New Roman';
+        }
+        .title{
+            font-size: 130%;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            background-color: #fff;
+        }
+        .table th {
+            vertical-align: top;
+            border-bottom: 2px solid #000;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size:15px;
+        }
+        .table td {
+            padding: 1px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #000;
+        }
+        .table tbody + tbody {
+            border-top: 2px solid #000;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <div class="card">
+       <table>
+            <tr>
+                <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address1 }}</p></td>
+                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address2 }}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+            </tr>
+           <tr>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="75%"><p class="title">{{ title|upper }}</p></td>
+            </tr>
+           <tr>
+                <td width="75%"><p class="title">{{ supplier }}</p></td>
+            </tr>
+            <tr>
+                <td width="75%"><p>for the period {{ datefrom|date:'M d, Y' }} to {{ dateto|date:'M d, Y' }}</p></td>
+            </tr>
+        </table>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="text-align:left;width:120px">Date</th>
+                    <th style="text-align:center;width:70px">Ref</th>
+                    <th style="text-align:left;width:150px">Number</th>
+                    <th style="text-align:left;width:300px;">Particulars</th>
+                    <th style="text-align:center;width:150px">Debit</th>
+                    <th style="text-align:center;width:150px">Credit</th>
+                    <th style="text-align:right;width:150px;">Balance</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<table id="content-data">
+    <tbody>
+    <tr>
+        <td colspan="6" style="text-align:center;vertical-align:top;"><i>beginning balance</i></td>
+        <td style="text-align:right;vertical-align:top;width:150px;">{{ begamount|default:"0"|floatformat:2|intcomma|to_negative }}</td>
+    </tr>
+    <tr>
+        <td colspan="7"></td>
+    </tr>
+    {% for item in list %}
+        <tr>
+            <td style="text-align:left;width:120px;vertical-align:top;">{{ item.trandate|date:'Y-m-d' }}</td>
+            <td style="text-align:left     ;width:70px;vertical-align:top;">{{ item.tran|upper }}</td>
+            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.trannum|upper }}</td>
+            <td style="text-align:left;vertical-align:top;width:300px;">{{ item.particular }}</td>
+            <td style="text-align:right;vertical-align:top;width:150px;">{{ item.debitamount|default:""|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;vertical-align:top;width:150px;">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;vertical-align:top;width:150px;">{{ item.balamount|default:""|floatformat:2|intcomma|to_negative }}</td>
+        </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="7"></td>
+    </tr>
+    <tr>
+        <td colspan="6" style="text-align:center;vertical-align:top;"><i>ending balance</i></td>
+        <td style="text-align:right;vertical-align:top;width:150px;">{{ endamount|default:"0"|floatformat:2|intcomma|to_negative }}</td>
+    </tr>
+    </tbody>
+</table>
+
+<div id="footer_content" style="text-align:right">
+    <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
+</div>
+
+</body>
+</html>

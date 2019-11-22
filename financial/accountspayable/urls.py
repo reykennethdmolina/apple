@@ -25,5 +25,8 @@ urlpatterns = [
     url(r'^gounpost/$', views.gounpost, name='gounpost'),
     url(r'^digibanker/$', views.digibanker, name='digibanker'),
     url(r'^upload/$', views.upload, name='upload'),
+    url(r'^ledger/$', views.LedgerView.as_view(), name='ledger'),
+    url(r'^pdfledger/$', views.GenerateLedgerPDF.as_view(), name='pdfledger'),
+    url(r'^excelledger/$', views.GenerateExcelLedger.as_view(), name='excelledger'),
     #url(r'^(?P<pk>[0-9]+)/disapproved/$', views.DisapprovedView.as_view(), name='disapproved'),
 ]
