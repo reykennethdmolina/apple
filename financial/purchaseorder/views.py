@@ -1437,12 +1437,12 @@ class Pdf(PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
-        context['pomain'] = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
-        context['detail'] = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0, status='A').\
+        context['pomain'] = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['detail'] = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0).\
             order_by('item_counter')
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
 
-        po_detail_aggregates = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0, status='A').\
+        po_detail_aggregates = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0).\
             aggregate(Sum('quantity'),
                       Sum('grossamount'),
                       Sum('discountamount'),
