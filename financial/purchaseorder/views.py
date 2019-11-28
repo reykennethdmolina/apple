@@ -1437,12 +1437,12 @@ class Pdf(PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
-        context['pomain'] = Pomain.objects.get(pk=self.kwargs['pk'])
-        context['detail'] = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0).\
+        context['pomain'] = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['detail'] = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0, status='A').\
             order_by('item_counter')
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
 
-        po_detail_aggregates = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0).\
+        po_detail_aggregates = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0, status='A').\
             aggregate(Sum('quantity'),
                       Sum('grossamount'),
                       Sum('discountamount'),
@@ -1462,7 +1462,7 @@ class Pdf(PDFTemplateView):
         context['orientation'] = 'portrait'
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
-        printedpo = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedpo = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
         printedpo.print_ctr += 1
         printedpo.save()
 
