@@ -3526,7 +3526,8 @@ class GenerateLedgerPDF(View):
                          'debitamount': row.debitamount, 'creditamount': row.creditamount, 'balamount': runbalance, 'particular': row.particulars })
 
                 list = new_list
-
+            else:
+                runbalance = begamount
         elif report == '2':
             title = "Schedule of Accounts Payable"
             aptrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
