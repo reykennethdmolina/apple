@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
@@ -15,9 +15,10 @@ from currency.models import Currency
 from apsubtype.models import Apsubtype
 from aptype.models import Aptype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
-from processing_transaction.models import Poapvtransaction
+from processing_transaction.models import Poapvtransaction, Apvcvtransaction
 from purchaseorder.models import Pomain, Podetail
 from replenish_rfv.models import Reprfvmain, Reprfvdetail
+from replenish_pcv.models import Reppcvmain, Reppcvdetail
 from department.models import Department
 from unit.models import Unit
 from inputvat.models import Inputvat
@@ -31,7 +32,7 @@ from customer.models import Customer
 from annoying.functions import get_object_or_None
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
-from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp
+from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp, Apupload
 from django.template.loader import render_to_string
 from endless_pagination.views import AjaxListView
 from django.db.models import Q, Sum
@@ -41,6 +42,19 @@ import datetime
 from django.utils.dateformat import DateFormat
 from utils.mixins import ReportContentMixin
 from decimal import Decimal
+import datetime
+from django.utils.dateformat import DateFormat
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+from collections import namedtuple
+from django.db import connection
+import pandas as pd
+import io
+import xlsxwriter
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
 
 class IndexView(AjaxListView):
@@ -52,7 +66,16 @@ class IndexView(AjaxListView):
     page_template = 'accountspayable/index_list.html'
 
     def get_queryset(self):
-        query = Apmain.objects.all().filter(isdeleted=0)
+
+        if self.request.user.is_superuser:
+            query = Apmain.objects.all()
+        else:
+            # user_employee = get_object_or_None(Employee, user=self.request.user)
+            #query = Apmain.objects.filter(designatedapprover=self.request.user.id) | Apmain.objects.filter(
+             #   enterby=self.request.user.id)
+            #query = query.filter(isdeleted=0)
+            query = Apmain.objects.all()
+
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
             query = query.filter(Q(apnum__icontains=keysearch) |
@@ -78,6 +101,9 @@ class IndexView(AjaxListView):
         context['atax'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname')
+        creator = Apmain.objects.filter(isdeleted=0).values_list('enterby_id', flat=True)
+        context['creator'] = User.objects.filter(id__in=set(creator)).order_by('first_name', 'last_name')
         context['pk'] = 0
 
         return context
@@ -144,6 +170,11 @@ class DetailView(DetailView):
         context['totalpayment'] = aptrade_total['creditamount__sum']
         context['wtaxamount'] = wtax_total['creditamount__sum']
         context['wtaxrate'] = self.object.ataxrate
+        context['potrans'] = Poapvtransaction.objects.filter(apmain_id=self.object.pk)
+        context['cvtrans'] = Apvcvtransaction.objects.filter(apmain_id=self.object.pk)
+        context['uploadlist'] = Apupload.objects.filter(apmain_id=self.object.pk).order_by('enterdate')
+
+        #print context['potrans']
 
         return context
 
@@ -172,8 +203,9 @@ class CreateView(CreateView):
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = 0
-        context['designatedapprover'] = User.objects.filter(is_active=1).order_by('first_name')
-        context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain=None).order_by('enterdate')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).order_by('first_name')
+        context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain__isnull=True).order_by('enterdate')
+        context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, apmain__isnull=True).order_by('enterdate')
 
         #lookup
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
@@ -239,7 +271,10 @@ class CreateView(CreateView):
         mainid = self.object.id
         num = self.object.apnum
         secretkey = self.request.POST['secretkey']
-        savedetail(source, mainid, num, secretkey, self.request.user)
+
+        apmaindate = self.object.apdate
+
+        savedetail(source, mainid, num, secretkey, self.request.user, apmaindate)
 
         # save apmain in reprfvmain, reprfvdetail, ofmain
         for i in range(len(self.request.POST.getlist('rfv_checkbox'))):
@@ -251,6 +286,20 @@ class CreateView(CreateView):
                 data.apmain = self.object
                 data.save()
                 ofmain = Ofmain.objects.get(reprfvdetail=data)
+                ofmain.apmain = self.object
+                ofmain.save()
+        # save apmain in reprfvmain, reprfvdetail, ofmain
+
+        # save apmain in reppcvmain, reppcvdetail, ofmain
+        for i in range(len(self.request.POST.getlist('pcv_checkbox'))):
+            reppcvmain = Reppcvmain.objects.get(pk=int(self.request.POST.getlist('pcv_checkbox')[i]))
+            reppcvmain.apmain = self.object
+            reppcvmain.save()
+            reppcvdetail = Reppcvdetail.objects.filter(reppcvmain=reppcvmain)
+            for data in reppcvdetail:
+                data.apmain = self.object
+                data.save()
+                ofmain = Ofmain.objects.get(reppcvdetail=data)
                 ofmain.apmain = self.object
                 ofmain.save()
         # save apmain in reprfvmain, reprfvdetail, ofmain
@@ -277,7 +326,7 @@ class UpdateView(UpdateView):
               'bankaccount', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars', 'remarks',
-              'currency', 'fxrate', 'designatedapprover']
+              'currency', 'fxrate', 'designatedapprover', 'apstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('accountspayable.change_apmain'):
@@ -387,7 +436,7 @@ class UpdateView(UpdateView):
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
-        context['designatedapprover'] = User.objects.filter(is_active=1).order_by('first_name')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).order_by('first_name')
         context['originalapstatus'] = Apmain.objects.get(pk=self.object.id).apstatus
         context['actualapprover'] = None if Apmain.objects.get(
             pk=self.object.id).actualapprover is None else Apmain.objects.get(pk=self.object.id).actualapprover.id
@@ -524,7 +573,11 @@ class UpdateView(UpdateView):
             mainid = self.object.id
             num = self.object.apnum
             secretkey = self.request.POST['secretkey']
-            updatedetail(source, mainid, num, secretkey, self.request.user)
+            print self.object.apdate
+            print 'apdate'
+            apmaindate = self.object.apdate
+
+            updatedetail(source, mainid, num, secretkey, self.request.user, apmaindate)
 
             totaldebitamount = Apdetail.objects.filter(isdeleted=0).filter(apmain_id=self.object.id).aggregate(
                 Sum('debitamount'))
@@ -612,7 +665,7 @@ class Pdf(PDFTemplateView):
         context['apmain'] = Apmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         context['detail'] = Apdetail.objects.filter(isdeleted=0). \
-            filter(apmain_id=self.kwargs['pk']).order_by('item_counter')
+            filter(apmain_id=self.kwargs['pk']).order_by('-balancecode', 'item_counter')
         context['totaldebitamount'] = Apdetail.objects.filter(isdeleted=0). \
             filter(apmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
         context['totalcreditamount'] = Apdetail.objects.filter(isdeleted=0). \
@@ -664,54 +717,115 @@ class Pdf(PDFTemplateView):
         return context
 
 
+# @csrf_exempt
+# def approve(request):
+#     if request.method == 'POST':
+#         ap_for_approval = Apmain.objects.get(apnum=request.POST['apnum'])
+#         if request.user.has_perm('accountspayable.approve_allap') or \
+#                 request.user.has_perm('accountspayable.approve_assignedap'):
+#             if request.user.has_perm('accountspayable.approve_allap') or \
+#                     (request.user.has_perm('accountspayable.approve_assignedap') and
+#                              ap_for_approval.designatedapprover == request.user):
+#                 print "back to in-process = " + str(request.POST['backtoinprocess'])
+#                 if request.POST['originalapstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
+#                     ap_for_approval.apstatus = request.POST['approverresponse']
+#                     ap_for_approval.isdeleted = 0
+#                     if request.POST['approverresponse'] == 'D':
+#                         ap_for_approval.status = 'C'
+#                     else:
+#                         ap_for_approval.status = 'A'
+#                     ap_for_approval.approverresponse = request.POST['approverresponse']
+#                     ap_for_approval.responsedate = request.POST['responsedate']
+#                     ap_for_approval.actualapprover = User.objects.get(pk=request.user.id)
+#                     ap_for_approval.approverremarks = request.POST['approverremarks']
+#                     ap_for_approval.releaseby = None
+#                     ap_for_approval.releasedate = None
+#                     ap_for_approval.save()
+#                     data = {
+#                         'status': 'success',
+#                         'apnum': ap_for_approval.apnum,
+#                         'newapstatus': ap_for_approval.apstatus,
+#                     }
+#                 else:
+#                     data = {
+#                         'status': 'error',
+#                     }
+#             else:
+#                 data = {
+#                     'status': 'error',
+#                 }
+#         else:
+#             data = {
+#                 'status': 'error',
+#             }
+#     else:
+#         data = {
+#             'status': 'error',
+#         }
+#
+#     return JsonResponse(data)
+
 @csrf_exempt
 def approve(request):
     if request.method == 'POST':
-        ap_for_approval = Apmain.objects.get(apnum=request.POST['apnum'])
-        if request.user.has_perm('accountspayable.approve_allap') or \
-                request.user.has_perm('accountspayable.approve_assignedap'):
-            if request.user.has_perm('accountspayable.approve_allap') or \
-                    (request.user.has_perm('accountspayable.approve_assignedap') and
-                             ap_for_approval.designatedapprover == request.user):
-                print "back to in-process = " + str(request.POST['backtoinprocess'])
-                if request.POST['originalapstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
-                    ap_for_approval.apstatus = request.POST['approverresponse']
-                    ap_for_approval.isdeleted = 0
-                    if request.POST['approverresponse'] == 'D':
-                        ap_for_approval.status = 'C'
-                    else:
-                        ap_for_approval.status = 'A'
-                    ap_for_approval.approverresponse = request.POST['approverresponse']
-                    ap_for_approval.responsedate = request.POST['responsedate']
-                    ap_for_approval.actualapprover = User.objects.get(pk=request.user.id)
-                    ap_for_approval.approverremarks = request.POST['approverremarks']
-                    ap_for_approval.releaseby = None
-                    ap_for_approval.releasedate = None
-                    ap_for_approval.save()
-                    data = {
-                        'status': 'success',
-                        'apnum': ap_for_approval.apnum,
-                        'newapstatus': ap_for_approval.apstatus,
-                    }
-                else:
-                    data = {
-                        'status': 'error',
-                    }
-            else:
-                data = {
-                    'status': 'error',
-                }
+        approval = Apmain.objects.get(pk=request.POST['id'])
+
+        if (approval.apstatus != 'R' and approval.status != 'O'):
+            approval.apstatus = 'A'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ 'Approved'
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
         else:
-            data = {
-                'status': 'error',
-            }
+            data = {'status': 'error'}
     else:
-        data = {
-            'status': 'error',
-        }
+        data = { 'status': 'error' }
 
     return JsonResponse(data)
 
+@csrf_exempt
+def disapprove(request):
+    if request.method == 'POST':
+        approval = Apmain.objects.get(pk=request.POST['id'])
+        if (approval.apstatus != 'R' and approval.status != 'O'):
+            approval.apstatus = 'D'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ request.POST['reason']
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def posting(request):
+    if request.method == 'POST':
+        release = Apmain.objects.filter(pk=request.POST['id']).update(apstatus='R',releaseby=User.objects.get(pk=request.user.id),releasedate= str(datetime.datetime.now()))
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def gopost(request):
+
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        release = Apmain.objects.filter(pk__in=ids).update(apstatus='R',releaseby=User.objects.get(pk=request.user.id),releasedate= str(datetime.datetime.now()))
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
 
 @csrf_exempt
 def release(request):
@@ -735,6 +849,20 @@ def release(request):
         }
     return JsonResponse(data)
 
+@csrf_exempt
+def gounpost(request):
+    if request.method == 'POST':
+        approval = Apmain.objects.get(pk=request.POST['id'])
+        if (approval.apstatus == 'R' and approval.status != 'O'):
+            approval.apstatus = 'A'
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
 
 @csrf_exempt
 def importreprfv(request):
@@ -851,11 +979,126 @@ def importreprfv(request):
         }
     return JsonResponse(data)
 
+@csrf_exempt
+def importreppcv(request):
+    if request.method == 'POST':
+        first_ofmain = Ofmain.objects.filter(reppcvmain=request.POST.getlist('checked_reppcvmain[]')[0], isdeleted=0,
+                                             status='A').first()
+        first_ofitem = Ofitem.objects.filter(ofmain=first_ofmain.id, isdeleted=0, status='A').first()
+
+        ofdetail = Ofdetail.objects.filter(ofmain__reppcvmain__in=set(request.POST.getlist('checked_reppcvmain[]'))).\
+            order_by('ofmain', 'item_counter')
+        # amount_totals = ofdetail.aggregate(Sum('debitamount'), Sum('creditamount'))
+        ofdetail = ofdetail.values('chartofaccount__accountcode',
+                                   'chartofaccount__id',
+                                   'chartofaccount__title',
+                                   'chartofaccount__description',
+                                   'bankaccount__id',
+                                   'bankaccount__accountnumber',
+                                   'department__id',
+                                   'department__departmentname',
+                                   'employee__id',
+                                   'employee__firstname',
+                                   'supplier__id',
+                                   'supplier__name',
+                                   'customer__id',
+                                   'customer__name',
+                                   'branch__id',
+                                   'branch__description',
+                                   'product__id',
+                                   'product__description',
+                                   'unit__id',
+                                   'unit__description',
+                                   'inputvat__id',
+                                   'inputvat__description',
+                                   'outputvat__id',
+                                   'outputvat__description',
+                                   'vat__id',
+                                   'vat__description',
+                                   'wtax__id',
+                                   'wtax__description',
+                                   'ataxcode__id',
+                                   'ataxcode__code',
+                                   'balancecode') \
+                           .annotate(Sum('debitamount'), Sum('creditamount')) \
+                           .order_by('-chartofaccount__accountcode',
+                                     'bankaccount__accountnumber',
+                                     'department__departmentname',
+                                     'employee__firstname',
+                                     'supplier__name',
+                                     'customer__name',
+                                     'branch__description',
+                                     'product__description',
+                                     'inputvat__description',
+                                     'outputvat__description',
+                                     '-vat__description',
+                                     'wtax__description',
+                                     'ataxcode__code')
+
+        # set isdeleted=2 for existing detailtemp data
+        data_table = validatetable(request.POST['table'])
+        deleteallquery(request.POST['table'], request.POST['secretkey'])
+
+        if 'apnum' in request.POST:
+            if request.POST['apnum']:
+                updateallquery(request.POST['table'], request.POST['apnum'])
+        # set isdeleted=2 for existing detailtemp data
+
+        i = 1
+        for detail in ofdetail:
+            apdetailtemp = Apdetailtemp()
+            apdetailtemp.item_counter = i
+            apdetailtemp.secretkey = request.POST['secretkey']
+            apdetailtemp.ap_date = datetime.datetime.now()
+            apdetailtemp.chartofaccount = detail['chartofaccount__id']
+            apdetailtemp.bankaccount = detail['bankaccount__id']
+            apdetailtemp.department = detail['department__id']
+            apdetailtemp.employee = detail['employee__id']
+            apdetailtemp.supplier = detail['supplier__id']
+            apdetailtemp.customer = detail['customer__id']
+            apdetailtemp.unit = detail['unit__id']
+            apdetailtemp.branch = detail['branch__id']
+            apdetailtemp.product = detail['product__id']
+            apdetailtemp.inputvat = detail['inputvat__id']
+            apdetailtemp.outputvat = detail['outputvat__id']
+            apdetailtemp.vat = detail['vat__id']
+            apdetailtemp.wtax = detail['wtax__id']
+            apdetailtemp.ataxcode = detail['ataxcode__id']
+            apdetailtemp.debitamount = detail['debitamount__sum']
+            apdetailtemp.creditamount = detail['creditamount__sum']
+            apdetailtemp.balancecode = detail['balancecode']
+            apdetailtemp.enterby = request.user
+            apdetailtemp.modifyby = request.user
+            apdetailtemp.save()
+            i += 1
+
+        context = {
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success',
+            'branch': first_ofmain.branch_id,
+            'vat': first_ofitem.vat_id,
+            'atc': first_ofitem.atc_id,
+            'inputvattype': first_ofitem.inputvattype_id,
+            'deferredvat': first_ofitem.deferredvat
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
 
 @method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
     model = Apmain
-    template_name = 'accountspayable/report.html'
+    template_name = 'accountspayable/report/index.html'
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
@@ -866,6 +1109,7 @@ class ReportView(ListView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        context['user'] = User.objects.filter(is_active=1).order_by('first_name')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
@@ -874,6 +1118,8 @@ class ReportView(ListView):
         context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
         context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
         context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        creator = Apmain.objects.filter(isdeleted=0).values_list('enterby_id', flat=True)
+        context['creator'] = User.objects.filter(id__in=set(creator)).order_by('first_name', 'last_name')
 
         return context
 
@@ -1902,3 +2148,1606 @@ def generatedefaultentries(request):
 
     return JsonResponse(data)
 
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        aptype = request.GET['aptype']
+        apsubtype = request.GET['apsubtype']
+        payee = request.GET['payee']
+        branch = request.GET['branch']
+        approver = request.GET['approver']
+        apstatus = request.GET['apstatus']
+        status = request.GET['status']
+        atc = request.GET['atc']
+        inputvattype = request.GET['inputvattype']
+        vat = request.GET['vat']
+        bankaccount = request.GET['bankaccount']
+        creator = request.GET['creator']
+        title = "Accounts Payable Voucher List"
+        list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
+
+        if report == '1':
+            title = "Accounts Payable Voucher Transaction List - Summary"
+            q = Apmain.objects.filter(isdeleted=0).order_by('apnum', 'apdate')
+            if dfrom != '':
+                q = q.filter(apdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(apdate__lte=dto)
+        elif report == '2':
+            title = "Accounts Payable Voucher Transaction List"
+            q = Apdetail.objects.select_related('apmain').filter(isdeleted=0).order_by('ap_num', 'ap_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+        elif report == '3':
+            title = "Unposted Accounts Payable Voucher Transaction List - Summary"
+            q = Apmain.objects.filter(isdeleted=0,status__in=['A','C']).order_by('apnum', 'apdate')
+            if dfrom != '':
+                q = q.filter(apdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(apdate__lte=dto)
+        elif report == '4':
+            title = "Unposted Accounts Payable Voucher   Transaction List"
+            q = Apdetail.objects.select_related('apmain').filter(isdeleted=0,status__in=['A','C']).order_by('ap_num', 'ap_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+        elif report == '5':
+            title = "Accounts Payable Listing Subject to W/TAX"
+            query = query_wtax(dfrom, dto)
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '6':
+            title = "Accounts Payable Voucher Transaction Listing Subject To Input VAT"
+            aplist = getAPList(dfrom, dto)
+            efo = getEFO()
+            query = query_apsubjecttovat(dfrom, dto, aplist, efo)
+
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '7':
+            title = "Accounts Payable Voucher Transaction Listing Subject To Input VAT Summary"
+            aplist = getAPList(dfrom, dto)
+            efo = getEFO()
+            query = query_apsubjecttovatsummary(dfrom, dto, aplist, efo)
+
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '8':
+            title = "Accounts Payable Voucher Transaction List - AP Trade"
+            q = Apdetail.objects.select_related('apmain').filter(isdeleted=0,chartofaccount_id=285).order_by('ap_num', 'ap_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+
+        if aptype != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__aptype__exact=aptype)
+            else:
+                q = q.filter(aptype=aptype)
+        if apsubtype != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__apsubtype__exact=apsubtype)
+            else:
+                q = q.filter(apsubtype=apsubtype)
+        if payee != 'null':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__payeecode__exact=payee)
+            else:
+                q = q.filter(payeecode=payee)
+        if branch != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__branch__exact=branch)
+            else:
+                q = q.filter(branch=branch)
+        if approver != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__designatedapprover__exact=approver)
+            else:
+                q = q.filter(designatedapprover=approver)
+        if apstatus != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__apstatus__exact=apstatus)
+            else:
+                q = q.filter(apstatus=apstatus)
+        if status != '':
+            q = q.filter(status=status)
+        if atc != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__atc__exact=atc)
+            else:
+                q = q.filter(atc=atc)
+        if inputvattype != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__inputvattype__exact=inputvattype)
+            else:
+                q = q.filter(inputvattype=inputvattype)
+        if vat != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__vat__exact=vat)
+            else:
+                q = q.filter(vat=vat)
+        if bankaccount != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__bankaccount__exact=bankaccount)
+            else:
+                q = q.filter(bankaccount=bankaccount)
+        if creator != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__enterby_id=creator)
+            else:
+                q = q.filter(enterby_id=creator)
+
+        if report == '5':
+            list = query
+            credit = 0
+            debit = 0
+            if list:
+                df = pd.DataFrame(query)
+                credit = df['creditamount'].sum()
+                debit = df['debitamount'].sum()
+        elif report == '6' or report == '7':
+            list = query
+            inputcredit = 0
+            inputdebit = 0
+            efocredit = 0
+            efodebit = 0
+            if list:
+                df = pd.DataFrame(query)
+                inputcredit = df['inputvatcreditamount'].sum()
+                inputdebit = df['inputvatdebitamount'].sum()
+                efocredit = df['efocreditamount'].sum()
+                efodebit = df['efodebitamount'].sum()
+        else:
+            list = q
+
+        if list:
+            if report == '2' or report == '4' or report == '8':
+                total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+            elif report == '5':
+                total = {'credit': credit, 'debit': debit }
+            elif report == '6' or report == '7':
+                total = {'inputcredit': inputcredit, 'inputdebit': inputdebit, 'efocredit': efocredit, 'efodebit':efodebit}
+            else:
+                total = list.aggregate(total_amount=Sum('amount'))
+
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
+            "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
+            "username": request.user,
+        }
+        if report == '1':
+            return Render.render('accountspayable/report/report_1.html', context)
+        elif report == '2':
+            return Render.render('accountspayable/report/report_2.html', context)
+        elif report == '3':
+            return Render.render('accountspayable/report/report_3.html', context)
+        elif report == '4':
+            return Render.render('accountspayable/report/report_4.html', context)
+        elif report == '5':
+            return Render.render('accountspayable/report/report_5.html', context)
+        elif report == '6':
+            return Render.render('accountspayable/report/report_6.html', context)
+        elif report == '7':
+            return Render.render('accountspayable/report/report_7.html', context)
+        elif report == '8':
+            return Render.render('accountspayable/report/report_8.html', context)
+        else:
+            return Render.render('accountspayable/report/report_1.html', context)
+
+
+@method_decorator(login_required, name='dispatch')
+class GenerateExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        aptype = request.GET['aptype']
+        apsubtype = request.GET['apsubtype']
+        payee = request.GET['payee']
+        branch = request.GET['branch']
+        approver = request.GET['approver']
+        apstatus = request.GET['apstatus']
+        status = request.GET['status']
+        atc = request.GET['atc']
+        inputvattype = request.GET['inputvattype']
+        vat = request.GET['vat']
+        bankaccount = request.GET['bankaccount']
+        creator = request.GET['creator']
+        title = "Accounts Payable Voucher List"
+        list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
+
+        if report == '1':
+            title = "Accounts Payable Voucher Transaction List - Summary"
+            q = Apmain.objects.filter(isdeleted=0).order_by('apnum', 'apdate')
+            if dfrom != '':
+                q = q.filter(apdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(apdate__lte=dto)
+        elif report == '2':
+            title = "Accounts Payable Voucher Transaction List"
+            q = Apdetail.objects.select_related('apmain').filter(isdeleted=0).order_by('ap_num', 'ap_date',
+                                                                                       'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+        elif report == '3':
+            title = "Unposted Accounts Payable Voucher Transaction List - Summary"
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+            if dfrom != '':
+                q = q.filter(apdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(apdate__lte=dto)
+        elif report == '4':
+            title = "Unposted Accounts Payable Voucher   Transaction List"
+            q = Apdetail.objects.select_related('apmain').filter(isdeleted=0, status__in=['A', 'C']).order_by('ap_num',
+                                                                                                              'ap_date',
+                                                                                                              'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+        elif report == '5':
+            title = "Accounts Payable Listing Subject to W/TAX"
+            query = query_wtax(dfrom, dto)
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '6':
+            title = "Accounts Payable Voucher Transaction Listing Subject To Input VAT"
+            aplist = getAPList(dfrom, dto)
+            efo = getEFO()
+            query = query_apsubjecttovat(dfrom, dto, aplist, efo)
+
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '7':
+            title = "Accounts Payable Voucher Transaction Listing Subject To Input VAT Summary"
+            aplist = getAPList(dfrom, dto)
+            efo = getEFO()
+            query = query_apsubjecttovatsummary(dfrom, dto, aplist, efo)
+
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '8':
+            title = "Accounts Payable Voucher Transaction List - AP Trade"
+            q = Apdetail.objects.select_related('apmain').filter(isdeleted=0,chartofaccount_id=285).order_by('ap_num', 'ap_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+
+        if aptype != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__aptype__exact=aptype)
+            else:
+                q = q.filter(aptype=aptype)
+        if apsubtype != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__apsubtype__exact=apsubtype)
+            else:
+                q = q.filter(apsubtype=apsubtype)
+        if payee != 'null':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__payeecode__exact=payee)
+            else:
+                q = q.filter(payeecode=payee)
+        if branch != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__branch__exact=branch)
+            else:
+                q = q.filter(branch=branch)
+        if approver != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__designatedapprover__exact=approver)
+            else:
+                q = q.filter(designatedapprover=approver)
+        if apstatus != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__apstatus__exact=apstatus)
+            else:
+                q = q.filter(apstatus=apstatus)
+        if status != '':
+            q = q.filter(status=status)
+        if atc != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__atc__exact=atc)
+            else:
+                q = q.filter(atc=atc)
+        if inputvattype != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__inputvattype__exact=inputvattype)
+            else:
+                q = q.filter(inputvattype=inputvattype)
+        if vat != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__vat__exact=vat)
+            else:
+                q = q.filter(vat=vat)
+        if bankaccount != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__bankaccount__exact=bankaccount)
+            else:
+                q = q.filter(bankaccount=bankaccount)
+        if creator != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__enterby_id=creator)
+            else:
+                q = q.filter(enterby_id=creator)
+
+        if report == '5':
+            list = query
+            credit = 0
+            debit = 0
+            if list:
+                df = pd.DataFrame(query)
+                credit = df['creditamount'].sum()
+                debit = df['debitamount'].sum()
+        elif report == '6' or report == '7':
+            list = query
+            credit = 0
+            debit = 0
+            if list:
+                df = pd.DataFrame(query)
+                inputcredit = df['inputvatcreditamount'].sum()
+                inputdebit = df['inputvatdebitamount'].sum()
+                efocredit = df['efocreditamount'].sum()
+                efodebit = df['efodebitamount'].sum()
+        else:
+            list = q
+
+        if list:
+
+            if report == '2' or report == '4' or report == '8':
+                total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+            elif report == '5':
+                total = [] #{'credit': credit, 'debit': debit}
+            elif report == '6' or report == '7':
+                total = [] #{'inputcredit': inputcredit, 'inputdebit': inputdebit, 'efocredit': efocredit, 'efodebit':efodebit}
+            else:
+                total = list.aggregate(total_amount=Sum('amount'))
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', str(title), bold)
+        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+
+        filename = "apreport.xlsx"
+
+        if report == '1':
+            # header
+            worksheet.write('A4', 'AP Number', bold)
+            worksheet.write('B4', 'AP Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Amount', bold)
+
+            row = 5
+            col = 0
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.apnum)
+                worksheet.write(row, col + 1, data.apdate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.payeename)
+                worksheet.write(row, col + 3, data.particulars)
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                row += 1
+                totalamount += amount
+
+            #print float(format(totalamount, '.2f'))
+            #print total['total_amount']
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+
+            filename = "aptransactionlistsummary.xlsx"
+
+        elif report == '2':
+            worksheet.write('A4', 'AP Number', bold)
+            worksheet.write('B4', 'AP Date', bold)
+            worksheet.write('C4', 'Particular', bold)
+            worksheet.write('D4', 'Account Title', bold)
+            worksheet.write('E4', 'Subs Ledger', bold)
+            worksheet.write('F4', 'Debit', bold)
+            worksheet.write('G4', 'Credit', bold)
+
+            row = 4
+            col = 0
+
+            totaldebit = 0
+            totalcredit = 0
+            list = list.values('apmain__apnum', 'apmain__apdate', 'apmain__particulars', 'apmain__payeename',
+                               'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
+                               'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
+            dataset = pd.DataFrame.from_records(list)
+
+            for apnum, detail in dataset.fillna('NaN').groupby(
+                    ['apmain__apnum', 'apmain__apdate', 'apmain__payeename', 'apmain__particulars', 'status']):
+                worksheet.write(row, col, apnum[0])
+                worksheet.write(row, col + 1, apnum[1], formatdate)
+                if apnum[4] == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, apnum[2])
+                worksheet.write(row, col + 3, apnum[3])
+                row += 1
+                debit = 0
+                credit = 0
+                branch = ''
+                bankaccount = ''
+                department = ''
+                for sub, data in detail.iterrows():
+                    worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
+                    worksheet.write(row, col + 3, data['chartofaccount__description'])
+                    if data['branch__code'] != 'NaN':
+                        branch = data['branch__code']
+                    if data['bankaccount__code'] != 'NaN':
+                        bankaccount = data['bankaccount__code']
+                    if data['department__code'] != 'NaN':
+                        department = data['department__code']
+                    worksheet.write(row, col + 4, branch + ' ' + bankaccount + ' ' + department)
+                    if apnum[4] == 'C':
+                        worksheet.write(row, col + 5, float(format(0, '.2f')))
+                        worksheet.write(row, col + 6, float(format(0, '.2f')))
+                        debit = 0
+                        credit = 0
+                    else:
+                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                        debit = data['debitamount']
+                        credit = data['creditamount']
+
+                    row += 1
+                    totaldebit += debit
+                    totalcredit += credit
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalcredit, '.2f')))
+
+            filename = "aptransactionlist.xlsx"
+
+        elif report == '3':
+            # header
+            worksheet.write('A4', 'AP Number', bold)
+            worksheet.write('B4', 'AP Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Amount', bold)
+
+            row = 5
+            col = 0
+
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.apnum)
+                worksheet.write(row, col + 1, data.apdate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.payeename)
+                worksheet.write(row, col + 3, data.particulars)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                row += 1
+                totalamount += amount
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+
+            filename = "unpostedaptransactionlistsummary.xlsx"
+
+        elif report == '4':
+            # header
+            worksheet.write('A4', 'AP Number', bold)
+            worksheet.write('B4', 'AP Date', bold)
+            worksheet.write('C4', 'Particular', bold)
+            worksheet.write('D4', 'Account Title', bold)
+            worksheet.write('E4', 'Subs Ledger', bold)
+            worksheet.write('F4', 'Debit', bold)
+            worksheet.write('G4', 'Credit', bold)
+
+            row = 4
+            col = 0
+
+            totaldebit = 0
+            totalcredit = 0
+            list = list.values('apmain__apnum', 'apmain__apdate', 'apmain__particulars', 'apmain__payeename',
+                               'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
+                               'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
+            dataset = pd.DataFrame.from_records(list)
+
+            for apnum, detail in dataset.fillna('NaN').groupby(
+                    ['apmain__apnum', 'apmain__apdate', 'apmain__payeename', 'apmain__particulars', 'status']):
+                worksheet.write(row, col, apnum[0])
+                worksheet.write(row, col + 1, apnum[1], formatdate)
+                if apnum[4] == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, apnum[2])
+                worksheet.write(row, col + 3, apnum[3])
+                row += 1
+                debit = 0
+                credit = 0
+                branch = ''
+                bankaccount = ''
+                department = ''
+                for sub, data in detail.iterrows():
+                    worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
+                    worksheet.write(row, col + 3, data['chartofaccount__description'])
+                    if data['branch__code'] != 'NaN':
+                        branch = data['branch__code']
+                    if data['bankaccount__code'] != 'NaN':
+                        bankaccount = data['bankaccount__code']
+                    if data['department__code'] != 'NaN':
+                        department = data['department__code']
+                    worksheet.write(row, col + 4, branch + ' ' + bankaccount + ' ' + department)
+                    if apnum[4] == 'C':
+                        worksheet.write(row, col + 5, float(format(0, '.2f')))
+                        worksheet.write(row, col + 6, float(format(0, '.2f')))
+                        debit = 0
+                        credit = 0
+                    else:
+                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                        debit = data['debitamount']
+                        credit = data['creditamount']
+
+                    row += 1
+                    totaldebit += debit
+                    totalcredit += credit
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalcredit, '.2f')))
+
+
+            filename = "unpostedaptransactionlist.xlsx"
+
+        elif report == '5':
+            # header
+            worksheet.write('A4', 'AP Number', bold)
+            worksheet.write('B4', 'Code', bold)
+            worksheet.write('C4', 'Payee/Particular', bold)
+            worksheet.write('D4', 'Subs Ledger', bold)
+            worksheet.write('E4', 'Debit', bold)
+            worksheet.write('F4', 'Credit', bold)
+
+            row = 4
+            col = 0
+
+            totaldebit = 0
+            totalcredit = 0
+
+            dataset = pd.DataFrame(list)
+
+            for apnum, detail in dataset.fillna('NaN').groupby(['apnum', 'payeecode', 'payeename', 'particulars', 'status']):
+                worksheet.write(row, col, apnum[0])
+                worksheet.write(row, col + 1, apnum[1], formatdate)
+                if apnum[4] == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, apnum[2])
+                worksheet.write(row, col + 3, apnum[3])
+                row += 1
+                debit = 0
+                credit = 0
+                branch = ''
+                bankaccount = ''
+                department = ''
+                for sub, data in detail.iterrows():
+                    worksheet.write(row, col + 1, data['accountcode'])
+                    worksheet.write(row, col + 2, data['description'])
+
+                    if data['deptcode'] != 'NaN':
+                        department = data['deptcode']
+                    worksheet.write(row, col + 3, department)
+                    if apnum[4] == 'C':
+                        worksheet.write(row, col + 4, float(format(0, '.2f')))
+                        worksheet.write(row, col + 5, float(format(0, '.2f')))
+                        debit = 0
+                        credit = 0
+                    else:
+                        worksheet.write(row, col + 4, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 5, float(format(data['creditamount'], '.2f')))
+                        debit = data['debitamount']
+                        credit = data['creditamount']
+
+                    row += 1
+                    totaldebit += debit
+                    totalcredit += credit
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalcredit, '.2f')))
+
+
+            filename = "aptransactionsubjecttowtax.xlsx"
+        elif report == '6':
+            # header
+            worksheet.write('A4', 'AP Number', bold)
+            worksheet.write('B4', 'AP Date', bold)
+            worksheet.write('C4', 'Payee/Particular', bold)
+            worksheet.write('D4', 'Type', bold)
+            worksheet.write('E4', 'E F O Debit', bold)
+            worksheet.write('F4', 'E F O Credit', bold)
+            worksheet.write('G4', 'Input VAT Debit', bold)
+            worksheet.write('H4', 'Input VAT Credit', bold)
+            worksheet.write('I4', 'VAT Rate', bold)
+
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+
+            for data in list:
+                worksheet.write(row, col, data.apnum)
+                worksheet.write(row, col + 1, data.apdate, formatdate)
+                worksheet.write(row, col + 2, data.payeename)
+                worksheet.write(row, col + 3, data.inputvat)
+                worksheet.write(row, col + 4, float(format(data.efodebitamount, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.efocreditamount, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.inputvatdebitamount, '.2f')))
+                worksheet.write(row, col + 7, float(format(data.inputvatcreditamount, '.2f')))
+                worksheet.write(row, col + 8, data.inputvatrate)
+
+                totalefodebit += data.efodebitamount
+                totalefocredit += data.efocreditamount
+                totalinputdebit += data.inputvatdebitamount
+                totalinputcredit += data.inputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalinputdebit, '.2f')))
+            worksheet.write(row, col + 7, float(format(totalinputcredit, '.2f')))
+
+
+            filename = "aptransactionsubjecttoinputvat.xlsx"
+        elif report == '7':
+            # header
+            worksheet.write('A4', 'Payee/Particular', bold)
+            worksheet.write('B4', 'Type', bold)
+            worksheet.write('C4', 'E F O Debit', bold)
+            worksheet.write('D4', 'E F O Credit', bold)
+            worksheet.write('E4', 'Input VAT Debit', bold)
+            worksheet.write('F4', 'Input VAT Credit', bold)
+            worksheet.write('G4', 'VAT Rate', bold)
+            worksheet.write('H4', 'Address', bold)
+            worksheet.write('I4', 'TIN', bold)
+
+
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+
+            for data in list:
+                worksheet.write(row, col, data.payeename)
+                worksheet.write(row, col + 1, data.inputvat)
+                worksheet.write(row, col + 2, float(format(data.efodebitamount, '.2f')))
+                worksheet.write(row, col + 3, float(format(data.efocreditamount, '.2f')))
+                worksheet.write(row, col + 4, float(format(data.inputvatdebitamount, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.inputvatcreditamount, '.2f')))
+                worksheet.write(row, col + 6, data.inputvatrate)
+                worksheet.write(row, col + 7, data.address)
+                worksheet.write(row, col + 8, data.tin)
+
+                totalefodebit += data.efodebitamount
+                totalefocredit += data.efocreditamount
+                totalinputdebit += data.inputvatdebitamount
+                totalinputcredit += data.inputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 1, 'Total')
+            worksheet.write(row, col + 2, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 3, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 4, float(format(totalinputdebit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalinputcredit, '.2f')))
+
+
+            filename = "aptransactionsubjecttoinputvatsummary.xlsx"
+        if report == '8':
+            # header
+            worksheet.write('A4', 'AP Number', bold)
+            worksheet.write('B4', 'AP Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Net Amount', bold)
+
+            row = 5
+            col = 0
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.apmain.apnum)
+                worksheet.write(row, col + 1, data.apmain.apdate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.apmain.payeename)
+                worksheet.write(row, col + 3, data.apmain.particulars)
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.creditamount, '.2f')))
+                    amount = data.creditamount
+
+                row += 1
+                totalamount += amount
+
+            # print float(format(totalamount, '.2f'))
+            # print total['total_amount']
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+
+            filename = "aptransactionlistaptradesummary.xlsx"
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
+
+@csrf_exempt
+def searchforposting(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Apmain.objects.filter(isdeleted=0,status='A',apstatus='A').order_by('apnum', 'apdate')
+        if dfrom != '':
+            q = q.filter(apdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(apdate__lte=dto)
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('accountspayable/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+def getAPList(dfrom, dto):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    inputvat = 274 # 1940000000 INPUT VAT
+
+    query = "SELECT m.apnum, m.apdate, m.payeename, m.particulars, " \
+            "d.balancecode, d.chartofaccount_id, d.apmain_id " \
+            "FROM apmain AS m " \
+            "LEFT OUTER JOIN apdetail AS d ON d.apmain_id = m.id " \
+            "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
+            "AND m.apstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND d.chartofaccount_id = "+str(inputvat)+" " \
+            "ORDER BY m.apnum;"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    list = ''
+    for r in result:
+        list += str(r.apmain_id) + ','
+
+    return list[:-1]
+
+
+def getEFO():
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+
+    query = "SELECT id, accountcode, description, main, clas, item, SUBSTR(sub, 1, 2) AS sub " \
+            "FROM chartofaccount " \
+            "WHERE (main = 5) OR (main = 1 AND clas = 5 AND SUBSTR(sub, 1, 2) = 10) " \
+            "OR (main = 1 AND clas = 7 AND SUBSTR(sub, 1, 2) = 10) " \
+            "OR (main = 1 AND clas = 1 AND item = 9) " \
+            "OR (main = 1 AND clas = 1 AND item = 8) " \
+            "OR (main = 1 AND clas = 6)"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    list = ''
+    for r in result:
+        list += str(r.id) + ','
+
+    return list[:-1]
+
+def query_apsubjecttovatsummary(dfrom, dto, aplist, efo):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    aptrade = 274
+
+    if not aplist:
+        aplist = '0'
+
+    query = "SELECT z.*, CONCAT(IFNULL(sup.address1, ''), ' ', IFNULL(sup.address2, '')) AS address, sup.tin " \
+            "FROM ( " \
+            "SELECT m.apnum, m.apdate, m.payeecode, m.payeename, m.particulars, inv.code AS inputvat,  " \
+            "SUM(IFNULL(efo.debitamount, 0)) AS efodebitamount, SUM(IFNULL(efo.creditamount, 0)) AS efocreditamount, " \
+            "SUM(IFNULL(inputvat.debitamount, 0)) AS inputvatdebitamount, SUM(IFNULL(inputvat.creditamount, 0)) AS inputvatcreditamount, " \
+            "ROUND((SUM(IFNULL(inputvat.debitamount, 0)) - SUM(IFNULL(inputvat.creditamount, 0))) / (SUM(IFNULL(efo.debitamount, 0)) - SUM(IFNULL(efo.creditamount, 0))) * 100) AS inputvatrate " \
+            "FROM apmain AS m " \
+            "LEFT OUTER JOIN inputvattype AS invt ON invt.id = m.inputvattype_id " \
+            "LEFT OUTER JOIN inputvat AS inv ON inv.inputvattype_id = invt.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.apmain_id, d.ap_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM apdetail AS d " \
+            "WHERE d.apmain_id IN ("+aplist+") " \
+            "AND d.chartofaccount_id IN ("+efo+") " \
+            "GROUP BY d.apmain_id " \
+            "ORDER BY d.ap_num, d.ap_date " \
+            ") AS efo ON efo.apmain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.apmain_id, d.ap_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM apdetail AS d " \
+            "WHERE d.apmain_id IN ("+aplist+") " \
+            "AND d.chartofaccount_id = '"+str(aptrade)+"' " \
+            "GROUP BY d.apmain_id " \
+            "ORDER BY d.ap_num, d.ap_date " \
+            ") AS inputvat ON inputvat.apmain_id = m.id " \
+            "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
+            "AND m.apstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+aplist+") " \
+            "GROUP BY m.payeecode, inv.code " \
+            "ORDER BY m.payeename) AS z " \
+            "LEFT OUTER JOIN supplier AS sup ON sup.code = z.payeecode;"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_apsubjecttovat(dfrom, dto, aplist, efo):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    aptrade = 274
+
+    if not aplist:
+        aplist = '0'
+
+    query = "SELECT m.apnum, m.apdate, m.payeename, m.particulars, inv.code AS inputvat, " \
+            "IFNULL(efo.debitamount, 0) AS efodebitamount, IFNULL(efo.creditamount, 0) AS efocreditamount, " \
+            "IFNULL(inputvat.debitamount, 0) AS inputvatdebitamount, IFNULL(inputvat.creditamount, 0) AS inputvatcreditamount, " \
+            "ROUND((IFNULL(inputvat.debitamount, 0) - IFNULL(inputvat.creditamount, 0)) / (IFNULL(efo.debitamount, 0) - IFNULL(efo.creditamount, 0)) * 100) AS inputvatrate " \
+            "FROM apmain AS m " \
+            "LEFT OUTER JOIN inputvattype AS invt ON invt.id = m.inputvattype_id " \
+            "LEFT OUTER JOIN inputvat AS inv ON inv.inputvattype_id = invt.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.apmain_id, d.ap_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM apdetail AS d " \
+            "WHERE d.apmain_id IN ("+aplist+") " \
+            "AND d.chartofaccount_id IN ("+efo+") " \
+            "GROUP BY d.apmain_id " \
+            "ORDER BY d.ap_num, d.ap_date " \
+            ") AS efo ON efo.apmain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.apmain_id, d.ap_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM apdetail AS d " \
+            "WHERE d.apmain_id IN ("+aplist+") " \
+            "AND d.chartofaccount_id = '"+str(aptrade)+"' " \
+            "GROUP BY d.apmain_id " \
+            "ORDER BY d.ap_num, d.ap_date " \
+            ") AS inputvat ON inputvat.apmain_id = m.id " \
+            "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
+            "AND m.apstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+aplist+") " \
+            "ORDER BY m.apnum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_wtax(dfrom, dto):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    wtax = Chartofaccount.objects.filter(isdeleted=0, is_wtax=1)
+    string = ''
+    for w in wtax:
+        string += str(w.id)+','
+
+    #print string[:-1]
+
+    query = "SELECT m.apnum, m.apdate, m.payeecode, m.payeename, m.particulars, " \
+            "d.chartofaccount_id, d.balancecode, d.debitamount, d.creditamount, " \
+            "c.accountcode, c.description, dept.code AS deptcode, m.status " \
+            "FROM apmain AS m " \
+            "LEFT OUTER JOIN apdetail AS d ON d.apmain_id = m.id " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = d.chartofaccount_id " \
+            "LEFT OUTER JOIN department AS dept ON dept.id = d.department_id " \
+            "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
+            "AND m.status != 'C' " \
+            "AND m.id IN (SELECT DISTINCT apmain_id FROM apdetail WHERE chartofaccount_id IN ("+string[:-1]+")) " \
+            "ORDER BY m.apdate, m.apnum, d.balancecode DESC"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
+
+@csrf_exempt
+def digibanker(request):
+    print 'digibanker'
+    #MC 01 1218181 PHP 0111007943003 20181218 0000100361172 00193
+
+    #text_file = open("accountspayable/txtfile/digibanker.txt", "w")
+    text_file = open("static/digibanker/digibanker.txt", "w")
+
+    bnum = request.POST['batchnumber']
+    pdate = request.POST['postingdate']
+
+    batchnum = bnum
+    currency = 'PHP'
+    fundacct = '0111007943003'
+    postingdate = pdate
+    totalamount = 0
+    totalno = 0
+
+    ids = request.POST.getlist('ids[]')
+    print ids
+
+    aptype = 13 # SB
+    disburbank = '0601' # DELA ROSA
+
+    #detail = Apmain.objects.filter(pk__in=ids).filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
+
+    #q = Apmain.objects.filter(aptype_id=aptype, isdeleted=0, status='A', apstatus='R').values_list('id',flat=True).order_by('apnum', 'apdate')
+
+    aptrade = 285  # ACCOUNTS PAYABLE-TRADE
+
+    detail = Apdetail.objects.filter(apmain_id__in=ids, chartofaccount_id=aptrade).order_by('ap_num', 'ap_date')
+
+    detaildata = ""
+    for item in detail:
+        transamount = str(item.creditamount).replace('.', '').rjust(13, '0')[:13]
+        payeename = item.apmain.payeename.ljust(40, ' ')[:40]
+        particulars = 'AP'+str(item.apmain.apnum)+'::'+str(item.apmain.payeecode)+'::'+str(item.apmain.payeename)+'::'+str(item.apmain.refno)+'::'+str(item.apmain.particulars)
+        #particulars = particulars.rstrip('\r\n').ljust(2400, ' ')[:2400]
+        particulars = ' '.join(particulars.splitlines())
+        totalamount += item.creditamount
+        totalno += 1
+        detaildata += "MC10"+str(currency)+str(disburbank)+str(transamount)+str(payeename)+str(particulars)+"\n"
+
+    header = "MC01" + str(batchnum) + str(currency) + str(fundacct) + str(postingdate) + str(totalamount).replace('.', '').rjust(13, '0')[:13] + str(totalno).rjust(5, '0')[:5] + "\n"
+    text_file.writelines(header)
+    text_file.writelines(detaildata)
+
+    text_file.close()
+
+    print 'url'
+    baseurl = request.build_absolute_uri()
+    print baseurl
+    fileurl = baseurl.replace("accountspayable", "static")+'digibanker.txt'
+    print fileurl
+
+    data = {'status': 'success', 'fileurl': fileurl}
+
+    return JsonResponse(data)
+    # file_name = 'digibanker'
+    #
+    # response = HttpResponse(
+    #     text_file,
+    #     content_type='application/octet-stream'
+    # )
+    # response['Content-Disposition'] = 'attachment; filename=%s' % file_name
+    #
+    # return response
+
+    # file_name = 'digibanker'+str(datetime.datetime.now())
+    # path_to_file = 'accountspayable/txtfile/digibanker'
+    # response = HttpResponse(mimetype='application/force-download')
+    # response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(file_name)
+    # response['X-Sendfile'] = smart_str(path_to_file)
+    # return response
+
+    #return Render.render('accountspayable/report/report_1.html')
+
+
+@csrf_exempt
+def searchfordigibanker(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+        creator = request.POST['creator']
+
+        aptype = 13
+
+        #xx = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
+        q = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,apstatus='R').values_list('id', flat=True).order_by('apnum', 'apdate')
+
+        if dfrom != '':
+            q = q.filter(apdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(apdate__lte=dto)
+
+        if creator != '':
+            q = q.filter(enterby_id=creator)
+
+
+        aptrade = 285 #ACCOUNTS PAYABLE-TRADE
+
+        list = Apdetail.objects.filter(apmain_id__in=set(q), chartofaccount_id=aptrade).order_by('ap_num', 'ap_date')
+
+        total = list.aggregate(Sum('creditamount'))
+
+        print total
+
+        context = {
+            'data': list,
+            'total': total,
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('accountspayable/digibankerposting.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+def upload(request):
+    folder = 'media/apupload/'
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        id = request.POST['dataid']
+        fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
+        filename = fs.save(myfile.name, myfile)
+
+        upl = Apupload(apmain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
+        upl.save()
+
+        uploaded_file_url = fs.url(filename)
+        return HttpResponseRedirect('/accountspayable/' + str(id) )
+    return HttpResponseRedirect('/accountspayable/' + str(id) )
+
+
+class LedgerView(ListView):
+    model = Apmain
+    template_name = 'accountspayable/ledger/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+
+        return context
+
+def query_ledger(report, type, dfrom, dto, apnontrade, payee):
+
+    if dfrom <= '2018-12-31':
+        dfrom = '2019-01-01'
+    # print "Summary"
+
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    if report == 'detail':
+        query = "SELECT z.payee_id, z.tran, z.trannum, z.trandate, " \
+                "(IFNULL(z.debitamount, 0)) AS debitamount, (IFNULL(z.creditamount, 0)) AS creditamount, ((IFNULL(z.debitamount, 0)) + (IFNULL(z.creditamount, 0))) AS amount, z.balancecode, z.particulars " \
+                "FROM ( " \
+                "SELECT s.document_supplier_id AS payee_id, s.document_type AS tran, s.document_num AS trannum, s.document_date AS trandate,  " \
+                "(IFNULL(s.amount, 0)) AS debitamount, 0 AS creditamount, s.balancecode, s.particulars       " \
+                "FROM subledger AS s " \
+                "WHERE s.chartofaccount_id = '"+str(apnontrade)+"' AND s.document_date >= '"+str(dfrom)+"' AND s.document_date <= '"+str(dto)+"' AND s.document_supplier_id = '"+str(payee)+"' " \
+                "AND s.document_supplier_id IS NOT NULL " \
+                "AND s.balancecode = 'C' " \
+                "UNION " \
+                "SELECT ss.document_supplier_id AS payee_id, ss.document_type AS tran, ss.document_num AS trannum, ss.document_date AS trandate, " \
+                "0 AS debitamount, (IFNULL(ss.amount, 0)) AS creditamount, ss.balancecode, ss.particulars       " \
+                "FROM subledger AS ss " \
+                "WHERE ss.chartofaccount_id = '"+str(apnontrade)+"' AND ss.document_date >= '"+str(dfrom)+"' AND ss.document_date <= '"+str(dto)+"' AND ss.document_supplier_id = '"+str(payee)+"' " \
+                "AND ss.document_supplier_id IS NOT NULL " \
+                "AND ss.balancecode = 'D' " \
+                ") AS z " \
+                "ORDER BY z.trandate, z.tran"
+        # query = "SELECT z.* " \
+        #         "FROM ( " \
+        #         "   SELECT 'AP' AS tran, d.ap_num AS trannum, d.ap_date AS trandate, IFNULL(d.debitamount, 0) AS debitamount, IFNULL(d.creditamount, 0) AS creditamount, (d.debitamount + d.creditamount) AS amount, d.balancecode, m.particulars " \
+        #         "   FROM apdetail AS d " \
+        #         "   LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
+        #         "   WHERE d.chartofaccount_id = '"+str(apnontrade)+"' AND m.payee_id = '"+str(payee)+"' AND d.supplier_id = '"+str(payee)+"' " \
+        #         "   AND d.ap_date >= '"+str(dfrom)+"' AND d.ap_date <= '"+str(dto)+"' " \
+        #         "   UNION " \
+        #         "   SELECT 'CV' AS tran, d.cv_num, d.cv_date, IFNULL(d.debitamount, 0) AS debitamount, IFNULL(d.creditamount, 0) AS creditamount, (d.debitamount + d.creditamount) AS amount, d.balancecode, m.particulars " \
+        #         "   FROM cvdetail AS d " \
+        #         "   LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
+        #         "   WHERE d.chartofaccount_id = '"+str(apnontrade)+"' AND m.payee_id = '"+str(payee)+"' AND d.supplier_id = '"+str(payee)+"' " \
+        #         "   AND d.cv_date >= '"+str(dfrom)+"' AND d.cv_date <= '"+str(dto)+"' " \
+        #         "   UNION " \
+        #         "   SELECT 'JV' AS tran, d.jv_num, d.jv_date, IFNULL(d.debitamount, 0) AS debitamount, IFNULL(d.creditamount, 0) AS creditamount, (d.debitamount + d.creditamount) AS amount, d.balancecode, m.particular " \
+        #         "   FROM jvdetail AS d " \
+        #         "   LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
+        #         "   WHERE d.chartofaccount_id = '"+str(apnontrade)+"' AND d.supplier_id = '"+str(payee)+"' " \
+        #         "   AND d.jv_date >= '"+str(dfrom)+"' AND d.jv_date <= '"+str(dto)+"' " \
+        #         ") AS z ORDER BY z.trandate, z.tran"
+    else:
+        con_ap = ""
+        con_cv = ""
+        con_jv = ""
+        con_beg = ""
+        if payee != 'all':
+            con_ap = "AND m.payee_id = '" + str(payee) + "' AND d.supplier_id = '" + str(payee) + "'"
+            con_cv = " AND m.payee_id = '" + str(payee) + "' AND d.supplier_id = '" + str(payee) + "'"
+            con_jv = "AND d.supplier_id = '" + str(payee) + "' "
+            con_beg = " AND d.code_id = '" + str(payee) + "' "
+
+        query = "SELECT s.code, s.name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, (SUM(z.debitamount) - SUM(z.creditamount)) AS balance, IF(SUM(z.debitamount) > SUM(z.creditamount), 'D', 'C') AS balancecode " \
+                "FROM ( " \
+                "   SELECT m.payee_id, 'AP' AS tran, d.ap_num AS trannum, d.ap_date AS trandate, SUM(IFNULL(d.debitamount, 0)) AS debitamount, SUM(IFNULL(d.creditamount, 0)) AS creditamount, d.balancecode " \
+                "   FROM apdetail AS d " \
+                "   LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
+                "   WHERE d.chartofaccount_id = '" + str(apnontrade) + "'" + str(con_ap) + " " \
+                "   AND d.ap_date >= '" + str(dfrom) + "' AND d.ap_date <= '" + str(dto) + "' " \
+                "   GROUP BY d.supplier_id" \
+                "   UNION " \
+                "   SELECT m.payee_id, 'CV' AS tran, d.cv_num, d.cv_date, SUM(IFNULL(d.debitamount, 0)) AS debitamount, SUM(IFNULL(d.creditamount, 0)) AS creditamount, d.balancecode " \
+                "   FROM cvdetail AS d " \
+                "   LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
+                "   WHERE d.chartofaccount_id = '" + str(apnontrade) + "'" + str(con_cv) + " " \
+                "   AND d.cv_date >= '" + str(dfrom) + "' AND d.cv_date <= '" + str(dto) + "' " \
+                "   GROUP BY d.supplier_id" \
+                "   UNION " \
+                "   SELECT d.supplier_id, 'JV' AS tran, d.jv_num, d.jv_date, SUM(IFNULL(d.debitamount, 0)) AS debitamount, SUM(IFNULL(d.creditamount, 0)) AS creditamount, d.balancecode " \
+                "   FROM jvdetail AS d " \
+                "   LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
+                "   WHERE d.chartofaccount_id = '" + str(apnontrade) + "'" + str(con_jv) + " " \
+                "   AND d.jv_date >= '" + str(dfrom) + "' AND d.jv_date <= '" + str(dto) + "' " \
+                "   GROUP BY d.supplier_id	UNION SELECT d.code_id, 'BEG' AS tran, '' AS trannum, d.beg_date, SUM(IF (d.beg_code = 'D', d.beg_amt, 0)) AS debitamount, SUM(IF (d.beg_code = 'C', d.beg_amt, 0)) AS creditamount, d.beg_code " \
+                "   FROM beginningbalance AS d " \
+                "   WHERE d.accountcode = '2111100000'" + str(con_beg) + " " \
+                "   GROUP BY d.code_id	" \
+                ") AS z LEFT OUTER JOIN supplier AS s ON s.id = z.payee_id WHERE z.payee_id IS NOT NULL GROUP BY z.payee_id ORDER BY s.name, s.code"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_begbalance(account, payee):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    con = ""
+    if payee != 'all':
+        con = "AND code_id = '" + str(payee) + "'"
+
+    query = "SELECT * FROM beginningbalance WHERE accountcode = '"+str(account)+"' "+str(con)+""
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+
+@method_decorator(login_required, name='dispatch')
+class GenerateLedgerPDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        type = request.GET['type']
+        payee = request.GET['payee']
+
+        title = "Accounts Payable Ledger"
+        list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
+
+        supplier = 'ALL'
+
+        begcode = 'C'
+        begamount = 0
+        runbalance = 0
+
+        if report == '1':
+            sup = Supplier.objects.filter(code=payee).first()
+            supplier = str(sup.code)+' - '+str(sup.name)
+            apnontrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
+
+            begbalance = query_begbalance(apnontrade.accountcode, sup.id)
+            apcode = apnontrade.balancecode
+
+            if (begbalance):
+                begcode = begbalance[0].beg_code
+                begamount = begbalance[0].beg_amt
+
+            if (apcode != begcode):
+                begamount = begamount * -1
+
+            addbeg = []
+            if dfrom > '2018-12-31':
+                addbeg = query_ledger('detail', type, '2019-01-01', dfrom, apnontrade.id, sup.id)
+
+                if addbeg:
+                    dfx = pd.DataFrame(addbeg)
+                    runbalancex = begamount
+                    amountx = 0
+                    for index, row in dfx.iterrows():
+                        if row.balancecode != apcode:
+                            amountx = row.amount * -1
+                        else:
+                            amountx = row.amount
+                        runbalancex += amountx
+
+                    begamount = runbalancex
+                    if begamount < 0:
+                        begcode = 'C'
+
+            q = query_ledger('detail', type, dfrom, dto, apnontrade.id, sup.id)
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                runbalance = begamount
+                amount = 0
+                for index, row in df.iterrows():
+                    if row.balancecode != apcode:
+                        amount = row.amount * -1
+                    else:
+                        amount = row.amount
+
+                    runbalance += amount
+
+                    new_list.append({'tran': row.tran, 'trannum': row.trannum, 'trandate': row.trandate,
+                         'debitamount': row.debitamount, 'creditamount': row.creditamount, 'balamount': runbalance, 'particular': row.particulars })
+
+                list = new_list
+
+        elif report == '2':
+            apnontrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
+            apcode = apnontrade.balancecode
+            if type == '1':
+                sup = Supplier.objects.filter(code=payee).first()
+                supplier = str(sup.code) + ' - ' + str(sup.name)
+                q = query_ledger('summary', type, dfrom, dto, apnontrade.id, sup.id)
+                #begbalance = query_begbalance(apnontrade.accountcode, sup.id)
+            else:
+                q = query_ledger('summary', type, dfrom, dto, apnontrade.id, 'all')
+                #begbalance = query_begbalance(apnontrade.accountcode, 'all')
+
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                for index, row in df.iterrows():
+
+                    if row['balancecode'] != apcode:
+                        amount = row['balance'] * -1
+                    else:
+                        amount = abs(row['balance'])
+
+                   # print str(row['code'])+' | '+str(amount)
+
+                    new_list.append({'code': row['code'], 'name': row['name'], 'balance': amount,
+                                    'balancecode': row['balancecode'],})
+
+                list = new_list
+
+        else:
+            list = []
+
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
+            "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
+            "username": request.user,
+            'begamount': begamount,
+            'endamount': runbalance,
+            'supplier': supplier,
+        }
+        if report == '1':
+            return Render.render('accountspayable/ledger/report_1.html', context)
+        elif report == '2':
+            return Render.render('accountspayable/ledger/report_2.html', context)
+        else:
+            return Render.render('accountspayable/ledger/report_1.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GenerateExcelLedger(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        type = request.GET['type']
+        payee = request.GET['payee']
+
+        title = "Accounts Payable Ledger"
+        list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
+
+        supplier = 'ALL'
+
+        begcode = 'C'
+        begamount = 0
+        runbalance = 0
+
+        if report == '1':
+            if type == '1':
+                title = "Accounts Payable Ledger - Per Supplier"
+            else:
+                title = "Accounts Payable Ledger - All Summary"
+            sup = Supplier.objects.filter(code=payee).first()
+            supplier = str(sup.code)+' - '+str(sup.name)
+            apnontrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
+
+            begbalance = query_begbalance(apnontrade.accountcode, sup.id)
+            apcode = apnontrade.balancecode
+
+            if (begbalance):
+                begcode = begbalance[0].beg_code
+                begamount = begbalance[0].beg_amt
+
+            if (apcode != begcode):
+                begamount = begamount * -1
+
+            addbeg = []
+            if dfrom > '2018-12-31':
+                addbeg = query_ledger('detail', type, '2019-01-01', dfrom, apnontrade.id, sup.id)
+
+                if addbeg:
+                    dfx = pd.DataFrame(addbeg)
+                    runbalancex = begamount
+                    amountx = 0
+                    for index, row in dfx.iterrows():
+                        if row.balancecode != apcode:
+                            amountx = row.amount * -1
+                        else:
+                            amountx = row.amount
+                        runbalancex += amountx
+
+                    begamount = runbalancex
+                    if begamount < 0:
+                        begcode = 'C'
+
+            q = query_ledger('detail', type, dfrom, dto, apnontrade.id, sup.id)
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                runbalance = begamount
+                amount = 0
+                for index, row in df.iterrows():
+                    if row.balancecode != apcode:
+                        amount = row.amount * -1
+                    else:
+                        amount = row.amount
+
+                    runbalance += amount
+
+                    new_list.append({'tran': row.tran, 'trannum': row.trannum, 'trandate': row.trandate,
+                         'debitamount': row.debitamount, 'creditamount': row.creditamount, 'balamount': runbalance, 'particular': row.particulars })
+
+                list = new_list
+
+        elif report == '2':
+            if type == '1':
+                title = "Accounts Payable Ledger - Summary - Per Supplier"
+            else:
+                title = "Accounts Payable Ledger - Summary - All Summary"
+            apnontrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
+            apcode = apnontrade.balancecode
+            if type == '1':
+                sup = Supplier.objects.filter(code=payee).first()
+                supplier = str(sup.code) + ' - ' + str(sup.name)
+                q = query_ledger('summary', type, dfrom, dto, apnontrade.id, sup.id)
+                #begbalance = query_begbalance(apnontrade.accountcode, sup.id)
+            else:
+                q = query_ledger('summary', type, dfrom, dto, apnontrade.id, 'all')
+                #begbalance = query_begbalance(apnontrade.accountcode, 'all')
+
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                for index, row in df.iterrows():
+
+                    if row['balancecode'] != apcode:
+                        amount = row['balance'] * -1
+                    else:
+                        amount = abs(row['balance'])
+
+                   # print str(row['code'])+' | '+str(amount)
+
+                    new_list.append({'code': row['code'], 'name': row['name'], 'balance': amount,
+                                    'balancecode': row['balancecode'],})
+
+                list = new_list
+
+        else:
+            list = []
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', str(title), bold)
+        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+        if report == '1':
+            worksheet.write('A3', str(supplier), bold)
+
+        filename = "accountspayableledger.xlsx"
+
+        if report == '1':
+            # header
+            worksheet.write('A5', 'Date', bold)
+            worksheet.write('B5', 'Ref', bold)
+            worksheet.write('C5', 'Number', bold)
+            worksheet.write('D5', 'Particulars', bold)
+            worksheet.write('E5', 'Debit', bold)
+            worksheet.write('F5', 'Credit', bold)
+            worksheet.write('G5', 'Balance', bold)
+
+            row = 5
+            col = 0
+
+            worksheet.write(row, col + 5, 'beginning balance')
+            worksheet.write(row, col + 6, float(format(begamount, '.2f')))
+            row += 1
+
+            for data in list:
+                worksheet.write(row, col, data['trandate'], formatdate)
+                worksheet.write(row, col + 1, data['tran'])
+                worksheet.write(row, col + 2, data['trannum'])
+                worksheet.write(row, col + 3, data['particular'])
+                worksheet.write(row, col + 4, float(format(data['debitamount'], '.2f')))
+                worksheet.write(row, col + 5, float(format(data['creditamount'], '.2f')))
+                worksheet.write(row, col + 6, float(format(data['balamount'], '.2f')))
+                row += 1
+
+            worksheet.write(row, col + 5, 'ending balance')
+            worksheet.write(row, col + 6, float(format(runbalance, '.2f')))
+
+            filename = "accountspayableledger.xlsx"
+
+        elif report == '2':
+            worksheet.write('A4', '', bold)
+            worksheet.write('B4', 'Supplier', bold)
+            worksheet.write('C4', 'Balance', bold)
+
+            row = 4
+            col = 0
+
+            for data in list:
+                worksheet.write(row, col, data['code'])
+                worksheet.write(row, col + 1, data['name'])
+                worksheet.write(row, col + 2, float(format(data['balance'], '.2f')))
+                row += 1
+
+            filename = "accountspayableledgersummary.xlsx"
+
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
