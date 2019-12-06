@@ -3544,7 +3544,7 @@ class GenerateLedgerPDF(View):
             new_list = []
             if q:
                 df = pd.DataFrame(q)
-                print df
+                runbalance = 0
                 for index, row in df.iterrows():
 
                     if row['balancecode'] != apcode:
@@ -3552,11 +3552,12 @@ class GenerateLedgerPDF(View):
                     else:
                         amount = abs(row['balance'])
 
+                    runbalance += amount
                    # print str(row['code'])+' | '+str(amount)
 
                     new_list.append({'code': row['code'], 'name': row['name'], 'balance': amount,
                                     'balancecode': row['balancecode'],})
-
+                print runbalance
                 list = new_list
 
         else:
@@ -3680,12 +3681,15 @@ class GenerateExcelLedger(View):
             new_list = []
             if q:
                 df = pd.DataFrame(q)
+                runbalance = 0
                 for index, row in df.iterrows():
 
                     if row['balancecode'] != apcode:
                         amount = row['balance'] * -1
                     else:
                         amount = abs(row['balance'])
+
+                    runbalance += amount
 
                    # print str(row['code'])+' | '+str(amount)
 
@@ -3760,6 +3764,9 @@ class GenerateExcelLedger(View):
                 worksheet.write(row, col + 1, data['name'])
                 worksheet.write(row, col + 2, float(format(data['balance'], '.2f')))
                 row += 1
+
+            worksheet.write(row, col + 1, 'Total')
+            worksheet.write(row, col + 2, float(format(runbalance, '.2f')))
 
             filename = "accountspayableledgersummary.xlsx"
 
