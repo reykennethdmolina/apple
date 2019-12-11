@@ -37,13 +37,13 @@
             </tr>
             {% endfor %}
             <tr style="font-size:13px;">
-                <td colspan="5"></td>
+                <td colspan="7"></td>
                 <td class="text-right"><b>Total</b></td>
                 <td class="text-right"><b>{{ debit|floatformat:2|intcomma }}</b></td>
                 <td class="text-right"><b>{{ credit|floatformat:2|intcomma }}</b></td>
             </tr>
             <tr style="font-size:15px;">
-                <td colspan="5"></td>
+                <td colspan="7"></td>
                 <td class="text-right"><b>Net Amount</b></td>
                 {% if debit > credit %}
                 <td class="text-right"><b>{{ total|floatformat:2|intcomma }}</b></td>
