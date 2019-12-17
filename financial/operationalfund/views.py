@@ -254,7 +254,10 @@ class CreateViewUser(CreateView):
             else:
                 context['requestor'] = None
         context['user_employee'] = user_employee
-        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').exclude(user=self.request.user).order_by('firstname')
+        #managers = Employee.objects.filter(managementlevel=6).values_list('user_id', flat=True)
+        #context['designatedapprover'] = User.objects.filter(id__in=managers, is_active=1).exclude(username='admin').order_by('first_name')
+        #context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').exclude(user=self.request.user).order_by('firstname')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(managementlevel__level__lte=5).order_by('firstname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
@@ -383,8 +386,10 @@ class CreateViewCashier(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
+        #managers = Employee.objects.filter(managementlevel=6).values_list('user_id', flat=True)
+        #context['designatedapprover'] = User.objects.filter(id__in=managers, is_active=1).exclude(username='admin').order_by('first_name')
+        #context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(managementlevel__level__lte=5).order_by('firstname')
         context['secretkey'] = generatekey(self)
 
         # data for lookup
@@ -542,7 +547,8 @@ class UpdateViewUser(UpdateView):
 
         context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
-        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(managementlevel__level__lte=5).order_by('firstname')
+        #context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
         context['user_employee'] = get_object_or_None(Employee, user=self.request.user)
 
         context['savedoftype'] = self.object.oftype.code
