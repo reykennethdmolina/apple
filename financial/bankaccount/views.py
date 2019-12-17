@@ -259,7 +259,6 @@ def transgenerate(request):
         adtransnet = float(adtrans.debitamount) - float(adtrans.creditamount)
         adtranscode = adtrans.balcode
 
-
     begcode = 'D'
     bbamount = 0
     if begbal:
@@ -275,7 +274,7 @@ def transgenerate(request):
             print 'dito ba'
             begbalamount = float(bbamount) + float(abs(adtransnet))
             #begbalamount = float(begbal.beg_amount) + float(abs(adtransnet))
-        if begbal.beg_amount >= adtransnet:
+        if begbal.beg_amount >= abs(adtransnet):
             begcode = begbal.beg_code
         else:
             begcode = adtranscode
@@ -283,10 +282,16 @@ def transgenerate(request):
         begbalamount =float(abs(adtransnet))
         begcode = adtranscode
 
-    if begcode == 'C':
-        endbalamount = (float(begbalamount) * -1) + float(netamount)
-    else:
-        endbalamount = float(abs(begbalamount)) + float(netamount)
+    # print begbalamount
+    # print netamount
+    # print endbalamount
+
+    endbalamount = float(begbalamount) + float(netamount)
+
+    # if begcode == 'C':
+    #     endbalamount = (float(begbalamount) * -1) + float(netamount)
+    # else:
+    #     endbalamount = float(abs(begbalamount)) + float(netamount)
 
     if float(endbalamount) < 0:
         endcode = 'C'
@@ -492,7 +497,7 @@ class GenerateTransExcel(View):
                 begbalamount = float(begbal.beg_amount) - float(abs(adtransnet))
             else:
                 begbalamount = float(begbal.beg_amount) + float(abs(adtransnet))
-            if begbal.beg_amount >= adtransnet:
+            if begbal.beg_amount >= abs(adtransnet):
                 begcode = begbal.beg_code
             else:
                 begcode = adtranscode
@@ -500,12 +505,15 @@ class GenerateTransExcel(View):
             begbalamount = float(abs(adtransnet))
             begcode = adtranscode
 
-        if begcode == 'C':
-            endbalamount = (float(begbalamount) * -1) + float(netamount)
-            begbalamount = (float(begbalamount) * -1)
-        else:
-            endbalamount = float(abs(begbalamount)) + float(netamount)
-            begbalamount = float(abs(begbalamount))
+        endbalamount = float(begbalamount) + float(netamount)
+        begbalamount = float(begbalamount)
+
+        # if begcode == 'C':
+        #     endbalamount = (float(begbalamount) * -1) + float(netamount)
+        #     begbalamount = (float(begbalamount) * -1)
+        # else:
+        #     endbalamount = float(abs(begbalamount)) + float(netamount)
+        #     begbalamount = float(abs(begbalamount))
 
         if float(endbalamount) < 0:
             endcode = 'C'
