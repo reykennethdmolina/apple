@@ -325,6 +325,9 @@ class GenerateExcel(View):
         worksheet.write('T4', 'Status', bold)
         worksheet.write('U4', 'Remarks', bold)
         worksheet.merge_range('V4:AG4', 'Subsidiary Ledger', centertext)
+        worksheet.write('AH4', 'TIN', bold)
+        worksheet.write('AI4', 'Address', bold)
+        worksheet.write('AJ4', 'ZIP', bold)
 
         worksheet.write('V5', 'Supplier', bold)
         worksheet.write('W5', 'Customer', bold)
@@ -371,6 +374,9 @@ class GenerateExcel(View):
 
             if data.supplier:
                 worksheet.write(row, col + 21, data.supplier.name)
+                worksheet.write(row, col + 33, data.supplier.tin)
+                worksheet.write(row, col + 34, data.supplier.address1 + ' ' + data.supplier.address2 + ' ' + data.supplier.address3)
+                worksheet.write(row, col + 35, data.supplier.zipcode)
             if data.customer:
                 worksheet.write(row, col + 22, data.customer.name)
             if data.employee:
@@ -393,6 +399,8 @@ class GenerateExcel(View):
                 worksheet.write(row, col + 31, data.inputvat.description)
             if data.outputvat:
                 worksheet.write(row, col + 32, data.outputvat.description)
+
+
 
             row += 1
 

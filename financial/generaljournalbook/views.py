@@ -984,40 +984,48 @@ def query_transaction(dto, dfrom, chart, transtatus, status, payeecode, payeenam
         chart_payeename1 = "AND m.payeename LIKE '%" + str(payeename) + "%'"
         chart_payeename2 = "AND m.payee_name LIKE '%" + str(payeename) + "%'"
 
-    query = "SELECT z.tran, z.item_counter, z.ap_num AS tnum, z.ap_date AS tdate, IFNULL(z.debitamount, 0) AS debitamount, IFNULL(z.creditamount, 0) AS creditamount, z.balancecode, z.apstatus AS transtatus, z.status AS status, bank.code AS bank, chart.accountcode, chart.description AS chartofaccount, cust.code AS custcode, cust.name AS customer, dept.code AS deptcode, dept.departmentname AS department, " \
+    query = "SELECT z.enter, z.enterdate, z.modify, z.modifydate, z.tran, z.item_counter, z.ap_num AS tnum, z.ap_date AS tdate, IFNULL(z.debitamount, 0) AS debitamount, IFNULL(z.creditamount, 0) AS creditamount, z.balancecode, z.apstatus AS transtatus, z.status AS status, bank.code AS bank, chart.accountcode, chart.description AS chartofaccount, cust.code AS custcode, cust.name AS customer, dept.code AS deptcode, dept.departmentname AS department, " \
             "emp.code AS empcode, CONCAT(IFNULL(emp.firstname, ''), ' ', IFNULL(emp.lastname, '')) AS employee, inpvat.code AS inpvatcode, inpvat.description AS inputvat, " \
             "outvat.code AS outvatcode, outvat.description AS outputvat, prod.code AS prodcode, prod.description AS product, " \
             "supp.code AS suppcode, supp.name AS supplier, vat.code AS vatcode, vat.description AS vat, wtax.code AS wtaxcode, wtax.description AS wtax, z.payeecode AS payee_code, z.payeename AS payee_name, z.particulars " \
             "FROM ( " \
-            "SELECT 'AP' AS tran, d.item_counter, d.ap_num, d.ap_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
+            "SELECT u1.username AS enter, d.enterdate, u2.username AS modify, d.modifydate, 'AP' AS tran, d.item_counter, d.ap_num, d.ap_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
             "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.apstatus, m.status, m.payeecode, m.payeename, m.particulars	 " \
             "FROM apdetail AS d " \
             "LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
+            "LEFT OUTER JOIN auth_user AS u1 ON u1.id = d.enterby_id " \
+            "LEFT OUTER JOIN auth_user AS u2 ON u2.id = d.modifyby_id " \
             "WHERE DATE(d.ap_date) >= '"+str(dfrom)+"' AND DATE(d.ap_date) <= '"+str(dto)+"' " \
             +str(chart_condition)+" "+str(chart_transtatus_ap)+" "+str(chart_status)+" "+str(chart_payeecode1)+" "+str(chart_payeename1)+"" \
             "UNION " \
-            "SELECT 'CV' AS tran, d.item_counter, d.cv_num, d.cv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
+            "SELECT u1.username AS enter, d.enterdate, u2.username AS modify, d.modifydate, 'CV' AS tran, d.item_counter, d.cv_num, d.cv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
             "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.cvstatus, m.status, m.payee_code, m.payee_name, m.particulars	 " \
             "FROM cvdetail AS d " \
             "LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
+            "LEFT OUTER JOIN auth_user AS u1 ON u1.id = d.enterby_id " \
+            "LEFT OUTER JOIN auth_user AS u2 ON u2.id = d.modifyby_id " \
             "WHERE DATE(d.cv_date) >= '"+str(dfrom)+"' AND DATE(d.cv_date) <= '"+str(dto)+"' " \
             +str(chart_condition)+" "+str(chart_transtatus_cv)+" "+str(chart_status)+" "+str(chart_payeecode2)+" "+str(chart_payeename2)+"" \
             "UNION " \
-            "SELECT 'JV' AS tran, d.item_counter, d.jv_num, d.jv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
+            "SELECT u1.username AS enter, d.enterdate, u2.username AS modify, d.modifydate, 'JV' AS tran, d.item_counter, d.jv_num, d.jv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
             "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.jvstatus, m.status, '' AS payeecode, '' AS payeename, m.particular	 " \
             "FROM jvdetail AS d " \
             "LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
+            "LEFT OUTER JOIN auth_user AS u1 ON u1.id = d.enterby_id " \
+            "LEFT OUTER JOIN auth_user AS u2 ON u2.id = d.modifyby_id " \
             "WHERE DATE(d.jv_date) >= '"+str(dfrom)+"' AND DATE(d.jv_date) <= '"+str(dto)+"' " \
             +str(chart_condition)+" "+str(chart_transtatus_jv)+" "+str(chart_status)+" "+str(chart_payeecode3)+" "+str(chart_payeename3)+"" \
             "UNION " \
-            "SELECT 'OR' AS tran, d.item_counter, m.ornum, m.ordate, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
+            "SELECT u1.username AS enter, d.enterdate, u2.username AS modify, d.modifydate, 'OR' AS tran, d.item_counter, m.ornum, m.ordate, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
             "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.orstatus, m.status, m.payee_code, m.payee_name, m.particulars	" \
             "FROM ormain AS m " \
             "LEFT OUTER JOIN ordetail AS d ON m.id = d.ormain_id " \
+            "LEFT OUTER JOIN auth_user AS u1 ON u1.id = d.enterby_id " \
+            "LEFT OUTER JOIN auth_user AS u2 ON u2.id = d.modifyby_id " \
             "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
             +str(chart_condition)+" "+str(chart_transtatus_or)+" "+str(chart_status)+" "+str(chart_payeecode2)+" "+str(chart_payeename2)+") AS z " \
             "LEFT OUTER JOIN bankaccount AS bank ON bank.id = z.bankaccount_id " \
@@ -1135,6 +1143,10 @@ class TransExcel(View):
         worksheet.write('AB4', 'Input VAT', bold)
         worksheet.write('AC4', 'Output VAT Code', bold)
         worksheet.write('AD4', 'Output VAT', bold)
+        worksheet.write('AE4', 'Created By', bold)
+        worksheet.write('AF4', 'Created Date', bold)
+        worksheet.write('AG4', 'Modified By', bold)
+        worksheet.write('AH4', 'Modified Date', bold)
 
 
         row = 5
@@ -1173,8 +1185,12 @@ class TransExcel(View):
             worksheet.write(row, col + 27, data.inputvat)
             worksheet.write(row, col + 28, data.outvatcode)
             worksheet.write(row, col + 29, data.outputvat)
+            worksheet.write(row, col + 30, data.enter)
+            worksheet.write(row, col + 31, data.enterdate, formatdate)
+            worksheet.write(row, col + 32, data.modify)
+            worksheet.write(row, col + 33, data.modifydate, formatdate)
             row += 1
-
+            #z.enter, z.enterdate, z.modify, z.modifydate
 
         workbook.close()
 
