@@ -373,7 +373,7 @@ class GenerateExcel(View):
             worksheet.write(row, col + 20, data.apmain.remarks)
 
             if data.supplier:
-                worksheet.write(row, col + 21, data.payee.name)
+                worksheet.write(row, col + 21, data.supplier.name)
             if data.customer:
                 worksheet.write(row, col + 22, data.customer.name)
             if data.employee:
