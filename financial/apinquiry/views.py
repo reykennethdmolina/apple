@@ -373,10 +373,7 @@ class GenerateExcel(View):
             worksheet.write(row, col + 20, data.apmain.remarks)
 
             if data.supplier:
-                worksheet.write(row, col + 21, data.supplier.name)
-                worksheet.write(row, col + 33, data.supplier.tin)
-                worksheet.write(row, col + 34, data.supplier.address1 + ' ' + data.supplier.address2 + ' ' + data.supplier.address3)
-                worksheet.write(row, col + 35, data.supplier.zipcode)
+                worksheet.write(row, col + 21, data.payee.name)
             if data.customer:
                 worksheet.write(row, col + 22, data.customer.name)
             if data.employee:
@@ -400,7 +397,9 @@ class GenerateExcel(View):
             if data.outputvat:
                 worksheet.write(row, col + 32, data.outputvat.description)
 
-
+            worksheet.write(row, col + 33, data.apmain.payee.tin)
+            worksheet.write(row, col + 34, data.apmain.payee.address1 + ' ' + data.apmain.payee.address2 + ' ' + data.apmain.payee.address3)
+            worksheet.write(row, col + 35, data.apmain.payee.zipcode)
 
             row += 1
 
