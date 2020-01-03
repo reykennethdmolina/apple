@@ -230,17 +230,26 @@ class CreateView(CreateView):
         CharField.register_lookup(Length, 'length')
 
         self.object = form.save(commit=False)
+
         try:
-            apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+            ndto = datetime.datetime.strptime(self.request.POST['apdate'], "%Y-%m-%d")
+            todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+            toyear = todate.year
+
+            apnumlast = Apmain.objects.filter(apnum__length=10, apdate__year=toyear).latest('apnum')
             latestapnum = str(apnumlast)
-            print latestapnum
-            if latestapnum[0:4] == str(datetime.datetime.now().year):
-                apnum = str(datetime.datetime.now().year)
+            #print latestapnum
+            print 'latestapnum'
+            #if latestapnum[0:4] == str(datetime.datetime.now().year):
+            if latestapnum[0:4] == str(toyear):
+                apnum = str(toyear)
                 last = str(int(latestapnum[4:])+1)
                 zero_addon = 6 - len(last)
                 for x in range(0, zero_addon):
                     apnum += '0'
                 apnum += last
+                print 'sulod pota ka'
+                print apnum
             else:
                 apnum = str(datetime.datetime.now().year) + '000001'
         except Apmain.DoesNotExist:
@@ -3573,7 +3582,9 @@ class GenerateLedgerPDF(View):
             "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
             "username": request.user,
             'begamount': begamount,
-            'endamount': runbalance,
+            ''
+            ''
+            '': runbalance,
             'supplier': supplier,
         }
         if report == '1':
