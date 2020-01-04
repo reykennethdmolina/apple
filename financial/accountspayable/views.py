@@ -232,17 +232,17 @@ class CreateView(CreateView):
         self.object = form.save(commit=False)
 
         try:
-            ndto = datetime.datetime.strptime(self.request.POST['apdate'], "%Y-%m-%d")
-            todate = datetime.date(int(ndto.year), int(ndto.month), 10)
-            toyear = todate.year
+            #ndto = datetime.datetime.strptime(self.request.POST['apdate'], "%Y-%m-%d")
+            #todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+            #toyear = todate.year
 
-            apnumlast = Apmain.objects.filter(apnum__length=10, apdate__year=toyear).latest('apnum')
+            apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
             latestapnum = str(apnumlast)
             #print latestapnum
             print 'latestapnum'
-            #if latestapnum[0:4] == str(datetime.datetime.now().year):
-            if latestapnum[0:4] == str(toyear):
-                apnum = str(toyear)
+            if latestapnum[0:4] == str(datetime.datetime.now().year):
+            #if latestapnum[0:4] == str(toyear):
+                apnum = str(datetime.datetime.now().year)
                 last = str(int(latestapnum[4:])+1)
                 zero_addon = 6 - len(last)
                 for x in range(0, zero_addon):
