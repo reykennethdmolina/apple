@@ -200,6 +200,19 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_ctax" class="col-sm-4 col-shrink control-label">OF Approver Type</label>
+                                        <div class="col-sm-5">
+                                            <select id="id_of_approver" name="of_approver" class="form-control">
+                                            <option value="">--Select--</option>
+                                            <option value="1" {% if form.of_approver.value == 1 %} selected{% endif %}>OIC</option>
+                                            <option value="2" {% if form.of_approver.value == 2 %} selected{% endif %}>AVP/VP</option>
+                                            <option value="3" {% if form.of_approver.value == 3 %} selected{% endif %}>COO</option>
+                                        </select>
+                                        </div>
+                                    </div>
+                                </div>
 {#                                <div class="form-group col-md-12 form-group-0 form-group-sm form-material {{ form.multiplestatus.errors|yesno:'has-error,' }}">#}
 {#                                    <label for="id_multiplestatus" class="col-sm-4 control-label">Multiple Status</label>#}
 {#                                    <div class="col-sm-7">#}

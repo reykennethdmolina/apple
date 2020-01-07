@@ -77,7 +77,7 @@ class UpdateView(UpdateView):
     model = Employee
     template_name = 'employee/edit.html'
     fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount',
-              'managementlevel', 'revolving', 'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'supplier']
+              'managementlevel', 'revolving', 'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'of_approver', 'supplier']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('employee.change_employee'):
@@ -92,7 +92,7 @@ class UpdateView(UpdateView):
         self.object.save(update_fields=['department', 'firstname',
                                         'middlename', 'lastname', 'email', 'multiplestatus',
                                         'modifyby', 'modifydate', 'cellphone_subsidize_amount', 'managementlevel', 'revolving',
-                                        'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'supplier'])
+                                        'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'of_approver', 'supplier'])
         return HttpResponseRedirect('/employee')
 
     def get_context_data(self, **kwargs):

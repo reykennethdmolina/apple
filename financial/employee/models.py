@@ -47,6 +47,7 @@ class Employee(models.Model):
     ap_approver = models.IntegerField(default=0)
     or_approver = models.IntegerField(default=0)
     cs_approver = models.IntegerField(default=0)
+    of_approver = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'employee'
