@@ -26,6 +26,7 @@
         </tr>
     </thead>
     <tbody>
+
         {% for data in data_list %}
         <tr>
             <td>{{ data.id }}</td>
@@ -40,10 +41,12 @@
                     {% elif data.ofstatus == 'D' %} text-danger
                     {% elif data.ofstatus == 'C' %} text-danger
                     {% elif data.ofstatus == 'F' %} text-info
+                    {% elif data.ofstatus == 'H' %} text-info
                     {% elif data.ofstatus == 'R' %} text-success
                     {% endif %}">
                 <b>{{ data.get_ofstatus_display }}</b>
             </td>
+
             {% if user_employee != None %}
                 {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
                     {% if forapproval > 0 or perms.operationalfund.approve_allof %}
@@ -53,15 +56,20 @@
                                 <b class="text-danger">{{ data.get_status_display }}</b>
                                 {% else %}
                                 <div class="text-center">
-                                    {% if perms.operationalfund.approve_allof or data.designatedapprover == user_employee %}
+                                    {% if perms.operationalfund.approve_allof or data.designatedapprover == user_employee or user_employee.of_approver == 3 %}
+
+                                        {% if data.ofstatus == 'A' and user_employee.of_approver == 1 and data.actualapprover != user_employee  %}
+
+                                        {% else %}
                                         <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"
                                             data-ofid={{ data.id }} data-response="A" data-toggle="tooltip" data-placement="left"
                                             data-trigger="hover" data-original-title="Click to Approve" aria-describedby="tooltip850155">
-                                            <i class="icon fa-check" aria-hidden="true"></i></button>
+                                            <i class="icon fa-check" aria-hidden="true"></i>{{ request.user }}x</button>
                                         <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove"
                                             data-ofid={{ data.id }} data-response="D" data-toggle="tooltip" data-placement="right"
                                             data-trigger="hover" data-original-title="Click to Disapprove" aria-describedby="tooltip850155">
                                             <i class="icon fa-remove" aria-hidden="true"></i></button>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                                 {% endif %}

@@ -68,7 +68,12 @@ class IndexView(AjaxListView):
         if self.request.user.has_perm('operationalfund.approve_assignedof') and not self.request.user.has_perm('operationalfund.approve_allof'):
             user_employee = get_object_or_None(Employee, user=self.request.user)
             if user_employee is not None:
-                query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                if user_employee.of_approver == 3:
+                    oic_approver = Employee.objects.filter(of_approver=1).values_list('id', flat=True)
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id) | Ofmain.objects.filter(designatedapprover__in=oic_approver)
+                    #query = Ofmain.objects.filter(designatedapprover__in=oic_approver)
+                else:
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 query = query.filter(isdeleted=0)
                 #query = Ofmain.objects.all().filter(isdeleted=0, designatedapprover=user_employee)
                 #query2 = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
@@ -257,7 +262,8 @@ class CreateViewUser(CreateView):
         #managers = Employee.objects.filter(managementlevel=6).values_list('user_id', flat=True)
         #context['designatedapprover'] = User.objects.filter(id__in=managers, is_active=1).exclude(username='admin').order_by('first_name')
         #context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').exclude(user=self.request.user).order_by('firstname')
-        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(managementlevel__level__lte=5).order_by('firstname')
+        #context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(managementlevel__level__lte=5).order_by('firstname')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(of_approver__gte=1).order_by('firstname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
@@ -389,7 +395,8 @@ class CreateViewCashier(CreateView):
         #managers = Employee.objects.filter(managementlevel=6).values_list('user_id', flat=True)
         #context['designatedapprover'] = User.objects.filter(id__in=managers, is_active=1).exclude(username='admin').order_by('first_name')
         #context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
-        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(managementlevel__level__lte=5).order_by('firstname')
+        #context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(managementlevel__level__lte=5).order_by('firstname')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(of_approver__gte=1).order_by('firstname')
         context['secretkey'] = generatekey(self)
 
         # data for lookup
@@ -547,8 +554,10 @@ class UpdateViewUser(UpdateView):
 
         context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
-        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(managementlevel__level__lte=5).order_by('firstname')
+        #context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(managementlevel__level__lte=5).order_by('firstname')
         #context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).filter(of_approver__gte=1).order_by(
+            'firstname')
         context['user_employee'] = get_object_or_None(Employee, user=self.request.user)
 
         context['savedoftype'] = self.object.oftype.code
@@ -1367,16 +1376,26 @@ def autoentry(request):
 def approve(request):
     if request.method == 'POST':
         of_for_approval = Ofmain.objects.get(pk=request.POST['ofid'])
+        approver_status = Employee.objects.get(user_id=request.user).of_approver
         if request.user.has_perm('operationalfund.approve_allof') or \
-                request.user.has_perm('operationalfund.approve_assignedof'):
+                request.user.has_perm('operationalfund.approve_assignedof'  or approver_status == 3):
             if request.user.has_perm('operationalfund.approve_allof') or \
                     (request.user.has_perm('operationalfund.approve_assignedof') and
-                     of_for_approval.designatedapprover.user == request.user):
+                     of_for_approval.designatedapprover.user == request.user or approver_status == 3):
+                print 'asda'
                 if of_for_approval.ofstatus != 'I' and of_for_approval.ofstatus != 'R':
                     of_for_approval.ofstatus = request.POST['response']
+
                     of_for_approval.isdeleted = 0
+
+                    if approver_status == 1:
+                        of_for_approval.ofstatus = 'H'
+                    else:
+                        of_for_approval.ofstatus = request.POST['response']
+
                     if request.POST['response'] == 'D':
                         of_for_approval.status = 'C'
+                        of_for_approval.ofstatus = 'D'
                     else:
                         of_for_approval.status = 'A'
                     of_for_approval.approverresponse = request.POST['response']

@@ -31,6 +31,7 @@ class Ofmain(models.Model):
         ('D', 'Disapproved'),
         ('C', 'Cancelled'),
         ('I', 'In Process'),
+        ('H', 'OIC-Approved'),
         ('O', 'For JV'),
         ('P', 'JV in Process'),
         ('R', 'Released'),
