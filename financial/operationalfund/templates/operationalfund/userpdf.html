@@ -98,7 +98,7 @@
             <td width="20%" style="border-left: 2px solid black;"><b>Approved by</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
-                {% if ofmain.actualapprover and ofmain.approverresponse == 'A' and ofmain.status != 'A' %}
+                {% if ofmain.actualapprover and ofmain.approverresponse == 'A' and ofmain.ofstatus != 'A' %}
                     <div class="sign_here">SGD {{ ofmain.actualapprover.firstname }}&nbsp;{{ ofmain.actualapprover.lastname }}</div>
                     <div class="watermark"><i>Electronic Approved</i></div>
                 {% else %}
