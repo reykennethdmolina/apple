@@ -9,6 +9,7 @@
                 <th><span>Description</span></th>
                 <th><span>Inventory Class</span></th>
                 <th><span>Unit of Measure</span></th>
+                <th class="text-right"><span>Unit Cost</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
         </thead>
@@ -20,6 +21,7 @@
                 <td>{{ data.description }}</td>
                 <td>{{ data.inventoryitemclass.code }} - {{ data.inventoryitemclass.description }}</td>
                 <td>{{ data.unitofmeasure.code }} - {{ data.unitofmeasure.description }}</td>
+                <td class="text-right">{{ data.unitcost }}</td>
                 <td class="text-center">
                     <div class="iconlist-wrap auto-0">
                         <div class="iconlist">

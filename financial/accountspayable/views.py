@@ -2179,6 +2179,7 @@ class GeneratePDF(View):
         vat = request.GET['vat']
         bankaccount = request.GET['bankaccount']
         creator = request.GET['creator']
+        duedate = request.GET['duedate']
         title = "Accounts Payable Voucher List"
         list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
 
@@ -2293,6 +2294,11 @@ class GeneratePDF(View):
                 q = q.filter(apmain__enterby_id=creator)
             else:
                 q = q.filter(enterby_id=creator)
+        if duedate != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__duedate=duedate)
+            else:
+                q = q.filter(duedate=duedate)
 
         if report == '5':
             list = query
@@ -2379,6 +2385,7 @@ class GenerateExcel(View):
         vat = request.GET['vat']
         bankaccount = request.GET['bankaccount']
         creator = request.GET['creator']
+        duedate = request.GET['duedate']
         title = "Accounts Payable Voucher List"
         list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
 
@@ -2496,6 +2503,11 @@ class GenerateExcel(View):
                 q = q.filter(apmain__enterby_id=creator)
             else:
                 q = q.filter(enterby_id=creator)
+        if duedate != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__duedate=duedate)
+            else:
+                q = q.filter(duedate=duedate)
 
         if report == '5':
             list = query
