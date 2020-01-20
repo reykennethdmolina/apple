@@ -76,8 +76,8 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Employee
     template_name = 'employee/edit.html'
-    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount',
-              'managementlevel', 'revolving', 'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'of_approver', 'supplier']
+    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount', 'of_approver',
+              'managementlevel', 'revolving', 'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'supplier']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('employee.change_employee'):
@@ -85,10 +85,13 @@ class UpdateView(UpdateView):
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        print self.request.POST['of_approver']
+        print 'xx'
         self.object = form.save(commit=False)
         self.object.multiplestatus = 'N'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
+        self.object.of_approver = self.request.POST['of_approver']
         self.object.save(update_fields=['department', 'firstname',
                                         'middlename', 'lastname', 'email', 'multiplestatus',
                                         'modifyby', 'modifydate', 'cellphone_subsidize_amount', 'managementlevel', 'revolving',

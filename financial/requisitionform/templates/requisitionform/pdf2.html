@@ -82,7 +82,7 @@
         {% for data in rfdetail %}
             <tr>
                 <td><div class="col">{{ data.invitem_code }}</div></td>
-                <td align="center"><div class="col">{{ data.remarks }}</div></td>
+                <td align="center"><div class="col">{{ data.remarks|safe }}</div></td>
                 <td align="center"><div class="col">{{ data.quantity }}</div></td>
             </tr>
         {% endfor %}

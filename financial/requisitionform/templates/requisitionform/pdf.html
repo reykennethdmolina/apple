@@ -233,7 +233,7 @@
             <td width="5%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
             <td width="15%" style="padding-top: 5px; padding-left: 5px;">{{ data.invitem_code }}</td>
             <td width="35%" style="padding-top: 5px;">{{ data.invitem_name }}</td>
-            <td width="25%" style="padding-top: 5px;">{{ data.remarks }}</td>
+            <td width="25%" style="padding-top: 5px;">{{ data.remarks|safe }}</td>
             <td width="10%" style="padding-top: 5px;">{{ data.invitem_unitofmeasure_code }}</td>
             <td width="10%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.quantity }}</td>
         </tr>
