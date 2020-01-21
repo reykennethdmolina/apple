@@ -36,7 +36,7 @@ class IndexView(ListView):
         context['yearend_year'] = yearend_year.year
         context['today_year'] = datetime.today().year
         context['today_month'] = datetime.today().month
-        context['toclose_year'] = yearend_year.year + 1
+        context['toclose_year'] = yearend_year.year
         context['count'] = datetime.today().year - company.year_end_date.year
         context['param'] = company
 

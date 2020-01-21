@@ -68,7 +68,7 @@
                 type: "post",
                 data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                        'dfrom': $('#posting_cvdate_from').val(),
-                       'dto': $('<div id="posting_c"></div>vdate_to').val(),
+                       'dto': $('#posting_cvdate_to').val(),
                        },
                 success: function(response){
                     $("#postingresult").html(response['viewhtml']);

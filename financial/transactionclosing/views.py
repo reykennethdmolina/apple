@@ -616,13 +616,15 @@ def yearend_init(request):
     ''' Process Bank Account Summary Accounts '''
 
     ''' TODO '''
+    company = Companyparameter.objects.all().first()
+    closingyear = company.last_closed_date.year
 
-    # bankaccount_summary = Bankaccount.objects.all()
-    #
-    # for data in bankaccount:
-    #     bank = Bankaccount.objects.filter(pk=data.id)
-    #     bank.update(beg_amount=bank.first().run_amount, beg_code=bank.first().run_code,
-    #                 beg_date=bank.first().run_date)
+    for datax in bankaccount:
+        bank_summary = Bankaccountsummary(year=closingyear, code=datax.code, accountnumber=datax.accountnumber,
+                                          beg_amount=datax.beg_amount,beg_code=datax.beg_code,beg_date=datax.beg_date,
+                                          status='A',bankaccount_id=datax.id,
+                                          year_to_date_amount=datax.year_to_date_amount,year_to_date_code=datax.year_to_date_code,year_to_date_date=datax.year_to_date_date)
+        bank_summary.save()
 
     ''' Update Year End Date  '''
     param.update(year_end_date=param.first().last_closed_date)
