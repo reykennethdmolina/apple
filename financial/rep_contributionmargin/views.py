@@ -541,7 +541,7 @@ def cm_product(dfrom, dto):
             "LEFT OUTER JOIN department AS d ON d.id = s.department_id " \
             "LEFT OUTER JOIN product AS p ON p.id = d.product_id " \
             "WHERE s.document_date >= '"+str(dfrom)+ "' AND s.document_date <= '"+str(dto)+"' " \
-            "AND c.main = 5 AND p.id IN (3,8,1) " \
+            "AND c.main = 5" \
             "ORDER BY p.description"
 
 
