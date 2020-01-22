@@ -359,6 +359,7 @@
                     $('#id_refnum').attr("required", true);
                     $('#cashadv_amount').show()
                     $('#id_cashadv_amount').attr("required", true);
+                    $('#id_cashadv_amount').val(1);
                 } else {
                     $('#refnum').hide();
                     $('#id_refnum').val('').attr("required", false);
@@ -578,6 +579,7 @@
 
             /** Store OF **/
             $(document).on('click', '#validateButton', function(){
+
                 if($('.item_table tbody tr').length > $('.item_table tbody tr.warning').length){
                     if(parseFloat($('#totalamount').text().replace(',','')) <= 1000 || $('#id_oftype').val() != 1){
                         if(parseFloat($('#totalamount').text().replace(',','')) <= parseFloat($('#id_requestor option:selected').data('amount')) || $('#id_oftype').val() != 3){
