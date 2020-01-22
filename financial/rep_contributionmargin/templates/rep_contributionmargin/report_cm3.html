@@ -19,7 +19,7 @@
             </thead>
 
             <tbody>
-            {% regroup list by typecode as data %}
+            {% regroup list by csubgrouptitle as data %}
 
             {% for typegroup in data %}
 
@@ -30,7 +30,7 @@
                 {% for item in typegroup.list %}
 
                 <tr>
-                    <td style="font-size:13px;text-align:left">&nbsp;&nbsp;&nbsp{{ item.csubheaddescription|default:'N/A' }}</td>
+                    <td style="font-size:13px;text-align:left">&nbsp;&nbsp;&nbsp{{ item.csubheaddescription|default:'' }}</td>
                     {% for i in prod %}
                     <td style="font-size:13px;width:150px;text-align:right">{{ item|passitem:forloop.counter|default:''|floatformat:2|intcomma|to_negative }}</td>
                     {% endfor %}
@@ -83,6 +83,7 @@
 
             </tbody>
         </table>
+
 
     </div>
 </div>

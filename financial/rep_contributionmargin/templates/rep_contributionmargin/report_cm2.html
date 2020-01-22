@@ -19,7 +19,7 @@
             </thead>
 
             <tbody>
-            {% regroup list by typecode as data %}
+            {% regroup list by kindcode as data %}
 
             {% for typegroup in data %}
 
@@ -30,7 +30,7 @@
                 {% for item in typegroup.list %}
 
                 <tr>
-                    <td style="font-size:13px;text-align:left">&nbsp;&nbsp;&nbsp{{ item.csubheaddescription|default:'N/A' }}</td>
+                    <td style="font-size:13px;text-align:left">&nbsp;&nbsp;&nbsp{{ item.csubheaddescription|default:'' }}</td>
                     {% for i in prod %}
                     <td style="font-size:13px;width:150px;text-align:right">{{ item|passitem:forloop.counter|default:''|floatformat:2|intcomma|to_negative }}</td>
                     {% endfor %}
@@ -65,6 +65,7 @@
                 <td style="font-size:16px;width:150px;text-align:right"><b>{{ list|subtotalpassitem:counterminus|default:''|floatformat:2|intcomma|to_negative }}</b></td>
             </tr>
 
+
             <tr>
                 <td style="font-size:16px;width:300px;text-align:left"><i>&nbsp;&nbsp;Add: (Deduct) adjustment</i></td>
                 {% for i in prod %}
@@ -81,8 +82,10 @@
                 <td style="font-size:16px;width:150px;text-align:right"><b>{{ cmlist|combine_param:counterminus|income_loss:list|default:''|floatformat:2|intcomma|to_negative }}</b></td>
             </tr>
 
+
             </tbody>
         </table>
+
 
     </div>
 </div>

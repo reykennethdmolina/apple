@@ -1,4 +1,5 @@
 from django.template import Library
+import numpy as np
 register = Library()
 
 @register.filter
@@ -261,3 +262,42 @@ def diff(debit, credit):
         return 0
     #print list.creditamount_sum
     #return list.debitamount_sum - list.creditamount_sum
+
+@register.filter
+def incomeloss(arg1, arg2):
+    valloss = 0
+    # if arg2:
+    #     val = 'sum(row.col' + str(counter) + ' for row in item)'
+    #     valloss = eval(arg2)
+    #print arg1
+    print ''
+
+@register.filter
+def cmitemdata(item, counter):
+    #print type(item)
+    #print 'cmitemdata'
+    if item:
+        val = 'item[0].col'+str(counter)
+        return eval(val)
+
+@register.filter(name='combine_param')
+def combine_param(arg1, arg2):
+    return arg1, arg2
+
+@register.filter
+def income_loss(arg1, arg2):
+    item =0
+    counter = 0
+    adjustment = 0
+    income = 0
+    val = 0
+    if arg1:
+        item = arg1[0]
+        counter = arg1[1]
+        adjustment = eval('item[0].col' + str(counter))
+    if arg2:
+        item2 = arg2
+        income = eval('sum(row.col' + str(counter) + ' for row in item2)')
+        #return eval(val)
+
+    return income + adjustment
