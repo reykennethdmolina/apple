@@ -46,6 +46,7 @@ from django.shortcuts import render
 import os
 import xlsxwriter
 from django.core.files.storage import FileSystemStorage
+from django.db.models import Max
 
 
 class IndexView(AjaxListView):
@@ -153,11 +154,18 @@ class CreateView(CreateView):
         self.object = form.save(commit=False)
 
         # Get JVYear
-        jvyear = form.cleaned_data['jvdate'].year
-        num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
-        padnum = '{:06d}'.format(num)
+        if self.request.POST['jvtype'] == '6':
+            jvyear = form.cleaned_data['jvdate'].year
+            num = Jvmain.objects.filter(jvdate__year=jvyear)
+            numx = num.aggregate(Max('jvnum'))
+            d_num = numx.values()
+            self.object.jvnum = int(d_num[0]) + 1
+        else:
+            jvyear = form.cleaned_data['jvdate'].year
+            num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
+            padnum = '{:06d}'.format(num)
+            self.object.jvnum = str(jvyear)+str(padnum)
 
-        self.object.jvnum = str(jvyear)+str(padnum)
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
