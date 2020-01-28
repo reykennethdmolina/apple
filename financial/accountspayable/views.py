@@ -3594,9 +3594,7 @@ class GenerateLedgerPDF(View):
             "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
             "username": request.user,
             'begamount': begamount,
-            ''
-            ''
-            '': runbalance,
+            'endamount': runbalance,
             'supplier': supplier,
         }
         if report == '1':
