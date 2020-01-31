@@ -242,6 +242,7 @@ def total_bud_lastytd_varpercent(list):
 
 @register.filter
 def passitem(item, counter):
+    val = 0
     if item:
         val = 'item.col'+str(counter)
         return eval(val)
@@ -273,6 +274,21 @@ def incomeloss(arg1, arg2):
     print ''
 
 @register.filter
+def revenuetotal(item, counter):
+    if item:
+        val = 'sum(row.col' + str(counter) + ' for row in item)'
+        return eval(val)
+
+@register.filter
+def revenuetotal_counter(item, counter):
+    data = 0
+    if item:
+        val = 'sum(row.col' + str(counter) + ' for row in item)'
+        data = eval(val)
+
+    return data, counter
+
+@register.filter
 def cmitemdata(item, counter):
     #print type(item)
     #print 'cmitemdata'
@@ -301,3 +317,45 @@ def income_loss(arg1, arg2):
         #return eval(val)
 
     return income + adjustment
+
+@register.filter
+def income_loss2(arg1, arg2):
+
+    item =0
+    counter = 0
+    adjustment = 0
+    cm = 0
+    val = 0
+    if arg1:
+        item = arg1[0]
+        counter = arg1[1]
+        adjustment = eval('item[0].col' + str(counter))
+    if arg2:
+        item2 = arg2
+        cm = eval('sum(row.col' + str(counter) + ' for row in item2)')
+        #return eval(val)
+    return cm  #+ adjustment
+    #return income + adjustment
+
+@register.filter
+def contribution_margin(arg1, arg2):
+    item =0
+    counter = 0
+    data1 = 0
+    data2 = 0
+    val = 0
+    if arg1:
+        item = arg1[0]
+        counter = arg1[1]
+        data1 = eval('sum(row.col' + str(counter) + ' for row in item)')
+    if arg2:
+        item2 = arg2
+        data2 = eval('sum(row.col' + str(counter) + ' for row in item2)')
+        #return eval(val)
+    return data1 - data2
+    #return income + adjustment
+
+@register.filter
+def opex(item, counter):
+    #return item[0]
+    return eval('item[' + str(counter - 1)+']')

@@ -19,6 +19,29 @@
             </thead>
 
             <tbody>
+
+            {% for rev in revlist %}
+            <tr>
+                <td style="font-size:16px;text-align:left"><b>{{ rev.typecode }}</b></td>
+                {% for i in prod %}
+                <td style="font-size:13px;width:150px;text-align:right">{{ rev|passitem:forloop.counter|default:''|floatformat:2|intcomma|to_negative }}</td>
+                {% endfor %}
+                <td style="font-size:13px;width:150px;text-align:right">{{ rev|passitem:counterminus|default:''|floatformat:2|intcomma|to_negative }}</td>
+            </tr>
+            {% endfor %}
+
+            <tr>
+                <td style="font-size:13px;width:300px;text-align:left"><b>&nbsp;&nbsp;Total Revenue</b></td>
+                {% for i in prod %}
+                <td style="font-size:13px;width:150px;text-align:right"><b>{{ revlist|revenuetotal:forloop.counter|default:''|floatformat:2|intcomma|to_negative }}</b></td>
+                {% endfor %}
+                <td style="font-size:13px;width:150px;text-align:right"><b>{{ revlist|revenuetotal:counterminus|default:''|floatformat:2|intcomma|to_negative }}</b></td>
+            </tr>
+
+            <tr>
+                <td colspan="{{ counter }}" style="font-size:16px;text-align:left"><b></b></td>
+            </tr>
+
             {% regroup list by kindcode as data %}
 
             {% for typegroup in data %}
@@ -57,13 +80,22 @@
 
             {% endfor %}
 
-            <tr>
-                <td style="font-size:16px;width:300px;text-align:left"><b>&nbsp;&nbsp;Grandtotal</b></td>
+           <tr>
+                <td style="font-size:14px;width:300px;text-align:left"><b>&nbsp;&nbsp;Total Expenses</b></td>
                 {% for i in prod %}
-                <td style="font-size:16px;width:150px;text-align:right"><b>{{ list|subtotalpassitem:forloop.counter|default:''|floatformat:2|intcomma|to_negative }}</b></td>
+                <td style="font-size:14px;width:150px;text-align:right"><b>{{ list|subtotalpassitem:forloop.counter|default:''|floatformat:2|intcomma|to_negative }}</b></td>
                 {% endfor %}
-                <td style="font-size:16px;width:150px;text-align:right"><b>{{ list|subtotalpassitem:counterminus|default:''|floatformat:2|intcomma|to_negative }}</b></td>
+                <td style="font-size:14px;width:150px;text-align:right"><b>{{ list|subtotalpassitem:counterminus|default:''|floatformat:2|intcomma|to_negative }}</b></td>
             </tr>
+
+            <tr>
+                <td style="font-size:16px;width:300px;text-align:left"><b>&nbsp;&nbsp;Contribution Margin</b></td>
+                {% for i in prod %}
+                <td style="font-size:16px;width:150px;text-align:right"><b>{{ revlist|combine_param:forloop.counter|contribution_margin:list|default:''|floatformat:2|intcomma|to_negative }}</b></td>
+                {% endfor %}
+                <td style="font-size:16px;width:150px;text-align:right"><b>{{ revlist|combine_param:counterminus|contribution_margin:list|default:''|floatformat:2|intcomma|to_negative }}</b></td>
+            </tr>
+
 
 
             <tr>
@@ -77,9 +109,9 @@
              <tr>
                 <td style="font-size:16px;width:300px;text-align:left"><b>&nbsp;&nbsp;Operating Income (Loss)</b></td>
                 {% for i in prod %}
-                <td style="font-size:16px;width:150px;text-align:right"><b>{{ cmlist|combine_param:forloop.counter|income_loss:list|default:''|floatformat:2|intcomma|to_negative }}</b></td>
+                <td style="font-size:16px;width:150px;text-align:right"><b>{{ opex|opex:forloop.counter|default:''|floatformat:2|intcomma|to_negative }}</b></td>
                 {% endfor %}
-                <td style="font-size:16px;width:150px;text-align:right"><b>{{ cmlist|combine_param:counterminus|income_loss:list|default:''|floatformat:2|intcomma|to_negative }}</b></td>
+                <td style="font-size:16px;width:150px;text-align:right"><b>{{ opex|opex:counterminus|default:''|floatformat:2|intcomma|to_negative }}</b></td>
             </tr>
 
             </tbody>

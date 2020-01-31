@@ -49,6 +49,8 @@ def generate(request):
 
     list = {}
     cmlist = {}
+    revlist = {}
+    revlistsum = {}
     viewhtml = ''
 
     ndto = datetime.datetime.strptime(dto, "%Y-%m-%d")
@@ -76,6 +78,7 @@ def generate(request):
     prod = {}
     prodname = {}
     prod_id = []
+    opex = []
     col_prod = ''
     counter = 1
     for c in list_product:
@@ -92,49 +95,150 @@ def generate(request):
     if report == '1':
 
         q = query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth)
+        revenue = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, 'detail')
+        revenuesum = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, '')
         cmitem = query_cm_item(prod, dfrom, dto)
+
+        ## Operating income (loss) hack
+        c = 1
+        cmadjustment = 0
+        rev = 0
+        exp = 0
+        income_loss = 0
+        for x in range(counter):
+            rev = eval('revenuesum[0].col' + str(c))
+            exp = eval('sum(row.col' + str(c) + ' for row in q)')
+
+            cmadjustment = eval('cmitem[0].col' + str(c))
+            income_loss = (rev - exp) + cmadjustment
+            opex.append(income_loss)
+            c += 1
 
         list = q
         cmlist = cmitem
+        revlist = revenue
+        revlistsum = revenuesum
 
         context['prod'] = prodname
         context['list'] = list
         context['cmlist'] = cmlist
+        context['revlist'] = revlist
         context['counter'] = counter + 1
         context['counterminus'] = counter
+        context['opex'] = opex
         context['title'] = "Contribution Margin - Type of Expense"
         viewhtml = render_to_string('rep_contributionmargin/report_cm1.html', context)
     elif report == '2':
 
         q = query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth)
+        revenue = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, 'detail')
+        revenuesum = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, '')
         cmitem = query_cm_item(prod, dfrom, dto)
+
+        ## Operating income (loss) hack
+        c = 1
+        cmadjustment = 0
+        rev = 0
+        exp = 0
+        income_loss = 0
+        for x in range(counter):
+            rev = eval('revenuesum[0].col' + str(c))
+            exp = eval('sum(row.col' + str(c) + ' for row in q)')
+
+            cmadjustment = eval('cmitem[0].col' + str(c))
+            income_loss = (rev - exp) + cmadjustment
+            opex.append(income_loss)
+            c += 1
 
         list = q
         cmlist = cmitem
+        revlist = revenue
+        revlistsum = revenuesum
 
         context['prod'] = prodname
         context['list'] = list
         context['cmlist'] = cmlist
+        context['revlist'] = revlist
         context['counter'] = counter + 1
         context['counterminus'] = counter
+        context['opex'] = opex
         context['title'] = "Contribution Margin - Kind of Expense"
         viewhtml = render_to_string('rep_contributionmargin/report_cm2.html', context)
 
     elif report == '3':
 
         q = query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth)
+        revenue = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, 'detail')
+        revenuesum = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, '')
         cmitem = query_cm_item(prod, dfrom, dto)
+
+        ## Operating income (loss) hack
+        c = 1
+        cmadjustment = 0
+        rev = 0
+        exp = 0
+        income_loss = 0
+        for x in range(counter):
+            rev = eval('revenuesum[0].col' + str(c))
+            exp = eval('sum(row.col' + str(c) + ' for row in q)')
+
+            cmadjustment = eval('cmitem[0].col' + str(c))
+            income_loss = (rev - exp) + cmadjustment
+            opex.append(income_loss)
+            c += 1
 
         list = q
         cmlist = cmitem
+        revlist = revenue
+        revlistsum = revenuesum
 
         context['prod'] = prodname
         context['list'] = list
         context['cmlist'] = cmlist
+        context['revlist'] = revlist
         context['counter'] = counter + 1
         context['counterminus'] = counter
+        context['opex'] = opex
         context['title'] = "Contribution Margin - Group"
         viewhtml = render_to_string('rep_contributionmargin/report_cm3.html', context)
+
+    elif report == '4':
+
+        q = query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth)
+        revenue = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, 'detail')
+        revenuesum = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, '')
+        cmitem = query_cm_item(prod, dfrom, dto)
+
+        ## Operating income (loss) hack
+        c = 1
+        cmadjustment = 0
+        rev = 0
+        exp = 0
+        income_loss = 0
+        for x in range(counter):
+            rev = eval('revenuesum[0].col' + str(c))
+            exp = eval('sum(row.col' + str(c) + ' for row in q)')
+
+            cmadjustment = eval('cmitem[0].col' + str(c))
+            income_loss = (rev - exp) + cmadjustment
+            opex.append(income_loss)
+            c += 1
+
+        list = q
+        cmlist = cmitem
+        revlist = revenue
+        revlistsum = revenuesum
+
+        context['prod'] = prodname
+        context['list'] = list
+        context['cmlist'] = cmlist
+        context['revlist'] = revlist
+        context['counter'] = counter + 1
+        context['counterminus'] = counter
+        context['opex'] = opex
+        context['title'] = "Contribution Margin - Expense Summary"
+        viewhtml = render_to_string('rep_contributionmargin/report_cm4.html', context)
+
     else:
         print 'nothing'
         viewhtml = []
@@ -172,6 +276,8 @@ class GenerateExcel(View):
 
         list = []
         cmlist = []
+        revenuelist = []
+        revenuesumlist = []
         filename = "contributionmargin.xlsx"
 
         list_product = cm_product(dfrom, dto)
@@ -193,18 +299,31 @@ class GenerateExcel(View):
         if report == '1':
             list = query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth)
             cmitem = query_cm_item(prod, dfrom, dto)
+            revenue = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, 'detail')
+            revenuesum = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, '')
             title = "Contribution Margin - Type of Expense"
             filename = "contributionmargin-typeofexpense.xlsx"
         elif report == '2':
             list = query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth)
             cmitem = query_cm_item(prod, dfrom, dto)
+            revenue = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, 'detail')
+            revenuesum = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, '')
             title = "Contribution Margin - Kind of Expense"
             filename = "contributionmargin-kindofexpense.xlsx"
         elif report == '3':
             list = query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth)
             cmitem = query_cm_item(prod, dfrom, dto)
+            revenue = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, 'detail')
+            revenuesum = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, '')
             title = "Contribution Margin - Group"
             filename = "contributionmargin-group.xlsx"
+        elif report == '4':
+            list = query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth)
+            cmitem = query_cm_item(prod, dfrom, dto)
+            revenue = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, 'detail')
+            revenuesum = query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, '')
+            title = "Contribution Margin - Expense Summary"
+            filename = "contributionmargin-expensesummary.xlsx"
 
         # Create an in-memory output file for the new workbook.
         output = io.BytesIO()
@@ -223,7 +342,7 @@ class GenerateExcel(View):
 
         # header
         worksheet.write('A5', '', bold)
-        rowh = 5
+        rowh = 4
         colh = 1
         subtotal = []
         grandtotal = []
@@ -238,11 +357,43 @@ class GenerateExcel(View):
 
         df = pd.DataFrame(list)
         cmlist = pd.DataFrame(cmitem)
+        revenuelist = pd.DataFrame(revenue)
+        revenuesumlist = pd.DataFrame(revenuesum)
         if report == '1':
 
             row = 6
             col = 0
             if list:
+                print revenuesumlist['col1'][0]
+                for index, rowr in revenuelist.iterrows():
+                    worksheet.write(row, col, str(rowr.typecode))
+                    colrh = 0
+                    colrv = 1
+                    revtotal = 0
+                    for key, val in prod:
+                        xx = eval('rowr.col' + str(colrv))
+                        revtotal += xx
+                        worksheet.write(row, colrh + 1, float(format(xx, '.2f')))
+                        colrh += 1
+                        colrv += 1
+                    worksheet.write(row, colrh + 1, float(format(revtotal, '.2f')))
+                    row += 1
+
+                for index, rowr in revenuesumlist.iterrows():
+                    worksheet.write(row, col, ' Total Revenue', bold)
+                    colrh = 0
+                    colrv = 1
+                    revtotal = 0
+                    for key, val in prod:
+                        xx = eval('rowr.col' + str(colrv))
+                        revtotal += xx
+                        worksheet.write(row, colrh + 1, float(format(xx, '.2f')), bold)
+                        colrh += 1
+                        colrv += 1
+                    worksheet.write(row, colrh + 1, float(format(revtotal, '.2f')), bold)
+                    row += 1
+                row += 2
+
                 for type, typecode in df.fillna('NaN').groupby(['typeid', 'typecode']):
                     worksheet.write(row, col, str(type[1]), bold)
                     row += 1
@@ -272,7 +423,7 @@ class GenerateExcel(View):
                     worksheet.write(row, colh + 1, float(format(totaltotal, '.2f')), bold)
                     row += 1
 
-                worksheet.write(row, col, 'Grandtotal', bold)
+                worksheet.write(row, col, 'Total Expenses', bold)
                 colh = 0
                 for key, val in prod:
                     worksheet.write(row, colh + 1, float(format(grandtotal[colh], '.2f')), bold)
@@ -280,8 +431,19 @@ class GenerateExcel(View):
                 worksheet.write(row, colh + 1, float(format(grandgrandtotal, '.2f')), bold)
                 row += 1
 
+                worksheet.write(row, col, 'Contribution Margin', bold)
+                colh = 0
+
+                for key, val in prod:
+                    xx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
+                    worksheet.write(row, colh + 1, float(format(xx - grandtotal[colh], '.2f')), bold)
+                    colh += 1
+                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
+                worksheet.write(row, colh + 1, float(format(xxx - grandgrandtotal, '.2f')), bold)
+                row += 1
+
                 worksheet.write(row, col, 'Add: (Deduct) adjustment', bold)
-                worksheet.write(row+1, col, 'Operating Income (Loss)', bold)
+                worksheet.write(row + 1, col, 'Operating Income (Loss)', bold)
                 colh = 0
 
                 for index, rowx in cmlist.iterrows():
@@ -290,20 +452,52 @@ class GenerateExcel(View):
                     incomeloss = 0
                     for key, val in prod:
                         xx = eval('rowx.col' + str(colv))
-                        incomeloss = grandtotal[colh] + xx
+                        xxx = eval("revenuesumlist['col" + str(colv) + "'][0]")
+                        incomeloss = (xxx - grandtotal[colh]) + xx
                         cmtotal += xx
                         worksheet.write(row, colh + 1, float(format(xx, '.2f')), bold)
-                        worksheet.write(row + 1, colh + 1, float(format(incomeloss, '.2f')), bold)
+                        worksheet.write(row + 1, colh + 1, incomeloss, bold)
                         colh += 1
                         colv += 1
+                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
                 worksheet.write(row, colh + 1, float(format(cmtotal, '.2f')), bold)
-                worksheet.write(row+1, colh + 1, float(format(grandgrandtotal + cmtotal, '.2f')), bold)
+                worksheet.write(row + 1, colh + 1, float(format(xxx - grandgrandtotal + cmtotal, '.2f')), bold)
                 row += 1
 
         elif report == '2':
             row = 6
             col = 0
             if list:
+                print revenuesumlist['col1'][0]
+                for index, rowr in revenuelist.iterrows():
+                    worksheet.write(row, col, str(rowr.typecode))
+                    colrh = 0
+                    colrv = 1
+                    revtotal = 0
+                    for key, val in prod:
+                        xx = eval('rowr.col' + str(colrv))
+                        revtotal += xx
+                        worksheet.write(row, colrh + 1, float(format(xx, '.2f')))
+                        colrh += 1
+                        colrv += 1
+                    worksheet.write(row, colrh + 1, float(format(revtotal, '.2f')))
+                    row += 1
+
+                for index, rowr in revenuesumlist.iterrows():
+                    worksheet.write(row, col, ' Total Revenue', bold)
+                    colrh = 0
+                    colrv = 1
+                    revtotal = 0
+                    for key, val in prod:
+                        xx = eval('rowr.col' + str(colrv))
+                        revtotal += xx
+                        worksheet.write(row, colrh + 1, float(format(xx, '.2f')), bold)
+                        colrh += 1
+                        colrv += 1
+                    worksheet.write(row, colrh + 1, float(format(revtotal, '.2f')), bold)
+                    row += 1
+                row += 2
+
                 for type, typecode in df.fillna('NaN').groupby(['kindid', 'kindcode']):
                     worksheet.write(row, col, str(type[1]), bold)
                     row += 1
@@ -333,12 +527,23 @@ class GenerateExcel(View):
                     worksheet.write(row, colh + 1, float(format(totaltotal, '.2f')), bold)
                     row += 1
 
-                worksheet.write(row, col, 'Grandtotal', bold)
+                worksheet.write(row, col, 'Total Expenses', bold)
                 colh = 0
                 for key, val in prod:
                     worksheet.write(row, colh + 1, float(format(grandtotal[colh], '.2f')), bold)
                     colh += 1
                 worksheet.write(row, colh + 1, float(format(grandgrandtotal, '.2f')), bold)
+                row += 1
+
+                worksheet.write(row, col, 'Contribution Margin', bold)
+                colh = 0
+
+                for key, val in prod:
+                    xx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
+                    worksheet.write(row, colh + 1, float(format(xx - grandtotal[colh], '.2f')), bold)
+                    colh += 1
+                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
+                worksheet.write(row, colh + 1, float(format(xxx - grandgrandtotal, '.2f')), bold)
                 row += 1
 
                 worksheet.write(row, col, 'Add: (Deduct) adjustment', bold)
@@ -351,20 +556,52 @@ class GenerateExcel(View):
                     incomeloss = 0
                     for key, val in prod:
                         xx = eval('rowx.col' + str(colv))
-                        incomeloss = grandtotal[colh] + xx
+                        xxx = eval("revenuesumlist['col" + str(colv) + "'][0]")
+                        incomeloss = (xxx - grandtotal[colh]) + xx
                         cmtotal += xx
                         worksheet.write(row, colh + 1, float(format(xx, '.2f')), bold)
-                        worksheet.write(row + 1, colh + 1, float(format(incomeloss, '.2f')), bold)
+                        worksheet.write(row + 1, colh + 1, incomeloss, bold)
                         colh += 1
                         colv += 1
+                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
                 worksheet.write(row, colh + 1, float(format(cmtotal, '.2f')), bold)
-                worksheet.write(row + 1, colh + 1, float(format(grandgrandtotal + cmtotal, '.2f')), bold)
+                worksheet.write(row + 1, colh + 1, float(format(xxx - grandgrandtotal + cmtotal, '.2f')), bold)
                 row += 1
 
         elif report == '3':
             row = 6
             col = 0
             if list:
+                print revenuesumlist['col1'][0]
+                for index, rowr in revenuelist.iterrows():
+                    worksheet.write(row, col, str(rowr.typecode))
+                    colrh = 0
+                    colrv = 1
+                    revtotal = 0
+                    for key, val in prod:
+                        xx = eval('rowr.col' + str(colrv))
+                        revtotal += xx
+                        worksheet.write(row, colrh + 1, float(format(xx, '.2f')))
+                        colrh += 1
+                        colrv += 1
+                    worksheet.write(row, colrh + 1, float(format(revtotal, '.2f')))
+                    row += 1
+
+                for index, rowr in revenuesumlist.iterrows():
+                    worksheet.write(row, col, ' Total Revenue', bold)
+                    colrh = 0
+                    colrv = 1
+                    revtotal = 0
+                    for key, val in prod:
+                        xx = eval('rowr.col' + str(colrv))
+                        revtotal += xx
+                        worksheet.write(row, colrh + 1, float(format(xx, '.2f')), bold)
+                        colrh += 1
+                        colrv += 1
+                    worksheet.write(row, colrh + 1, float(format(revtotal, '.2f')), bold)
+                    row += 1
+                row += 2
+
                 for type, typecode in df.fillna('NaN').groupby(['csubgrouptitle', 'csubgrouptitle']):
                     worksheet.write(row, col, str(type[1]), bold)
                     row += 1
@@ -394,12 +631,23 @@ class GenerateExcel(View):
                     worksheet.write(row, colh + 1, float(format(totaltotal, '.2f')), bold)
                     row += 1
 
-                worksheet.write(row, col, 'Grandtotal', bold)
+                worksheet.write(row, col, 'Total Expenses', bold)
                 colh = 0
                 for key, val in prod:
                     worksheet.write(row, colh + 1, float(format(grandtotal[colh], '.2f')), bold)
                     colh += 1
                 worksheet.write(row, colh + 1, float(format(grandgrandtotal, '.2f')), bold)
+                row += 1
+
+                worksheet.write(row, col, 'Contribution Margin', bold)
+                colh = 0
+
+                for key, val in prod:
+                    xx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
+                    worksheet.write(row, colh + 1, float(format(xx - grandtotal[colh], '.2f')), bold)
+                    colh += 1
+                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
+                worksheet.write(row, colh + 1, float(format(xxx - grandgrandtotal, '.2f')), bold)
                 row += 1
 
                 worksheet.write(row, col, 'Add: (Deduct) adjustment', bold)
@@ -412,14 +660,122 @@ class GenerateExcel(View):
                     incomeloss = 0
                     for key, val in prod:
                         xx = eval('rowx.col' + str(colv))
-                        incomeloss = grandtotal[colh] + xx
+                        xxx = eval("revenuesumlist['col" + str(colv) + "'][0]")
+                        incomeloss = (xxx - grandtotal[colh]) + xx
                         cmtotal += xx
                         worksheet.write(row, colh + 1, float(format(xx, '.2f')), bold)
-                        worksheet.write(row + 1, colh + 1, float(format(incomeloss, '.2f')), bold)
+                        worksheet.write(row + 1, colh + 1, incomeloss, bold)
                         colh += 1
                         colv += 1
+                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
                 worksheet.write(row, colh + 1, float(format(cmtotal, '.2f')), bold)
-                worksheet.write(row + 1, colh + 1, float(format(grandgrandtotal + cmtotal, '.2f')), bold)
+                worksheet.write(row + 1, colh + 1, float(format(xxx - grandgrandtotal + cmtotal, '.2f')), bold)
+                row += 1
+
+        elif report == '4':
+
+            row = 6
+            col = 0
+            if list:
+                print revenuesumlist['col1'][0]
+                for index, rowr in revenuelist.iterrows():
+                    worksheet.write(row, col, str(rowr.typecode))
+                    colrh = 0
+                    colrv = 1
+                    revtotal = 0
+                    for key, val in prod:
+                        xx = eval('rowr.col' + str(colrv))
+                        revtotal += xx
+                        worksheet.write(row, colrh + 1, float(format(xx, '.2f')))
+                        colrh += 1
+                        colrv += 1
+                    worksheet.write(row, colrh + 1, float(format(revtotal, '.2f')))
+                    row += 1
+
+                for index, rowr in revenuesumlist.iterrows():
+                    worksheet.write(row, col, ' Total Revenue', bold)
+                    colrh = 0
+                    colrv = 1
+                    revtotal = 0
+                    for key, val in prod:
+                        xx = eval('rowr.col' + str(colrv))
+                        revtotal += xx
+                        worksheet.write(row, colrh + 1, float(format(xx, '.2f')), bold)
+                        colrh += 1
+                        colrv += 1
+                    worksheet.write(row, colrh + 1, float(format(revtotal, '.2f')), bold)
+                    row += 1
+                row += 2
+
+
+                for type, typecode in df.fillna('NaN').groupby(['kindid', 'kindcode']):
+                    worksheet.write(row, col, str(type[1]), bold)
+                    row += 1
+                    totaltotal = 0
+                    for data, item in typecode.iterrows():
+                        worksheet.write(row, col, '      ' + str(item.csubheaddescription))
+                        colh = 1
+                        total = 0
+                        for key, val in prod:
+                            x = eval('item.col' + str(colh))
+                            subtotal[colh - 1] += x
+                            grandtotal[colh - 1] += x
+                            worksheet.write(row, colh, float(format(x, '.2f')))
+                            colh += 1
+                            total += x
+                        worksheet.write(row, colh, float(format(total, '.2f')))
+                        totaltotal += total
+                        grandgrandtotal += total
+                        row += 1
+
+                    worksheet.write(row, col, '  Subtotal - ' + str(type[1]), bold)
+                    colh = 0
+                    for key, val in prod:
+                        worksheet.write(row, colh + 1, float(format(subtotal[colh], '.2f')), bold)
+                        subtotal[colh] = 0
+                        colh += 1
+                    worksheet.write(row, colh + 1, float(format(totaltotal, '.2f')), bold)
+                    row += 1
+
+                worksheet.write(row, col, 'Total Expenses', bold)
+                colh = 0
+                for key, val in prod:
+                    worksheet.write(row, colh + 1, float(format(grandtotal[colh], '.2f')), bold)
+                    colh += 1
+                worksheet.write(row, colh + 1, float(format(grandgrandtotal, '.2f')), bold)
+                row += 1
+
+                worksheet.write(row, col, 'Contribution Margin', bold)
+                colh = 0
+
+                for key, val in prod:
+                    xx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
+                    worksheet.write(row, colh + 1, float(format(xx - grandtotal[colh], '.2f')), bold)
+                    colh += 1
+                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
+                worksheet.write(row, colh + 1, float(format(xxx - grandgrandtotal, '.2f')), bold)
+                row += 1
+
+                worksheet.write(row, col, 'Add: (Deduct) adjustment', bold)
+                worksheet.write(row + 1, col, 'Operating Income (Loss)', bold)
+                colh = 0
+
+                for index, rowx in cmlist.iterrows():
+                    colh = 0
+                    colv = 1
+                    incomeloss = 0
+                    for key, val in prod:
+                        xx = eval('rowx.col' + str(colv))
+                        xxx = eval("revenuesumlist['col" + str(colv) + "'][0]")
+                        incomeloss = (xxx - grandtotal[colh]) + xx
+                        cmtotal += xx
+                        worksheet.write(row, colh + 1, float(format(xx, '.2f')), bold)
+                        worksheet.write(row + 1, colh + 1, incomeloss, bold)
+                        colh += 1
+                        colv += 1
+                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
+                worksheet.write(row, colh + 1, float(format(cmtotal, '.2f')), bold)
+                worksheet.write(row + 1, colh + 1, float(format(xxx - grandgrandtotal + cmtotal, '.2f')), bold)
                 row += 1
 
         else:
@@ -595,6 +951,69 @@ def query_cm_item(prod, dfrom, dto):
 
     return result
 
+def query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, type):
+    print "Transaction Query Budget Report"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    str_col = ''
+    str_total = ''
+    str_left = ''
+    str_con = ''
+    type_report = ''
+    #type_condition = 'GROUP BY cgroup.description, csubhead.description'
+    type_condition = ''
+    if type == 'detail':
+        type_condition = 'GROUP BY typeid'
+
+
+    if report == '1':
+        type_report = "ORDER BY ty.id, ch.main, ch.item, ch.cont, ch.sub"
+    elif report == '2':
+        type_report = "ORDER BY kd.id DESC, ch.main, ch.item, ch.cont, ch.sub"
+    elif report == '3':
+        type_report = "ORDER BY csubgroup.title DESC, ch.main, ch.item, ch.cont, ch.sub"
+    elif report == '4':
+        type_report = "ORDER BY ty.id, c.accountcode"
+    else:
+        print 'do nothing'
+
+    counter = 1
+    #for id, d in dept.items():
+    for id, d in prod:
+        str_col += "SUM(IFNULL(col"+str(counter)+".amount, 0)) AS col"+str(counter)+", "
+        str_total += "SUM(IFNULL(col"+str(counter)+".amount, 0)) + "
+        str_left += "LEFT OUTER JOIN " \
+                    "(SELECT YEAR(a.document_date) AS `year`, MONTH(a.document_date) AS `month`, IF (SUBSTR(c.accountcode, 1, 2) = '41', IF (SUBSTR(c.accountcode, 1, 3) = '411', 1, 2), IF(SUBSTR(c.accountcode, 1,2) = '43', '1', 2)) AS itemx," \
+                    " SUM(IF(a.balancecode = 'C', a.amount, a.amount * -1)) AS amount, a.balancecode, a.chartofaccount_id, c.product_id  " \
+                    "FROM subledger AS a " \
+                    "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+                    "WHERE DATE(a.document_date) >= '"+str(dfrom)+"' AND DATE(a.document_date) <= '"+str(dto)+"' AND c.main = 4  AND c.product_id  = "+str(id)+" " \
+                    "GROUP BY itemx, c.product_id) AS col"+str(counter)+" ON col"+str(counter)+".chartofaccount_id = c.id "
+        str_con += "IFNULL(col" + str(counter) + ".amount, 0) + "
+        counter += 1
+
+    str_total = "("+str(str_total)+" 0 ) AS col"+str(counter)+", "
+    print 'start'
+    query = "SELECT IF (SUBSTR(c.accountcode, 1, 2) = '41', IF (SUBSTR(c.accountcode, 1, 3) = '411', 1, 2), IF(SUBSTR(c.accountcode, 1,2) = '43', 1, 2)) AS typeid, " \
+            "IF (SUBSTR(c.accountcode, 1, 2) = '41', IF (SUBSTR(c.accountcode, 1, 3) = '411', 'NET ADVERTISING', 'NET CIRCULATION REVENUE'), IF(SUBSTR(c.accountcode, 1,2) = '43', 'NET ADVERTISING', 'NET CIRCULATION REVENUE')) AS typecode, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription, c.accountcode, c.description, "+str(str_col)+" "+str(str_total)+" c.id " \
+            "FROM chartofaccount AS c "+str(str_left)+" " \
+            "LEFT OUTER JOIN chartofaccount AS ch ON ch.id = c.id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = ch.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = ch.main AND csubgroup.clas = ch.clas AND csubgroup.item = ch.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = ch.main AND csubhead.clas = ch.clas AND csubhead.item = ch.item AND csubhead.cont = ch.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "LEFT OUTER JOIN typeofexpense AS ty ON ty.id = ch.typeofexpense_id " \
+            "LEFT OUTER JOIN kindofexpense AS kd ON kd.id = ch.kindofexpense_id " \
+            "WHERE c.main = 4 AND ch.accounttype != 'T' "+" "+str(type_condition)+" "+str(type_report)+" "
+    #print query
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
 def query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth):
     print "Transaction Query Budget Report"
     ''' Create query '''
@@ -615,6 +1034,8 @@ def query_cm_product_row(report, prod, dfrom, dto, toyear, tomonth):
         type_report = "ORDER BY kd.id DESC, ch.main, ch.item, ch.cont, ch.sub"
     elif report == '3':
         type_report = "ORDER BY csubgroup.title DESC, ch.main, ch.item, ch.cont, ch.sub"
+    elif report == '4':
+        type_report = "ORDER BY kd.id DESC, ch.main, ch.item, ch.cont, ch.sub"
     else:
         print 'do nothing'
 
