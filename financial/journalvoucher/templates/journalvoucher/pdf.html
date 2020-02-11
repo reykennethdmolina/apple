@@ -14,12 +14,12 @@
                 left: 1cm;
                 width: 19.5cm;
                 top: 1cm;
-                height: 6cm;
+                height: 7cm;
             }
             @frame content_frame {
                 left: 1cm;
                 width: 19.5cm;
-                top: 6.5cm;
+                top: 7.3cm;
                 height: 18.5cm;
             }
             @frame footer_frame {
@@ -163,6 +163,9 @@
                 {% endif %}
                 {% if detail.employee %}
                     - {{ detail.employee.firstname }} {{ detail.employee.lastname }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.supplier %}
+                    {{ detail.supplier.code }} - {{ detail.supplier.name }}
                 {% endif %}
             </td>
             <td style="width: 11%" align="right">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}
