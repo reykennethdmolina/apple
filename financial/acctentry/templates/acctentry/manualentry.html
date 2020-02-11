@@ -123,7 +123,7 @@
                 <select class="form-control input-sm" id="detail_ataxcode" name="detail_ataxcode">
                 <option value="">-- Select ATAX Code --</option>
                 {% for ataxcode in ataxcode %}
-                    <option value="{{ ataxcode.id }}">{{ ataxcode.description }}</option>
+                    <option value="{{ ataxcode.id }}">{{ ataxcode.code }} - ({{ ataxcode.rate }}%) - {{ ataxcode.description }}</option>
                 {% endfor %}
                 </select>
             </div>
