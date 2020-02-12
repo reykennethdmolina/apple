@@ -213,6 +213,18 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_ctax" class="col-sm-4 col-shrink control-label">Group</label>
+                                        <div class="col-sm-5">
+                                            <select id="id_group" name="group" class="form-control">
+                                            <option value="0">--Select--</option>
+                                            <option value="B" {% if form.group.value == 'B' %} selected{% endif %}>Business</option>
+                                            <option value="E" {% if form.group.value == 'E' %} selected{% endif %}>Editorial</option>
+                                        </select>
+                                        </div>
+                                    </div>
+                                </div>
 {#                                <div class="form-group col-md-12 form-group-0 form-group-sm form-material {{ form.multiplestatus.errors|yesno:'has-error,' }}">#}
 {#                                    <label for="id_multiplestatus" class="col-sm-4 control-label">Multiple Status</label>#}
 {#                                    <div class="col-sm-7">#}
