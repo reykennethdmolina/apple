@@ -68,8 +68,9 @@ class IndexView(AjaxListView):
         if self.request.user.has_perm('operationalfund.approve_assignedof') and not self.request.user.has_perm('operationalfund.approve_allof'):
             user_employee = get_object_or_None(Employee, user=self.request.user)
             if user_employee is not None:
+
                 if user_employee.of_approver == 3:
-                    oic_approver = Employee.objects.filter(of_approver=1).values_list('id', flat=True)
+                    oic_approver = Employee.objects.filter(of_approver=1, group=user_employee.group).values_list('id', flat=True)
                     query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id) | Ofmain.objects.filter(designatedapprover__in=oic_approver)
                     #query = Ofmain.objects.filter(designatedapprover__in=oic_approver)
                 else:
