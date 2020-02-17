@@ -76,7 +76,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Employee
     template_name = 'employee/edit.html'
-    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount', 'of_approver',
+    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount', 'of_approver', 'group',
               'managementlevel', 'revolving', 'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'supplier']
 
     def dispatch(self, request, *args, **kwargs):
@@ -95,7 +95,7 @@ class UpdateView(UpdateView):
         self.object.save(update_fields=['department', 'firstname',
                                         'middlename', 'lastname', 'email', 'multiplestatus',
                                         'modifyby', 'modifydate', 'cellphone_subsidize_amount', 'managementlevel', 'revolving',
-                                        'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'of_approver', 'supplier'])
+                                        'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'of_approver', 'group', 'supplier'])
         return HttpResponseRedirect('/employee')
 
     def get_context_data(self, **kwargs):
