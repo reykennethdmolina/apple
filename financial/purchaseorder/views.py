@@ -1345,9 +1345,10 @@ def reportresultxlsx(request):
         worksheet.write('C1', 'Ref No.', bold)
         worksheet.write('D1', 'PO Status', bold)
         worksheet.write('E1', 'Supplier', bold)
-        worksheet.write('F1', 'Quantity', bold)
-        worksheet.write('G1', 'Gross Amount', bold_right)
-        worksheet.write('H1', 'Net Amount', bold_right)
+        worksheet.write('F1', 'AP Number', bold_right)
+        worksheet.write('J1', 'Quantity', bold)
+        worksheet.write('H1', 'Gross Amount', bold_right)
+        worksheet.write('I1', 'Net Amount', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         worksheet.merge_range('A1:A2', 'PO Number', bold)
         worksheet.merge_range('B1:B2', 'Date', bold)
@@ -1371,12 +1372,17 @@ def reportresultxlsx(request):
 
         # config: content
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+            aptrans = Poapvtransaction.objects.filter(pomain_id=obj.pk).first()
+            apnumx = ''
+            if aptrans:
+                apnumx = str(aptrans.apmain.apnum)
             data = [
                 obj.ponum,
                 DateFormat(obj.podate).format('Y-m-d'),
                 obj.refnum,
                 obj.get_postatus_display(),
                 str(obj.supplier_code) + " - " + str(obj.supplier_name),
+                str(apnumx),
                 obj.totalquantity,
                 obj.grossamount,
                 obj.netamount,
@@ -1437,7 +1443,7 @@ class Pdf(PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
-        context['pomain'] = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0) 
+        context['pomain'] = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
         context['detail'] = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0, status='A').\
             order_by('item_counter')
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
