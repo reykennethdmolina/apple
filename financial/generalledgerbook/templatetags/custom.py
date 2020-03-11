@@ -358,4 +358,5 @@ def contribution_margin(arg1, arg2):
 @register.filter
 def opex(item, counter):
     #return item[0]
-    return eval('item[' + str(counter - 1)+']')
+    if item:
+        return eval('item[' + str(counter - 1)+']')

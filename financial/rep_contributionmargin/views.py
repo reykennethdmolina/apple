@@ -24,6 +24,7 @@ from django.db.models.lookups import MonthTransform as Month, YearTransform as Y
 from django.db import connection
 from collections import namedtuple
 from django.views.decorators.csrf import csrf_exempt
+from collections import defaultdict as ddict
 
 
 @method_decorator(login_required, name='dispatch')
@@ -105,13 +106,15 @@ def generate(request):
         rev = 0
         exp = 0
         income_loss = 0
-        for x in range(counter):
-            rev = eval('revenuesum[0].col' + str(c))
-            exp = eval('sum(row.col' + str(c) + ' for row in q)')
 
-            cmadjustment = eval('cmitem[0].col' + str(c))
-            income_loss = (rev - exp) + cmadjustment
-            opex.append(income_loss)
+        if cmitem:
+            for x in range(counter):
+                rev = eval('revenuesum[0].col' + str(c))
+                exp = eval('sum(row.col' + str(c) + ' for row in q)')
+
+                cmadjustment = eval('cmitem[0].col' + str(c))
+                income_loss = (rev - exp) + cmadjustment
+                opex.append(income_loss)
             c += 1
 
         list = q
@@ -141,14 +144,15 @@ def generate(request):
         rev = 0
         exp = 0
         income_loss = 0
-        for x in range(counter):
-            rev = eval('revenuesum[0].col' + str(c))
-            exp = eval('sum(row.col' + str(c) + ' for row in q)')
+        if cmitem:
+            for x in range(counter):
+                rev = eval('revenuesum[0].col' + str(c))
+                exp = eval('sum(row.col' + str(c) + ' for row in q)')
 
-            cmadjustment = eval('cmitem[0].col' + str(c))
-            income_loss = (rev - exp) + cmadjustment
-            opex.append(income_loss)
-            c += 1
+                cmadjustment = eval('cmitem[0].col' + str(c))
+                income_loss = (rev - exp) + cmadjustment
+                opex.append(income_loss)
+                c += 1
 
         list = q
         cmlist = cmitem
@@ -178,14 +182,15 @@ def generate(request):
         rev = 0
         exp = 0
         income_loss = 0
-        for x in range(counter):
-            rev = eval('revenuesum[0].col' + str(c))
-            exp = eval('sum(row.col' + str(c) + ' for row in q)')
+        if cmitem:
+            for x in range(counter):
+                rev = eval('revenuesum[0].col' + str(c))
+                exp = eval('sum(row.col' + str(c) + ' for row in q)')
 
-            cmadjustment = eval('cmitem[0].col' + str(c))
-            income_loss = (rev - exp) + cmadjustment
-            opex.append(income_loss)
-            c += 1
+                cmadjustment = eval('cmitem[0].col' + str(c))
+                income_loss = (rev - exp) + cmadjustment
+                opex.append(income_loss)
+                c += 1
 
         list = q
         cmlist = cmitem
@@ -215,14 +220,16 @@ def generate(request):
         rev = 0
         exp = 0
         income_loss = 0
-        for x in range(counter):
-            rev = eval('revenuesum[0].col' + str(c))
-            exp = eval('sum(row.col' + str(c) + ' for row in q)')
 
-            cmadjustment = eval('cmitem[0].col' + str(c))
-            income_loss = (rev - exp) + cmadjustment
-            opex.append(income_loss)
-            c += 1
+        if cmitem:
+            for x in range(counter):
+                rev = eval('revenuesum[0].col' + str(c))
+                exp = eval('sum(row.col' + str(c) + ' for row in q)')
+
+                cmadjustment = eval('cmitem[0].col' + str(c))
+                income_loss = (rev - exp) + cmadjustment
+                opex.append(income_loss)
+                c += 1
 
         list = q
         cmlist = cmitem
@@ -465,10 +472,11 @@ class GenerateExcel(View):
                 row += 1
 
         elif report == '2':
+
             row = 6
             col = 0
             if list:
-                print revenuesumlist['col1'][0]
+                #print revenuesumlist['col1'][0]
                 for index, rowr in revenuelist.iterrows():
                     worksheet.write(row, col, str(rowr.typecode))
                     colrh = 0
@@ -498,52 +506,78 @@ class GenerateExcel(View):
                     row += 1
                 row += 2
 
-                for type, typecode in df.fillna('NaN').groupby(['kindid', 'kindcode']):
-                    worksheet.write(row, col, str(type[1]), bold)
-                    row += 1
-                    totaltotal = 0
-                    for data, item in typecode.iterrows():
-                        worksheet.write(row, col, '      ' + str(item.csubheaddescription))
-                        colh = 1
-                        total = 0
-                        for key, val in prod:
-                            x = eval('item.col' + str(colh))
-                            subtotal[colh - 1] += x
-                            grandtotal[colh - 1] += x
-                            worksheet.write(row, colh, float(format(x, '.2f')))
-                            colh += 1
-                            total += x
-                        worksheet.write(row, colh, float(format(total, '.2f')))
-                        totaltotal += total
-                        grandgrandtotal += total
+                ind = df.sort_values(['kindid', 'kindcode'], ascending=False).groupby(['kindid', 'kindcode']).head(100000)
+
+                k = ''
+                row += 1
+                stotal = 0
+                gtotal = 0
+                totaltotal = 0
+                for key, value in ind.iterrows():
+                    if (k != value['kindcode'] and k == ''):
+                        worksheet.write(row, col, str(value['kindcode']), bold)
                         row += 1
 
-                    worksheet.write(row, col, '  Subtotal - ' + str(type[1]), bold)
-                    colh = 0
+                    if k != value['kindcode'] and k != '':
+                        worksheet.write(row, col, '  Subtotal - ' + str(k), bold)
+                        colhh = 0
+
+                        for key, val in prod:
+                            worksheet.write(row, colhh + 1, float(format(subtotal[colhh], '.2f')), bold)
+                            stotal += subtotal[colhh]
+                            subtotal[colhh] = 0
+                            colhh += 1
+                        worksheet.write(row, colhh + 1, float(format(stotal, '.2f')), bold)
+                        stotal = 0
+                        row += 2
+
+                        worksheet.write(row, col, str(value['kindcode']), bold)
+                        row += 1
+
+                    worksheet.write(row, col, '      ' + str(value['csubheaddescription']))
+                    colh = 1
+                    total = 0
                     for key, val in prod:
-                        worksheet.write(row, colh + 1, float(format(subtotal[colh], '.2f')), bold)
-                        subtotal[colh] = 0
+                        x = value['col' + str(colh)]
+                        subtotal[colh - 1] += x
+                        grandtotal[colh - 1] += x
+                        worksheet.write(row, colh, float(format(x, '.2f')))
                         colh += 1
-                    worksheet.write(row, colh + 1, float(format(totaltotal, '.2f')), bold)
+                        total += x
+                    worksheet.write(row, colh, float(format(total, '.2f')))
                     row += 1
 
-                worksheet.write(row, col, 'Total Expenses', bold)
-                colh = 0
+                    k = value['kindcode']
+
+                worksheet.write(row, col, '  Subtotal - ' + str(value['kindcode']), bold)
+                colhh = 0
                 for key, val in prod:
-                    worksheet.write(row, colh + 1, float(format(grandtotal[colh], '.2f')), bold)
-                    colh += 1
-                worksheet.write(row, colh + 1, float(format(grandgrandtotal, '.2f')), bold)
+                    worksheet.write(row, colhh + 1, float(format(subtotal[colhh], '.2f')), bold)
+                    stotal += subtotal[colhh]
+                    subtotal[colhh] = 0
+                    colhh += 1
+                worksheet.write(row, colhh + 1, float(format(stotal, '.2f')), bold)
+                stotal = 0
+                row += 1
+
+                worksheet.write(row, col, 'Total Expenses', bold)
+                colhhh = 0
+                for key, val in prod:
+                    worksheet.write(row, colhhh + 1, float(format(grandtotal[colhhh], '.2f')), bold)
+                    gtotal += grandtotal[colhhh]
+                    colhhh += 1
+                worksheet.write(row, colhhh + 1, float(format(gtotal, '.2f')), bold)
                 row += 1
 
                 worksheet.write(row, col, 'Contribution Margin', bold)
-                colh = 0
+                colhcm = 0
 
                 for key, val in prod:
-                    xx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
-                    worksheet.write(row, colh + 1, float(format(xx - grandtotal[colh], '.2f')), bold)
-                    colh += 1
-                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
-                worksheet.write(row, colh + 1, float(format(xxx - grandgrandtotal, '.2f')), bold)
+                    xx = eval("revenuesumlist['col" + str(colhcm + 1) + "'][0]")
+                    worksheet.write(row, colhcm + 1, float(format(xx - grandtotal[colhcm], '.2f')), bold)
+                    colhcm += 1
+                xxx = eval("revenuesumlist['col" + str(colhcm + 1) + "'][0]")
+                worksheet.write(row, colhcm + 1, float(format(xxx - gtotal, '.2f')), bold)
                 row += 1
 
                 worksheet.write(row, col, 'Add: (Deduct) adjustment', bold)
@@ -565,7 +599,7 @@ class GenerateExcel(View):
                         colv += 1
                 xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
                 worksheet.write(row, colh + 1, float(format(cmtotal, '.2f')), bold)
-                worksheet.write(row + 1, colh + 1, float(format(xxx - grandgrandtotal + cmtotal, '.2f')), bold)
+                worksheet.write(row + 1, colh + 1, float(format(xxx - gtotal + cmtotal, '.2f')), bold)
                 row += 1
 
         elif report == '3':
@@ -707,53 +741,79 @@ class GenerateExcel(View):
                     row += 1
                 row += 2
 
+                ind = df.sort_values(['kindid', 'kindcode'], ascending=False).groupby(['kindid', 'kindcode']).head(
+                    100000)
 
-                for type, typecode in df.fillna('NaN').groupby(['kindid', 'kindcode']):
-                    worksheet.write(row, col, str(type[1]), bold)
-                    row += 1
-                    totaltotal = 0
-                    for data, item in typecode.iterrows():
-                        worksheet.write(row, col, '      ' + str(item.csubheaddescription))
-                        colh = 1
-                        total = 0
-                        for key, val in prod:
-                            x = eval('item.col' + str(colh))
-                            subtotal[colh - 1] += x
-                            grandtotal[colh - 1] += x
-                            worksheet.write(row, colh, float(format(x, '.2f')))
-                            colh += 1
-                            total += x
-                        worksheet.write(row, colh, float(format(total, '.2f')))
-                        totaltotal += total
-                        grandgrandtotal += total
+                k = ''
+                row += 1
+                stotal = 0
+                gtotal = 0
+                totaltotal = 0
+                for key, value in ind.iterrows():
+                    if (k != value['kindcode'] and k == ''):
+                        worksheet.write(row, col, str(value['kindcode']), bold)
                         row += 1
 
-                    worksheet.write(row, col, '  Subtotal - ' + str(type[1]), bold)
-                    colh = 0
+                    if k != value['kindcode'] and k != '':
+                        worksheet.write(row, col, '  Subtotal - ' + str(k), bold)
+                        colhh = 0
+
+                        for key, val in prod:
+                            worksheet.write(row, colhh + 1, float(format(subtotal[colhh], '.2f')), bold)
+                            stotal += subtotal[colhh]
+                            subtotal[colhh] = 0
+                            colhh += 1
+                        worksheet.write(row, colhh + 1, float(format(stotal, '.2f')), bold)
+                        stotal = 0
+                        row += 2
+
+                        worksheet.write(row, col, str(value['kindcode']), bold)
+                        row += 1
+
+                    worksheet.write(row, col, '      ' + str(value['csubheaddescription']))
+                    colh = 1
+                    total = 0
                     for key, val in prod:
-                        worksheet.write(row, colh + 1, float(format(subtotal[colh], '.2f')), bold)
-                        subtotal[colh] = 0
+                        x = value['col' + str(colh)]
+                        subtotal[colh - 1] += x
+                        grandtotal[colh - 1] += x
+                        worksheet.write(row, colh, float(format(x, '.2f')))
                         colh += 1
-                    worksheet.write(row, colh + 1, float(format(totaltotal, '.2f')), bold)
+                        total += x
+                    worksheet.write(row, colh, float(format(total, '.2f')))
                     row += 1
 
-                worksheet.write(row, col, 'Total Expenses', bold)
-                colh = 0
+                    k = value['kindcode']
+
+                worksheet.write(row, col, '  Subtotal - ' + str(value['kindcode']), bold)
+                colhh = 0
                 for key, val in prod:
-                    worksheet.write(row, colh + 1, float(format(grandtotal[colh], '.2f')), bold)
-                    colh += 1
-                worksheet.write(row, colh + 1, float(format(grandgrandtotal, '.2f')), bold)
+                    worksheet.write(row, colhh + 1, float(format(subtotal[colhh], '.2f')), bold)
+                    stotal += subtotal[colhh]
+                    subtotal[colhh] = 0
+                    colhh += 1
+                worksheet.write(row, colhh + 1, float(format(stotal, '.2f')), bold)
+                stotal = 0
+                row += 1
+
+                worksheet.write(row, col, 'Total Expenses', bold)
+                colhhh = 0
+                for key, val in prod:
+                    worksheet.write(row, colhhh + 1, float(format(grandtotal[colhhh], '.2f')), bold)
+                    gtotal += grandtotal[colhhh]
+                    colhhh += 1
+                worksheet.write(row, colhhh + 1, float(format(gtotal, '.2f')), bold)
                 row += 1
 
                 worksheet.write(row, col, 'Contribution Margin', bold)
-                colh = 0
+                colhcm = 0
 
                 for key, val in prod:
-                    xx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
-                    worksheet.write(row, colh + 1, float(format(xx - grandtotal[colh], '.2f')), bold)
-                    colh += 1
-                xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
-                worksheet.write(row, colh + 1, float(format(xxx - grandgrandtotal, '.2f')), bold)
+                    xx = eval("revenuesumlist['col" + str(colhcm + 1) + "'][0]")
+                    worksheet.write(row, colhcm + 1, float(format(xx - grandtotal[colhcm], '.2f')), bold)
+                    colhcm += 1
+                xxx = eval("revenuesumlist['col" + str(colhcm + 1) + "'][0]")
+                worksheet.write(row, colhcm + 1, float(format(xxx - gtotal, '.2f')), bold)
                 row += 1
 
                 worksheet.write(row, col, 'Add: (Deduct) adjustment', bold)
@@ -775,7 +835,7 @@ class GenerateExcel(View):
                         colv += 1
                 xxx = eval("revenuesumlist['col" + str(colh + 1) + "'][0]")
                 worksheet.write(row, colh + 1, float(format(cmtotal, '.2f')), bold)
-                worksheet.write(row + 1, colh + 1, float(format(xxx - grandgrandtotal + cmtotal, '.2f')), bold)
+                worksheet.write(row + 1, colh + 1, float(format(xxx - gtotal + cmtotal, '.2f')), bold)
                 row += 1
 
         else:
@@ -974,7 +1034,7 @@ def query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, type):
     elif report == '3':
         type_report = "ORDER BY csubgroup.title DESC, ch.main, ch.item, ch.cont, ch.sub"
     elif report == '4':
-        type_report = "ORDER BY ty.id, c.accountcode"
+        type_report = "ORDER BY typeid ASC, c.accountcode"
     else:
         print 'do nothing'
 
@@ -995,8 +1055,8 @@ def query_revenue_product_row(report, prod, dfrom, dto, toyear, tomonth, type):
 
     str_total = "("+str(str_total)+" 0 ) AS col"+str(counter)+", "
     print 'start'
-    query = "SELECT IF (SUBSTR(c.accountcode, 1, 2) = '41', IF (SUBSTR(c.accountcode, 1, 3) = '411', 1, 2), IF(SUBSTR(c.accountcode, 1,2) = '43', 1, 2)) AS typeid, " \
-            "IF (SUBSTR(c.accountcode, 1, 2) = '41', IF (SUBSTR(c.accountcode, 1, 3) = '411', 'NET ADVERTISING', 'NET CIRCULATION REVENUE'), IF(SUBSTR(c.accountcode, 1,2) = '43', 'NET ADVERTISING', 'NET CIRCULATION REVENUE')) AS typecode, " \
+    query = "SELECT IF (SUBSTR(c.accountcode, 1, 6) = '411960', 3, IF (SUBSTR(c.accountcode, 1, 6) = '412650', 4, IF (SUBSTR(c.accountcode, 1, 2) = '41', IF (SUBSTR(c.accountcode, 1, 3) = '411', 1, 2), IF(SUBSTR(c.accountcode, 1,2) = '43', 1, 2)))) AS typeid, " \
+            "IF (SUBSTR(c.accountcode, 1, 6) = '411960', 'NET EVENTS', IF (SUBSTR(c.accountcode, 1, 6) = '412650', 'NET DIGITAL', IF (SUBSTR(c.accountcode, 1, 2) = '41', IF (SUBSTR(c.accountcode, 1, 3) = '411', 'NET ADVERTISING', 'NET CIRCULATION REVENUE'), IF(SUBSTR(c.accountcode, 1,2) = '43', 'NET ADVERTISING', 'NET CIRCULATION REVENUE')))) AS typecode, " \
             "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
             "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
             "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription, c.accountcode, c.description, "+str(str_col)+" "+str(str_total)+" c.id " \
