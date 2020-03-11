@@ -2564,13 +2564,19 @@ class GenerateExcel(View):
             worksheet.write('C4', 'Payee', bold)
             worksheet.write('D4', 'Particulars', bold)
             worksheet.write('E4', 'Amount', bold)
+            worksheet.write('F4', 'CV#', bold)
 
             row = 5
             col = 0
             totalamount = 0
             amount = 0
             for data in list:
+                cvtrans = Apvcvtransaction.objects.filter(apmain_id=data.id).first()
+                cvnumx = ''
+                if cvtrans:
+                    cvnumx = str(cvtrans.cvmain.cvnum)
                 worksheet.write(row, col, data.apnum)
+                worksheet.write(row, col + 5, cvnumx)
                 worksheet.write(row, col + 1, data.apdate, formatdate)
                 if data.status == 'C':
                     worksheet.write(row, col + 2, 'C A N C E L L E D')
