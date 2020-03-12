@@ -3451,7 +3451,7 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
         #         ") AS z LEFT OUTER JOIN supplier AS s ON s.id = z.payee_id WHERE z.payee_id IS NOT NULL GROUP BY z.payee_id ORDER BY s.name, s.code"
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
-    # print query
+    #print query
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
@@ -3569,8 +3569,11 @@ class GenerateLedgerPDF(View):
                 #begbalance = query_begbalance(aptrade.accountcode, 'all')
 
             new_list = []
+
+            print apcode
             if q:
                 df = pd.DataFrame(q)
+                print df
                 runbalance = 0
                 for index, row in df.iterrows():
 
@@ -3578,7 +3581,7 @@ class GenerateLedgerPDF(View):
                         amount = row['balance'] * -1
                     else:
                         amount = abs(row['balance'])
-
+                    print amount
                     runbalance += amount
                    # print str(row['code'])+' | '+str(amount)
 
@@ -3690,12 +3693,14 @@ class GenerateExcelLedger(View):
                 list = new_list
 
         elif report == '2':
+            aptrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
+            apcode = aptrade.balancecode
+
             if type == '1':
                 title = "Schedule of Accounts Payable - Per Supplier"
             else:
                 title = "Schedule of Accounts Payable - All Summary"
-                aptrade = Chartofaccount.objects.filter(id=company.coa_aptrade_id).first()
-            apcode = aptrade.balancecode
+
             if type == '1':
                 sup = Supplier.objects.filter(code=payee).first()
                 supplier = str(sup.code) + ' - ' + str(sup.name)
