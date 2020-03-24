@@ -269,10 +269,11 @@ class GenerateExcelStatus(View):
         worksheet.write('C4', 'Check Date', bold)
         worksheet.write('D4', 'CV Number', bold)
         worksheet.write('E4', 'CV Date', bold)
-        worksheet.write('F4', 'Payee', bold)
-        worksheet.write('G4', 'Date Received', bold)
-        worksheet.write('H4', 'Date Claimed', bold)
-        worksheet.write('I4', 'Amount', bold)
+        worksheet.write('F4', 'Payee Code', bold)
+        worksheet.write('G4', 'Payee', bold)
+        worksheet.write('H4', 'Date Received', bold)
+        worksheet.write('I4', 'Date Claimed', bold)
+        worksheet.write('J4', 'Amount', bold)
 
 
         row = 5
@@ -286,6 +287,7 @@ class GenerateExcelStatus(View):
             worksheet.write(row, col + 2, data.cvmain.checkdate, formatdate)
             worksheet.write(row, col + 3, data.cv_num)
             worksheet.write(row, col + 4, data.cv_date, formatdate)
+            worksheet.write(row, col + 5, data.cvmain.payee_code)
             worksheet.write(row, col + 5, data.cvmain.payee_name)
             worksheet.write(row, col + 6, data.cvmain.received_date, formatdate)
             worksheet.write(row, col + 7, data.cvmain.claimed_date, formatdate)
