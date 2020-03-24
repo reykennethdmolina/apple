@@ -3243,7 +3243,7 @@ def digibanker(request):
     text_file.close()
 
     print 'url'
-    baseurl = request.build_absolute_uri()
+    baseurl = request.build_absolute_uri('https://fin101bss.inquirer.com.ph/accountspayable/digibanker/')
     print baseurl
     fileurl = baseurl.replace("accountspayable", "static")+'digibanker.txt'
     print fileurl

@@ -3127,7 +3127,7 @@ def acpdigibanker(request):
     text_file.close()
 
     print 'url'
-    baseurl = request.build_absolute_uri()
+    baseurl = request.build_absolute_uri('https://fin101bss.inquirer.com.ph/checkvoucher/acp/')
     print baseurl
     fileurl = baseurl.replace("checkvoucher/acp", "static/digibanker/")+'acpdigibanker.txt'
     print fileurl
