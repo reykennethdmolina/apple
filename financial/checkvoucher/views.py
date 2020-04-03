@@ -3162,6 +3162,29 @@ def upload(request):
         return HttpResponseRedirect('/checkvoucher/' + str(id) )
     return HttpResponseRedirect('/checkvoucher/' + str(id) )
 
+@csrf_exempt
+def datafix(request):
+
+    cvdata = Cvmain.objects.filter(cvsubtype_id=5).order_by('cvnum', 'cvdate')
+
+    for item in cvdata:
+        apvcv = Apvcvtransaction.objects.filter(cvmain_id=item.id).first()
+
+        if apvcv is None:
+            apnum = item.refnum[3:13]
+            ap = Apmain.objects.filter(apnum=apnum).first()
+
+            Apvcvtransaction.objects.create(
+                cvamount=ap.cvamount,
+                status='A',
+                apmain_id=ap.id,
+                cvmain_id=item.id
+            )
+        else:
+            print item.id
+
+
+
 
 
 
