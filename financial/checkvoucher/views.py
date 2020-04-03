@@ -2900,6 +2900,16 @@ def exportsave(request):
                 apmain.isfullycv = 1
                 apmain.save()
 
+
+                ''' Create CV AP Transaction Link'''
+                Apvcvtransaction.objects.create(
+                    cvamount=main.amount,
+                    status='A',
+                    apmain_id=apmain.id,
+                    cvmain_id=main.id
+                )
+
+
                 ''' Accounts Payable Trade '''
                 Cvdetail.objects.create(
                     item_counter=1,
