@@ -114,7 +114,7 @@ def ajaxSelect(request):
             # add model text format here
             if request.GET['table'] == "supplier" \
                     or request.GET['table'] == "supplier_notmultiple":
-                text = data.code + " x " + data.name + " - " + data.tin
+                text = data.code + " | " + data.name + " - " + data.tin
             elif request.GET['table'] == "supplier_payee":
                 text = data.name
             elif request.GET['table'] == "employee" \
@@ -635,9 +635,10 @@ def ajaxSelect2(request):
             # add model text format here
             if request.GET['table'] == "supplier" \
                     or request.GET['table'] == "supplier_notmultiple":
-                text = data.code + " - " + data.name
+                #text = data.code + " - " + data.name
+                text = data.code + " | " + data.name + " - " + data.tin
             elif request.GET['table'] == "supplier_payee":
-                text = data.name
+                text = data.code + " | " + data.name + " - " + data.tin
             elif request.GET['table'] == "employee" \
                     or request.GET['table'] == "employee_notmultiple":
                 text = data.code + " - " + data.lastname + ", " + data.firstname
