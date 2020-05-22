@@ -53,7 +53,8 @@
                         </div>
                         <div class="form-group col-sm-6 margin-bottom-10 {{ form.cmdate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_cmdate">CM Date</label>
-                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker closemonth" data-mindate="{{ validtransaction|date:'Y,m,d' }}" readonly="readonly" style="padding: 5px 10px" id="id_cmdate" name="cmdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.cmdate.value %}{{ form.cmdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                            <!--<input type="text" class="form-control input-sm date-yyyymmdd datepicker closemonth" data-mindate="{{ validtransaction|date:'Y,m,d' }}" readonly="readonly" style="padding: 5px 10px" id="id_cmdate" name="cmdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.cmdate.value %}{{ form.cmdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">-->
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker" data-mindate="{{ validtransaction|date:'Y,m,d' }}" readonly="readonly" style="padding: 5px 10px" id="id_cmdate" name="cmdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.cmdate.value %}{{ form.cmdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                             <span class="help-block form-error">{{ form.cmdate.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-12 {{ form.particulars.errors|yesno:'has-error,' }}">
