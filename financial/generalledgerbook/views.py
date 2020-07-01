@@ -500,8 +500,8 @@ def query_trial_balance(type, retained_earnings, current_earnings, year, month, 
                 "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
                 "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
                 "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.id != " + str(current_earnings) + " " \
-                "ORDER BY chart.accountcode ASC"
-
+                "GROUP BY chart.accountcode ORDER BY chart.accountcode ASC"
+    #print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 

@@ -96,3 +96,23 @@ class GeneratePDF(View):
             "username": request.user,
         }
         return Render.render('company/list.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class PrivacyPolicy(ListView):
+    model = Company
+    template_name = 'company/policy.html'
+    context_object_name = 'data_list'
+
+    def get_queryset(self):
+        return Company.objects.all().filter(isdeleted=0).order_by('-pk')
+    # def get(self, request):
+    #     company = Companyparameter.objects.all().first()
+    #     list = Company.objects.filter(isdeleted=0).order_by('code')
+    #     context = {
+    #         "title": "Company Master List",
+    #         "today": timezone.now(),
+    #         "company": company,
+    #         "list": list,
+    #         "username": request.user,
+    #     }
+    #     return Render.render('company/policy.html', context)
