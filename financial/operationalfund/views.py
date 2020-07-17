@@ -2785,6 +2785,7 @@ class GeneratePDF(View):
         approver = request.GET['approver']
         department = request.GET['department']
         status = request.GET['status']
+        remarks = request.GET['remarks']
         title = "Operation Fund - Summary"
         list = Ofmain.objects.filter(isdeleted=0).order_by('ofnum')[:0]
         datefrom = ''
@@ -2854,6 +2855,12 @@ class GeneratePDF(View):
             else:
                 q = q.filter(department=department)
 
+        if remarks != '':
+            if report == '2' or report == '3':
+                q = q.filter(ofmain__remarks__contains=remarks)
+            else:
+                q = q.filter(remarks__contains=remarks)
+
         if report == '3':
             list = q.values('chartofaccount__accountcode',
                                  'chartofaccount__description',
@@ -2919,6 +2926,7 @@ class GenerateExcel(View):
         approver = request.GET['approver']
         department = request.GET['department']
         status = request.GET['status']
+        remarks = request.GET['remarks']
         title = "Operation Fund - Summary"
         list = Ofmain.objects.filter(isdeleted=0).order_by('ofnum')[:0]
         datefrom = ''
@@ -2987,6 +2995,12 @@ class GenerateExcel(View):
                 q = q.filter(ofmain__department=department)
             else:
                 q = q.filter(department=department)
+
+        if remarks != '':
+            if report == '2' or report == '3':
+                q = q.filter(ofmain__remarks__contains=remarks)
+            else:
+                q = q.filter(remarks__contains=remarks)
 
         if report == '3':
             list = q.values('chartofaccount__accountcode',
