@@ -44,7 +44,7 @@
                     {% elif data.ofstatus == 'H' %} text-info
                     {% elif data.ofstatus == 'R' %} text-success
                     {% endif %}">
-                <b>{{ data.get_ofstatus_display }}</b>
+                <b>{{ data.get_ofstatus_display }}</b> xx{{ data.designatedapprover }}
             </td>
 
             {% if user_employee != None %}

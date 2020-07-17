@@ -75,7 +75,7 @@
             <div class="col-md-12">
                 <div class="row">
                     <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
-                        <div class="form-group col-sm-3">
+                        <div class="form-group col-sm-2">
                             <label class="control-label small">Requestor</label>
                             <select class="form-control input-sm" id="requestor">
                                 <option value="">-- Select --</option>
@@ -84,7 +84,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group col-sm-3">
+                        <div class="form-group col-sm-2">
                             <label class="control-label small">Approver</label>
                             <select class="form-control input-sm" id="approver">
                                 <option value="">-- Select --</option>
@@ -112,11 +112,15 @@
                                 <option value="R">Released/For Posting</option>
                             </select>
                         </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Remarks</label>
+                           <input type="text" class="form-control input-sm" id="remarks">
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-12" style="min-height: 800px;">
-                <iframe src="{% url 'operationalfund:pdf' %}?report=1&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&oftype=&rfrom=&rto=&requestor=&approver=&department=&status" id="result" height="1200px" width="100%"></iframe>
+                <iframe src="{% url 'operationalfund:pdf' %}?report=1&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&oftype=&rfrom=&rto=&requestor=&approver=&department=&status=&remarks" id="result" height="1200px" width="100%"></iframe>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -141,8 +145,9 @@ $(function(){
         var approver = $('#approver').val();
         var department = $('#department').val();
         var status = $('#status').val();
+        var remarks = $('#remarks').val();
         console.log('retrieve');
-        url = "{% url 'operationalfund:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&oftype="+oftype+"&rfrom="+date_rfrom+"&rto="+date_rto+"&oftype="+oftype+"&requestor="+requestor+"&approver="+approver+"&department="+department+"&status="+status;
+        url = "{% url 'operationalfund:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&oftype="+oftype+"&rfrom="+date_rfrom+"&rto="+date_rto+"&oftype="+oftype+"&requestor="+requestor+"&approver="+approver+"&department="+department+"&status="+status+"&remarks="+remarks;
         $('#result').prop('src', url);
     });
 
@@ -157,8 +162,9 @@ $(function(){
         var approver = $('#approver').val();
         var department = $('#department').val();
         var status = $('#status').val();
+        var remarks = $('#remarks').val();
         console.log('retrieve xls');
-        url = "{% url 'operationalfund:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&oftype="+oftype+"&rfrom="+date_rfrom+"&rto="+date_rto+"&oftype="+oftype+"&requestor="+requestor+"&approver="+approver+"&department="+department+"&status="+status;
+        url = "{% url 'operationalfund:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&oftype="+oftype+"&rfrom="+date_rfrom+"&rto="+date_rto+"&oftype="+oftype+"&requestor="+requestor+"&approver="+approver+"&department="+department+"&status="+status+"&remarks="+remarks;
         $('#result').prop('src', url);
     });
 });
