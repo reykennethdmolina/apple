@@ -566,70 +566,176 @@ class GenerateExcel(View):
         q = []
         total = ''
         report = request.GET['report']
-        dfrom = request.GET['from']
-        dto = request.GET['to']
+        dfrom = request.GET['dfrom']
+        dto = request.GET['dto']
         title = "GENERAL JOURNAL BOOK - DETAILED ENTRIES"
+        filename = "data"
 
-        if report == '3':
-            title = "GENERAL JOURNAL BOOK - SUBSIDIARY ENTRIES"
-            q = Jvdetail.objects.all().filter(isdeleted=0).exclude(jvmain__status='C')
+        if report == '1':
+            title = "GENERAL JOURNAL BOOK - DETAILED ENTRIES"
+            q = Jvdetail.objects.all().filter(isdeleted=0, jvmain__jvstatus='R').exclude(jvmain__status='C').order_by(
+                'jv_date', 'jv_num', '-balancecode', 'item_counter')
             if dfrom != '':
                 q = q.filter(jv_date__gte=dfrom)
             if dto != '':
                 q = q.filter(jv_date__lte=dto)
-            q = q.values('chartofaccount__accountcode', 'chartofaccount__description', 'bankaccount__code',
-                         'employee__firstname', 'employee__middlename', 'employee__lastname',
-                         'supplier__name', 'customer__name', 'department__departmentname') \
-                .annotate(Sum('debitamount'), Sum('creditamount'))
-                # .order_by('chartofaccount__accountcode', 'bankaccount__code', 'employee__lastname',
-                #           'employee__firstname', 'employee__middlename',
-                #           'supplier__name', 'customer__name', 'department__departmentname')
-            q = q.order_by('chartofaccount__accountcode', 'debitamount__sum', 'creditamount__sum')
-            total = q.aggregate(Sum('debitamount'), Sum('creditamount'))
+            total = q.exclude(jvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+        elif report == '4':
+            title = "CASH DISBURSEMENT BOOK - DETAILED ENTRIES"
+            q = Cvdetail.objects.all().filter(isdeleted=0, cvmain__cvstatus='R').exclude(cvmain__status='C').order_by(
+                'cv_date', 'cv_num', '-balancecode', 'item_counter')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+            total = q.exclude(cvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
         else:
             q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
 
         list = q
 
-        # Create an in-memory output file for the new workbook.
-        output = io.BytesIO()
+        if report == '1':
 
-        workbook = xlsxwriter.Workbook(output)
-        worksheet = workbook.add_worksheet()
+            # Create an in-memory output file for the new workbook.
+            output = io.BytesIO()
 
-        # variables
-        bold = workbook.add_format({'bold': 1})
-        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
-        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
 
-        # title
-        worksheet.write('A1', 'JOURNAL VOUCHER INQUIRY LIST', bold)
-        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
-        worksheet.write('A3', 'Chart of Account', bold)
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
 
-        # header
-        worksheet.write('A4', 'JV Number', bold)
-        worksheet.write('B4', 'JV Date', bold)
-        worksheet.write('C4', 'Particulars', bold)
-        worksheet.write('D4', 'Debit Amount', bold)
-        worksheet.write('D4', 'Credit Amount', bold)
+            # title
+            worksheet.write('A1', 'GENERAL JOURNAL BOOK - DETAILED ENTRIES', bold)
+            worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
 
-        row = 5
-        col = 0
-        for data in list:
-            worksheet.write(row, col, data['chartofaccount__accountcode'])
-            worksheet.write(row, col + 1, data['chartofaccount__description'])
-            worksheet.write(row, col + 2, float(format(data['debitamount__sum'], '.2f')))
-            worksheet.write(row, col + 3, float(format(data['creditamount__sum'], '.2f')))
-            row += 1
+            # header
+            worksheet.write('A4', 'Date', bold)
+            worksheet.write('B4', 'Number', bold)
+            worksheet.write('C4', 'Particulars', bold)
+            worksheet.write('D4', 'Account Number', bold)
+            worksheet.write('E4', 'Account Title', bold)
+            worksheet.write('F4', 'Code', bold)
+            worksheet.write('G4', 'Particulars', bold)
+            worksheet.write('H4', 'Debit Amount', bold)
+            worksheet.write('I4', 'Credit Amount', bold)
 
-        workbook.close()
+            row = 5
+            col = 0
+            jvnum = ''
+            bankaccount = ''
+            department = ''
+            departmentname = ''
+            for data in list:
 
-        # Rewind the buffer.
-        output.seek(0)
+                worksheet.write(row, col, data.jv_date, formatdate)
+                worksheet.write(row, col + 1, data.jv_num)
+                worksheet.write(row, col + 2, data.jvmain.particular)
+                worksheet.write(row, col + 3, data.chartofaccount.accountcode)
+                worksheet.write(row, col + 4, data.chartofaccount.description)
+
+                if data.bankaccount:
+                    bankaccount = data.bankaccount.code
+                if data.department:
+                    department = data.department.code
+                    departmentname = data.department.departmentname
+
+                worksheet.write(row, col + 5, bankaccount+' '+department)
+                worksheet.write(row, col + 6, bankaccount+' '+department+' '+departmentname)
+                worksheet.write(row, col + 7, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 8, float(format(data.creditamount, '.2f')))
+
+                row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response.
+            filename = "generaljournalbook_detailed.xlsx"
+        elif report == '4':
+
+            # Create an in-memory output file for the new workbook.
+            output = io.BytesIO()
+
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
+
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+            # title
+            worksheet.write('A1', 'CASH DISBURSEMENT BOOK - DETAILED ENTRIES', bold)
+            worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+
+            # header
+            worksheet.write('A4', 'Date', bold)
+            worksheet.write('B4', 'Number', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Bank', bold)
+            worksheet.write('F4', 'Check', bold)
+            worksheet.write('G4', 'Amount', bold)
+            worksheet.write('H4', 'Account Number', bold)
+            worksheet.write('I4', 'Account Title', bold)
+            worksheet.write('J4', 'Subledger', bold)
+            worksheet.write('K4', 'Debit Amount', bold)
+            worksheet.write('L4', 'Credit Amount', bold)
+
+            row = 5
+            col = 0
+            jvnum = ''
+            payee = ''
+            particulars = ''
+            bankaccount = ''
+            department = ''
+            departmentname = ''
+            for data in list:
+
+                worksheet.write(row, col, data.cv_date, formatdate)
+                worksheet.write(row, col + 1, data.cv_num)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C  A  N  C  E  L  L  E  D')
+                    worksheet.write(row, col + 3, '')
+                else:
+                    worksheet.write(row, col + 2, data.cvmain.payee_name)
+                    if data.bankaccount:
+                        bankaccount = data.cvmain.bankaccount.code
+                    worksheet.write(row, col + 4, bankaccount)
+                    worksheet.write(row, col + 5, data.cvmain.checknum)
+                    worksheet.write(row, col + 6, data.cvmain.amount)
+
+                worksheet.write(row, col + 7, data.chartofaccount.accountcode)
+                worksheet.write(row, col + 8, data.chartofaccount.description)
+
+                if data.bankaccount:
+                    bankaccount = data.bankaccount.code
+                if data.department:
+                    department = data.department.code
+                    departmentname = data.department.departmentname
+
+                worksheet.write(row, col + 9, bankaccount+' '+department+' '+departmentname)
+
+                worksheet.write(row, col + 10, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 11, float(format(data.creditamount, '.2f')))
+
+                row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response.
+            filename = "cashdisbursementbook_detailed.xlsx"
 
         # Set up the Http response.
-        filename = "jvinquiry.xlsx"
         response = HttpResponse(
             output,
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
