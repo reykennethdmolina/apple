@@ -257,7 +257,7 @@ class UpdateView(UpdateView):
     template_name = 'checkvoucher/edit.html'
     fields = ['cvnum', 'cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum', 'particulars', 'vat', 'atc',
               'bankaccount', 'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
-              'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'designatedapprover']
+              'branch', 'checknum', 'checkdate', 'ornum', 'vatrate', 'atcrate', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -436,7 +436,7 @@ class UpdateView(UpdateView):
             self.object.save(update_fields=['cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum',
                                             'particulars', 'vat', 'atc', 'bankaccount',
                                             'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
-                                            'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'payee',
+                                            'branch', 'checknum', 'checkdate', 'ornum', 'vatrate', 'atcrate', 'payee',
                                             'payee_code', 'payee_name', 'modifyby', 'modifydate'])
 
             if self.object.cvstatus == 'F':
