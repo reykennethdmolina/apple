@@ -22,6 +22,7 @@
                     <th>C-Date</th>
                     <th>C-By</th>
                     <th>Cashier Particulars</th>
+                    <th>OR No.</th>
                     <th></th>
                 </tr>
             </thead>
@@ -53,6 +54,9 @@
                 <td class="text-center" id="claimby{{ item.cvmain.id }}">{{ item.cvmain.claimed_by|default:'None'  }}</td>
                 <td class="text-center">
                     <textarea style="width:100%" id="remarks{{item.cvmain.id}}">{{ item.cvmain.cashier_remarks|default:'' }}</textarea>
+                </td>
+                 <td class="text-center">
+                    <input type="text" id="ornum{{item.cvmain.id}}" value="{{ item.cvmain.ornum|default:'' }}">
                 </td>
                 <td>
                     <button class="btn btn-info waves-effect waves-dark saveremarks" data-id="{{ item.cvmain.id }}">
@@ -143,12 +147,14 @@
         $('.saveremarks').on('click', function() {
             var id = $(this).data('id');
             var remarks = $('#remarks'+id).val();
+            var ornum = $('#ornum'+id).val();
                 $.ajax({
                     url: "{% url 'cvinquiry:savecashierremarks' %}",
                     type: "post",
                     data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                            'id': id,
                            'remarks': remarks,
+                           'ornum': ornum
                            },
                     success: function(response){
                         if (response['status'] == 'success') {

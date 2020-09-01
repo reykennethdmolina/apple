@@ -169,10 +169,11 @@ def savecashierremarks(request):
     if request.method == 'POST':
         id = request.POST['id']
         remarks = request.POST['remarks']
+        ornum = request.POST['ornum']
 
         print remarks
 
-        data = Cvmain.objects.filter(id=id).update(cashier_remarks=remarks)
+        data = Cvmain.objects.filter(id=id).update(cashier_remarks=remarks, ornum=ornum)
 
         data = {'status': 'success'}
     else:
