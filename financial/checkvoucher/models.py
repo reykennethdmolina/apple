@@ -87,6 +87,7 @@ class Cvmain(models.Model):
     claimed_by = models.ForeignKey(User, default=1, related_name='cvmain_claimed', null=True)
     claimed_date = models.DateTimeField(null=True, blank=True)
     cashier_remarks = models.TextField()
+    ornum = models.CharField(max_length=150, null=True, blank=True)
 
     class Meta:
         db_table = 'cvmain'
