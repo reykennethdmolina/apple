@@ -2260,6 +2260,7 @@ class GenerateExcel(View):
             worksheet.write('C4', 'Payee', bold)
             worksheet.write('D4', 'Particulars', bold)
             worksheet.write('E4', 'Amount', bold)
+            worksheet.write('F4', 'OR Number', bold)
 
             row = 5
             col = 0
@@ -2279,7 +2280,7 @@ class GenerateExcel(View):
                 else:
                     worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
                     amount = data.amount
-
+                worksheet.write(row, col + 5, data.ornum)
                 row += 1
                 totalamount += amount
 
@@ -2287,6 +2288,7 @@ class GenerateExcel(View):
             #print total['total_amount']
             worksheet.write(row, col + 3, 'Total')
             worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+
 
             filename = "cvtransactionlistsummary.xlsx"
 
