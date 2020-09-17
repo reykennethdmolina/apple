@@ -2211,3 +2211,18 @@ def upload(request):
         uploaded_file_url = fs.url(filename)
         return HttpResponseRedirect('/journalvoucher/' + str(id) )
     return HttpResponseRedirect('/journalvoucher/' + str(id) )
+
+@csrf_exempt
+def filedelete(request):
+
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        fileid = request.POST['fileid']
+
+        Jvupload.objects.filter(id=fileid).delete()
+
+        return HttpResponseRedirect('/journalvoucher/' + str(id) )
+
+    return HttpResponseRedirect('/journalvoucher/' + str(id) )
+

@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^gounpost/$', views.gounpost, name='gounpost'),
     url(r'^upload/$', views.upload, name='upload'),
+    url(r'^filedelete/$', views.filedelete, name='filedelete'),
 ]

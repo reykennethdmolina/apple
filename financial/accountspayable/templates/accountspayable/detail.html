@@ -419,6 +419,7 @@
                                           <th scope="col">Uploaded By</th>
                                           <th scope="col">Uploaded Date</th>
                                           <th scope="col">View</th>
+                                          <th scope="col">Delete</th>
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -428,6 +429,7 @@
                                           <td>{{ data.enterby.username }}</td>
                                           <td>{{ data.enterdate }}</td>
                                           <td><a href="/media/apupload/{{ data.filename }}" target="_blank">View</a></td>
+                                            <td><button type="button" class="deletefile" data-id="{{ data.id }}" style="color:red">Delete</button></td>
                                         </tr>
                                         {% endfor %}
                                       </tbody>
@@ -483,6 +485,28 @@
 <script type="text/javascript">
     $('.select2').select2({});
     ajaxselect2("supplier_payee", "id_payee");
+
+    $(".deletefile").on('click', function() {
+        var con = confirm('Are you sure you want to delete this file?');
+
+        if (con) {
+            var fileid = $(this).data('id');
+            var id = {{ object.pk }};
+             $.ajax({
+                url: "{% url 'accountspayable:filedelete' %}",
+                type: "post",
+                data: {'id': id, 'fileid': fileid},
+                success: function(response) {
+                    location.reload();
+                },
+                error: function(response) {
+                    console.debug(response);
+                }
+            });
+
+        }
+
+    });
 
     $("#trandisapproved").on('click', function() {
 

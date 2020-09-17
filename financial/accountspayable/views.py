@@ -3370,6 +3370,8 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 "AND ss.balancecode = 'D' " \
                 ") AS z " \
                 "ORDER BY z.trandate, z.tran"
+
+        print query
     else:
         con_ap = ""
         con_cv = ""
@@ -3816,3 +3818,18 @@ class GenerateExcelLedger(View):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
         return response
+
+
+@csrf_exempt
+def filedelete(request):
+
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        fileid = request.POST['fileid']
+
+        Apupload.objects.filter(id=fileid).delete()
+
+        return HttpResponseRedirect('/accountspayable/' + str(id) )
+
+    return HttpResponseRedirect('/accountspayable/' + str(id) )
