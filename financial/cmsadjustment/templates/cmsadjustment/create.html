@@ -66,7 +66,7 @@
                     <div class="col-sm-8 padding-top-20">
                         <div class="col-sm-12 row">
                             <div class="table-responsive" style="margin-top:-12px">
-                                <table class="table" id="detailstable">
+                                <table class="table">
                                     <thead>
                                         <tr>
                                             <th style="width: 50px;"><span>#</span></th>
@@ -76,6 +76,9 @@
                                             <th style="width: 30px"><a href="#" style="font-size: 15px" id="item_add"><i class="icon fa-plus-square" aria-hidden="true"></i></a></th>
                                         </tr>
                                     </thead>
+                                </table>
+                                <table class="table" id="detailstable">
+
                                     <tbody>
                                         <tr>
                                             <td>1</td>
@@ -97,6 +100,12 @@
                                             <td colspan="2"><b>TOTAL</b></td>
                                             <td id="totaldetailsdebitamount" class="text-right padding-right-20"><b>0.00</b></td>
                                             <td id="totaldetailscreditamount" class="text-right padding-right-20"><b>0.00</b></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"><b>NET AMOUNT</b></td>
+                                            <td id="netamount" class="text-right padding-right-20"><b></b></td>
+                                            <td class="text-right padding-right-20"><b></b></td>
                                             <td></td>
                                         </tr>
                                     </tfoot>
@@ -221,8 +230,7 @@
                 }
             });
             if($('#totaldetailsdebitamount').find('b').remove().text() != $('#totaldetailscreditamount').find('b').remove().text()){
-                customAlert($('#item-save-warning4'));
-                valid = false;
+
             }
             if(!valid){
                 event.preventDefault();
@@ -257,6 +265,9 @@
                 credittotal += parseFloat($(this).val() != '' ? $(this).val().replace(/,/g, '') : '0');
             });
             $('#totaldetailscreditamount').html('<b>' + credittotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
+
+            var netamount = debittotal - credittotal;
+            $('#netamount').html('<b>' + netamount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
         }
     });
     </script>
