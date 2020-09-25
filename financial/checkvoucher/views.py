@@ -3185,6 +3185,19 @@ def datafix(request):
         else:
             print item.id
 
+@csrf_exempt
+def filedelete(request):
+
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        fileid = request.POST['fileid']
+
+        Cvupload.objects.filter(id=fileid).delete()
+
+        return HttpResponseRedirect('/checkvoucher/' + str(id) )
+
+    return HttpResponseRedirect('/checkvoucher/' + str(id) )
 
 
 

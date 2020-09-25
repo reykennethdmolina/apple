@@ -2976,3 +2976,17 @@ def upload(request):
         return HttpResponseRedirect('/officialreceipt/' + str(id) )
     return HttpResponseRedirect('/officialreceipt/' + str(id) )
 
+
+@csrf_exempt
+def filedelete(request):
+
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        fileid = request.POST['fileid']
+
+        Orupload.objects.filter(id=fileid).delete()
+
+        return HttpResponseRedirect('/officialreceipt/' + str(id) )
+
+    return HttpResponseRedirect('/officialreceipt/' + str(id) )

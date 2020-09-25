@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^approve/$', views.approve, name='approve'),
     url(r'^disapprove/$', views.disapprove, name='disapprove'),
     url(r'^upload/$', views.upload, name='upload'),
+    url(r'^filedelete/$', views.filedelete, name='filedelete'),
 ]
