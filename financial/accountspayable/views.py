@@ -332,7 +332,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Apmain
     template_name = 'accountspayable/edit.html'
-    fields = ['confi', 'apdate', 'aptype', 'apsubtype', 'payee', 'branch',
+    fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
               'bankaccount', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars', 'remarks',
@@ -538,6 +538,7 @@ class UpdateView(UpdateView):
                                             'currency', 'fxrate', 'designatedapprover',
                                             'modifyby', 'modifydate', 'apstatus', 'vatcode', 'vatrate', 'ataxcode',
                                             'ataxrate'])
+            self.object.confi = self.request.POST.get('confi', 0)
 
             if self.object.apstatus == 'F':
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
