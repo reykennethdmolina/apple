@@ -174,10 +174,13 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.apsubtype.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-3">
+                            <div class="form-group col-sm-2">
                                 <label class="control-label" for="id_refno">Reference #</label>
                                 <input type="text" class="form-control input-sm" id="id_refno" name="refno" placeholder="Reference #" style="background: white;" value="{{ form.refno.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.refno.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-1">
+                            <input type="checkbox" id="id_confi" name="confi" value="1" {% if form.confi.value == 1 %} checked="checked" {% endif %}> Confi
                             </div>
                             <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_payee">Payee</label>

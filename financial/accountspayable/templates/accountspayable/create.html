@@ -94,11 +94,15 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.apsubtype.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-3">
+                            <div class="form-group col-sm-2">
                                 <label class="control-label" for="id_refno">Reference #</label>
                                 <input type="text" class="form-control input-sm" id="id_refno" name="refno" placeholder="Reference #" value="{{ form.refno.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.refno.errors.as_text }}</span>
                             </div>
+                            <div class="form-group col-sm-1">
+                            <input type="checkbox" id="id_confi" name="confi" value="1"> Confi
+                            </div>
+
                             <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_payee">Payee</label>
                                 <select class="form-control input-sm ajaxselect2 col-sm-12" data-validation="required" id="id_payee" name="payee">

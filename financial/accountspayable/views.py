@@ -183,7 +183,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Apmain
     template_name = 'accountspayable/create.html'
-    fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
+    fields = ['confi', 'apdate', 'aptype', 'apsubtype', 'payee', 'branch',
               'bankaccount', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars', 'remarks',
@@ -331,7 +331,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Apmain
     template_name = 'accountspayable/edit.html'
-    fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
+    fields = ['confi', 'apdate', 'aptype', 'apsubtype', 'payee', 'branch',
               'bankaccount', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars', 'remarks',
