@@ -183,7 +183,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Apmain
     template_name = 'accountspayable/create.html'
-    fields = ['confi', 'apdate', 'aptype', 'apsubtype', 'payee', 'branch',
+    fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
               'bankaccount', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars', 'remarks',
@@ -261,6 +261,7 @@ class CreateView(CreateView):
         payeeobject = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
         # bankbranchdisburseobject = Bankbranchdisburse.objects.get(pk=self.request.POST['bankbranchdisburse'], isdeleted=0)
 
+        self.object.confi = self.request.POST.get('confi', 0)
         self.object.apnum = apnum
         self.object.apstatus = 'F'
         self.object.vatcode = vatobject.code
