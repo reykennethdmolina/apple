@@ -39,4 +39,7 @@ urlpatterns = [
     url(r'^gopostreim/$', views.gopostreim, name='gopostreim'),
     url(r'^gopostrev/$', views.gopostrev, name='gopostrev'),
     url(r'^gopostliq/$', views.gopostliq, name='gopostliq'),
+
+    url(r'^upload/$', views.upload, name='upload'),
+    url(r'^filedelete/$', views.filedelete, name='filedelete'),
 ]

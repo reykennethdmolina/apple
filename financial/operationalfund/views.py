@@ -18,7 +18,7 @@ from wtax.models import Wtax
 from employee.models import Employee
 from department.models import Department
 from inputvat.models import Inputvat
-from . models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp, Ofitem, Ofitemtemp
+from . models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp, Ofitem, Ofitemtemp, Ofupload
 from accountspayable.models import Apmain, Apdetail
 from journalvoucher.models import Jvmain, Jvdetail
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
@@ -55,6 +55,7 @@ import io
 import xlsxwriter
 import pandas as pd
 from django.core.mail import send_mail
+from django.core.files.storage import FileSystemStorage
 
 
 @method_decorator(login_required, name='dispatch')
@@ -229,6 +230,7 @@ class DetailView(DetailView):
 
         # requested items
         context['itemtemp'] = Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).order_by('item_counter')
+        context['uploadlist'] = Ofupload.objects.filter(ofmain_id=self.object.pk).order_by('enterdate')
 
         return context
 
@@ -3198,3 +3200,33 @@ def sendNotif(object):
 
     #return true
     #return redirect('redirect to a new page')
+
+def upload(request):
+    folder = 'media/ofupload/'
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        id = request.POST['dataid']
+        fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
+        filename = fs.save(myfile.name, myfile)
+
+        upl = Ofupload(ofmain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
+        upl.save()
+
+        uploaded_file_url = fs.url(filename)
+        return HttpResponseRedirect('/operationalfund/' + str(id) )
+    return HttpResponseRedirect('/operationalfund/' + str(id) )
+
+
+@csrf_exempt
+def filedelete(request):
+
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        fileid = request.POST['fileid']
+
+        Ofupload.objects.filter(id=fileid).delete()
+
+        return HttpResponseRedirect('/operationalfund/' + str(id) )
+
+    return HttpResponseRedirect('/operationalfund/' + str(id) )

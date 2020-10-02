@@ -545,3 +545,25 @@ class Ofdetailbreakdowntemp(models.Model):
 
     def status_verbose(self):
         return dict(Ofdetailbreakdowntemp.STATUS_CHOICES)[self.status]
+
+class Ofupload(models.Model):
+    ofmain = models.ForeignKey('operationalfund.Ofmain', related_name='ofmain_ofupload_id', null=True, blank=True)
+    filename = models.CharField(max_length=250, null=True, blank=True)
+    filetype = models.CharField(max_length=250, null=True, blank=True)
+    enterby = models.ForeignKey(User, default=1, related_name='ofupload_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='ofupload_modify')
+    modifydate = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'ofupload'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('ofupload:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.filename
+
+    def __unicode__(self):
+        return self.filename
