@@ -446,6 +446,7 @@ class UpdateView(UpdateView):
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
+        context['confi'] = self.object.confi
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).order_by('first_name')
         context['originalapstatus'] = Apmain.objects.get(pk=self.object.id).apstatus
         context['actualapprover'] = None if Apmain.objects.get(
@@ -531,14 +532,15 @@ class UpdateView(UpdateView):
                 self.object.ataxcode = self.object.atax.code
                 self.object.ataxrate = self.object.atax.rate
 
+            self.object.confi = self.request.POST.get('confi', 0)
+
             self.object.save(update_fields=['apdate', 'aptype', 'apsubtype', 'payee', 'payeecode', 'payeename',
                                             'branch', 'bankaccount', 'vat', 'atax',
                                             'inputvattype', 'creditterm', 'duedate',
                                             'refno', 'deferred', 'particulars', 'remarks',
                                             'currency', 'fxrate', 'designatedapprover',
                                             'modifyby', 'modifydate', 'apstatus', 'vatcode', 'vatrate', 'ataxcode',
-                                            'ataxrate'])
-            self.object.confi = self.request.POST.get('confi', 0)
+                                            'ataxrate', 'confi'])
 
             if self.object.apstatus == 'F':
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])

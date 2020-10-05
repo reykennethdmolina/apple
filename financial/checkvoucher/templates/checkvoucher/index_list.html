@@ -21,6 +21,14 @@
         </thead>
         <tbody>
             {% for data in data_list %}
+            {% if not user.is_superuser and data.confi == 1 and data.enterby_id != user.id %}
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>{{ data.cvnum }} </td>
+                <td>{{ data.cvdate|date:'Y-m-d' }}</td>
+                <td colspan="9" class="text-center"> Reserved Transaction </td>
+            </tr>
+            {% else %}
             <tr>
                 <td>{{ data.id }}</td>
                 <td>{{ data.cvnum }}</td>
@@ -103,6 +111,7 @@
                     </div>
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>

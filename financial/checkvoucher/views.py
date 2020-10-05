@@ -224,6 +224,9 @@ class CreateView(CreateView):
         self.object.cvstatus = 'F'
         self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
         self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
+
+        self.object.confi = self.request.POST.get('confi', 0)
+
         self.object.save()
 
         # accounting entry starts here..
@@ -368,6 +371,7 @@ class UpdateView(UpdateView):
         cv_main_aggregate = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.object.id).aggregate(Sum('amount'))
         context['reppcv_total_amount'] = cv_main_aggregate['amount__sum']
         context['cvnum'] = self.object.cvnum
+        context['confi'] = self.object.confi
 
         if self.request.POST.get('payee', False):
             context['payee'] = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
@@ -429,6 +433,7 @@ class UpdateView(UpdateView):
             #     self.object.payee_code = None
             #     self.object.payee_name = self.request.POST['payee']
 
+            self.object.confi = self.request.POST.get('confi', 0)
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
@@ -437,7 +442,7 @@ class UpdateView(UpdateView):
                                             'particulars', 'vat', 'atc', 'bankaccount',
                                             'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
                                             'branch', 'checknum', 'checkdate', 'ornum', 'vatrate', 'atcrate', 'payee',
-                                            'payee_code', 'payee_name', 'modifyby', 'modifydate'])
+                                            'payee_code', 'payee_name', 'modifyby', 'modifydate', 'confi'])
 
             if self.object.cvstatus == 'F':
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
@@ -465,6 +470,8 @@ class UpdateView(UpdateView):
                 self.object.actualapprover = None
                 self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
                                                 'actualapprover'])
+
+
 
             # revert status from RELEASED to Approved if no release date is saved
             # remove release details if CVSTATUS is not RELEASED

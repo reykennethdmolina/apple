@@ -59,6 +59,7 @@ class Jvmain(models.Model):
     print_ctr = models.IntegerField(default=0)
     amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     importedjvnum = models.CharField(null=True, blank=True, max_length=500)
+    confi = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'jvmain'

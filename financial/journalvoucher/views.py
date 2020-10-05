@@ -166,6 +166,7 @@ class CreateView(CreateView):
             padnum = '{:06d}'.format(num)
             self.object.jvnum = str(jvyear)+str(padnum)
 
+        self.object.confi = self.request.POST.get('confi', 0)
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
@@ -530,6 +531,7 @@ class UpdateView(UpdateView):
 
         # lookup
         context['pk'] = self.object.pk
+        context['confi'] = self.object.confi
 
         contextdatatable = {
             # to be used by accounting entry on load
@@ -560,8 +562,9 @@ class UpdateView(UpdateView):
             self.object = form.save(commit=False)
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
+            self.object.confi = self.request.POST.get('confi', 0)
             self.object.save(update_fields=['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch',
-                                            'currency', 'department', 'designatedapprover', 'jvstatus', 'fxrate'])
+                                            'currency', 'department', 'designatedapprover', 'jvstatus', 'fxrate', 'confi'])
 
             if self.object.jvstatus == 'F':
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
@@ -569,6 +572,7 @@ class UpdateView(UpdateView):
 
             # revert status from APPROVED/DISAPPROVED to For Approval if no response date or approver response is saved
             # remove approval details if JVSTATUS is not APPROVED/DISAPPROVED
+
             if self.object.jvstatus == 'A' or self.object.jvstatus == 'D':
                 if self.object.responsedate is None or self.object.approverresponse is None or self.object. \
                         actualapprover is None:

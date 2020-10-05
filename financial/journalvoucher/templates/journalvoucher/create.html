@@ -76,11 +76,14 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.jvsubtype.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-3">
+                            <div class="form-group col-sm-2">
                                 <label class="control-label" for="id_refnum">Reference #</label>
                                 <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
                             </div>
+                            <div class="form-group col-sm-1">
+                                <input type="checkbox" id="id_confi" name="confi" value="1"> Confi
+                                </div>
                             <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_branch">Branch</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
