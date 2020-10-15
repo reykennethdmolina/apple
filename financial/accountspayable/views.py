@@ -2581,21 +2581,29 @@ class GenerateExcel(View):
                     cvnumx = str(cvtrans.cvmain.cvnum)
                 worksheet.write(row, col, data.apnum)
                 worksheet.write(row, col + 5, cvnumx)
-                worksheet.write(row, col + 1, data.apdate, formatdate)
-                if data.status == 'C':
-                    worksheet.write(row, col + 2, 'C A N C E L L E D')
-                else:
-                    worksheet.write(row, col + 2, data.payeename)
-                worksheet.write(row, col + 3, data.particulars)
-                if data.status == 'C':
-                    worksheet.write(row, col + 4, float(format(0, '.2f')))
-                    amount = 0
-                else:
-                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
-                    amount = data.amount
 
-                row += 1
-                totalamount += amount
+                if not request.user.is_superuser and data.confi == 1 and data.enterby_id != request.user.id:
+                    worksheet.write(row, col + 1, data.apdate, formatdate)
+                    worksheet.write(row, col + 2, 'Reserved Transaction')
+
+                else:
+
+                    worksheet.write(row, col + 1, data.apdate, formatdate)
+                    if data.status == 'C':
+                        worksheet.write(row, col + 2, 'C A N C E L L E D')
+                    else:
+                        worksheet.write(row, col + 2, data.payeename)
+                    worksheet.write(row, col + 3, data.particulars)
+                    if data.status == 'C':
+                        worksheet.write(row, col + 4, float(format(0, '.2f')))
+                        amount = 0
+                    else:
+                        worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                        amount = data.amount
+
+                    row += 1
+                    totalamount += amount
+
 
             #print float(format(totalamount, '.2f'))
             #print total['total_amount']
@@ -2618,50 +2626,62 @@ class GenerateExcel(View):
 
             totaldebit = 0
             totalcredit = 0
-            list = list.values('apmain__apnum', 'apmain__apdate', 'apmain__particulars', 'apmain__payeename',
+
+            list = list.values('apmain__apnum', 'apmain__apdate', 'apmain__particulars', 'apmain__payeename', 'apmain__confi', 'apmain__enterby_id',
                                'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
                                'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
             dataset = pd.DataFrame.from_records(list)
 
             for apnum, detail in dataset.fillna('NaN').groupby(
-                    ['apmain__apnum', 'apmain__apdate', 'apmain__payeename', 'apmain__particulars', 'status']):
+                    ['apmain__apnum', 'apmain__apdate', 'apmain__payeename', 'apmain__particulars', 'status', 'apmain__confi', 'apmain__enterby_id']):
                 worksheet.write(row, col, apnum[0])
                 worksheet.write(row, col + 1, apnum[1], formatdate)
-                if apnum[4] == 'C':
-                    worksheet.write(row, col + 2, 'C A N C E L L E D')
-                else:
-                    worksheet.write(row, col + 2, apnum[2])
-                worksheet.write(row, col + 3, apnum[3])
-                row += 1
+
                 debit = 0
                 credit = 0
-                branch = ''
-                bankaccount = ''
-                department = ''
-                for sub, data in detail.iterrows():
-                    worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
-                    worksheet.write(row, col + 3, data['chartofaccount__description'])
-                    if data['branch__code'] != 'NaN':
-                        branch = data['branch__code']
-                    if data['bankaccount__code'] != 'NaN':
-                        bankaccount = data['bankaccount__code']
-                    if data['department__code'] != 'NaN':
-                        department = data['department__code']
-                    worksheet.write(row, col + 4, branch + ' ' + bankaccount + ' ' + department)
-                    if apnum[4] == 'C':
-                        worksheet.write(row, col + 5, float(format(0, '.2f')))
-                        worksheet.write(row, col + 6, float(format(0, '.2f')))
-                        debit = 0
-                        credit = 0
-                    else:
-                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
-                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
-                        debit = data['debitamount']
-                        credit = data['creditamount']
-
+                
+                if not request.user.is_superuser and apnum[5] == 1 and apnum[6] != request.user.id:
+                    worksheet.write(row, col + 2, 'Reserved Transaction')
                     row += 1
                     totaldebit += debit
                     totalcredit += credit
+                else:
+
+                    if apnum[4] == 'C':
+                        worksheet.write(row, col + 2, 'C A N C E L L E D')
+                    else:
+                        worksheet.write(row, col + 2, apnum[2])
+                    worksheet.write(row, col + 3, apnum[3])
+                    row += 1
+
+                    branch = ''
+                    bankaccount = ''
+                    department = ''
+                    for sub, data in detail.iterrows():
+                        worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
+                        worksheet.write(row, col + 3, data['chartofaccount__description'])
+                        if data['branch__code'] != 'NaN':
+                            branch = data['branch__code']
+                        if data['bankaccount__code'] != 'NaN':
+                            bankaccount = data['bankaccount__code']
+                        if data['department__code'] != 'NaN':
+                            department = data['department__code']
+                        worksheet.write(row, col + 4, branch + ' ' + bankaccount + ' ' + department)
+                        if apnum[4] == 'C':
+                            worksheet.write(row, col + 5, float(format(0, '.2f')))
+                            worksheet.write(row, col + 6, float(format(0, '.2f')))
+                            debit = 0
+                            credit = 0
+                        else:
+                            worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
+                            worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                            debit = data['debitamount']
+                            credit = data['creditamount']
+
+                        row += 1
+                        totaldebit += debit
+                        totalcredit += credit
+
 
             worksheet.write(row, col + 4, 'Total')
             worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))

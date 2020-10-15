@@ -137,9 +137,16 @@
         <tr style="padding:5px">
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.apmain.apprefix|upper }}{{ item.apmain.apnum|upper }}</td>
             <td style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.apmain.payeename }}</td>
+            {% if not user.is_superuser and item.apmain.confi == 1 and item.apmain.enterby_id != user.id %}
+            <td style="text-align:left;vertical-align:top;" colspan="3">Reserved Transaction</td>
+            {% else %}
             <td colspan="3" style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.apmain.particulars }}</td>
+            {% endif %}
         </tr>
         {% endif %}
+        {% if not user.is_superuser and item.apmain.confi == 1 and item.apmain.enterby_id != user.id %}
+
+        {% else %}
         <tr>
             <td style="text-align:left;width:100px;vertical-align:top;"></td>
             <td style="text-align:center;vertical-align:top;width:200px">{{ item.chartofaccount.accountcode|upper }}</td>
@@ -148,6 +155,7 @@
             <td style="text-align:right;width:100px;vertical-align:top;">{{ item.debitamount|default:""|floatformat:2|intcomma }}</td>
             <td style="text-align:right;width:100px;vertical-align:top;">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
         </tr>
+        {% endif %}
         {% endfor %}
     {% endfor %}
         <tr>
