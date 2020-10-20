@@ -2639,7 +2639,7 @@ class GenerateExcel(View):
 
                 debit = 0
                 credit = 0
-                
+
                 if not request.user.is_superuser and apnum[5] == 1 and apnum[6] != request.user.id:
                     worksheet.write(row, col + 2, 'Reserved Transaction')
                     row += 1
