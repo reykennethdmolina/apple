@@ -131,9 +131,13 @@
         <tr>
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.cvnum|upper }}</td>
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.cvdate|date:'Y-m-d' }}</td>
+            {% if not user.is_superuser and item.confi == 1 and item.enterby_id != user.id %}
+            <td style="text-align:left;vertical-align:top;" colspan="3">Reserved Transaction</td>
+            {% else %}
             <td style="text-align:left;vertical-align:top;">{{ item.payee_name }}</td>
             <td style="text-align:left;vertical-align:top;">{{ item.particulars }}</td>
             <td style="text-align:right;vertical-align:top;width:150px;">{{ item.amount|floatformat:2|intcomma }}</td>
+            {% endif %}
         </tr>
     {% endfor %}
     <tr>

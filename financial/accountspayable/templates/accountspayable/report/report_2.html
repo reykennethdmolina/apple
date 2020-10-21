@@ -136,10 +136,10 @@
         {% if forloop.counter == 1%}
         <tr style="padding:5px">
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.apmain.apprefix|upper }}{{ item.apmain.apnum|upper }}</td>
-            <td style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.apmain.payeename }}</td>
             {% if not user.is_superuser and item.apmain.confi == 1 and item.apmain.enterby_id != user.id %}
-            <td style="text-align:left;vertical-align:top;" colspan="3">Reserved Transaction</td>
+            <td style="text-align:center;vertical-align:top;" colspan="3">Reserved Transaction</td>
             {% else %}
+             <td style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.apmain.payeename }}</td>
             <td colspan="3" style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.apmain.particulars }}</td>
             {% endif %}
         </tr>
