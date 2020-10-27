@@ -3006,8 +3006,8 @@ def searchforacp(request):
         creator = request.POST['creator']
 
         cvtype = 10
-
-        q = Cvmain.objects.filter(cvtype_id=cvtype,isdeleted=0,status='A',cvstatus='R').order_by('cvnum', 'cvdate')
+        statuses = ['A', 'O']
+        q = Cvmain.objects.filter(cvtype_id=cvtype,isdeleted=0,status__in=['A', 'O'],cvstatus='R').order_by('cvnum', 'cvdate')
 
         if dfrom != '':
             q = q.filter(cvdate__gte=dfrom)
