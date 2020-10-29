@@ -2965,7 +2965,7 @@ def exportsave(request):
                     balancecode='C',
                     amount=data.amount,
                     chartofaccount_id=cashinbank,
-                    bankaccount_id=22, #SB
+                    bankaccount_id=bankacct, #SB
                     enterby_id=request.user.id,
                     enterdate=datetime.datetime.now(),
                     modifyby_id=request.user.id,
