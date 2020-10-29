@@ -2880,6 +2880,10 @@ def exportsave(request):
 
             amountinwords = num2words(data.amount)
 
+            bankacct = 22  # SB9
+            if apdata.apmain.confi == 1:
+                bankacct = 19 # SB7
+
             # apdata.digicvmain_id:
             #print apdata.apmain.digicvmain_id
 
@@ -2902,7 +2906,7 @@ def exportsave(request):
                     fxrate= apdata.apmain.fxrate,
                     refnum=refno,
                     deferredvat = apdata.apmain.deferred,
-                    bankaccount_id = 22, #SB
+                    bankaccount_id = bankacct,
                     particulars=data.remarks,
                     amount=data.amount,
                     amountinwords=amountinwords,
