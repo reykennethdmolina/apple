@@ -1029,6 +1029,53 @@ def manualcvautoentry(request):
         }
     return JsonResponse(data)
 
+@csrf_exempt
+def remanualcvautoentry(request):
+
+    if request.method == 'POST':
+        data_table = validatetable(request.POST['table'])
+        #deleteallquery(request.POST['table'], request.POST['secretkey'])
+
+        secretkey = request.POST['secretkey']
+        bankaccount = request.POST['bankaccount']
+        amount = request.POST['amount'].replace(',', '')
+        #find cash in bank
+        cashinbank = Companyparameter.objects.get(code='PDI').coa_cashinbank.id
+
+        #find = Cvdetailtemp..objects.get(code='PDI')
+        find = Cvdetailtemp.objects.filter(secretkey=secretkey,chartofaccount=30)
+
+        for f in find:
+            temp = Cvdetailtemp.objects.get(pk=f.id)
+            temp.bankaccount = bankaccount
+            if f.balancecode == 'D':
+                temp.creditamount = amount
+            else:
+                temp.creditamount = amount
+
+            temp.save()
+
+
+        context = {
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success'
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+
 
 @csrf_exempt
 def reportresultquery(request):

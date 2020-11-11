@@ -444,6 +444,51 @@
     <script type="text/javascript">
         $(document).ready(function() {
 
+        $(document).on('blur', '#id_amount', function(){
+
+            $.ajax({
+                url: "{% url 'checkvoucher:remanualcvautoentry' %}",
+                type: "post",
+                data: {'bankaccount': $("#id_bankaccount").val(),
+                       'branch': $("#id_branch").val(),
+                       'amount': $("#id_amount").val(),
+                       'secretkey': $("#secretkey").val(),
+                       'table': "cvdetailtemp",
+                       'csrfmiddlewaretoken': "{{csrf_token}}"
+                },
+                success: function(response){
+                    $("#datatable").html(response['datatable']);
+
+                }, error: function(response) {
+                    console.debug(response);
+
+                }
+            });
+        });
+
+
+        $(document).on('change', '#id_bankaccount', function(){
+
+            $.ajax({
+                url: "{% url 'checkvoucher:remanualcvautoentry' %}",
+                type: "post",
+                data: {'bankaccount': $("#id_bankaccount").val(),
+                       'branch': $("#id_branch").val(),
+                       'amount': $("#id_amount").val(),
+                       'secretkey': $("#secretkey").val(),
+                       'table': "cvdetailtemp",
+                       'csrfmiddlewaretoken': "{{csrf_token}}"
+                },
+                success: function(response){
+                    $("#datatable").html(response['datatable']);
+
+                }, error: function(response) {
+                    console.debug(response);
+
+                }
+            });
+        });
+
         var sd = $('#id_cvdate').data('mindate');
         var d = new Date(sd);
         d.setDate(d.getDate());
