@@ -971,6 +971,8 @@ class ReportView(ListView):
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['user'] = User.objects.filter(is_active=1).order_by('first_name')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
+        creator = Jvmain.objects.filter(isdeleted=0).values_list('enterby_id', flat=True)
+        context['creator'] = User.objects.filter(id__in=set(creator)).order_by('first_name', 'last_name')
         #context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
         #context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
         #context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
@@ -1755,6 +1757,7 @@ class GeneratePDF(View):
         approver = request.GET['approver']
         jvstatus = request.GET['jvstatus']
         status = request.GET['status']
+        creator = request.GET['creator']
         title = "Journal Voucher List"
         list = Jvmain.objects.filter(isdeleted=0).order_by('jvnum')[:0]
 
@@ -1820,6 +1823,12 @@ class GeneratePDF(View):
         if status != '':
             q = q.filter(status=status)
 
+        if creator != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__enterby_id=creator)
+            else:
+                q = q.filter(enterby_id=creator)
+
         list = q
         if list:
             total = list.aggregate(total_amount=Sum('amount'))
@@ -1864,6 +1873,7 @@ class GenerateExcel(View):
         approver = request.GET['approver']
         jvstatus = request.GET['jvstatus']
         status = request.GET['status']
+        creator = request.GET['creator']
         title = "Journal Voucher List"
         list = Jvmain.objects.filter(isdeleted=0).order_by('jvnum')[:0]
 
@@ -1931,6 +1941,11 @@ class GenerateExcel(View):
                 q = q.filter(jvstatus=jvstatus)
         if status != '':
             q = q.filter(status=status)
+        if creator != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__enterby_id=creator)
+            else:
+                q = q.filter(enterby_id=creator)
 
         list = q
         if list:
