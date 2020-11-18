@@ -2349,8 +2349,8 @@ def gopost(request):
                     particulars = 'Cellphone Subsidy '+str(of.requestor_name)+' '+str(billingremarks),
                     currency_id = 1,
                     fxrate = 1,
-                    designatedapprover_id = 15, # Angela
-                    actualapprover_id = 15, # Angela
+                    designatedapprover_id = 225, # Arlene Astapan
+                    actualapprover_id = 225, # Arlene Astapan
                     approverremarks = 'Auto approved from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
                     apstatus = 'A',
@@ -2472,8 +2472,8 @@ def gopostreim(request):
                     particulars = 'Reimbursement '+str(of.requestor_name)+' '+str(billingremarks),
                     currency_id = 1,
                     fxrate = 1,
-                    designatedapprover_id = 15, # Angela
-                    actualapprover_id = 15, # Angela
+                    designatedapprover_id = 225, # Arlene Astapan
+                    actualapprover_id = 225, # Arlene Astapan
                     approverremarks = 'Auto approved from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
                     apstatus = 'A',
@@ -2595,8 +2595,8 @@ def gopostrev(request):
                     particulars = 'Revolving Fund '+str(of.requestor_name)+' '+str(billingremarks),
                     currency_id = 1,
                     fxrate = 1,
-                    designatedapprover_id = 15, # Angela
-                    actualapprover_id = 15, # Angela
+                    designatedapprover_id = 225, # Arlene Astapan
+                    actualapprover_id = 225, # Arlene Astapan
                     approverremarks = 'Auto approved from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
                     apstatus = 'A',
@@ -2707,8 +2707,8 @@ def gopostliq(request):
                     particular = 'Liquidation '+str(of.requestor_code)+' '+str(of.requestor_name),
                     currency_id = 1,
                     fxrate = 1,
-                    designatedapprover_id = 7, # Jhun 7
-                    actualapprover_id = 7, # Jhun 7
+                    designatedapprover_id = 225, # Arlene Astapan
+                    actualapprover_id = 225, # Arlene Astapan
                     approverremarks = 'Auto approved from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
                     jvstatus = 'A',
