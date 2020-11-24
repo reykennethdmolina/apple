@@ -759,9 +759,11 @@ class GenerateTransExcel(View):
         worksheet.write('B6', 'Type', bold)
         worksheet.write('C6', 'Number', bold)
         worksheet.write('D6', 'Dept', bold)
-        worksheet.write('E6', 'Particulars', bold)
-        worksheet.write('F6', 'Debit Amount', bold)
-        worksheet.write('G6', 'Credit Amount', bold)
+        worksheet.write('E6', 'Account Code', bold)
+        worksheet.write('F6', 'Chart of Account', bold)
+        worksheet.write('G6', 'Particulars', bold)
+        worksheet.write('H6', 'Debit Amount', bold)
+        worksheet.write('I6', 'Credit Amount', bold)
 
         row = 7
         col = 0
@@ -777,26 +779,28 @@ class GenerateTransExcel(View):
             worksheet.write(row, col + 1, data.tran)
             worksheet.write(row, col + 2, data.tnum)
             worksheet.write(row, col + 3, data.deptcode)
-            worksheet.write(row, col + 4, data.particulars)
-            worksheet.write(row, col + 5, float(format(data.debitamount, '.2f')))
-            worksheet.write(row, col + 6, float(format(data.creditamount, '.2f')))
+            worksheet.write(row, col + 4, data.accountcode)
+            worksheet.write(row, col + 5, data.chartofaccount)
+            worksheet.write(row, col + 6, data.particulars)
+            worksheet.write(row, col + 7, float(format(data.debitamount, '.2f')))
+            worksheet.write(row, col + 8, float(format(data.creditamount, '.2f')))
 
             row += 1
 
         total = float(debit) - float(credit)
         totalvariance = float(totalbudget) - float(total)
 
-        worksheet.write(row, col + 4, 'Total', bold)
-        worksheet.write(row, col + 5, float(format(debit, '.2f')), bold)
-        worksheet.write(row, col + 6, float(format(credit, '.2f')), bold)
+        worksheet.write(row, col + 6, 'Total', bold)
+        worksheet.write(row, col + 7, float(format(debit, '.2f')), bold)
+        worksheet.write(row, col + 8, float(format(credit, '.2f')), bold)
 
-        worksheet.write(row+1, col + 4, 'NET Amount', bold)
+        worksheet.write(row+1, col + 6, 'NET Amount', bold)
         if debit > credit:
-            worksheet.write(row+1, col + 5, float(format(total, '.2f')), bold)
-            worksheet.write(row+1, col + 6, float(format(0, '.2f')), bold)
+            worksheet.write(row+1, col + 7, float(format(total, '.2f')), bold)
+            worksheet.write(row+1, col + 8, float(format(0, '.2f')), bold)
         else:
-            worksheet.write(row + 1, col + 5, float(format(0, '.2f')), bold)
-            worksheet.write(row + 1, col + 6, float(format(total, '.2f')), bold)
+            worksheet.write(row + 1, col + 7, float(format(0, '.2f')), bold)
+            worksheet.write(row + 1, col + 8, float(format(total, '.2f')), bold)
 
         worksheet.write('A5', 'Budget Amount', bold)
         worksheet.write('B5', float(format(totalbudget, '.2f')), bold)
