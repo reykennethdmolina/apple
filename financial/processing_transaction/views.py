@@ -154,7 +154,7 @@ def importtransdata(request):
             po_nums = allpodetail.values('pomain__ponum').distinct().order_by('pomain__ponum')
             for data in po_nums:
                 refnum += ' ' + str(data['pomain__ponum'])
-                refparticulars += ' ' + str(Pomain.objects.get(ponum=str(data['pomain__ponum'])).particulars)
+                refparticulars += ' ' + unicode(Pomain.objects.get(ponum=str(data['pomain__ponum'])).particulars)
 
             if request.POST['transtype'] == 'potoapv':
                 year = str(datetime.date.today().year)
