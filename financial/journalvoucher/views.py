@@ -155,11 +155,15 @@ class CreateView(CreateView):
 
         # Get JVYear
         if self.request.POST['jvtype'] == '6':
+            # jvyear = form.cleaned_data['jvdate'].year
+            # num = Jvmain.objects.filter(jvdate__year=jvyear)
+            # numx = num.aggregate(Max('jvnum'))
+            # d_num = numx.values()
+            # self.object.jvnum = int(d_num[0]) + 1
             jvyear = form.cleaned_data['jvdate'].year
-            num = Jvmain.objects.filter(jvdate__year=jvyear)
-            numx = num.aggregate(Max('jvnum'))
-            d_num = numx.values()
-            self.object.jvnum = int(d_num[0]) + 1
+            num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
+            padnum = '{:06d}'.format(num)
+            self.object.jvnum = str(jvyear) + str(padnum)
         else:
             jvyear = form.cleaned_data['jvdate'].year
             num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
@@ -1897,6 +1901,7 @@ class GenerateExcel(View):
             q = Jvmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('jvnum', 'jvdate')
             if dfrom != '':
                 q = q.filter(jvdate__gte=dfrom)
+
             if dto != '':
                 q = q.filter(jvdate__lte=dto)
         elif report == '4':
