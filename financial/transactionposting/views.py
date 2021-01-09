@@ -38,6 +38,7 @@ class IndexView(ListView):
         context['today_month'] = datetime.today().month
         context['toclose_year'] = yearend_year.year
         context['count'] = datetime.today().year - company.year_end_date.year
+        context['last'] =Companyparameter.objects.all().first().last_closed_date
         context['param'] = company
 
         return context
@@ -731,7 +732,7 @@ def logjv(datefrom, dateto, batchkey, user):
             document_fxrate=data.jvmain.fxrate,
             document_supplier=data.supplier,
             enterby=user,
-            modifyby=user,   
+            modifyby=user,
             batchkey=batchkey,
         )
         for data in item

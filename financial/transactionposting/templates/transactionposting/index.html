@@ -106,7 +106,7 @@
 <div id="trans_step_verify">
     <div class="container-fluid">
         <div class="row">
-            {% if count == 2 and today_month == 1 %}
+            {% if last.month == 12  and count == 2 and today_month == 2 %}
             <div class="col-md-12">
                 <div class="page-wrap">
                     <div class="col-md-12">
@@ -175,7 +175,7 @@
     </div>
 </div>
 <br><br>
-{% if count == 2 %}
+{% if last.month == 12  and count == 2 and today_month == 2 %}
 {% else %}
 <div id="trans_step_post">
     <div class="container-fluid">
@@ -399,7 +399,7 @@
             format: 'yyyy-mm-dd',
         });
         $(document).on('click', '#trans_verify', function(){
-            $('html, body').animate({scrollTop: $('#trans_step_post').offset().top -80 }, 'slow');
+            <!--$('html, body').animate({scrollTop: $('#trans_step_post').offset().top -80 }, 'slow');-->
             $('#trans_verify').hide();
             $('#trans_verify_loading').fadeIn();
             $('.select_holder').hide();
