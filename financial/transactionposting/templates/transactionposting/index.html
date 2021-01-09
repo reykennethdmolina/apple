@@ -106,7 +106,8 @@
 <div id="trans_step_verify">
     <div class="container-fluid">
         <div class="row">
-            {% if last.month == 12  and count == 2 and today_month == 2 %}
+
+            {% if last.month == 12  and count == 2  %}
             <div class="col-md-12">
                 <div class="page-wrap">
                     <div class="col-md-12">
@@ -175,7 +176,7 @@
     </div>
 </div>
 <br><br>
-{% if last.month == 12  and count == 2 and today_month == 2 %}
+{% if last.month == 12  and count == 2  %}
 {% else %}
 <div id="trans_step_post">
     <div class="container-fluid">
