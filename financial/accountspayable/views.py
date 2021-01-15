@@ -2962,20 +2962,28 @@ class GenerateExcel(View):
             for data in list:
                 worksheet.write(row, col, data.apmain.apnum)
                 worksheet.write(row, col + 1, data.apmain.apdate, formatdate)
-                if data.status == 'C':
-                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+
+                if not request.user.is_superuser and data.apmain.confi == 1 and data.apmain.enterby_id != request.user.id:
+
+                    worksheet.write(row, col + 2, 'Reserved Transaction')
+
                 else:
-                    worksheet.write(row, col + 2, data.apmain.payeename)
-                worksheet.write(row, col + 3, data.apmain.particulars)
-                if data.status == 'C':
-                    worksheet.write(row, col + 4, float(format(0, '.2f')))
-                    amount = 0
-                else:
-                    worksheet.write(row, col + 4, float(format(data.creditamount, '.2f')))
-                    amount = data.creditamount
+
+                    if data.status == 'C':
+                        worksheet.write(row, col + 2, 'C A N C E L L E D')
+                    else:
+                        worksheet.write(row, col + 2, data.apmain.payeename)
+                    worksheet.write(row, col + 3, data.apmain.particulars)
+                    if data.status == 'C':
+                        worksheet.write(row, col + 4, float(format(0, '.2f')))
+                        amount = 0
+                    else:
+                        worksheet.write(row, col + 4, float(format(data.creditamount, '.2f')))
+                        amount = data.creditamount
+
+                    totalamount += amount
 
                 row += 1
-                totalamount += amount
 
             # print float(format(totalamount, '.2f'))
             # print total['total_amount']
@@ -3366,6 +3374,45 @@ class LedgerView(ListView):
 
         return context
 
+def query_ledger_add(report, type, dfrom, dto, aptrade, payee):
+
+    if dfrom <= '2018-12-31':
+        dfrom = '2019-01-01'
+    # print "Summary"
+
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    if report == 'detail':
+        query = "SELECT z.payee_id, z.tran, z.trannum, z.trandate, " \
+                "(IFNULL(z.debitamount, 0)) AS debitamount, (IFNULL(z.creditamount, 0)) AS creditamount, ((IFNULL(z.debitamount, 0)) + (IFNULL(z.creditamount, 0))) AS amount, z.balancecode, z.particulars " \
+                "FROM ( " \
+                "SELECT s.document_supplier_id AS payee_id, s.document_type AS tran, s.document_num AS trannum, s.document_date AS trandate,  " \
+                "0 AS debitamount, (IFNULL(s.amount, 0)) AS creditamount,  s.balancecode, s.particulars " \
+                "FROM subledger AS s " \
+                "WHERE s.chartofaccount_id = '"+str(aptrade)+"' AND s.document_date >= '"+str(dfrom)+"' AND s.document_date < '"+str(dto)+"' AND s.document_supplier_id = '"+str(payee)+"' " \
+                "AND s.document_supplier_id IS NOT NULL " \
+                "AND s.balancecode = 'C' " \
+                "UNION " \
+                "SELECT ss.document_supplier_id AS payee_id, ss.document_type AS tran, ss.document_num AS trannum, ss.document_date AS trandate, " \
+                "(IFNULL(ss.amount, 0)) AS debitamount, 0 AS creditamount, ss.balancecode, ss.particulars " \
+                "FROM subledger AS ss " \
+                "WHERE ss.chartofaccount_id = '"+str(aptrade)+"' AND ss.document_date >= '"+str(dfrom)+"' AND ss.document_date < '"+str(dto)+"' AND ss.document_supplier_id = '"+str(payee)+"' " \
+                "AND ss.document_supplier_id IS NOT NULL " \
+                "AND ss.balancecode = 'D' " \
+                ") AS z " \
+                "ORDER BY z.trandate, z.tran"
+
+        print query
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    #print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
 def query_ledger(report, type, dfrom, dto, aptrade, payee):
 
     if dfrom <= '2018-12-31':
@@ -3544,7 +3591,7 @@ class GenerateLedgerPDF(View):
 
             addbeg = []
             if dfrom > '2018-12-31':
-                addbeg = query_ledger('detail', type, '2019-01-01', dfrom, aptrade.id, sup.id)
+                addbeg = query_ledger_add('detail', type, '2019-01-01', dfrom, aptrade.id, sup.id)
 
                 if addbeg:
                     dfx = pd.DataFrame(addbeg)
