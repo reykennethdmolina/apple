@@ -161,10 +161,33 @@ class CreateView(CreateView):
             d_num = numx.values()
             self.object.jvnum = int(d_num[0]) + 1
         else:
-            jvyear = form.cleaned_data['jvdate'].year
-            num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
-            padnum = '{:06d}'.format(num)
-            self.object.jvnum = str(jvyear)+str(padnum)
+            year = str(form.cleaned_data['jvdate'].year)
+            yearqs = Jvmain.objects.filter(jvnum__startswith=year)
+
+            if yearqs:
+                jvnumlast = yearqs.latest('jvnum')
+                latestjvnum = str(jvnumlast)
+                print "latest: " + latestjvnum
+
+                jvnum = year
+                last = str(int(latestjvnum[4:]) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    jvnum += '0'
+                jvnum += last
+
+            else:
+                jvnum = year + '000001'
+
+            print 'jvnum: ' + jvnum
+            # jvyear = form.cleaned_data['jvdate'].year
+            # num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
+            # print jvyear
+            # print num
+            # print 'dito'
+            # padnum = '{:06d}'.format(num)
+            #self.object.jvnum = str(jvyear)+str(padnum)
+            self.object.jvnum = jvnum
 
         self.object.confi = self.request.POST.get('confi', 0)
         self.object.enterby = self.request.user
