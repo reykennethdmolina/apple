@@ -65,6 +65,9 @@
                                     <option value="11" data-cashinbank="1">ACCOUNTS PAYABLE VOUCHER - SUMMARY ENTRIES</option>
                                     <option value="12" data-cashinbank="0">ACCOUNTS PAYABLE VOUCHER - SUBSIDIARY ENTRIES</option>
                                     <option value="13" data-cashinbank="0">ACCOUNTS PAYABLE VOUCHER (with Branch) - SUMMARY ENTRIES</option>
+                                    <option value="14" data-cashinbank="0">GENERAL LEDGER BOOK - BIR FORMAT</option>
+                                    <option value="15" data-cashinbank="0">CASH RECEIPTS BOOK - BIR FORMAT</option>
+                                    <option value="16" data-cashinbank="0">PURCHASE BOOK - BIR FORMAT</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-4">
@@ -144,10 +147,12 @@
         $("#report_type").on('change', function() {
             var report = $('#report_type').val();
 
-            if (report == 1 || report == 4) {
+            if (report == 1 || report == 4 || report == 14 || report == 15 || report == 16) {
                 $('#excel').show();
+                $('#search_results').hide();
             } else {
                 $('#excel').hide();
+                $('#search_results').show();
             }
 
         });

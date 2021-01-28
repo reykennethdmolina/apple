@@ -18,6 +18,9 @@ from django.template.loader import get_template
 from django.http import HttpResponse
 import pandas as pd
 from datetime import timedelta
+from django.db import connection
+from collections import namedtuple
+import pandas as pd
 import io
 import xlsxwriter
 import datetime
@@ -589,6 +592,12 @@ class GenerateExcel(View):
             if dto != '':
                 q = q.filter(cv_date__lte=dto)
             total = q.exclude(cvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+        elif report == '14':
+            title = "GENERAL LEDGER BOOK - BIR FORMAT"
+        elif report == '15':
+            title = "CASH RECEIPTS BOOK - BIR FORMAT"
+        elif report == '16':
+            title = "PURCHASE BOOK - BIR FORMAT"
         else:
             q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
 
@@ -734,6 +743,187 @@ class GenerateExcel(View):
 
             # Set up the Http response.
             filename = "cashdisbursementbook_detailed.xlsx"
+        elif report == '14':
+            print 'gen ledger'
+
+            # Create an in-memory output file for the new workbook.
+            output = io.BytesIO()
+
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
+
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+            # title
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+            worksheet.write('A2', 'GENERAL LEDGER BOOK', bold)
+            worksheet.write('A3', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            # header
+            worksheet.write('A6', 'DATE', bold)
+            worksheet.write('B6', 'TRANSACTION', bold)
+            worksheet.write('C6', 'REFERENCE', bold)
+            worksheet.write('D6', 'PARTICULARS', bold)
+            worksheet.write('E6', 'ACCOUNT NUMBER', bold)
+            worksheet.write('F6', 'ACCOUNT TITLE', bold)
+            worksheet.write('G6', 'DEBIT', bold)
+            worksheet.write('H6', 'CREDIT', bold)
+
+            row = 7
+            col = 0
+            q = query_bir(report, dfrom, dto)
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                for index, data in df.iterrows():
+                    worksheet.write(row, col, data['transdate'], formatdate)
+                    worksheet.write(row, col + 1, data['transtype'])
+                    worksheet.write(row, col + 2, data['reference'])
+                    worksheet.write(row, col + 3, data['particulars'],)
+                    worksheet.write(row, col + 4, data['accountcode'])
+                    worksheet.write(row, col + 5, data['description'])
+                    worksheet.write(row, col + 6, float(format(data['debit'], '.2f')))
+                    worksheet.write(row, col + 7, float(format(data['credit'], '.2f')))
+                    row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response.
+            filename = "generalledgerbook_bir.xlsx"
+
+        elif report == '15':
+            print 'cash receipt books'
+            # Create an in-memory output file for the new workbook.
+            output = io.BytesIO()
+
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
+
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+            # title
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+            worksheet.write('A2', 'CASH RECEIPT BOOK', bold)
+            worksheet.write('A3', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            # header
+            worksheet.write('A6', 'DATE', bold)
+            worksheet.write('B6', 'REFERENCE', bold)
+            worksheet.write('C6', 'PAYOR', bold)
+            worksheet.write('D6', 'PARTICULARS', bold)
+            worksheet.write('E6', 'ACCOUNT NUMBER', bold)
+            worksheet.write('F6', 'ACCOUNT TITLE', bold)
+            worksheet.write('G6', 'DEBIT', bold)
+            worksheet.write('H6', 'CREDIT', bold)
+            worksheet.write('I6', 'BANK ACCOUNT', bold)
+
+            row = 7
+            col = 0
+            q = query_bir(report, dfrom, dto)
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                for index, data in df.iterrows():
+                    worksheet.write(row, col, data['ordate'], formatdate)
+                    worksheet.write(row, col + 1, data['ornum'])
+                    worksheet.write(row, col + 2, data['payee_name'])
+                    worksheet.write(row, col + 3, data['particulars'], )
+                    worksheet.write(row, col + 4, data['accountcode'])
+                    worksheet.write(row, col + 5, data['description'])
+                    worksheet.write(row, col + 6, float(format(data['debitamount'], '.2f')))
+                    worksheet.write(row, col + 7, float(format(data['creditamount'], '.2f')))
+                    worksheet.write(row, col + 8, data['bankacount'])
+                    row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response.
+            filename = "cashreceiptbooks_bir.xlsx"
+
+        elif report == '16':
+
+            print 'purchase books'
+
+            output = io.BytesIO()
+
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
+
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+            # title
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+            worksheet.write('A2', 'PURCHASE BOOK', bold)
+            worksheet.write('A3', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            # header
+            worksheet.write('A6', 'PO Number', bold)
+            worksheet.write('B6', 'PO Date', bold)
+            worksheet.write('C6', 'Reference', bold)
+            worksheet.write('D6', 'Brief Description', bold)
+            worksheet.write('E6', 'Supplier', bold)
+            worksheet.write('F6', 'Discount Amount', bold)
+            worksheet.write('G6', 'Gross Amount', bold)
+            worksheet.write('H6', 'Net Amount', bold)
+            worksheet.write('I6', 'Vatable', bold)
+            worksheet.write('J6', 'Vat Amount', bold)
+            worksheet.write('K6', 'Vat Exempt', bold)
+            worksheet.write('L6', 'Vat Rate', bold)
+            worksheet.write('M6', 'Vat Zero-Rated', bold)
+            worksheet.write('N6', 'Total Amount', bold)
+            worksheet.write('O6', 'Total Quantity', bold)
+            worksheet.write('P6', 'APV Amount', bold)
+            worksheet.write('Q6', 'ATC Amount', bold)
+
+            row = 7
+            col = 0
+            q = query_bir(report, dfrom, dto)
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                for index, data in df.iterrows():
+                    worksheet.write(row, col, data['ponum'])
+                    worksheet.write(row, col + 1, data['podate'], formatdate)
+                    worksheet.write(row, col + 2, data['refnum'], )
+                    worksheet.write(row, col + 3, data['particulars'])
+                    worksheet.write(row, col + 4, data['supplier_name'])
+                    worksheet.write(row, col + 5, float(format(data['discountamount'], '.2f')))
+                    worksheet.write(row, col + 6, float(format(data['grossamount'], '.2f')))
+                    worksheet.write(row, col + 7, float(format(data['netamount'], '.2f')))
+                    worksheet.write(row, col + 8, float(format(data['vatable'], '.2f')))
+                    worksheet.write(row, col + 9, float(format(data['vatamount'], '.2f')))
+                    worksheet.write(row, col + 10, float(format(data['vatexempt'], '.2f')))
+                    worksheet.write(row, col + 11, float(format(data['vatrate'], '.2f')))
+                    worksheet.write(row, col + 12, float(format(data['vatzerorated'], '.2f')))
+                    worksheet.write(row, col + 13, float(format(data['totalamount'], '.2f')))
+                    worksheet.write(row, col + 14, float(format(data['totalquantity'], '.2f')))
+                    worksheet.write(row, col + 15, float(format(data['apvamount'], '.2f')))
+                    worksheet.write(row, col + 16, float(format(data['atcamount'], '.2f')))
+
+                    row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response.
+            filename = "purchasebooks_bir.xlsx"
 
         # Set up the Http response.
         response = HttpResponse(
@@ -743,3 +933,51 @@ class GenerateExcel(View):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
         return response
+
+def query_bir(report, dfrom, dto):
+    print "Hello BIR"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    if report == '14':
+        print 'gen ledger'
+        query = "SELECT s.document_date AS transdate, s.document_type AS transtype, s.document_num AS reference, " \
+                "REPLACE(CONVERT(TRIM(REPLACE(REPLACE(s.particulars, '\n', ''), '\r', '')) USING ASCII), '?', '') AS particulars, " \
+                "c.accountcode, c.description, IF (s.balancecode = 'D', s.amount, 0) AS debit, IF (s.balancecode = 'C', s.amount, 0) AS credit " \
+                "FROM subledger AS s " \
+                "LEFT OUTER JOIN chartofaccount AS c ON c.id = s.chartofaccount_id " \
+                "WHERE s.document_date >= '" + str(dfrom) + "' AND s.document_date <= '" + str(dto) + "' " \
+                "ORDER BY s.document_date, s.document_num, FIELD(s.document_type, 'AP','CV','JV','OR'), s.item_counter"
+
+    elif report == '15':
+        print 'cash receipt'
+        query = "SELECT o.ordate, o.ornum, o.payee_name, " \
+                 "REPLACE(CONVERT(TRIM(REPLACE(REPLACE(o.particulars, '\\n', ''), '\\r', '')) USING ASCII), '?', '') AS particulars, " \
+                'd.balancecode, c.accountcode, REPLACE(REPLACE(c.description, "\'", ""), "//", "") AS description, d.debitamount, d.creditamount, IFNULL(b.code, "") AS bankacount ' \
+                "FROM ormain AS o " \
+                "LEFT OUTER JOIN ordetail AS d ON d.ormain_id = o.id " \
+                "LEFT OUTER JOIN chartofaccount AS c ON c.id = d.chartofaccount_id " \
+                "LEFT OUTER JOIN bankaccount AS b ON b.id = d.bankaccount_id " \
+                "WHERE o.ordate >= '" + str(dfrom) + "' AND o.ordate <= '" + str(dto) + "' " \
+                "AND o.orstatus = 'R' AND o.status = 'O' " \
+                "ORDER BY o.ordate, o.ornum, d.balancecode DESC"
+    elif report == '16':
+        print 'purchase order'
+        query = "SELECT po.ponum, po.podate, po.refnum, TRIM(REPLACE(REPLACE(particulars, '\n', ''), '\r', '')) AS particulars, po.supplier_name, po.discountamount, po.grossamount, po.netamount, " \
+                "po.vatable, po.vatamount, po.vatexempt, po.vatrate, po.vatzerorated, po.totalamount, po.totalquantity, po.apvamount, po.atcamount " \
+                "FROM pomain AS po " \
+                "WHERE po.podate >= '" + str(dfrom) + "' AND po.podate <= '" + str(dto) + "' " \
+                "AND postatus = 'A' AND `status` = 'A'  AND po.isfullyapv = 1 " \
+                "ORDER BY po.podate, po.ponum"
+
+    print query
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
