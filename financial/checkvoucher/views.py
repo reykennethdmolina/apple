@@ -2315,6 +2315,7 @@ class GenerateExcel(View):
             worksheet.write('D4', 'Particulars', bold)
             worksheet.write('E4', 'Amount', bold)
             worksheet.write('F4', 'OR Number', bold)
+            worksheet.write('G4', 'AP#', bold)
 
             row = 5
             col = 0
@@ -2323,6 +2324,12 @@ class GenerateExcel(View):
             for data in list:
                 worksheet.write(row, col, data.cvnum)
                 worksheet.write(row, col + 1, data.cvdate, formatdate)
+
+                aptrans = Apvcvtransaction.objects.filter(cvmain_id=data.id).first()
+                apnumx = ''
+                if aptrans:
+                    apnumx = str(aptrans.apmain.apnum)
+                worksheet.write(row, col + 6, apnumx)
 
                 if not request.user.is_superuser and data.confi == 1 and data.enterby_id != request.user.id:
                     worksheet.write(row, col + 2, 'Reserved Transaction')
