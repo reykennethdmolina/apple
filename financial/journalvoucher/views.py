@@ -155,11 +155,35 @@ class CreateView(CreateView):
 
         # Get JVYear
         if self.request.POST['jvtype'] == '6':
-            jvyear = form.cleaned_data['jvdate'].year
-            num = Jvmain.objects.filter(jvdate__year=jvyear)
-            numx = num.aggregate(Max('jvnum'))
-            d_num = numx.values()
-            self.object.jvnum = int(d_num[0]) + 1
+            yearending = datetime.datetime.now() - timedelta(days=365)
+            prevyear = yearending.year
+            # ##context['yearend'] = str(prevyear) + '-12-31'
+            # #jvyear = form.cleaned_data['jvdate'].year
+            # num = Jvmain.objects.filter(jvdate__year=prevyear)
+            # print num
+            # numx = num.aggregate(Max('jvnum'))
+            # print numx
+            # d_num = numx.values()
+            # print d_num
+            # self.object.jvnum = int(d_num[0]) + 1
+            # self.object.jvdate = str(prevyear) + '-12-31'
+            # print 'jv adjustment'
+            # print prevyear
+            year = str(form.cleaned_data['jvdate'].year)
+            yearqs = Jvmain.objects.filter(jvnum__startswith=year)
+
+            if yearqs:
+                jvnumlast = yearqs.latest('jvnum')
+                latestjvnum = str(jvnumlast)
+                print "latest: " + latestjvnum
+
+                jvnum = year
+                last = str(int(latestjvnum[4:]) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    jvnum += '0'
+                jvnum += last
+                self.object.jvnum = jvnum
         else:
             year = str(form.cleaned_data['jvdate'].year)
             yearqs = Jvmain.objects.filter(jvnum__startswith=year)
