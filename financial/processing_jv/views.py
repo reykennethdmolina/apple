@@ -586,9 +586,35 @@ def exportsave(request):
 
                     jvyear = dt.year
 
-                    num = Jvmain.objects.all().filter(jvdate__year=jvyear).count() + 1
-                    padnum = '{:06d}'.format(num)
-                    actualjvnum = str(jvyear) + str(padnum)
+                    # num = Jvmain.objects.all().filter(jvdate__year=jvyear).count() + 1
+                    # padnum = '{:06d}'.format(num)
+                    # actualjvnum = str(jvyear) + str(padnum)
+                    #dt = datetime.datetime.strptime(data.jvdate)
+                    #jvyear = dt.year
+                    #num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
+                    #padnum = '{:06d}'.format(num)
+                    #actualjvnum = str(jvyear) + str(padnum)
+                    # num = Jvmain.objects.all().filter(jvdate__year=jvyear).aggregate(Max('jvnum'))
+                    # padnum = '{:06d}'.format(num)
+                    # print padnum
+                    # print 'hy'
+                    yearqs = Jvmain.objects.filter(jvnum__startswith=jvyear)
+
+                    if yearqs:
+                        jvnumlast = yearqs.latest('jvnum')
+                        latestjvnum = str(jvnumlast)
+                        print "latest: " + latestjvnum
+
+                        jvnum = str(jvyear)
+                        last = str(int(latestjvnum[4:]) + 1)
+                        zero_addon = 6 - len(last)
+                        for num in range(0, zero_addon):
+                            jvnum += '0'
+                        jvnum += last
+                        #self.object.jvnum = jvnum
+                        actualjvnum = jvnum
+                        print jvnum
+
                     # temp jvmain to jvmain
                     finaljvmain = Jvmain.objects.create(
                         jvnum=actualjvnum,
@@ -609,9 +635,25 @@ def exportsave(request):
                     # generate jvnum, get jvyear
                     dt = datetime.datetime.strptime(data.jvdate, '%Y-%m-%d')
                     jvyear = dt.year
-                    num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
-                    padnum = '{:06d}'.format(num)
-                    actualjvnum = str(jvyear) + str(padnum)
+                    # num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
+                    # padnum = '{:06d}'.format(num)
+                    # actualjvnum = str(jvyear) + str(padnum)
+                    yearqs = Jvmain.objects.filter(jvnum__startswith=jvyear)
+
+                    if yearqs:
+                        jvnumlast = yearqs.latest('jvnum')
+                        latestjvnum = str(jvnumlast)
+                        print "latest: " + latestjvnum
+
+                        jvnum = str(jvyear)
+                        last = str(int(latestjvnum[4:]) + 1)
+                        zero_addon = 6 - len(last)
+                        for num in range(0, zero_addon):
+                            jvnum += '0'
+                        jvnum += last
+                        # self.object.jvnum = jvnum
+                        actualjvnum = jvnum
+                        print jvnum
 
                     # temp jvmain to jvmain
                     finaljvmain = Jvmain.objects.create(
