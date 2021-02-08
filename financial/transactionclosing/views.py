@@ -311,10 +311,12 @@ def proc_currentearnings(request):
         ytd_code = 'D'
 
         if balcode == chart_item.first().year_to_date_code:
-            ytd_amount = abs(float(year_to_date_amount) + float(income))
+            #ytd_amount = abs(abs(float(year_to_date_amount)) + abs(float(income)))
+            ytd_amount = abs(float(year_to_date_amount)) + abs(float(income))
             ytd_code = balcode
         else:
-            ytd_amount = abs(float(year_to_date_amount) - float(income))
+            #ytd_amount = abs(abs(float(year_to_date_amount)) - abs(float(income)))
+            ytd_amount = abs(float(year_to_date_amount)) - abs(float(income))
             ytd_code = balcode
 
         lastday = calendar.monthrange(dt.year, dt.month)[1]
