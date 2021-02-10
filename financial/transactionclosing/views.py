@@ -328,7 +328,7 @@ def proc_currentearnings(request):
         chart_item.update(end_amount=abs(float(income)),
                           end_code = balcode,
                           end_date = tdate,
-                          year_to_date_code = ytd_code,
+                          year_to_date_code = abs(ytd_code),
                           year_to_date_date = tdate,
                           year_to_date_amount=ytd_amount)
 
