@@ -131,9 +131,13 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group col-sm-2">
+                        <div class="form-group col-sm-1">
                             <label class="control-label small">Check Num</label>
                             <input type="text" class="form-control input-sm" id="checknum">
+                        </div>
+                        <div class="form-group col-sm-1">
+                            <label class="control-label small">Check Date</label>
+                            <input type="text" class="form-control input-sm datepickerto" id="checkdate">
                         </div>
                         <div class="form-group col-sm-2">
                             <label class="control-label small">Creator</label>
@@ -206,7 +210,8 @@ $(function(){
         var bankaccount = $('#bankaccount').val();
         var creator = $('#creator').val();
         var checknum = $('#checknum').val();
-        url = "{% url 'checkvoucher:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount+"&creator="+creator+"&checknum="+checknum;
+        var checkdate = $('#checkdate').val();
+        url = "{% url 'checkvoucher:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount+"&creator="+creator+"&checknum="+checknum+"&checkdate="+checkdate;
         $('#result').prop('src', url);
     });
 
@@ -227,7 +232,8 @@ $(function(){
         var bankaccount = $('#bankaccount').val();
         var creator = $('#creator').val();
         var checknum = $('#checknum').val();
-        url = "{% url 'checkvoucher:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount+"&creator="+creator+"&checknum="+checknum;
+        var checkdate = $('#checkdate').val();
+        url = "{% url 'checkvoucher:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount+"&creator="+creator+"&checknum="+checknum+"&checkdate="+checkdate;
         $('#result').prop('src', url);
     });
 
