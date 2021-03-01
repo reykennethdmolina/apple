@@ -71,7 +71,10 @@ class IndexView(AjaxListView):
             if user_employee is not None:
 
                 if user_employee.of_approver == 3:
+                    print user_employee.group
                     oic_approver = Employee.objects.filter(of_approver=1, group=user_employee.group).values_list('id', flat=True)
+                    print 'hey'
+                    print oic_approver
                     query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id) | Ofmain.objects.filter(designatedapprover__in=oic_approver)
                     #query = Ofmain.objects.filter(designatedapprover__in=oic_approver)
                 else:
