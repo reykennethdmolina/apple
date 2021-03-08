@@ -372,7 +372,20 @@ class CreateViewUser(CreateView):
                     self.object.save()
 
                     ''' Send Email Notifacation '''
-                    #sendNotif(self.object)
+                    receiver = Employee.objects.filter(isdeleted=0, status='A', id=self.object.designatedapprover_id).first()
+                    print 'send email notification'
+                    subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
+                    message = 'Hi Sir, \n\n' \
+                              'Requestor ' + str(
+                        self.object.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
+                                                 'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+                    email_from = 'inq-noreply@inquirer.com.ph'
+                    recipient_list = [receiver.email]
+                    send_mail(subject, message, email_from, recipient_list)
+
+                    print receiver.email
+
+                    print 'email sent'
 
                     return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate/')
                 else:
