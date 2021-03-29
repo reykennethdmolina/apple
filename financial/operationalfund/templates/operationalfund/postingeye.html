@@ -1,0 +1,118 @@
+<style>
+    .select2-container{
+        width: 100% !important;
+    }
+</style>
+<div id="postingEyeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="shade"><div class="loader two-color"></div></div>
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="row">
+                    <div class="form-group col-sm-7 margin-bottom-0">
+                        <label class="control-label small">Operational Fund Date</label><br>
+                        <div class="input-daterange datarange">
+                            <div class="input-group">
+                                <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control input-sm datepickerfrom" id="posting_date_from">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon input-sm">to</span>
+                                <input type="text" class="form-control input-sm datepickerto" id="posting_date_to">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 margin-bottom-0">
+                        <label class="control-label small"></label><br>
+                        <button type="button" class="btn btn-info btn-sm" id="postingeye_search"><i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search</button>
+                    </div>
+                </div>
+                <br><strong>Post Operational Fund Eyeglass Subsidy to AP</strong>
+                <input type="text" class="datepickerto" id="postdateeye" style="width:150px;" placeholder="AP Date">
+                <button type="button" class="btn btn-round btn-success btn-sm" id="goposteye">Post to AP</button>
+                <br><br>
+                <div class="well well-sm pre-scrollable" style="margin-bottom: 0px;min-height:400px;">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th scope="row"><input type="checkbox" id="checkAllEye"></th>
+                          <td scope="row">OF Num</td>
+                          <td scope="row">OF Date</td>
+                          <td scope="row">Requestor</td>
+                          <td scope="row">Tag Supplier</td>
+                        </tr>
+                      </thead>
+                        <tbody class="postingresult">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="payee-danger" class="custom-alert danger">No results found.</div>
+{% load staticfiles %}
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script>
+    $(function() {
+        $('#postingeye_search').on('click', function() {
+            loadData();
+        });
+
+        function loadData()
+        {
+            $.ajax({
+                url: "{% url 'operationalfund:searchforpostingEye' %}",
+                type: "post",
+                data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                       'dfrom': $('#posting_date_from').val(),
+                       'dto': $('#posting_date_to').val(),
+                       },
+                success: function(response){
+                    $(".postingresult").html(response['viewhtml']);
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+        }
+        $("#checkAllEye").click(function () {
+            $(".check").prop('checked', $(this).prop('checked'));
+        });
+
+        $('#goposteye').on('click', function() {
+            var selected_value = [];
+            var postdate = $('#postdateeye').val();
+            $(".check:checked").each(function(){
+                selected_value.push($(this).val());
+            });
+
+            if (!Array.isArray(selected_value) || !selected_value.length) {
+                alert('No selected item!');
+            } else {
+                if (postdate == '') {
+                    alert('Please fill AP Date');
+                } else {
+                    $.ajax({
+                        url: "{% url 'operationalfund:goposteye' %}",
+                        type: "post",
+                        data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                               'ids': selected_value,
+                               'postdate': postdate,
+                               },
+                        success: function(response){
+                            loadData();
+                            alert('Data set for posting is success. This window will reload!');
+                            //location.reload();
+                        }, error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+                }
+            }
+        });
+
+    });
+</script>

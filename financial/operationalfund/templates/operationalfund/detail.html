@@ -69,7 +69,18 @@
                         waves-light get_report">
                             <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
                         </button>
-                    </a>
+                              </a>
+                        {% if object.hrstatus == 'F' %}
+                            <button type="button" id="hr_approved" class="btn btn-round btn-success btn-sm waves-effect
+                        waves-light hr_approved">
+                            <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; HR Approved
+                        </button>
+                        <button type="button" id="hr_disapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                        waves-light hr_approved">
+                            <i class="icon fa-thumbs-down" aria-hidden="true"></i>&nbsp; HR Disapproved
+                        </button>
+                        {% endif %}
+
                     </div>
                     <ul class="nav nav-tabs nav-profile">
                         <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
@@ -169,6 +180,7 @@
                                                              {% endif %}"><b>{{ object.get_ofstatus_display }}</b></span>
                                             </div>
                                         </div>
+
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
                                                 <br>
@@ -223,6 +235,19 @@
                                                              {% endif %}"><b>{{ object.get_status_display }}</b></span>
                                             </div>
                                         </div>
+                                        {% if object.oftype_id == 8  or object.oftype_id == 9  %}
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <br>
+                                                <span class="text-info row col-md-1 margin-right-80"><b>HR&nbsp;Status</b></span>
+                                                <span class="text-info row col-md-3"><b>: </b></span>
+                                                <span class="{% if object.hrstatus == 'F' %} text-primary
+                                                             {% elif object.hrstatus == 'A' or object.ofstatus == 'R' %} text-success
+                                                             {% elif object.hrstatus == 'D' %} text-danger
+                                                             {% endif %}"><b>{{ object.get_hrstatus_display }}</b></span>
+                                            </div>
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -599,6 +624,46 @@
                     },
                     error: function(response) {
                         console.debug(response);
+                    }
+                });
+
+            }
+
+        });
+
+        $("#hr_approved").on('click', function() {
+            var con = confirm('Are you sure you want to approved this Operational Fund Request?');
+
+            if (con) {
+
+                var id = {{ object.pk }};
+                $.ajax({
+                    url: "{% url 'operationalfund:hrapprove' %}",
+                    type: "post",
+                    data: {'id': id,
+                            'status': 'A'},
+                    success: function(response) {
+                    location.reload();
+                    }
+                });
+
+            }
+
+        });
+
+        $("#hr_disapproved").on('click', function() {
+            var con = confirm('Are you sure you want to disapproved this Operational Fund Request?');
+
+            if (con) {
+
+                var id = {{ object.pk }};
+                $.ajax({
+                    url: "{% url 'operationalfund:hrapprove' %}",
+                    type: "post",
+                    data: {'id': id,
+                            'status': 'D'},
+                    success: function(response) {
+                    location.reload();
                     }
                 });
 

@@ -37,6 +37,7 @@ class Ofmain(models.Model):
         ('R', 'Released'),
     )
     ofstatus = models.CharField(max_length=1, choices=OF_STATUS_CHOICES, default='F')
+    hrstatus = models.CharField(max_length=1, choices=OF_STATUS_CHOICES, default='F')
     RESPONSE_CHOICES = (
         ('A', 'Approved'),
         ('D', 'Disapproved'),

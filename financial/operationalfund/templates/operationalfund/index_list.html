@@ -40,11 +40,22 @@
                     {% if data.ofstatus == 'A' %} text-success
                     {% elif data.ofstatus == 'D' %} text-danger
                     {% elif data.ofstatus == 'C' %} text-danger
-                    {% elif data.ofstatus == 'F' %} text-info
+                    {% elif data.ofstatus == 'F' or data.hrstatus == 'F' %} text-info
                     {% elif data.ofstatus == 'H' %} text-info
                     {% elif data.ofstatus == 'R' %} text-success
                     {% endif %}">
-                <b>{{ data.get_ofstatus_display }}</b> <br> {{ data.designatedapprover.firstname|first }}{{ data.designatedapprover.lastname }}
+                {% if data.oftype_id == 8 or data.oftype_id == 9%}
+                    {% if data.hrstatus == 'F' %}
+                    <span class="text-info">HR Review</span>
+                    {% elif data.hrstatus == 'A' %}
+                    <span class="text-success">HR Approved</span>
+                    {% elif data.hrstatus == 'D' %}
+                    <span class="text-danger">HR Disapproved</span>
+                    {% endif %}
+                {% else %}
+                <b>{{ data.get_ofstatus_display }}</b>
+                <br> {{ data.designatedapprover.firstname|first }}{{ data.designatedapprover.lastname }}
+                {% endif %}
             </td>
 
             {% if user_employee != None %}
@@ -60,7 +71,11 @@
 
                                         {% if data.ofstatus == 'A' and user_employee.of_approver == 1 and data.actualapprover != user_employee  %}
 
+                                        {% elif data.hrstatus == 'A' or data.hrstatus == 'D' %}
+
                                         {% else %}
+                                            {% if data.oftype_id == '8' and data.oftype_id == '9' %}
+                                            {% else %}
                                         <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"
                                             data-ofid={{ data.id }} data-response="A" data-toggle="tooltip" data-placement="left"
                                             data-trigger="hover" data-original-title="Click to Approve" aria-describedby="tooltip850155">
@@ -69,6 +84,7 @@
                                             data-ofid={{ data.id }} data-response="D" data-toggle="tooltip" data-placement="right"
                                             data-trigger="hover" data-original-title="Click to Disapprove" aria-describedby="tooltip850155">
                                             <i class="icon fa-remove" aria-hidden="true"></i></button>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </div>

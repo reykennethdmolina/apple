@@ -58,6 +58,12 @@
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="posting" data-target='#postingModal'>
                             <i class="icon fa-lock" aria-hidden="true"></i> Post CS to AP
                         </button>
+                        <button class="btn btn-info btn-sm" data-toggle='modal' id="postingeye" data-target='#postingEyeModal'>
+                            <i class="icon fa-lock" aria-hidden="true"></i> Post EYE to AP
+                        </button>
+                        <button class="btn btn-info btn-sm" data-toggle='modal' id="postingantibiotic" data-target='#postingAntibioticModal'>
+                            <i class="icon fa-lock" aria-hidden="true"></i> Post ANTIBIOTIC to AP
+                        </button>
                     {% endif %}
                     {% if perms.operationalfund.can_postreimtoap %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="postingReim" data-target='#postingReimModal'>
@@ -107,6 +113,8 @@
 {% include "operationalfund/postingreim.html" %}
 {% include "operationalfund/postingrev.html" %}
 {% include "operationalfund/postingliq.html" %}
+{% include "operationalfund/postingeye.html" %}
+{% include "operationalfund/postingantiboitic.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}
@@ -144,6 +152,15 @@
         });
 
         $('#postingLiq').on('click', function() {
+            $('.postingresult').html('');
+            $('#checkAll').prop("checked", false);
+        });
+
+        $('#postingEye').on('click', function() {
+            $('.postingresult').html('');
+            $('#checkAll').prop("checked", false);
+        });
+         $('#postingAntibiotic').on('click', function() {
             $('.postingresult').html('');
             $('#checkAll').prop("checked", false);
         });

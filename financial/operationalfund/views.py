@@ -68,8 +68,9 @@ class IndexView(AjaxListView):
     def get_queryset(self):
         if self.request.user.has_perm('operationalfund.approve_assignedof') and not self.request.user.has_perm('operationalfund.approve_allof'):
             user_employee = get_object_or_None(Employee, user=self.request.user)
-            if user_employee is not None:
 
+            if user_employee is not None:
+                print user_employee.hr_approver
                 if user_employee.of_approver == 3:
                     print user_employee.group
                     oic_approver = Employee.objects.filter(of_approver=1, group=user_employee.group).values_list('id', flat=True)
@@ -77,6 +78,8 @@ class IndexView(AjaxListView):
                     print oic_approver
                     query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id) | Ofmain.objects.filter(designatedapprover__in=oic_approver)
                     #query = Ofmain.objects.filter(designatedapprover__in=oic_approver)
+                elif user_employee.of_approver == 4 and user_employee.hr_approver == 1:
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8,9],ofstatus__in=['A', 'R']) | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 else:
                     query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 query = query.filter(isdeleted=0)
@@ -381,6 +384,7 @@ class CreateViewUser(CreateView):
                                                  'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
                     email_from = 'inq-noreply@inquirer.com.ph'
                     recipient_list = [receiver.email]
+                    #recipient_list = ['reykennethdmolina@gmail.com']
                     send_mail(subject, message, email_from, recipient_list)
 
                     print receiver.email
@@ -1409,6 +1413,22 @@ def approve(request):
 
                     if approver_status == 1:
                         of_for_approval.ofstatus = 'H'
+                        capprover = Employee.objects.filter(of_approver=3,group=Employee.objects.get(user_id=request.user).group).first()
+
+                        print capprover.email
+                        ''' Send Email Notifacation OIC Approved '''
+                        print 'send email notification'
+                        subject = 'OPERATIONAL FUND APPROVER NOTIFICATION - OIC'
+                        message = 'Hi Sir, \n\n' \
+                                  'Requestor ' + str(of_for_approval.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
+                                                          'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+                        email_from = 'inq-noreply@inquirer.com.ph'
+                        recipient_list = [capprover.email]
+                        #recipient_list = ['reykennethdmolina@gmail.com']
+                        send_mail(subject, message, email_from, recipient_list)
+
+
+                        print 'email sent'
                     else:
                         of_for_approval.ofstatus = request.POST['response']
 
@@ -1420,12 +1440,14 @@ def approve(request):
                     of_for_approval.approverresponse = request.POST['response']
                     of_for_approval.responsedate = datetime.datetime.now()
                     of_for_approval.actualapprover = get_object_or_None(Employee, user=request.user)
-                    of_for_approval.save()
+                    #of_for_approval.save()
                     data = {
                         'status': 'success',
                         'ofnum': of_for_approval.ofnum,
                         'newofstatus': of_for_approval.get_ofstatus_display(),
                     }
+
+
                 else:
                     data = {
                         'status': 'error',
@@ -3246,3 +3268,219 @@ def filedelete(request):
         return HttpResponseRedirect('/operationalfund/' + str(id) )
 
     return HttpResponseRedirect('/operationalfund/' + str(id) )
+
+
+@csrf_exempt
+def hrapprove(request):
+    if request.method == 'POST':
+
+        of_for_approval = Ofmain.objects.get(pk=request.POST['id'])
+
+        if request.POST['status'] == 'A':
+            of_for_approval.hrstatus = request.POST['status']
+            of_for_approval.ofstatus = 'R'
+            of_for_approval.save()
+        else:
+            of_for_approval.hrstatus = request.POST['status']
+            of_for_approval.save()
+
+        # ''' Send Email Notifacation '''
+        # receiver = Employee.objects.filter(isdeleted=0, status='A', id=self.object.designatedapprover_id).first()
+        # print 'send email notification'
+        # subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
+        # message = 'Hi Sir, \n\n' \
+        #           'Requestor ' + str(
+        #     self.object.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
+        #                                   'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+        # email_from = 'inq-noreply@inquirer.com.ph'
+        # recipient_list = [receiver.email]
+        # send_mail(subject, message, email_from, recipient_list)
+        #
+        # print receiver.email
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def searchforpostingEye(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+        print 'eye'
+        q = Ofmain.objects.filter(isdeleted=0,status='A',ofstatus='R',hrstatus='A',oftype_id=8).exclude(apmain_id__isnull=False).order_by('ofnum', 'ofdate')
+        if dfrom != '':
+            q = q.filter(ofdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(ofdate__lte=dto)
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('operationalfund/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def searchforpostingAntibiotic(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Ofmain.objects.filter(isdeleted=0,status='A',ofstatus='R',hrstatus='A',oftype_id=9).exclude(apmain_id__isnull=False).order_by('ofnum', 'ofdate')
+        if dfrom != '':
+            q = q.filter(ofdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(ofdate__lte=dto)
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('operationalfund/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def goposteye(request):
+
+    if request.method == 'POST':
+        from django.db.models import CharField
+        from django.db.models.functions import Length
+
+        CharField.register_lookup(Length, 'length')
+
+        ids = request.POST.getlist('ids[]')
+        pdate = request.POST['postdate']
+
+        data = Ofmain.objects.filter(pk__in=ids).filter(isdeleted=0,hrstatus='A',status='A',ofstatus='R')
+
+        if data:
+            for of in data:
+                try:
+                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                    latestapnum = str(apnumlast)
+                    print latestapnum
+                    if latestapnum[0:4] == str(datetime.datetime.now().year):
+                        apnum = str(datetime.datetime.now().year)
+                        last = str(int(latestapnum[4:]) + 1)
+                        zero_addon = 6 - len(last)
+                        for x in range(0, zero_addon):
+                            apnum += '0'
+                        apnum += last
+                    else:
+                        apnum = str(datetime.datetime.now().year) + '000001'
+                except Apmain.DoesNotExist:
+                    apnum = str(datetime.datetime.now().year) + '000001'
+
+                billingremarks = '';
+
+                #main = Apmain.objects.get(pk=6939)
+                employee = Employee.objects.get(pk=of.requestor_id)
+                supplier = Supplier.objects.get(pk=employee.supplier_id)
+
+                main = Apmain.objects.create(
+                    apnum = apnum,
+                    apdate = pdate,
+                    aptype_id = 14, # Non-UB
+                    apsubtype_id = 13, # Cellphone Subsidy
+                    branch_id = 5, # Head Office
+                    inputvattype_id = 3, # Service
+                    creditterm_id = 2, # 90 Days 2
+                    payee_id=supplier.id,
+                    payeecode=supplier.code,
+                    payeename=supplier.name,
+                    vat_id = 8, # NA 8
+                    vatcode = 'VATNA', # NA 8
+                    vatrate = 0,
+                    atax_id = 66, # NO ATC 66
+                    ataxcode = 'WX000', # NO ATC 66
+                    ataxrate = 0,
+                    duedate = pdate,
+                    refno = of.ofnum,
+                    particulars = 'Eyeglass Subsidy '+str(of.requestor_name)+' '+str(billingremarks),
+                    currency_id = 1,
+                    fxrate = 1,
+                    designatedapprover_id = 225, # Arlene Astapan
+                    actualapprover_id = 225, # Arlene Astapan
+                    approverremarks = 'Auto approved from Operational Fund Posting',
+                    responsedate = datetime.datetime.now(),
+                    apstatus = 'A',
+                    enterby_id = request.user.id,
+                    enterdate = datetime.datetime.now(),
+                    modifyby_id = request.user.id,
+                    modifydate = datetime.datetime.now()
+                )
+
+
+                detail = Ofdetail.objects.filter(ofmain=of.pk).order_by('item_counter')
+                counter = 1
+                amount = 0
+                for item  in detail:
+                    amount += item.debitamount
+                    Apdetail.objects.create(
+                        apmain_id = main.id,
+                        ap_num = main.apnum,
+                        ap_date = main.apdate,
+                        item_counter = counter,
+                        debitamount = item.debitamount,
+                        creditamount = item.creditamount,
+                        balancecode = item.balancecode,
+                        customerbreakstatus = item.customerbreakstatus,
+                        supplierbreakstatus = item.supplierbreakstatus,
+                        employeebreakstatus = item.employeebreakstatus,
+                        ataxcode_id = item.ataxcode_id,
+                        bankaccount_id = item.bankaccount_id,
+                        branch_id = item.branch_id,
+                        chartofaccount_id = item.chartofaccount_id,
+                        customer_id = item.customer_id,
+                        department_id = item.department_id,
+                        employee_id = item.employee_id,
+                        inputvat_id = item.inputvat_id,
+                        outputvat_id = item.outputvat_id,
+                        product_id = item.product_id,
+                        unit_id = item.unit_id,
+                        vat_id = item.vat_id,
+                        wtax_id = item.wtax_id,
+                        status='A',
+                        enterby_id = request.user.id,
+                        enterdate = datetime.datetime.now(),
+                        modifyby_id = request.user.id,
+                        modifydate = datetime.datetime.now()
+                    )
+                    counter += 1
+
+                main.amount = amount
+                main.save()
+
+                ofmain = Ofmain.objects.filter(id=of.pk).update(
+                    apmain_id = main.id,
+                    remarks = str(of.remarks)+' EYEGLASS SUBSIDY - AP '+str( main.apnum),
+                )
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
