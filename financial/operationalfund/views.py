@@ -1440,7 +1440,7 @@ def approve(request):
                     of_for_approval.approverresponse = request.POST['response']
                     of_for_approval.responsedate = datetime.datetime.now()
                     of_for_approval.actualapprover = get_object_or_None(Employee, user=request.user)
-                    #of_for_approval.save()
+                    of_for_approval.save()
                     data = {
                         'status': 'success',
                         'ofnum': of_for_approval.ofnum,
@@ -3280,6 +3280,84 @@ def hrapprove(request):
             of_for_approval.hrstatus = request.POST['status']
             of_for_approval.ofstatus = 'R'
             of_for_approval.save()
+
+            print 'update items'
+            of_items = Ofitem.objects.filter(ofmain_id=request.POST['id'])
+            print of_items
+
+            input = 3
+            if of_for_approval.oftype == 8:
+                input = 3
+            else:
+                input = 2
+
+
+            udept = Department.objects.get(pk=of_for_approval.department_id)
+            expchart = Chartofaccount.objects.get(pk=udept.expchartofaccount_id)
+
+            counter = 1
+            if of_items:
+                for itm in of_items:
+                    updateitm = Ofitem.objects.get(pk=itm.id)
+                    updateitm.vatrate = 0
+                    updateitm.vat_id = 8
+                    updateitm.inputvattype_id = input
+                    updateitm.atc_id = 66
+                    updateitm.atcrate    = 0
+                    updateitm.vat_id = 8
+                    updateitm.remarks = 'HR Approved'
+                    updateitm.save()
+
+                    ofsub = Ofsubtype.objects.get(pk=updateitm.ofsubtype_id)
+                    expc = 0
+                    if expchart.accountcode == '5100000000':
+                        expc = ofsub.chartexpcostofsale_id
+                    elif expchart.accountcode == '5200000000':
+                        print 'GENERAL & ADMINISTRATIVE'
+                        expc = ofsub.chartexpgenandadmin_id
+                    else:
+                        print 'SELLING EXPENSES'
+                        expc = ofsub.chartexpsellexp_id
+
+
+                    Ofdetail.objects.create(
+                        ofmain_id=of_for_approval.id,
+                        of_num=of_for_approval.ofnum,
+                        of_date=of_for_approval.ofdate,
+                        item_counter=counter,
+                        debitamount=updateitm.amount,
+                        creditamount=0,
+                        balancecode='D',
+                        chartofaccount_id=expc,
+                        department_id=of_for_approval.department_id,
+                        status='A',
+                        enterby_id=request.user.id,
+                        enterdate=datetime.datetime.now(),
+                        modifyby_id=request.user.id,
+                        modifydate=datetime.datetime.now()
+                    )
+
+                    counter += 1
+
+
+            Ofdetail.objects.create(
+                ofmain_id=of_for_approval.id,
+                of_num=of_for_approval.ofnum,
+                of_date=of_for_approval.ofdate,
+                item_counter=counter,
+                debitamount=0,
+                creditamount=of_for_approval.amount,
+                balancecode='C',
+                chartofaccount_id=285,
+                status='A',
+                enterby_id=request.user.id,
+                enterdate=datetime.datetime.now(),
+                modifyby_id=request.user.id,
+                modifydate=datetime.datetime.now()
+            )
+
+
+
         else:
             of_for_approval.hrstatus = request.POST['status']
             of_for_approval.save()

@@ -46,7 +46,11 @@
                     {% endif %}">
                 {% if data.oftype_id == 8 or data.oftype_id == 9%}
                     {% if data.hrstatus == 'F' %}
-                    <span class="text-info">HR Review</span>
+                        {% if data.ofstatus == 'F' %}
+                            {{ data.get_ofstatus_display }}
+                        {% else %}
+                        <span class="text-info">HR Review</span>
+                        {% endif %}
                     {% elif data.hrstatus == 'A' %}
                     <span class="text-success">HR Approved</span>
                     {% elif data.hrstatus == 'D' %}
