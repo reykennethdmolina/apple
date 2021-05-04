@@ -3482,7 +3482,7 @@ def goposteye(request):
                     apnum = apnum,
                     apdate = pdate,
                     aptype_id = 14, # Non-UB
-                    apsubtype_id = 13, # Cellphone Subsidy
+                    apsubtype_id = 13, # Eyeglass
                     branch_id = 5, # Head Office
                     inputvattype_id = 3, # Service
                     creditterm_id = 2, # 90 Days 2
@@ -3498,6 +3498,129 @@ def goposteye(request):
                     duedate = pdate,
                     refno = of.ofnum,
                     particulars = 'Eyeglass Subsidy '+str(of.requestor_name)+' '+str(billingremarks),
+                    currency_id = 1,
+                    fxrate = 1,
+                    designatedapprover_id = 225, # Arlene Astapan
+                    actualapprover_id = 225, # Arlene Astapan
+                    approverremarks = 'Auto approved from Operational Fund Posting',
+                    responsedate = datetime.datetime.now(),
+                    apstatus = 'A',
+                    enterby_id = request.user.id,
+                    enterdate = datetime.datetime.now(),
+                    modifyby_id = request.user.id,
+                    modifydate = datetime.datetime.now()
+                )
+
+
+                detail = Ofdetail.objects.filter(ofmain=of.pk).order_by('item_counter')
+                counter = 1
+                amount = 0
+                for item  in detail:
+                    amount += item.debitamount
+                    Apdetail.objects.create(
+                        apmain_id = main.id,
+                        ap_num = main.apnum,
+                        ap_date = main.apdate,
+                        item_counter = counter,
+                        debitamount = item.debitamount,
+                        creditamount = item.creditamount,
+                        balancecode = item.balancecode,
+                        customerbreakstatus = item.customerbreakstatus,
+                        supplierbreakstatus = item.supplierbreakstatus,
+                        employeebreakstatus = item.employeebreakstatus,
+                        ataxcode_id = item.ataxcode_id,
+                        bankaccount_id = item.bankaccount_id,
+                        branch_id = item.branch_id,
+                        chartofaccount_id = item.chartofaccount_id,
+                        customer_id = item.customer_id,
+                        department_id = item.department_id,
+                        employee_id = item.employee_id,
+                        inputvat_id = item.inputvat_id,
+                        outputvat_id = item.outputvat_id,
+                        product_id = item.product_id,
+                        unit_id = item.unit_id,
+                        vat_id = item.vat_id,
+                        wtax_id = item.wtax_id,
+                        status='A',
+                        enterby_id = request.user.id,
+                        enterdate = datetime.datetime.now(),
+                        modifyby_id = request.user.id,
+                        modifydate = datetime.datetime.now()
+                    )
+                    counter += 1
+
+                main.amount = amount
+                main.save()
+
+                ofmain = Ofmain.objects.filter(id=of.pk).update(
+                    apmain_id = main.id,
+                    remarks = str(of.remarks)+' EYEGLASS SUBSIDY - AP '+str( main.apnum),
+                )
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)\
+
+@csrf_exempt
+def gopostanti(request):
+
+    if request.method == 'POST':
+        from django.db.models import CharField
+        from django.db.models.functions import Length
+
+        CharField.register_lookup(Length, 'length')
+
+        ids = request.POST.getlist('ids[]')
+        pdate = request.POST['postdate']
+
+        data = Ofmain.objects.filter(pk__in=ids).filter(isdeleted=0,hrstatus='A',status='A',ofstatus='R')
+
+        if data:
+            for of in data:
+                try:
+                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                    latestapnum = str(apnumlast)
+                    print latestapnum
+                    if latestapnum[0:4] == str(datetime.datetime.now().year):
+                        apnum = str(datetime.datetime.now().year)
+                        last = str(int(latestapnum[4:]) + 1)
+                        zero_addon = 6 - len(last)
+                        for x in range(0, zero_addon):
+                            apnum += '0'
+                        apnum += last
+                    else:
+                        apnum = str(datetime.datetime.now().year) + '000001'
+                except Apmain.DoesNotExist:
+                    apnum = str(datetime.datetime.now().year) + '000001'
+
+                billingremarks = '';
+
+                #main = Apmain.objects.get(pk=6939)
+                employee = Employee.objects.get(pk=of.requestor_id)
+                supplier = Supplier.objects.get(pk=employee.supplier_id)
+
+                main = Apmain.objects.create(
+                    apnum = apnum,
+                    apdate = pdate,
+                    aptype_id = 14, # Non-UB
+                    apsubtype_id = 14, # Antibiotic
+                    branch_id = 5, # Head Office
+                    inputvattype_id = 3, # Service
+                    creditterm_id = 2, # 90 Days 2
+                    payee_id=supplier.id,
+                    payeecode=supplier.code,
+                    payeename=supplier.name,
+                    vat_id = 8, # NA 8
+                    vatcode = 'VATNA', # NA 8
+                    vatrate = 0,
+                    atax_id = 66, # NO ATC 66
+                    ataxcode = 'WX000', # NO ATC 66
+                    ataxrate = 0,
+                    duedate = pdate,
+                    refno = of.ofnum,
+                    particulars = 'Antibiotic Subsidy '+str(of.requestor_name)+' '+str(billingremarks),
                     currency_id = 1,
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
