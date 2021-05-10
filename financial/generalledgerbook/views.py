@@ -501,7 +501,14 @@ def query_trial_balance(type, retained_earnings, current_earnings, year, month, 
                 "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
                 "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.id != " + str(current_earnings) + " " \
                 "GROUP BY chart.accountcode ORDER BY chart.accountcode ASC"
-    #print query
+    # print retained_earnings
+    # print prevyear
+    # print prevmonth
+    # print year
+    # print month
+    # print current_earnings
+    #
+    # print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
@@ -1352,11 +1359,15 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
         total_previous = 0
         total_todate = 0
         total_variance = 0
+        total_current_percentage = 0
+        total_previous_percentage = 0
         for title, maingroup in maintitle.fillna('NaN').sort_values(by=['maingroup_code'], ascending=True).groupby(['group_code', 'group_desc', 'group_title', 'maingroup_title']):
             net_total_current = 0
             net_total_previous = 0
             net_total_todate = 0
             net_total_variance = 0
+            net_total_current_percentage = 0
+            net_total_previous_percentage = 0
             for main, subgroup in maingroup.fillna('NaN').sort_values(by=['subgroup_code'], ascending=True).groupby(['maingroup_code', 'maingroup_desc']):
                 worksheet.write(row, col, str(main[1]), bold)
                 row += 1
@@ -1365,6 +1376,8 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                 subtotal_todate = 0
                 subtotal_variance = 0
                 subtotal_var = 0
+                subtotal_current_percentage = 0
+                subtotal_previous_percentage = 0
                 for data, sub in subgroup.iterrows():
                     worksheet.write(row, col, str(sub['subgroup_code']))
                     worksheet.write(row, col + 1, str(sub['subgroup_desc']))
@@ -1372,10 +1385,11 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                     worksheet.write(row, col + 4, float(format(sub['prev_amount'], '.2f')))
                     worksheet.write(row, col + 5, float(format(sub['todate_amount'], '.2f')))
 
-                    current_percentage = float(format(sub['current_amount'], '.2f')) / float(
-                        format(cur_netsales, '.2f')) * 100
-                    previous_percentage = float(format(sub['prev_amount'], '.2f')) / float(
-                        format(prev_netsales, '.2f')) * 100
+                    if float(cur_netsales) > 0:
+                        current_percentage = float(format(sub['current_amount'], '.2f')) / float(format(cur_netsales, '.2f')) * 100
+
+                    if float(prev_netsales) > 0:
+                        previous_percentage = float(format(sub['prev_amount'], '.2f')) / float(format(prev_netsales, '.2f')) * 100
 
                     variance = float(format(sub['current_amount'], '.2f')) - float(format(sub['prev_amount'], '.2f'))
 
@@ -1406,10 +1420,10 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                 worksheet.write(row, col + 4, float(format(subtotal_previous, '.2f')))
                 worksheet.write(row, col + 5, float(format(subtotal_todate, '.2f')))
 
-                subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(
-                    format(cur_netsales, '.2f')) * 100
-                subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(
-                    format(prev_netsales, '.2f')) * 100
+                if float(cur_netsales) > 0:
+                    subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                if float(prev_netsales) > 0:
+                    subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
                 if subtotal_previous > 0:
                     subtotal_var = float(format(subtotal_variance, '.2f')) / float(format(subtotal_previous, '.2f')) * 100
 
@@ -1438,8 +1452,12 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                     worksheet.write(row, col + 4, float(format(gross_previous, '.2f')))
                     worksheet.write(row, col + 5, float(format(gross_todate, '.2f')))
 
-                    gross_total_current_percentage = float(format(gross_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
-                    gross_total_previous_percentage = float(format(gross_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                    gross_total_current_percentage = 0
+                    gross_total_previous_percentage = 0
+                    if float(cur_netsales) > 0:
+                        gross_total_current_percentage = float(format(gross_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                    if float(prev_netsales) > 0:
+                        gross_total_previous_percentage = float(format(gross_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
                     gross_total_variance = float(format(gross_current, '.2f')) - float(format(gross_previous, '.2f'))
                     gross_total_var = float(format(gross_total_variance, '.2f')) / float(format(gross_previous, '.2f')) * 100
 
@@ -1457,8 +1475,12 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                     worksheet.write(row, col + 4, float(format(incometax_prev, '.2f')))
                     worksheet.write(row, col + 5, float(format(incometax_todate, '.2f')))
 
-                    incometax_total_current_percentage = float(format(incometax_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
-                    incometax_total_previous_percentage = float(format(incometax_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                    incometax_total_current_percentage = 0
+                    incometax_total_previous_percentage = 0
+                    if float(cur_netsales) > 0:
+                        incometax_total_current_percentage = float(format(incometax_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                    if float(prev_netsales) > 0:
+                        incometax_total_previous_percentage = float(format(incometax_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
                     incometax_total_variance = float(format(incometax_cur, '.2f')) - float(format(incometax_prev, '.2f'))
                     incometax_total_var = float(format(incometax_total_variance, '.2f')) / float(format(incometax_prev, '.2f')) * 100
 
@@ -1476,8 +1498,12 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                     worksheet.write(row, col + 4, float(format(incometaxafter_prev, '.2f')))
                     worksheet.write(row, col + 5, float(format(incometaxafter_todate, '.2f')))
 
-                    incometaxafter_total_current_percentage = float(format(incometaxafter_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
-                    incometaxafter_total_previous_percentage = float(format(incometaxafter_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                    incometaxafter_total_current_percentage = 0
+                    if float(cur_netsales) > 0:
+                        incometaxafter_total_current_percentage = float(format(incometaxafter_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                    incometaxafter_total_previous_percentage = 0
+                    if float(prev_netsales) > 0:
+                        incometaxafter_total_previous_percentage = float(format(incometaxafter_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
                     incometaxafter_total_variance = float(format(incometaxafter_cur, '.2f')) - float(format(incometaxafter_prev, '.2f'))
                     incometaxafter_total_var = float(format(incometaxafter_total_variance, '.2f')) / float(format(incometaxafter_prev, '.2f')) * 100
 
@@ -1491,8 +1517,10 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                     worksheet.write(row, col + 4, float(format(net_total_previous, '.2f')))
                     worksheet.write(row, col + 5, float(format(net_total_todate, '.2f')))
 
-                    net_total_current_percentage = float(format(net_total_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
-                    net_total_previous_percentage = float(format(net_total_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                    if float(cur_netsales) > 0:
+                        net_total_current_percentage = float(format(net_total_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                    if float(prev_netsales) > 0:
+                        net_total_previous_percentage = float(format(net_total_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
                     net_total_variance = float(format(net_total_current, '.2f')) - float(format(net_total_previous, '.2f'))
                     net_total_var = float(format(net_total_variance, '.2f')) / float(format(net_total_previous, '.2f')) * 100
 
@@ -1514,8 +1542,12 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                 worksheet.write(row, col + 4, float(format(noi_prev, '.2f')))
                 worksheet.write(row, col + 5, float(format(noi_todate, '.2f')))
 
-                noi_total_current_percentage = float(format(noi_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
-                noi_total_previous_percentage = float(format(noi_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                noi_total_current_percentage = 0
+                noi_total_previous_percentage = 0
+                if float(cur_netsales) > 0:
+                    noi_total_current_percentage = float(format(noi_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                if float(prev_netsales) > 0:
+                    noi_total_previous_percentage = float(format(noi_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
                 noi_total_variance = float(format(noi_cur, '.2f')) - float(format(noi_prev, '.2f'))
                 noi_total_var = float(format(noi_total_variance, '.2f')) / float(format(noi_prev, '.2f')) * 100
 
@@ -1530,8 +1562,10 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                 worksheet.write(row, col + 4, float(format(total_previous, '.2f')))
                 worksheet.write(row, col + 5, float(format(total_todate, '.2f')))
 
-                total_current_percentage = float(format(total_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
-                total_previous_percentage = float(format(total_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                if float(cur_netsales) > 0:
+                    total_current_percentage = float(format(total_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                if float(prev_netsales) > 0:
+                    total_previous_percentage = float(format(total_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
                 total_variance = float(format(total_current, '.2f')) - float(format(total_previous, '.2f'))
                 total_var = float(format(total_variance, '.2f')) / float(format(total_previous, '.2f')) * 100
 
