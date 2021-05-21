@@ -45,3 +45,22 @@ class Module(models.Model):
 
     def status_verbose(self):
         return dict(Module.STATUS_CHOICES)[self.status]
+
+
+class Activitylogs(models.Model):
+    user_id = models.IntegerField(default=1)
+    username = models.CharField(max_length=150, null=True)
+    activity_date = models.DateTimeField(auto_now_add=True)
+    remarks = models.CharField(max_length=150, blank=True, null=True)
+
+
+    class Meta:
+        db_table = 'activitylogs'
+        ordering = ['-pk']
+
+    def __str__(self):
+        return self.code
+
+    def __unicode__(self):
+        return self.code
+

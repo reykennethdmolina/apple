@@ -14,6 +14,7 @@ from creditterm.models import Creditterm
 from currency.models import Currency
 from apsubtype.models import Apsubtype
 from aptype.models import Aptype
+from module.models import Activitylogs
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
 from processing_transaction.models import Poapvtransaction, Apvcvtransaction
 from purchaseorder.models import Pomain, Podetail
@@ -325,6 +326,7 @@ class CreateView(CreateView):
         else:
             print "Debit and Credit amounts are not equal. AP Amount is not saved."
 
+
         return HttpResponseRedirect('/accountspayable/' + str(self.object.id) + '/update')
 
 
@@ -608,6 +610,13 @@ class UpdateView(UpdateView):
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
 
+        # Save Activity Logs
+        Activitylogs.objects.create(
+            user_id=self.request.user.id,
+            username=self.request.user,
+            remarks='Update AP Transaction #' + self.object.apnum
+        )
+
         return HttpResponseRedirect('/accountspayable/' + str(self.object.id) + '/update')
 
 
@@ -663,6 +672,13 @@ class DeleteView(DeleteView):
             pomain.isfullyapv = 0
             pomain.save()
             data.delete()
+
+        # Save Activity Logs
+        Activitylogs.objects.create(
+            user_id=self.request.user.id,
+            username=self.request.user,
+            remarks='Delete AP Transaction #' + self.object.apnum
+        )
 
         return HttpResponseRedirect('/accountspayable')
 
@@ -790,6 +806,13 @@ def approve(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Aproved AP Transaction #' + str(approval.apnum)
+            )
         else:
             data = {'status': 'error'}
     else:
@@ -808,6 +831,13 @@ def disapprove(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Disaproved AP Transaction #' + str(approval.apnum)
+            )
         else:
             data = {'status': 'error'}
     else:
@@ -870,6 +900,13 @@ def gounpost(request):
             approval.apstatus = 'A'
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Unpost AP Transaction #' + str(approval.apnum)
+            )
         else:
             data = {'status': 'error'}
     else:
