@@ -11,6 +11,7 @@ from creditterm.models import Creditterm
 from currency.models import Currency
 from inputvattype.models import Inputvattype
 from oftype.models import Oftype
+from module.models import Activitylogs
 from ofsubtype.models import Ofsubtype
 from supplier.models import Supplier
 from vat.models import Vat
@@ -391,6 +392,13 @@ class CreateViewUser(CreateView):
 
                     print 'email sent'
 
+                    # Save Activity Logs
+                    Activitylogs.objects.create(
+                        user_id=self.request.user.id,
+                        username=self.request.user,
+                        remarks='Create OF Transaction #' + str(Oftype.objects.get(pk=int(self.request.POST['oftype'])).code) + '-' +self.object.ofnum
+                    )
+
                     return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate/')
                 else:
                     return HttpResponseRedirect('/operationalfund/usercreate/')
@@ -682,6 +690,12 @@ class UpdateViewUser(UpdateView):
                     else:
                         self.object.save(update_fields=['ofdate', 'amount', 'particulars', 'designatedapprover', 'modifyby', 'modifydate', 'requestor', 'requestor_code', 'requestor_name', 'department', 'department_code', 'department_name'])
 
+                    # Save Activity Logs
+                    Activitylogs.objects.create(
+                        user_id=self.request.user.id,
+                        username=self.request.user,
+                        remarks='Update OF Transaction #' + str(Oftype.objects.get(pk=int(self.request.POST['oftype'])).code) + '-' + self.object.ofnum
+                    )
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
 
 
