@@ -10,6 +10,7 @@ from bankbranchdisburse.models import Bankbranchdisburse
 from branch.models import Branch
 from circulationproduct.models import Circulationproduct
 from companyparameter.models import Companyparameter
+from module.models import Activitylogs
 from cvsubtype.models import Cvsubtype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
 from replenish_pcv.models import Reppcvmain, Reppcvdetail
@@ -533,6 +534,13 @@ class UpdateView(UpdateView):
         ormaindate = self.object.ordate
 
         updatedetail(source, mainid, num, secretkey, self.request.user, ormaindate)
+
+        # Save Activity Logs
+        Activitylogs.objects.create(
+            user_id=self.request.user.id,
+            username=self.request.user,
+            remarks='Update OR Transaction #' + self.object.ornum
+        )
 
         # return HttpResponseRedirect('/officialreceipt/')
         return HttpResponseRedirect('/officialreceipt/' + str(self.object.id) + '/update')
@@ -2598,6 +2606,13 @@ def gounpost(request):
             approval.orstatus = 'A'
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Unpost OR Transaction #' + str(approval.ornum)
+            )
         else:
             data = {'status': 'error'}
     else:
@@ -2671,6 +2686,13 @@ def approve(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Aproved OR Transaction #' + str(approval.ornum)
+            )
         else:
             data = {'status': 'error'}
     else:
@@ -2689,6 +2711,13 @@ def disapprove(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Disaproved OR Transaction #' + str(approval.ornum)
+            )
         else:
             data = {'status': 'error'}
     else:
