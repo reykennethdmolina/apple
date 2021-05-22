@@ -168,10 +168,14 @@ urlpatterns = [
     url(r'^categorymaingroup/', include('categorymaingroup.urls', app_name='categorymaingroup', namespace='categorymaingroup')),
     url(r'^categorymainsubgroup/', include('categorymainsubgroup.urls', app_name='categorymainsubgroup', namespace='categorymainsubgroup')),
     url(r'^fxrate/', include('fxrate.urls', app_name='fxrate', namespace='fxrate')),
-    #url(r'^rep_contributionmargin/', include('rep_contributionmargin.urls', app_name='rep_contributionmargin', namespace='rep_contributionmargin')),
+    url(r'^rep_contributionmargin/', include('rep_contributionmargin.urls', app_name='rep_contributionmargin', namespace='rep_contributionmargin')),
+
+    # Part 2
+    url(r'^nontrade/', include('nontrade.urls', app_name='nontrade', namespace='nontrade')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
+    url(r'^logout/$', views.logout),
     url(r'^logout/$', logout, {'next_page': '/login/'}),
     url(r'^admin/password_change/$', password_change, {'template_name': 'admin/password_change_form.html'},name='password_change'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

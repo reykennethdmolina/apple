@@ -3,6 +3,24 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib import auth
+from django.http import HttpResponseRedirect, Http404
+from module.models import Activitylogs
+
+
+
+def logout(request):
+    print ('log out')
+    # Save Activity Logs
+    Activitylogs.objects.create(
+        user_id=request.user.id,
+        username=request.user,
+        remarks='Log-out'
+    )
+    auth.logout(request)
+
+    return HttpResponseRedirect('/login')
+
 
 @login_required
 def index(request):
