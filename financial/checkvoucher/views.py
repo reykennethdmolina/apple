@@ -19,6 +19,7 @@ from operationalfund.models import Ofmain, Ofitem, Ofdetail
 from processing_transaction.models import Apvcvtransaction
 from replenish_pcv.models import Reppcvmain, Reppcvdetail
 from companyparameter.models import Companyparameter
+from module.models import Activitylogs
 from supplier.models import Supplier
 from vat.models import Vat
 from django.contrib.auth.models import User
@@ -501,6 +502,13 @@ class UpdateView(UpdateView):
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
 
+        # Save Activity Logs
+        Activitylogs.objects.create(
+            user_id=self.request.user.id,
+            username=self.request.user,
+            remarks='Update CV Transaction #' + self.object.cvnum
+        )
+
         return HttpResponseRedirect('/checkvoucher/' + str(self.object.id) + '/update')
 
 
@@ -770,6 +778,13 @@ def approve(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Aproved CV Transaction #' + str(approval.cvnum)
+            )
         else:
             data = {'status': 'error'}
     else:
@@ -788,6 +803,13 @@ def disapprove(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Disaproved CV Transaction #' + str(approval.cvnum)
+            )
         else:
             data = {'status': 'error'}
     else:
@@ -827,6 +849,13 @@ def gounpost(request):
             approval.cvstatus = 'A'
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Unpost CV Transaction #' + str(approval.cvnum)
+            )
         else:
             data = {'status': 'error'}
     else:
@@ -2263,7 +2292,7 @@ class GenerateExcel(View):
                 q = q.filter(cvmain__checknum__exact=checknum)
             else:
                 q = q.filter(checknum=checknum)
-                
+
         if checkdate != '':
             if report == '2' or report == '4':
                 q = q.filter(cvmain__checkdate=checkdate)
