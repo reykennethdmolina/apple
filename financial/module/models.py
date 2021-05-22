@@ -6,6 +6,7 @@ from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
+
 class Module(models.Model):
     mainmodule = models.ForeignKey('mainmodule.Mainmodule', \
         related_name='mainmodule_id', validators=[MinValueValidator(1)])
@@ -63,4 +64,3 @@ class Activitylogs(models.Model):
 
     def __unicode__(self):
         return self.code
-
