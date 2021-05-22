@@ -9,13 +9,6 @@ def usermodule(request):
     userid = 0
     if request.user.is_authenticated():
         userid = request.user.id
-        print ('log in')
-        # Save Activity Logs
-        Activitylogs.objects.create(
-            user_id=request.user.id,
-            username=request.user,
-            remarks='Log-in'
-        )
 
     cursor = connection.cursor()
     if request.user.is_superuser:

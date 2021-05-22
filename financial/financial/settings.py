@@ -181,7 +181,8 @@ INSTALLED_APPS = [
     'categorymaingroup',
     'categorymainsubgroup',
     'fxrate',
-    #'rep_contributionmargin',
+    'rep_contributionmargin',
+    'nontrade',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -228,14 +229,16 @@ DATABASES = {
         #'ENGINE': 'django.db.backends.sqlite3',
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db_financial',
-        # 'NAME': 'db_financial_migrate',
-        ####'HOST': 'localhost',
-        'HOST': '128.1.44.222',
+        'NAME': 'db_financial_local',
+        #'NAME': 'db_financial_demo',
+        'HOST': 'localhost',
+        #'HOST': '128.1.44.2', # devserver
+        #'HOST': '128.1.44.222', # financial
         'PORT': '3306',
         'USER': 'root',
-        'PASSWORD': 'RootToor1!@#',
-        # 'PASSWORD': 'mysqld3vserver',
+        #'PASSWORD': 'RootToor1!@#',
+        'PASSWORD': '',
+        #'PASSWORD': 'mysqld3vserver',
         'OPTIONS': {
             'init_command': 'SET default_storage_engine=INNODB',
         }
@@ -273,7 +276,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -295,4 +298,10 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
 ENDLESS_PAGINATION_PER_PAGE = 15
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'inq-noreply@inquirer.com.ph'
+EMAIL_HOST_PASSWORD = '1nqnoreply'
 
