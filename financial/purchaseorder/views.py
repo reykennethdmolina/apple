@@ -7,6 +7,7 @@ from django.db.models import Q, F
 from .models import Pomain, Podetail, Podetailtemp, Podata, Prfpotransaction
 from purchaserequisitionform.models import Prfmain, Prfdetail
 from companyparameter.models import Companyparameter
+from module.models import Activitylogs
 from employee.models import Employee
 from supplier.models import Supplier
 from ataxcode.models import Ataxcode
@@ -736,6 +737,13 @@ class UpdateView(UpdateView):
                 data.remarks = self.request.POST.getlist('temp_remarks')[i]
                 data.save()
                 i += 1
+
+        # Save Activity Logs
+        Activitylogs.objects.create(
+            user_id=self.request.user.id,
+            username=self.request.user,
+            remarks='Update PO Transaction #' + self.object.ponum
+        )
 
         return HttpResponseRedirect('/purchaseorder/' + str(self.object.id) + '/update')
 
@@ -1486,6 +1494,13 @@ def approve(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Aproved PO Transaction #' + str(approval.ponum)
+            )
         else:
             data = {'status': 'error'}
     else:
@@ -1507,6 +1522,13 @@ def disapprove(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Disaproved PO Transaction #' + str(approval.ponum)
+            )
         else:
             data = {'status': 'error'}
     else:

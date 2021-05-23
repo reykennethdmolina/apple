@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from jvtype.models import Jvtype
 from jvsubtype.models import Jvsubtype
 from companyparameter.models import Companyparameter
+from module.models import Activitylogs
 from currency.models import Currency
 from branch.models import Branch
 from department.models import Department
@@ -678,6 +679,13 @@ class UpdateView(UpdateView):
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
 
+        # Save Activity Logs
+        Activitylogs.objects.create(
+            user_id=self.request.user.id,
+            username=self.request.user,
+            remarks='Update JV Transaction #' + self.object.jvnum
+        )
+
         return HttpResponseRedirect('/journalvoucher/'+str(self.object.pk)+'/update')
 
 
@@ -918,6 +926,13 @@ def approve(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Aproved JV Transaction #' + str(approval.jvnum)
+            )
         else:
             data = {'status': 'error'}
     else:
@@ -936,6 +951,13 @@ def disapprove(request):
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
+
+            # Save Activity Logs
+            Activitylogs.objects.create(
+                user_id=request.user.id,
+                username=request.user,
+                remarks='Disaproved JV Transaction #' + str(approval.jvnum)
+            )
         else:
             data = {'status': 'error'}
     else:
