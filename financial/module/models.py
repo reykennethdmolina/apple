@@ -60,7 +60,7 @@ class Activitylogs(models.Model):
         ordering = ['-pk']
 
     def __str__(self):
-        return self.code
+        return self.username
 
     def __unicode__(self):
-        return self.code
+        return self.username

@@ -3,7 +3,7 @@ from django.views.generic import View, ListView, DetailView, CreateView, UpdateV
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
-from module.models import Module
+from module.models import Module, Activitylogs
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Permission
 from mainmodule.models import Mainmodule
@@ -16,6 +16,8 @@ from companyparameter.models import Companyparameter
 from django.contrib.auth.models import Group
 from django.db import connection
 from collections import namedtuple
+import io
+import xlsxwriter
 # from django.contrib.auth.models import GroupPermission
 # from django.contrib.auth.models import UserGroup
 
@@ -121,6 +123,21 @@ class GeneratePDF(View):
             "username": request.user,
         }
         return Render.render('module/list.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDFLogs(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Activitylogs.objects.filter(user_id__isnull=False).order_by('-id')[:100]
+
+        context = {
+            "title": "SYSTEM ACTIVITY LOG REPORT",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('module/logs.html', context)
 
 @method_decorator(login_required, name='dispatch')
 class GeneratePDFModuleAccess(View):
@@ -287,6 +304,65 @@ def namedtuplefetchall(cursor):
     desc = cursor.description
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
+
+
+@method_decorator(login_required, name='dispatch')
+class GenerateExcelLogs(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        title = "SYSTEM ACTIVITY LOG REPORT"
+        worksheet.write('A1', str(title), bold)
+        worksheet.write('A2', '')
+
+        filename = "activity_logs.xlsx"
+
+        # header
+        worksheet.write('A4', 'User ID', bold)
+        worksheet.write('B4', 'Username', bold)
+        worksheet.write('C4', 'Log Date', bold)
+        worksheet.write('D4', 'Activity', bold)
+
+        row = 5
+        col = 0
+
+        list = Activitylogs.objects.filter(user_id__isnull=False).order_by('-id')
+
+        for data in list:
+            worksheet.write(row, col, data.user_id)
+            worksheet.write(row, col + 1, data.username)
+            worksheet.write(row, col + 2, data.activity_date, formatdate)
+            worksheet.write(row, col + 3, data.remarks)
+
+            row += 1
+
+
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
 
 
 

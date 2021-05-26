@@ -10,6 +10,8 @@
                 {% if perms.module.add_module %}
                 <a href="{% url 'module:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Data</button></a>
                 {% endif  %}
+                <a href="{% url 'module:pdf_logs' %}" target="_blank"><button type="button" class="btn btn-warning btn-sm waves-effect waves-light"><i class="icon fa-file-pdf-o" aria-hidden="true"></i> Activity Logs</button></a>
+                <a href="{% url 'module:excel_logs' %}" target="_blank"><button type="button" class="btn btn-success btn-sm waves-effect waves-light"><i class="icon fa-file-xls" aria-hidden="true"></i> Activity Logs</button></a>
                 <a href="{% url 'module:pdf' %}" target="_blank"><button type="button" class="btn btn-danger btn-sm waves-effect waves-light"><i class="icon fa-file-pdf-o" aria-hidden="true"></i> Report</button></a>
                 <a href="{% url 'module:pdf_moduleaccess' %}" target="_blank"><button type="button" class="btn btn-danger btn-sm waves-effect waves-light"><i class="icon fa-file-pdf-o" aria-hidden="true"></i> Module Access</button></a>
                 <a href="{% url 'module:pdf_user' %}" target="_blank"><button type="button" class="btn btn-danger btn-sm waves-effect waves-light"><i class="icon fa-file-pdf-o" aria-hidden="true"></i> User List</button></a>
