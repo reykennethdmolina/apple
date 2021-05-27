@@ -2,7 +2,7 @@ import datetime
 from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from customertype.models import Customertype
 from creditterm.models import Creditterm
 from currency.models import Currency
@@ -13,6 +13,8 @@ from . models import Customer
 from financial.utils import Render
 from django.utils import timezone
 from companyparameter.models import Companyparameter
+import io
+import xlsxwriter
 
 # pagination and search
 from endless_pagination.views import AjaxListView
@@ -158,7 +160,7 @@ class DeleteView(DeleteView):
 class GeneratePDF(View):
     def get(self, request):
         company = Companyparameter.objects.all().first()
-        list = Customer.objects.filter(isdeleted=0).order_by('code')
+        list = Customer.objects.filter(isdeleted=0).filter(code__isnull=False).order_by('code')[:100]
         # list = Customer.objects.filter(isdeleted=0, code__lte='B').order_by('code')
 
         context = {
@@ -169,3 +171,58 @@ class GeneratePDF(View):
             "username": request.user,
         }
         return Render.render('customer/list.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GenerateExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        title = "CUSTOMER MASTER LIST"
+        worksheet.write('A1', str(title), bold)
+        worksheet.write('A2', '')
+
+        filename = "customer_master_list.xlsx"
+
+        # header
+        worksheet.write('A4', 'Code', bold)
+        worksheet.write('B4', 'Name', bold)
+
+
+        row = 5
+        col = 0
+
+        list = Customer.objects.filter(isdeleted=0).filter(code__isnull=False).order_by('code')
+
+        for data in list:
+            worksheet.write(row, col, data.code)
+            worksheet.write(row, col + 1, data.name)
+
+            row += 1
+
+
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
