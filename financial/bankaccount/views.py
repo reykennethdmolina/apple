@@ -509,8 +509,8 @@ class GenerateTransExcel(View):
             begbalamount = float(abs(adtransnet))
             begcode = adtranscode
 
-        endbalamount = float(begbalamount) + float(netamount)
-        begbalamount = float(begbalamount)
+        # endbalamount = float(begbalamount) + float(netamount)
+        # begbalamount = float(begbalamount)
 
         # if begcode == 'C':
         #     endbalamount = (float(begbalamount) * -1) + float(netamount)
@@ -518,6 +518,13 @@ class GenerateTransExcel(View):
         # else:
         #     endbalamount = float(abs(begbalamount)) + float(netamount)
         #     begbalamount = float(abs(begbalamount))
+
+        if begcode == 'C':
+            endbalamount = (float(begbalamount) * -1) + float(netamount)
+            begbalamount = float(begbalamount) * -1
+        else:
+            endbalamount = float(abs(begbalamount)) + float(netamount)
+            begbalamount = float(begbalamount)
 
         if float(endbalamount) < 0:
             endcode = 'C'
