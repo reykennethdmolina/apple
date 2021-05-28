@@ -268,7 +268,9 @@ def transgenerate(request):
             bbamount = begbal.beg_amount
 
         if begbal.beg_code != adtranscode:
-            print 'dito'
+            #print 'dito'
+            #print begbal.beg_code
+            #print adtranscode
             begbalamount = float(bbamount) - float(abs(adtransnet))
         else:
             print 'dito ba'
@@ -279,19 +281,21 @@ def transgenerate(request):
         else:
             begcode = adtranscode
     else:
-        begbalamount =float(abs(adtransnet))
+        begbalamount =float((adtransnet))
         begcode = adtranscode
 
     # print begbalamount
     # print netamount
     # print endbalamount
 
-    endbalamount = float(begbalamount) + float(netamount)
+    # print begbalamount
+    # print netamount
+    # endbalamount = float(begbalamount) + float(netamount)
 
-    # if begcode == 'C':
-    #     endbalamount = (float(begbalamount) * -1) + float(netamount)
-    # else:
-    #     endbalamount = float(abs(begbalamount)) + float(netamount)
+    if begcode == 'C':
+        endbalamount = (float(begbalamount) * -1) + float(netamount)
+    else:
+        endbalamount = float(abs(begbalamount)) + float(netamount)
 
     if float(endbalamount) < 0:
         endcode = 'C'
@@ -700,7 +704,7 @@ def query_cashinbanktransaction(prevyear, dto, dfrom, chart, bankaccount):
             "LEFT OUTER JOIN bank AS bank ON bank.id = b.bank_id " \
             "WHERE b.isdeleted = 0 ORDER BY b.code"
 
-    #   print query
+    print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
