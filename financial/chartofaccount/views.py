@@ -18,6 +18,8 @@ from companyparameter.models import Companyparameter
 # pagination and search
 from endless_pagination.views import AjaxListView
 from django.db.models import Q
+import io
+import xlsxwriter
 
 
 @method_decorator(login_required, name='dispatch')
@@ -212,3 +214,67 @@ class GeneratePDF(View):
             "username": request.user,
         }
         return Render.render('chartofaccount/list.html', context)
+
+
+@method_decorator(login_required, name='dispatch')
+class GenerateExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        title = "CHART OF ACCOUNTS"
+        worksheet.write('A1', str(title), bold)
+        worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+        worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+
+
+        filename = "chartofaccounts.xlsx"
+
+        # header
+        worksheet.write('A5', 'Account Code', bold)
+        worksheet.write('B5', 'Account Title', bold)
+        worksheet.write('C5', 'Description', bold)
+        worksheet.write('D5', 'Balance Code', bold)
+        worksheet.write('E5', 'Account Type', bold)
+
+        row = 5
+        col = 0
+
+        list = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
+
+        for data in list:
+
+            worksheet.write(row, col, data.accountcode)
+            worksheet.write(row, col + 1, data.title)
+            worksheet.write(row, col + 2, data.description)
+            worksheet.write(row, col + 3, data.get_balancecode_display())
+            worksheet.write(row, col + 4, data.get_accounttype_display())
+
+            row += 1
+
+
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
