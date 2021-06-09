@@ -14,14 +14,14 @@
                 left: 1cm;
                 right: 1cm;
                 top: 1cm;
-                height: 4.5cm;
+                height: 5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 5.5cm; left: 1cm; width: 33.5cm; height: 15cm;
+                top: 6cm; left: 1cm; width: 33.5cm; height: 15cm;
             }
         }
         body{
@@ -99,11 +99,14 @@
             <tr>
                 <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
             </tr>
-           <tr>
+            <tr>
                 <td width="50%"></td>
             </tr>
             <tr>
                 <td width="75%"><p class="title">{{ title|upper }}</p></td>
+            </tr>
+           <tr>
+                <td width="75%"><p class="subtitle">for the period {{ datefrom }} to {{ dateto }}</p></td>
             </tr>
         </table>
 
@@ -116,9 +119,9 @@
                 </tr>
                 <tr style="border-bottom: 2px solid #000;">
                     <th style="text-align:left;width:90px;font-size:13px">Date</th>
-                    <th style="text-align:left;width:80px;font-size:13px">Number</th>
+                    <th style="text-align:left;width:100px;font-size:13px">Number</th>
                     <th style="text-align:left;width:200px;font-size:13px">Payee</th>
-                    <th style="text-align:left;width:280px;font-size:13px">Particulars</th>
+                    <th style="text-align:left;width:260px;font-size:13px">Particulars</th>
                     <th style="text-align:left;width:80px;font-size:13px">Bank</th>
                     <th style="text-align:left;width:100px;font-size:13px">Check No.</th>
                     <th style="text-align:center;width:150px;font-size:13px">Amount</th>
@@ -151,9 +154,9 @@
         {% if item.list.0.cvmain.status != 'C' %}
         <tr>
             <td style="text-align:left;width:90px;vertical-align:top;"></td>
-            <td style="text-align:left;width:80px;vertical-align:top;"></td>
+            <td style="text-align:left;width:100px;vertical-align:top;"></td>
             <td style="text-align:left;width:200px;vertical-align:top;"></td>
-            <td style="text-align:left;width:280px;vertical-align:top;"></td>
+            <td style="text-align:left;width:260px;vertical-align:top;"></td>
             <td style="text-align:left;width:80px;vertical-align:top;">&nbsp;&nbsp;{{ item.list.0.cvmain.bankaccount.code }}</td>
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.list.0.cvmain.checknum|default:'' }}</td>
             <td style="text-align:right;width:150px;vertical-align:top;">{{ item.list.0.cvmain.amount|default:''|floatformat:2|intcomma }}</td>

@@ -14,14 +14,14 @@
                 left: 1cm;
                 right: 1cm;
                 top: 1cm;
-                height: 4.5cm;
+                height: 5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 5cm; left: 1cm; width: 19.5cm; height: 21cm;
+                top: 6cm; left: 1cm; width: 19.5cm; height: 21cm;
             }
         }
         body{
@@ -106,16 +106,22 @@
             <tr>
                 <td width="75%"><p class="title">{{ title|upper }}</p></td>
             </tr>
+           <tr>
+                <td width="75%"><p class="subtitle">for the period {{ datefrom }} to {{ dateto }}</p></td>
+            </tr>
         </table>
 
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:120px">Acct No.</th>
-                    <th style="text-align:center;width:300px">Account Title</th>
-                    <th style="text-align:center;width:300px">Subsidiary Ledger</th>
-                    <th style="text-align:right;width:180px">Debit</th>
-                    <th style="text-align:right;width:180px">Credit</th>
+                    <th style="text-align:left;width:120px">Date</th>
+                    <th style="text-align:left;width:90px">Trans</th>
+                    <th style="text-align:left;width:150px">Reference</th>
+                    <th style="text-align:left;width:250px">Particulars</th>
+                    <th style="text-align:left;width:150px">Account Number</th>
+                    <th style="text-align:left;width:200px">Account Title</th>
+                    <th style="text-align:right;width:120px">Debit</th>
+                    <th style="text-align:right;width:120px">Credit</th>
                 </tr>
             </thead>
         </table>
@@ -124,22 +130,20 @@
 
 <table id="content-data">
     <tbody>
+
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:120px;vertical-align:top">{{ item.chartofaccount__accountcode|upper }}</td>
-            <td style="text-align:left;width:300px;vertical-align:top">{{ item.chartofaccount__description|upper }}</td>
-            <td style="text-align:left;width:300px;vertical-align:top">{{ item.bankaccount__code|default:''|upper }} {{ item.employee__lastname|default:''|upper }} {{ item.employee__firstname|default:''|upper }} {{ item.employee__middlename|default:''|upper }} {{ item.supplier__name|default:''|upper }} {{ item.customer__name|default:''|upper }} {{ item.department__departmentname|default:''|upper }}</td>
-            <td style="text-align:right;width:180px;vertical-align:top">{{ item.debitamount__sum|default:''|floatformat:2|intcomma }}</td>
-            <td style="text-align:right;width:180px;vertical-align:top">{{ item.creditamount__sum|default:''|floatformat:2|intcomma }}</td>
+            <td style="text-align:left;width:120px;vertical-align:top">{{ item.transdate|date:'m/d/Y' }}</td>
+            <td style="text-align:left;width:90px;vertical-align:top">{{ item.transtype|upper }}</td>
+            <td style="text-align:left;width:150px;vertical-align:top">{{ item.reference|upper }}</td>
+            <td style="text-align:left;width:250px;vertical-align:top">{{ item.particulars|upper }}</td>
+            <td style="text-align:left;width:150px;vertical-align:top;">{{ item.accountcode }}</td>
+            <td style="text-align:left;width:200px;vertical-align:top;">{{ item.description }}</td>
+            <td style="text-align:right;width:120px;vertical-align:top">{{ item.debit|default:''|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:120px;vertical-align:top">{{ item.credit|default:''|floatformat:2|intcomma }}</td>
         </tr>
     {% endfor %}
-    <tr>
-        <td style="text-align:left;width:180px"></td>
-        <td style="text-align:left;width:300px"></td>
-        <td style="text-align:right;width:300px"><b>TOTAL</b></td>
-        <td style="text-align:right;width:180px"><b><u>{{ total.debitamount__sum__sum|default:''|floatformat:2|intcomma }}</u></b></td>
-        <td style="text-align:right;width:180px"><b><u>{{ total.creditamount__sum__sum|default:''|floatformat:2|intcomma }}</u></b></td>
-    </tr>
+
     </tbody>
 </table>
 

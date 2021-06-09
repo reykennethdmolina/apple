@@ -147,9 +147,9 @@
         $("#report_type").on('change', function() {
             var report = $('#report_type').val();
 
-            if (report == 1 || report == 4 || report == 14 || report == 15 || report == 16) {
+            if (report == 1 || report == 4 || report == 7 || report == 10 || report == 14 || report == 15 || report == 16) {
                 $('#excel').show();
-                $('#search_results').hide();
+                <!--$('#search_results').hide();-->
             } else {
                 $('#excel').hide();
                 $('#search_results').show();

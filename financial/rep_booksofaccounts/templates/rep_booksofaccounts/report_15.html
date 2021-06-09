@@ -100,14 +100,11 @@
             <tr>
                 <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
             </tr>
-            <tr>
+           <tr>
                 <td width="50%"></td>
             </tr>
             <tr>
                 <td width="75%"><p class="title">{{ title|upper }}</p></td>
-            </tr>
-            <tr>
-                <td width="75%"><p class="title">{{ subtitle|upper }}</p></td>
             </tr>
            <tr>
                 <td width="75%"><p class="subtitle">for the period {{ datefrom }} to {{ dateto }}</p></td>
@@ -117,10 +114,15 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:180px">Bank Account</th>
-                    <th style="text-align:left;width:450px">Bank Description</th>
-                    <th style="text-align:center;width:180px">Debit</th>
-                    <th style="text-align:center;width:180px">Credit</th>
+                    <th style="text-align:left;width:110px">Date</th>
+                    <th style="text-align:left;width:120px">Reference</th>
+                    <th style="text-align:center;width:180px">Payor</th>
+                    <th style="text-align:left;width:250px">Particulars</th>
+                    <th style="text-align:left;width:150px">Account Number</th>
+                    <th style="text-align:left;width:180px">Account Title</th>
+                    <th style="text-align:right;width:120px">Debit</th>
+                    <th style="text-align:right;width:120px">Credit</th>
+                    <th style="text-align:right;width:90px">Bank</th>
                 </tr>
             </thead>
         </table>
@@ -129,20 +131,21 @@
 
 <table id="content-data">
     <tbody>
+
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:180px">{{ item.bankaccount__code|upper }}</td>
-            <td style="text-align:left;width:450px">{{ item.bankaccount__bank__code|default:'' }} {{ item.bankaccount__bankaccounttype__code|default:'' }}{% if item.bankaccount__code %}A{% endif %}</td>
-            <td style="text-align:right;width:180px">{{ item.debitdifference|default:''|floatformat:2|intcomma }}</td>
-            <td style="text-align:right;width:180px">{{ item.creditdifference|default:''|floatformat:2|intcomma }}</td>
+            <td style="text-align:left;width:110px;vertical-align:top">{{ item.ordate|date:'m/d/Y' }}</td>
+            <td style="text-align:left;width:120px;vertical-align:top">{{ item.ornum|upper }}</td>
+            <td style="text-align:left;width:180px;vertical-align:top">{{ item.payee_name|upper }}</td>
+            <td style="text-align:left;width:250px;vertical-align:top">{{ item.particulars|upper }}</td>
+            <td style="text-align:left;width:150px;vertical-align:top;">{{ item.accountcode }}</td>
+            <td style="text-align:left;width:180px;vertical-align:top;">{{ item.description }}</td>
+            <td style="text-align:right;width:120px;vertical-align:top">{{ item.debitamount|default:''|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:120px;vertical-align:top">{{ item.creditamount|default:''|floatformat:2|intcomma }}</td>
+             <td style="text-align:right;width:90px;vertical-align:top;">{{ item.bankacount }}</td>
         </tr>
     {% endfor %}
-    <tr>
-        <td style="text-align:left;width:180px"></td>
-        <td style="text-align:right;width:400px"><b>TOTAL</b></td>
-        <td style="text-align:right;width:180px"><b><u>{{ total.debitdifference__sum|default:''|floatformat:2|intcomma }}</u></b></td>
-        <td style="text-align:right;width:180px"><b><u>{{ total.creditdifference__sum|default:''|floatformat:2|intcomma }}</u></b></td>
-    </tr>
+
     </tbody>
 </table>
 

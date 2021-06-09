@@ -70,6 +70,7 @@ class GeneratePDF(View):
             if dto != '':
                 q = q.filter(jv_date__lte=dto)
             total = q.exclude(jvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+            q = q[:100]
         elif report == '2':
             title = "GENERAL JOURNAL BOOK - SUMMARY ENTRIES"
             q = Jvdetail.objects.all().filter(isdeleted=0,jvmain__jvstatus='R').exclude(jvmain__status='C')
@@ -107,6 +108,7 @@ class GeneratePDF(View):
             if dto != '':
                 q = q.filter(cv_date__lte=dto)
             total = q.exclude(cvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+            q = q[:100]
         elif report == '5':
             title = "CASH DISBURSEMENT BOOK - SUMMARY ENTRIES"
             q = Cvdetail.objects.all().filter(isdeleted=0,cvmain__cvstatus='R').exclude(cvmain__status='C')
@@ -146,6 +148,7 @@ class GeneratePDF(View):
             if dto != '':
                 q = q.filter(or_date__lte=dto)
             total = q.exclude(ormain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+            q = q[:100]
         elif report == '8':
             title = "CASH RECEIPTS BOOK - SUMMARY ENTRIES"
             q = Ordetail.objects.all().filter(isdeleted=0,ormain__orstatus='R').exclude(ormain__status='C')
@@ -186,6 +189,7 @@ class GeneratePDF(View):
             if dto != '':
                 q = q.filter(ap_date__lte=dto)
             total = q.exclude(apmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+            q = q[:100]
         elif report == '11':
             title = "ACCOUNTS PAYABLE VOUCHER - SUMMARY ENTRIES"
             q = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R').exclude(apmain__status='C')
@@ -279,6 +283,18 @@ class GeneratePDF(View):
                 filter(creditamount__sum__gt=0). \
                 order_by('chartofaccount__accountcode')
             total_credit = ccredit.aggregate(Sum('creditamount__sum'))
+        elif report == '14':
+            title = "GENERAL LEDGER BOOK"
+            q = query_bir(report, dfrom, dto)
+            q = q[:100]
+        elif report == '15':
+            title = "CASH RECEIPT BOOK"
+            q = query_bir(report, dfrom, dto)
+            q = q[:100]
+        elif report == '16':
+            title = "PURCHASE BOOK"
+            q = query_bir(report, dfrom, dto)
+            q = q[:100]
 
         else:
             q = Jvdetail.objects.filter(isdeleted=0,jvmain__jvstatus='R').exclude(jvmain__status='C').order_by('jv_date', 'jv_num')[:0]
@@ -341,6 +357,12 @@ class GeneratePDF(View):
 
             context['totalamount'] = (totaldd + total_ddebit) - (totalcc + total_ccredit)
             return Render.render('rep_booksofaccounts/report_13.html', context)
+        elif report == '14':
+            return Render.render('rep_booksofaccounts/report_14.html', context)
+        elif report == '15':
+            return Render.render('rep_booksofaccounts/report_15.html', context)
+        elif report == '16':
+            return Render.render('rep_booksofaccounts/report_16.html', context)
         else:
             return Render.render('rep_booksofaccounts/report_1.html', context)
 
@@ -592,6 +614,24 @@ class GenerateExcel(View):
             if dto != '':
                 q = q.filter(cv_date__lte=dto)
             total = q.exclude(cvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+        elif report == '7':
+            title = "CASH RECEIPTS BOOK - DETAILED ENTRIES"
+            q = Ordetail.objects.all().filter(isdeleted=0, ormain__orstatus='R').exclude(ormain__status='C').order_by(
+                'or_date', 'or_num', '-balancecode', 'item_counter')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+            total = q.exclude(ormain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+        elif report == '10':
+            title = "ACCOUNTS PAYABLE VOUCHER - DETAILED ENTRIES"
+            q = Apdetail.objects.all().filter(isdeleted=0, apmain__apstatus='R').exclude(apmain__status='C').order_by(
+                'ap_date', 'ap_num', '-balancecode', 'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+            total = q.exclude(apmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
         elif report == '14':
             title = "GENERAL LEDGER BOOK - BIR FORMAT"
         elif report == '15':
@@ -618,20 +658,22 @@ class GenerateExcel(View):
 
             # title
             worksheet.write('A1', 'GENERAL JOURNAL BOOK - DETAILED ENTRIES', bold)
-            worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+            worksheet.write('A2', str(company.address1)+' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
 
             # header
-            worksheet.write('A4', 'Date', bold)
-            worksheet.write('B4', 'Number', bold)
-            worksheet.write('C4', 'Particulars', bold)
-            worksheet.write('D4', 'Account Number', bold)
-            worksheet.write('E4', 'Account Title', bold)
-            worksheet.write('F4', 'Code', bold)
-            worksheet.write('G4', 'Particulars', bold)
-            worksheet.write('H4', 'Debit Amount', bold)
-            worksheet.write('I4', 'Credit Amount', bold)
+            worksheet.write('A6', 'Date', bold)
+            worksheet.write('B6', 'Number', bold)
+            worksheet.write('C6', 'Particulars', bold)
+            worksheet.write('D6', 'Account Number', bold)
+            worksheet.write('E6', 'Account Title', bold)
+            worksheet.write('F6', 'Code', bold)
+            worksheet.write('G6', 'Particulars', bold)
+            worksheet.write('H6', 'Debit Amount', bold)
+            worksheet.write('I6', 'Credit Amount', bold)
 
-            row = 5
+            row = 6
             col = 0
             jvnum = ''
             bankaccount = ''
@@ -680,23 +722,25 @@ class GenerateExcel(View):
 
             # title
             worksheet.write('A1', 'CASH DISBURSEMENT BOOK - DETAILED ENTRIES', bold)
-            worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
 
             # header
-            worksheet.write('A4', 'Date', bold)
-            worksheet.write('B4', 'Number', bold)
-            worksheet.write('C4', 'Payee', bold)
-            worksheet.write('D4', 'Particulars', bold)
-            worksheet.write('E4', 'Bank', bold)
-            worksheet.write('F4', 'Check', bold)
-            worksheet.write('G4', 'Amount', bold)
-            worksheet.write('H4', 'Account Number', bold)
-            worksheet.write('I4', 'Account Title', bold)
-            worksheet.write('J4', 'Subledger', bold)
-            worksheet.write('K4', 'Debit Amount', bold)
-            worksheet.write('L4', 'Credit Amount', bold)
+            worksheet.write('A6', 'Date', bold)
+            worksheet.write('B6', 'Number', bold)
+            worksheet.write('C6', 'Payee', bold)
+            worksheet.write('D6', 'Particulars', bold)
+            worksheet.write('E6', 'Bank', bold)
+            worksheet.write('F6', 'Check', bold)
+            worksheet.write('G6', 'Amount', bold)
+            worksheet.write('H6', 'Account Number', bold)
+            worksheet.write('I6', 'Account Title', bold)
+            worksheet.write('J6', 'Subledger', bold)
+            worksheet.write('K6', 'Debit Amount', bold)
+            worksheet.write('L6', 'Credit Amount', bold)
 
-            row = 5
+            row = 6
             col = 0
             jvnum = ''
             payee = ''
@@ -716,6 +760,7 @@ class GenerateExcel(View):
                     worksheet.write(row, col + 2, data.cvmain.payee_name)
                     if data.bankaccount:
                         bankaccount = data.cvmain.bankaccount.code
+                    worksheet.write(row, col + 3, data.cvmain.particulars)
                     worksheet.write(row, col + 4, bankaccount)
                     worksheet.write(row, col + 5, data.cvmain.checknum)
                     worksheet.write(row, col + 6, data.cvmain.amount)
@@ -743,6 +788,161 @@ class GenerateExcel(View):
 
             # Set up the Http response.
             filename = "cashdisbursementbook_detailed.xlsx"
+        elif report == '7':
+
+            # Create an in-memory output file for the new workbook.
+            output = io.BytesIO()
+
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
+
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+            # title
+            worksheet.write('A1', 'CASH RECEIPTS BOOK - DETAILED ENTRIES', bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'for the period '+str(dfrom)+' to '+str(dto), bold)
+
+            # header
+            worksheet.write('A6', 'Date', bold)
+            worksheet.write('B6', 'Number', bold)
+            worksheet.write('C6', 'Payee', bold)
+            worksheet.write('D6', 'Particulars', bold)
+            worksheet.write('E6', 'Amount', bold)
+            worksheet.write('F6', 'Bank', bold)
+            worksheet.write('G6', 'Account Number', bold)
+            worksheet.write('H6', 'Account Title', bold)
+            worksheet.write('I6', 'Subledger', bold)
+            worksheet.write('J6', 'Debit Amount', bold)
+            worksheet.write('K6', 'Credit Amount', bold)
+
+            row = 6
+            col = 0
+            jvnum = ''
+            payee = ''
+            particulars = ''
+            bankaccount = ''
+            department = ''
+            departmentname = ''
+            for data in list:
+
+                worksheet.write(row, col, data.or_date, formatdate)
+                worksheet.write(row, col + 1, data.or_num)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C  A  N  C  E  L  L  E  D')
+                    worksheet.write(row, col + 3, '')
+                else:
+                    worksheet.write(row, col + 2, data.ormain.payee_name)
+                    if data.bankaccount:
+                        bankaccount = data.ormain.bankaccount.code
+                    worksheet.write(row, col + 3, data.ormain.particulars)
+                    worksheet.write(row, col + 4, bankaccount)
+
+                worksheet.write(row, col + 5, data.chartofaccount.accountcode)
+                worksheet.write(row, col + 6, data.chartofaccount.description)
+
+                if data.bankaccount:
+                    bankaccount = data.bankaccount.code
+                if data.department:
+                    department = data.department.code
+                    departmentname = data.department.departmentname
+
+                worksheet.write(row, col + 7, bankaccount+' '+department+' '+departmentname)
+
+                worksheet.write(row, col + 8, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 9, float(format(data.creditamount, '.2f')))
+
+                row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response.
+            filename = "cashreceiptsbook_detailed.xlsx"
+        elif report == '10':
+
+            # Create an in-memory output file for the new workbook.
+            output = io.BytesIO()
+
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
+
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+            # title
+            worksheet.write('A1', 'ACCOUNTS PAYABLE VOUCHER - DETAILED ENTRIES', bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            # header
+            worksheet.write('A6', 'Date', bold)
+            worksheet.write('B6', 'Number', bold)
+            worksheet.write('C6', 'Payee', bold)
+            worksheet.write('D6', 'Particulars', bold)
+            worksheet.write('E6', 'Amount', bold)
+            worksheet.write('F6', 'Account Number', bold)
+            worksheet.write('G6', 'Account Title', bold)
+            worksheet.write('H6', 'Subledger', bold)
+            worksheet.write('I6', 'Debit Amount', bold)
+            worksheet.write('J6', 'Credit Amount', bold)
+
+            row = 6
+            col = 0
+            jvnum = ''
+            payee = ''
+            particulars = ''
+            bankaccount = ''
+            department = ''
+            departmentname = ''
+            emp = ''
+            empname = ''
+            for data in list:
+
+                worksheet.write(row, col, data.ap_date, formatdate)
+                worksheet.write(row, col + 1, data.ap_num)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C  A  N  C  E  L  L  E  D')
+                    worksheet.write(row, col + 3, '')
+                else:
+                    worksheet.write(row, col + 2, data.apmain.payeename)
+                    worksheet.write(row, col + 3, data.apmain.particulars)
+
+                worksheet.write(row, col + 7, data.chartofaccount.accountcode)
+                worksheet.write(row, col + 8, data.chartofaccount.description)
+
+                if data.department:
+                    department = data.department.code
+                    departmentname = data.department.departmentname
+                if data.employee:
+                    emp = data.employee.code
+                    empname = data.employee.firstname+' '+data.employee.lastname
+
+                worksheet.write(row, col + 9,department+' '+departmentname+' '+empname)
+
+                worksheet.write(row, col + 10, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 11, float(format(data.creditamount, '.2f')))
+
+                row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response. Accounts Payable Voucher Book
+            filename = "accountspayablevoucher_detailed.xlsx"
         elif report == '14':
             print 'gen ledger'
 
@@ -759,8 +959,9 @@ class GenerateExcel(View):
 
             # title
             worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
-            worksheet.write('A2', 'GENERAL LEDGER BOOK', bold)
-            worksheet.write('A3', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+            worksheet.write('A2', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A3', 'GENERAL LEDGER BOOK', bold)
+            worksheet.write('A4', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
 
             # header
             worksheet.write('A6', 'DATE', bold)
@@ -772,7 +973,7 @@ class GenerateExcel(View):
             worksheet.write('G6', 'DEBIT', bold)
             worksheet.write('H6', 'CREDIT', bold)
 
-            row = 7
+            row = 6
             col = 0
             q = query_bir(report, dfrom, dto)
             new_list = []
@@ -812,8 +1013,9 @@ class GenerateExcel(View):
 
             # title
             worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
-            worksheet.write('A2', 'CASH RECEIPT BOOK', bold)
-            worksheet.write('A3', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+            worksheet.write('A2', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A3', 'CASH RECEIPT BOOK', bold)
+            worksheet.write('A4', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
 
             # header
             worksheet.write('A6', 'DATE', bold)
@@ -826,7 +1028,7 @@ class GenerateExcel(View):
             worksheet.write('H6', 'CREDIT', bold)
             worksheet.write('I6', 'BANK ACCOUNT', bold)
 
-            row = 7
+            row = 6
             col = 0
             q = query_bir(report, dfrom, dto)
             new_list = []
@@ -868,8 +1070,9 @@ class GenerateExcel(View):
 
             # title
             worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
-            worksheet.write('A2', 'PURCHASE BOOK', bold)
-            worksheet.write('A3', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+            worksheet.write('A2', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A3', 'PURCHASE BOOK', bold)
+            worksheet.write('A4', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
 
             # header
             worksheet.write('A6', 'PO Number', bold)
@@ -890,7 +1093,7 @@ class GenerateExcel(View):
             worksheet.write('P6', 'APV Amount', bold)
             worksheet.write('Q6', 'ATC Amount', bold)
 
-            row = 7
+            row = 6
             col = 0
             q = query_bir(report, dfrom, dto)
             new_list = []
