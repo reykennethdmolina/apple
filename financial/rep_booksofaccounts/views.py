@@ -655,25 +655,37 @@ class GenerateExcel(View):
             bold = workbook.add_format({'bold': 1})
             formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
             centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
             # title
-            worksheet.write('A1', 'GENERAL JOURNAL BOOK - DETAILED ENTRIES', bold)
-            worksheet.write('A2', str(company.address1)+' ' + str(company.address2), bold)
+
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
             worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
-            worksheet.write('A4', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+            worksheet.write('A4', 'GENERAL JOURNAL BOOK - DETAILED ENTRIES', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
+
 
             # header
-            worksheet.write('A6', 'Date', bold)
-            worksheet.write('B6', 'Number', bold)
-            worksheet.write('C6', 'Particulars', bold)
-            worksheet.write('D6', 'Account Number', bold)
-            worksheet.write('E6', 'Account Title', bold)
-            worksheet.write('F6', 'Code', bold)
-            worksheet.write('G6', 'Particulars', bold)
-            worksheet.write('H6', 'Debit Amount', bold)
-            worksheet.write('I6', 'Credit Amount', bold)
+            worksheet.write('A7', 'Date', bold)
+            worksheet.write('B7', 'Number', bold)
+            worksheet.write('C7', 'Particulars', bold)
+            worksheet.write('D7', 'Account Number', bold)
+            worksheet.write('E7', 'Account Title', bold)
+            worksheet.write('F7', 'Code', bold)
+            worksheet.write('G7', 'Particulars', bold)
+            worksheet.write('H7', 'Debit Amount', bold)
+            worksheet.write('I7', 'Credit Amount', bold)
 
-            row = 6
+            row = 7
             col = 0
             jvnum = ''
             bankaccount = ''
@@ -719,28 +731,41 @@ class GenerateExcel(View):
             bold = workbook.add_format({'bold': 1})
             formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
             centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
             # title
-            worksheet.write('A1', 'CASH DISBURSEMENT BOOK - DETAILED ENTRIES', bold)
+
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
             worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
             worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
-            worksheet.write('A4', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+            worksheet.write('A4', 'CASH DISBURSEMENT BOOK - DETAILED ENTRIES', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
+
+
 
             # header
-            worksheet.write('A6', 'Date', bold)
-            worksheet.write('B6', 'Number', bold)
-            worksheet.write('C6', 'Payee', bold)
-            worksheet.write('D6', 'Particulars', bold)
-            worksheet.write('E6', 'Bank', bold)
-            worksheet.write('F6', 'Check', bold)
-            worksheet.write('G6', 'Amount', bold)
-            worksheet.write('H6', 'Account Number', bold)
-            worksheet.write('I6', 'Account Title', bold)
-            worksheet.write('J6', 'Subledger', bold)
-            worksheet.write('K6', 'Debit Amount', bold)
-            worksheet.write('L6', 'Credit Amount', bold)
+            worksheet.write('A7', 'Date', bold)
+            worksheet.write('B7', 'Number', bold)
+            worksheet.write('C7', 'Payee', bold)
+            worksheet.write('D7', 'Particulars', bold)
+            worksheet.write('E7', 'Bank', bold)
+            worksheet.write('F7', 'Check', bold)
+            worksheet.write('G7', 'Amount', bold)
+            worksheet.write('H7', 'Account Number', bold)
+            worksheet.write('I7', 'Account Title', bold)
+            worksheet.write('J7', 'Subledger', bold)
+            worksheet.write('K7', 'Debit Amount', bold)
+            worksheet.write('L7', 'Credit Amount', bold)
 
-            row = 6
+            row = 7
             col = 0
             jvnum = ''
             payee = ''
@@ -800,27 +825,39 @@ class GenerateExcel(View):
             bold = workbook.add_format({'bold': 1})
             formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
             centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
             # title
-            worksheet.write('A1', 'CASH RECEIPTS BOOK - DETAILED ENTRIES', bold)
+
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
             worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
             worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
-            worksheet.write('A4', 'for the period '+str(dfrom)+' to '+str(dto), bold)
+            worksheet.write('A4', 'CASH RECEIPTS BOOK - DETAILED ENTRIES', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
+
 
             # header
-            worksheet.write('A6', 'Date', bold)
-            worksheet.write('B6', 'Number', bold)
-            worksheet.write('C6', 'Payee', bold)
-            worksheet.write('D6', 'Particulars', bold)
-            worksheet.write('E6', 'Amount', bold)
-            worksheet.write('F6', 'Bank', bold)
-            worksheet.write('G6', 'Account Number', bold)
-            worksheet.write('H6', 'Account Title', bold)
-            worksheet.write('I6', 'Subledger', bold)
-            worksheet.write('J6', 'Debit Amount', bold)
-            worksheet.write('K6', 'Credit Amount', bold)
+            worksheet.write('A7', 'Date', bold)
+            worksheet.write('B7', 'Number', bold)
+            worksheet.write('C7', 'Payee', bold)
+            worksheet.write('D7', 'Particulars', bold)
+            worksheet.write('E7', 'Amount', bold)
+            worksheet.write('F7', 'Bank', bold)
+            worksheet.write('G7', 'Account Number', bold)
+            worksheet.write('H7', 'Account Title', bold)
+            worksheet.write('I7', 'Subledger', bold)
+            worksheet.write('J7', 'Debit Amount', bold)
+            worksheet.write('K7', 'Credit Amount', bold)
 
-            row = 6
+            row = 7
             col = 0
             jvnum = ''
             payee = ''
@@ -878,26 +915,37 @@ class GenerateExcel(View):
             bold = workbook.add_format({'bold': 1})
             formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
             centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
             # title
-            worksheet.write('A1', 'ACCOUNTS PAYABLE VOUCHER - DETAILED ENTRIES', bold)
+
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
             worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
             worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
-            worksheet.write('A4', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+            worksheet.write('A4', 'ACCOUNTS PAYABLE VOUCHER - DETAILED ENTRIES', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
 
             # header
-            worksheet.write('A6', 'Date', bold)
-            worksheet.write('B6', 'Number', bold)
-            worksheet.write('C6', 'Payee', bold)
-            worksheet.write('D6', 'Particulars', bold)
-            worksheet.write('E6', 'Amount', bold)
-            worksheet.write('F6', 'Account Number', bold)
-            worksheet.write('G6', 'Account Title', bold)
-            worksheet.write('H6', 'Subledger', bold)
-            worksheet.write('I6', 'Debit Amount', bold)
-            worksheet.write('J6', 'Credit Amount', bold)
+            worksheet.write('A7', 'Date', bold)
+            worksheet.write('B7', 'Number', bold)
+            worksheet.write('C7', 'Payee', bold)
+            worksheet.write('D7', 'Particulars', bold)
+            worksheet.write('E7', 'Amount', bold)
+            worksheet.write('F7', 'Account Number', bold)
+            worksheet.write('G7', 'Account Title', bold)
+            worksheet.write('H7', 'Subledger', bold)
+            worksheet.write('I7', 'Debit Amount', bold)
+            worksheet.write('J7', 'Credit Amount', bold)
 
-            row = 6
+            row = 7
             col = 0
             jvnum = ''
             payee = ''
@@ -956,24 +1004,35 @@ class GenerateExcel(View):
             bold = workbook.add_format({'bold': 1})
             formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
             centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
             # title
+
             worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
-            worksheet.write('A2', 'VAT REG TIN: ' + str(company.tinnum), bold)
-            worksheet.write('A3', 'GENERAL LEDGER BOOK', bold)
-            worksheet.write('A4', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'GENERAL LEDGER BOOK', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
 
             # header
-            worksheet.write('A6', 'DATE', bold)
-            worksheet.write('B6', 'TRANSACTION', bold)
-            worksheet.write('C6', 'REFERENCE', bold)
-            worksheet.write('D6', 'PARTICULARS', bold)
-            worksheet.write('E6', 'ACCOUNT NUMBER', bold)
-            worksheet.write('F6', 'ACCOUNT TITLE', bold)
-            worksheet.write('G6', 'DEBIT', bold)
-            worksheet.write('H6', 'CREDIT', bold)
+            worksheet.write('A7', 'DATE', bold)
+            worksheet.write('B7', 'TRANSACTION', bold)
+            worksheet.write('C7', 'REFERENCE', bold)
+            worksheet.write('D7', 'PARTICULARS', bold)
+            worksheet.write('E7', 'ACCOUNT NUMBER', bold)
+            worksheet.write('F7', 'ACCOUNT TITLE', bold)
+            worksheet.write('G7', 'DEBIT', bold)
+            worksheet.write('H7', 'CREDIT', bold)
 
-            row = 6
+            row = 7
             col = 0
             q = query_bir(report, dfrom, dto)
             new_list = []
@@ -1010,25 +1069,36 @@ class GenerateExcel(View):
             bold = workbook.add_format({'bold': 1})
             formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
             centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
             # title
+
             worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
-            worksheet.write('A2', 'VAT REG TIN: ' + str(company.tinnum), bold)
-            worksheet.write('A3', 'CASH RECEIPT BOOK', bold)
-            worksheet.write('A4', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'CASH RECEIPT BOOK', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
 
             # header
-            worksheet.write('A6', 'DATE', bold)
-            worksheet.write('B6', 'REFERENCE', bold)
-            worksheet.write('C6', 'PAYOR', bold)
-            worksheet.write('D6', 'PARTICULARS', bold)
-            worksheet.write('E6', 'ACCOUNT NUMBER', bold)
-            worksheet.write('F6', 'ACCOUNT TITLE', bold)
-            worksheet.write('G6', 'DEBIT', bold)
-            worksheet.write('H6', 'CREDIT', bold)
-            worksheet.write('I6', 'BANK ACCOUNT', bold)
+            worksheet.write('A7', 'DATE', bold)
+            worksheet.write('B7', 'REFERENCE', bold)
+            worksheet.write('C7', 'PAYOR', bold)
+            worksheet.write('D7', 'PARTICULARS', bold)
+            worksheet.write('E7', 'ACCOUNT NUMBER', bold)
+            worksheet.write('F7', 'ACCOUNT TITLE', bold)
+            worksheet.write('G7', 'DEBIT', bold)
+            worksheet.write('H7', 'CREDIT', bold)
+            worksheet.write('I7', 'BANK ACCOUNT', bold)
 
-            row = 6
+            row = 7
             col = 0
             q = query_bir(report, dfrom, dto)
             new_list = []
@@ -1066,34 +1136,49 @@ class GenerateExcel(View):
             # variables
             bold = workbook.add_format({'bold': 1})
             formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            formatdatetime = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S'})
             centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
             # title
             worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
-            worksheet.write('A2', 'VAT REG TIN: ' + str(company.tinnum), bold)
-            worksheet.write('A3', 'PURCHASE BOOK', bold)
-            worksheet.write('A4', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'PURCHASE BOOK', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
+
 
             # header
-            worksheet.write('A6', 'PO Number', bold)
-            worksheet.write('B6', 'PO Date', bold)
-            worksheet.write('C6', 'Reference', bold)
-            worksheet.write('D6', 'Brief Description', bold)
-            worksheet.write('E6', 'Supplier', bold)
-            worksheet.write('F6', 'Discount Amount', bold)
-            worksheet.write('G6', 'Gross Amount', bold)
-            worksheet.write('H6', 'Net Amount', bold)
-            worksheet.write('I6', 'Vatable', bold)
-            worksheet.write('J6', 'Vat Amount', bold)
-            worksheet.write('K6', 'Vat Exempt', bold)
-            worksheet.write('L6', 'Vat Rate', bold)
-            worksheet.write('M6', 'Vat Zero-Rated', bold)
-            worksheet.write('N6', 'Total Amount', bold)
-            worksheet.write('O6', 'Total Quantity', bold)
-            worksheet.write('P6', 'APV Amount', bold)
-            worksheet.write('Q6', 'ATC Amount', bold)
+            worksheet.write('A7', 'PO Number', bold)
+            worksheet.write('B7', 'PO Date', bold)
+            worksheet.write('C7', 'Reference', bold)
+            worksheet.write('D7', 'Brief Description', bold)
+            worksheet.write('E7', 'Supplier', bold)
+            worksheet.write('F7', 'TIN', bold)
+            worksheet.write('G7', 'Address', bold)
+            worksheet.write('H7', 'Discount Amount', bold)
+            worksheet.write('I7', 'Gross Amount', bold)
+            worksheet.write('J7', 'Net Amount', bold)
+            worksheet.write('K7', 'Vatable', bold)
+            worksheet.write('L7', 'Vat Amount', bold)
+            worksheet.write('L7', 'Vat Exempt', bold)
+            worksheet.write('N7', 'Vat Rate', bold)
+            worksheet.write('O7', 'Vat Zero-Rated', bold)
+            worksheet.write('P7', 'Total Amount', bold)
+            worksheet.write('Q7', 'Total Quantity', bold)
+            worksheet.write('R7', 'APV Amount', bold)
+            worksheet.write('S7', 'ATC Amount', bold)
 
-            row = 6
+
+            row = 7
             col = 0
             q = query_bir(report, dfrom, dto)
             new_list = []
@@ -1105,18 +1190,20 @@ class GenerateExcel(View):
                     worksheet.write(row, col + 2, data['refnum'], )
                     worksheet.write(row, col + 3, data['particulars'])
                     worksheet.write(row, col + 4, data['supplier_name'])
-                    worksheet.write(row, col + 5, float(format(data['discountamount'], '.2f')))
-                    worksheet.write(row, col + 6, float(format(data['grossamount'], '.2f')))
-                    worksheet.write(row, col + 7, float(format(data['netamount'], '.2f')))
-                    worksheet.write(row, col + 8, float(format(data['vatable'], '.2f')))
-                    worksheet.write(row, col + 9, float(format(data['vatamount'], '.2f')))
-                    worksheet.write(row, col + 10, float(format(data['vatexempt'], '.2f')))
-                    worksheet.write(row, col + 11, float(format(data['vatrate'], '.2f')))
-                    worksheet.write(row, col + 12, float(format(data['vatzerorated'], '.2f')))
-                    worksheet.write(row, col + 13, float(format(data['totalamount'], '.2f')))
-                    worksheet.write(row, col + 14, float(format(data['totalquantity'], '.2f')))
-                    worksheet.write(row, col + 15, float(format(data['apvamount'], '.2f')))
-                    worksheet.write(row, col + 16, float(format(data['atcamount'], '.2f')))
+                    worksheet.write(row, col + 5, data['tin'])
+                    worksheet.write(row, col + 6, data['address'])
+                    worksheet.write(row, col + 7, float(format(data['discountamount'], '.2f')))
+                    worksheet.write(row, col + 8, float(format(data['grossamount'], '.2f')))
+                    worksheet.write(row, col + 9, float(format(data['netamount'], '.2f')))
+                    worksheet.write(row, col + 10, float(format(data['vatable'], '.2f')))
+                    worksheet.write(row, col + 11, float(format(data['vatamount'], '.2f')))
+                    worksheet.write(row, col + 12, float(format(data['vatexempt'], '.2f')))
+                    worksheet.write(row, col + 13, float(format(data['vatrate'], '.2f')))
+                    worksheet.write(row, col + 14, float(format(data['vatzerorated'], '.2f')))
+                    worksheet.write(row, col + 15, float(format(data['totalamount'], '.2f')))
+                    worksheet.write(row, col + 16, float(format(data['totalquantity'], '.2f')))
+                    worksheet.write(row, col + 17, float(format(data['apvamount'], '.2f')))
+                    worksheet.write(row, col + 18, float(format(data['atcamount'], '.2f')))
 
                     row += 1
 
@@ -1167,10 +1254,10 @@ def query_bir(report, dfrom, dto):
     elif report == '16':
         print 'purchase order'
         query = "SELECT po.ponum, po.podate, po.refnum, TRIM(REPLACE(REPLACE(particulars, '\n', ''), '\r', '')) AS particulars, po.supplier_name, po.discountamount, po.grossamount, po.netamount, " \
-                "po.vatable, po.vatamount, po.vatexempt, po.vatrate, po.vatzerorated, po.totalamount, po.totalquantity, po.apvamount, po.atcamount " \
-                "FROM pomain AS po " \
+                "po.vatable, po.vatamount, po.vatexempt, po.vatrate, po.vatzerorated, po.totalamount, po.totalquantity, po.apvamount, po.atcamount,s.tin, CONCAT(s.address1,' ', s.address2, ' ', s.address3) AS address " \
+                "FROM pomain AS po LEFT OUTER JOIN supplier AS s ON s.id = po.supplier_id " \
                 "WHERE po.podate >= '" + str(dfrom) + "' AND po.podate <= '" + str(dto) + "' " \
-                "AND postatus = 'A' AND `status` = 'A'  AND po.isfullyapv = 1 " \
+                "AND postatus = 'A' AND po.status = 'A'  AND po.isfullyapv = 1 " \
                 "ORDER BY po.podate, po.ponum"
 
     print query
