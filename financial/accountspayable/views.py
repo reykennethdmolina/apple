@@ -3626,8 +3626,12 @@ class GenerateLedgerPDF(View):
             if (apcode != begcode):
                 begamount = begamount * -1
 
+            print begcode
+            print begamount
+
             addbeg = []
             if dfrom > '2018-12-31':
+                print dfrom
                 addbeg = query_ledger_add('detail', type, '2019-01-01', dfrom, aptrade.id, sup.id)
 
                 if addbeg:
@@ -3644,6 +3648,8 @@ class GenerateLedgerPDF(View):
                     begamount = runbalancex
                     if begamount < 0:
                         begcode = 'C'
+
+            print begamount
 
             q = query_ledger('detail', type, dfrom, dto, aptrade.id, sup.id)
             new_list = []
@@ -3757,6 +3763,8 @@ class GenerateExcelLedger(View):
             begbalance = query_begbalance(aptrade.accountcode, sup.id)
             apcode = aptrade.balancecode
 
+
+
             if (begbalance):
                 begcode = begbalance[0].beg_code
                 begamount = begbalance[0].beg_amt
@@ -3764,9 +3772,12 @@ class GenerateExcelLedger(View):
             if (apcode != begcode):
                 begamount = begamount * -1
 
+            print begcode
+            print begamount
+
             addbeg = []
             if dfrom > '2018-12-31':
-                addbeg = query_ledger('detail', type, '2019-01-01', dfrom, aptrade.id, sup.id)
+                addbeg = query_ledger_add('detail', type, '2019-01-01', dfrom, aptrade.id, sup.id)
 
                 if addbeg:
                     dfx = pd.DataFrame(addbeg)
@@ -3782,6 +3793,7 @@ class GenerateExcelLedger(View):
                     begamount = runbalancex
                     if begamount < 0:
                         begcode = 'C'
+            print begamount
 
             q = query_ledger('detail', type, dfrom, dto, aptrade.id, sup.id)
             new_list = []
