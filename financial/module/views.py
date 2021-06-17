@@ -321,21 +321,31 @@ class GenerateExcelLogs(View):
         bold = workbook.add_format({'bold': 1})
         formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
         centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+        cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
         # title
-        title = "SYSTEM ACTIVITY LOG REPORT"
-        worksheet.write('A1', str(title), bold)
-        worksheet.write('A2', '')
+        worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+        worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+        worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+        worksheet.write('A4', 'SYSTEM ACTIVITY LOG REPORTS', bold)
+
+        worksheet.write('C1', 'Software:')
+        worksheet.write('C2', 'User:')
+        worksheet.write('C3', 'Datetime:')
+
+        worksheet.write('D1', 'iES Financial System v. 1.0')
+        worksheet.write('D2', str(request.user.username))
+        worksheet.write('D3', datetime.datetime.now(), cell_format)
 
         filename = "activity_logs.xlsx"
 
         # header
-        worksheet.write('A4', 'User ID', bold)
-        worksheet.write('B4', 'Username', bold)
-        worksheet.write('C4', 'Log Date', bold)
-        worksheet.write('D4', 'Activity', bold)
+        worksheet.write('A6', 'User ID', bold)
+        worksheet.write('B6', 'Username', bold)
+        worksheet.write('C6', 'Log Date', bold)
+        worksheet.write('D6', 'Activity', bold)
 
-        row = 5
+        row = 6
         col = 0
 
         list = Activitylogs.objects.filter(user_id__isnull=False).order_by('-id')

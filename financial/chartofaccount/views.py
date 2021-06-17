@@ -231,24 +231,34 @@ class GenerateExcel(View):
         bold = workbook.add_format({'bold': 1})
         formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
         centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+        cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
         # title
-        title = "CHART OF ACCOUNTS"
-        worksheet.write('A1', str(title), bold)
+
+        worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
         worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
         worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+        worksheet.write('A4', 'CHART OF ACCOUNTS', bold)
+
+        worksheet.write('C1', 'Software:')
+        worksheet.write('C2', 'User:')
+        worksheet.write('C3', 'Datetime:')
+
+        worksheet.write('D1', 'iES Financial System v. 1.0')
+        worksheet.write('D2', str(request.user.username))
+        worksheet.write('D3', datetime.datetime.now(), cell_format)
 
 
         filename = "chartofaccounts.xlsx"
 
         # header
-        worksheet.write('A5', 'Account Code', bold)
-        worksheet.write('B5', 'Account Title', bold)
-        worksheet.write('C5', 'Description', bold)
-        worksheet.write('D5', 'Balance Code', bold)
-        worksheet.write('E5', 'Account Type', bold)
+        worksheet.write('A6', 'Account Code', bold)
+        worksheet.write('B6', 'Account Title', bold)
+        worksheet.write('C6', 'Description', bold)
+        worksheet.write('D6', 'Balance Code', bold)
+        worksheet.write('E6', 'Account Type', bold)
 
-        row = 5
+        row = 6
         col = 0
 
         list = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
