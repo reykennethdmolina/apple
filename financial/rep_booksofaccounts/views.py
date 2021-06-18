@@ -863,6 +863,7 @@ class GenerateExcel(View):
             payee = ''
             particulars = ''
             bankaccount = ''
+            banktype = ''
             department = ''
             departmentname = ''
             for data in list:
@@ -878,21 +879,25 @@ class GenerateExcel(View):
                     if data.bankaccount:
                         bankaccount = data.ormain.bankaccount.code
                     worksheet.write(row, col + 3, data.ormain.particulars)
-                    worksheet.write(row, col + 4, bankaccount)
 
-                worksheet.write(row, col + 5, data.chartofaccount.accountcode)
-                worksheet.write(row, col + 6, data.chartofaccount.description)
+                worksheet.write(row, col + 4, float(format(data.ormain.amount, '.2f')))
+                worksheet.write(row, col + 5, data.ormain.bankaccount.code)
 
+                worksheet.write(row, col + 6, data.chartofaccount.accountcode)
+                worksheet.write(row, col + 7, data.chartofaccount.description)
+
+                print data.ormain.amount
                 if data.bankaccount:
                     bankaccount = data.bankaccount.code
+                    banktype = data.bankaccount.bankaccounttype.code
                 if data.department:
                     department = data.department.code
                     departmentname = data.department.departmentname
 
-                worksheet.write(row, col + 7, bankaccount+' '+department+' '+departmentname)
+                worksheet.write(row, col + 8, bankaccount+' '+banktype+' '+department+' '+departmentname)
 
-                worksheet.write(row, col + 8, float(format(data.debitamount, '.2f')))
-                worksheet.write(row, col + 9, float(format(data.creditamount, '.2f')))
+                worksheet.write(row, col + 9, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 10, float(format(data.creditamount, '.2f')))
 
                 row += 1
 
@@ -938,12 +943,11 @@ class GenerateExcel(View):
             worksheet.write('B7', 'Number', bold)
             worksheet.write('C7', 'Payee', bold)
             worksheet.write('D7', 'Particulars', bold)
-            worksheet.write('E7', 'Amount', bold)
-            worksheet.write('F7', 'Account Number', bold)
-            worksheet.write('G7', 'Account Title', bold)
-            worksheet.write('H7', 'Subledger', bold)
-            worksheet.write('I7', 'Debit Amount', bold)
-            worksheet.write('J7', 'Credit Amount', bold)
+            worksheet.write('E7', 'Account Number', bold)
+            worksheet.write('F7', 'Account Title', bold)
+            worksheet.write('G7', 'Subledger', bold)
+            worksheet.write('H7', 'Debit Amount', bold)
+            worksheet.write('I7', 'Credit Amount', bold)
 
             row = 7
             col = 0
@@ -967,8 +971,8 @@ class GenerateExcel(View):
                     worksheet.write(row, col + 2, data.apmain.payeename)
                     worksheet.write(row, col + 3, data.apmain.particulars)
 
-                worksheet.write(row, col + 7, data.chartofaccount.accountcode)
-                worksheet.write(row, col + 8, data.chartofaccount.description)
+                worksheet.write(row, col + 4, data.chartofaccount.accountcode)
+                worksheet.write(row, col + 5, data.chartofaccount.description)
 
                 if data.department:
                     department = data.department.code
@@ -977,10 +981,10 @@ class GenerateExcel(View):
                     emp = data.employee.code
                     empname = data.employee.firstname+' '+data.employee.lastname
 
-                worksheet.write(row, col + 9,department+' '+departmentname+' '+empname)
+                worksheet.write(row, col + 6,department+' '+departmentname+' '+empname)
 
-                worksheet.write(row, col + 10, float(format(data.debitamount, '.2f')))
-                worksheet.write(row, col + 11, float(format(data.creditamount, '.2f')))
+                worksheet.write(row, col + 7, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 8, float(format(data.creditamount, '.2f')))
 
                 row += 1
 
@@ -1168,10 +1172,10 @@ class GenerateExcel(View):
             worksheet.write('I7', 'Gross Amount', bold)
             worksheet.write('J7', 'Net Amount', bold)
             worksheet.write('K7', 'Vatable', bold)
-            worksheet.write('L7', 'Vat Amount', bold)
-            worksheet.write('L7', 'Vat Exempt', bold)
-            worksheet.write('N7', 'Vat Rate', bold)
-            worksheet.write('O7', 'Vat Zero-Rated', bold)
+            worksheet.write('L7', 'VAT Amount', bold)
+            worksheet.write('M7', 'VAT Exempt', bold)
+            worksheet.write('N7', 'VAT Rate', bold)
+            worksheet.write('O7', 'VAT Zero-Rated', bold)
             worksheet.write('P7', 'Total Amount', bold)
             worksheet.write('Q7', 'Total Quantity', bold)
             worksheet.write('R7', 'APV Amount', bold)
