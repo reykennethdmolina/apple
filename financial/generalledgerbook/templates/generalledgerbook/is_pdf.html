@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>{{ report_type }} {{ report_subtype }}</title>
+    <style>
+        @page {
+            size: LEGAL LANDSCAPE;
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                right: 1cm;
+                top: 1cm;
+                height: 5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
+            }
+            @frame content_frame {
+                top: 5.7cm; left: 1cm; width: 33.5cm; height: 14cm;
+            }
+        }
+        body{
+            font-size: 12px;
+            font-family: 'Times New Roman';
+        }
+        .title{
+            font-size: 130%;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            background-color: #fff;
+        }
+        .table th {
+            vertical-align: top;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size:15px;
+        }
+        .table td {
+            padding: 1px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #000;
+        }
+        .table tbody + tbody {
+            border-top: 2px solid #000;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <div class="card">
+       <table>
+            <tr>
+                <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address1 }}</p></td>
+                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address2 }}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+            </tr>
+           <tr>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="75%"><p class="title">{{ title|upper }} AS OF {{ month|upper }} {{ year }} & {{ prev_month|upper }} {{ prev_year }}</p></td>
+            </tr>
+        </table>
+
+        <table class="table">
+            <thead>
+                <tr style="border-bottom: 2px solid #000;">
+                    <th style="text-align:center;width:102px"></th>
+                    <th style="text-align:center;width:250px"></th>
+                    <th style="text-align:center;width:40px;font-size:12px"></th>
+                    <th style="text-align:right;width:175px;font-size:12px">{{ month|upper }}</th>
+                    <th style="text-align:right;width:175px;font-size:12px">{{ prev_month|upper }}</th>
+                    <th style="text-align:right;width:175px;font-size:12px">TO DATE</th>
+                    <th style="text-align:right;width:175px;font-size:12px">NET {{ month|upper }} %</th>
+                    <th style="text-align:right;width:175px;font-size:12px">NET{{ prev_month|upper }} %</th>
+                    <th style="text-align:right;width:175px;font-size:12px">INCREASE (DECREASE)</th>
+                    <th style="text-align:right;width:175px;font-size:12px">%</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<table id="content-data">
+    <tbody>
+        {% for key, values in result.items %}
+        <tr class="detailed_results">
+            {% if values.title == 'yes' %}
+                {% if values.main == 'yesheader' %}
+                <td style="text-align:left;width:352px;font-size:18px" colspan="2"><b>{{ values.col1 }}</b></td>
+                {% elif values.main == 'yes' %}
+                <td style="text-align:left;width:352px;font-size:16px" colspan="2"><b>{{ values.col1 }}</b></td>
+                {% elif values.main == 'nosub' %}
+                <td style="text-align:right;width:352px;font-size:14px" colspan="2"><b>{{ values.col1 }}</b></td>
+                {% elif values.main == 'nototal' %}
+                <td style="text-align:right;width:352px;font-size:16px" colspan="2"><b>{{ values.col1 }}</b></td>
+                {% elif values.main == 'nogtotal' %}
+                <td style="text-align:right;width:352px;font-size:18px" colspan="2"><b>{{ values.col1 }}</b></td>
+                {% else %}
+                <td style="text-align:left;width:352px;font-size:14px" colspan="2"><b>&nbsp;&nbsp;{{ values.col1 }}</b></td>
+                {% endif %}
+            {% else %}
+            <td style="text-align:left;width:102px">&nbsp;&nbsp;{{ values.col1 }}</td>
+            <td style="text-align:left;width:250px">{{ values.col2 }}</td>
+             {% endif %}
+            <td style="text-align:center;width:40px;font-size:12px"></td>
+            <td style="text-align:right;width:175px;font-size:12px">{{ values.col4|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:175px;font-size:12px">{{ values.col5|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:175px;font-size:12px">{{ values.col6|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:175px;font-size:12px">{{ values.col7|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:175px;font-size:12px">{{ values.col8|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:175px;font-size:12px">{{ values.col9|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:175px;font-size:12px">{{ values.col10|floatformat:2|intcomma }}</td>
+
+        </tr>
+            {% if values.main == 'nogtotal' %}
+            <tr><td colspan="10"></td></tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<div id="footer_content" style="text-align:right">
+    <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
+</div>
+
+</body>
+</html>

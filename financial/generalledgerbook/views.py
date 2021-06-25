@@ -97,6 +97,7 @@ class GeneratePDF(View):
             "year": year,
             "username": request.user,
         }
+
         if report == 'TB':
             datalist = {}
             # Iterate over the data and write it out row by row.
@@ -197,7 +198,6 @@ class GeneratePDF(View):
             context["subtotal"] = dict(subtotal_inc_debit=subtotal_inc_debit, subtotal_inc_credit=subtotal_inc_credit,
                                        subtotal_bal_debit=subtotal_bal_debit, subtotal_bal_credit=subtotal_bal_credit)
 
-
             if subtotal_inc_debit >= subtotal_inc_credit:
                 current_inc_credit = float(format(subtotal_inc_debit, '.2f')) - float(format(subtotal_inc_credit, '.2f'))
                 current_is_debit = float(format(0.00, '.2f'))
@@ -233,11 +233,454 @@ class GeneratePDF(View):
             context["result"] = datalist
             return Render.render('generalledgerbook/tb_pdf.html', context)
         elif report == 'BS':
-            return Render.render('generalledgerbook/report_2.html', context)
+            datalist = {}
+            counter = 0
+            current_percentage = 0
+            prev_percentage = 0
+            variance_percentage = 0
+            variance = 0
+            gtotal_current = 0
+            gtotal_previous = 0
+            gtotal_variance = 0
+            gtotal_previous_percentage = 0
+            gtotal_var = 0
+            prev_liab_equity_percentage = 0
+
+            dataset = pd.DataFrame(result)
+            curdata = dataset.groupby('this_code')['current_amount'].sum()
+            prevdata = dataset.groupby('this_code')['prev_amount'].sum()
+            cur_liab_equity = curdata['ASSETS']
+            prev_liab_equity = prevdata['ASSETS']
+            for this, thisgroup in dataset.fillna('NaN').sort_values(by=['this_code'], ascending=False,na_position='last').groupby(['this_code', 'this_desc']):
+                if this[0] != 'NaN':
+                    datalist[counter] = dict(title='yes',main='yesheader',col1=this[1].upper())
+                gtotal_current = thisgroup['current_amount_abs'].sum()
+                gtotal_previous = thisgroup['prev_amount_abs'].sum()
+                counter += 1
+                for group, maingroup in thisgroup.fillna('NaN').sort_values(by=['group_code'], ascending=True).groupby(['group_code', 'group_desc']):
+                    if group[0] != 'NaN':
+                        datalist[counter] = dict(title='yes',main='yes',col1=group[1])
+                        counter += 1
+                    total_current = 0
+                    total_previous = 0
+                    total_variance = 0
+                    for main, subgroup in maingroup.fillna('NaN').sort_values(by=['subgroup_code'],ascending=True).groupby(['maingroup_code', 'maingroup_desc']):
+                        datalist[counter] = dict(title='yes',main='no',col1=main[1].upper())
+                        counter += 1
+                        subtotal_current = 0
+                        subtotal_previous = 0
+                        subtotal_variance = 0
+                        subtotal_cur = subgroup.groupby('maingroup_code')['current_amount_abs'].sum()
+                        subtotal_prev = subgroup.groupby('maingroup_code')['prev_amount_abs'].sum()
+                        current_percentage = 0
+                        previous_percentage = 0
+                        subtotal_current_percentage = 0
+                        subtotal_previous_percentage = 0
+                        for data, sub in subgroup.iterrows():
+                            if float(subtotal_cur) > 0:
+                                current_percentage = float(format(sub['current_amount_abs'], '.2f')) / float(
+                                    subtotal_cur) * 100
+
+                            if float(subtotal_prev) > 0:
+                                previous_percentage = float(format(sub['prev_amount_abs'], '.2f')) / float(
+                                    subtotal_prev) * 100
+
+                            variance = float(format(sub['current_amount_abs'], '.2f')) - float(
+                                format(sub['prev_amount_abs'], '.2f'))
+
+                            if float(variance) != 0:
+                                if sub['prev_amount_abs'] != 0:
+                                    variance_percentage = float(variance) / float(
+                                        format(sub['prev_amount_abs'], '.2f')) * 100
+                                else:
+                                    variance_percentage = 0
+                            else:
+                                variance_percentage = 0
+
+                            datalist[counter] = dict(title='no', col1=sub['subgroup_code'],col2=sub['subgroup_desc'],
+                                                     col4=float(format(sub['current_amount_abs'], '.2f')),
+                                                     col5=float(format(sub['prev_amount_abs'], '.2f')),
+                                                     col6=float(format(current_percentage, '.2f')),
+                                                     col7=float(format(previous_percentage, '.2f')),
+                                                     col8=float(format(variance, '.2f')),
+                                                     col9=float(format(variance_percentage, '.2f')))
+
+                            subtotal_current += float(format(sub['current_amount_abs'], '.2f'))
+                            subtotal_previous += float(format(sub['prev_amount_abs'], '.2f'))
+                            subtotal_variance += float(format(variance, '.2f'))
+                            counter += 1
+
+                        total_current += subtotal_current
+                        total_previous += subtotal_previous
+                        total_variance += subtotal_variance
+
+                        if float(total_current) != 0:
+                            subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(
+                                format(total_current, '.2f')) * 100
+                        else:
+                            total_current = 0
+
+                        if float(total_previous) != 0:
+                            subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(
+                                format(total_previous, '.2f')) * 100
+                        else:
+                            total_previous = 0
+
+                        if float(subtotal_previous) != 0:
+                            subtotal_var = float(format(subtotal_variance, '.2f')) / float(
+                                format(subtotal_previous, '.2f')) * 100
+                        else:
+                            subtotal_var = 0
+
+                        datalist[counter] = dict(title='yes',main='nosub',
+                                                 col1='TOTAL ' + str(main[1].upper()),
+                                                 col3='',
+                                                 col4=float(format(subtotal_current, '.2f')),
+                                                 col5=float(format(subtotal_previous, '.2f')),
+                                                 col6=float(format(subtotal_current_percentage, '.2f')),
+                                                 col7=float(format(subtotal_previous_percentage, '.2f')),
+                                                 col8=float(format(subtotal_current, '.2f')) - float(format(subtotal_previous, '.2f')),
+                                                 col9=float(format(subtotal_var, '.2f')))
+                        counter += 1
+
+                    if group[0] != 'NaN':
+
+                        if float(gtotal_current) != 0:
+                            total_current_percentage = float(format(total_current, '.2f')) / float(
+                                format(gtotal_current, '.2f')) * 100
+                        else:
+                            total_current_percentage = 0
+
+                        if float(gtotal_previous) != 0:
+                            total_previous_percentage = float(format(total_previous, '.2f')) / float(
+                                format(gtotal_previous, '.2f')) * 100
+                        else:
+                            total_previous_percentage = 0
+
+                        if float(total_previous) != 0:
+                            total_var = float(format(total_variance, '.2f')) / float(
+                                format(total_previous, '.2f')) * 100
+                        else:
+                            total_var = 0
+
+                        datalist[counter] = dict(title='yes',main='nototal',
+                                                 col1='TOTAL ' + str(group[1]).upper(),
+                                                 col2='',
+                                                 col4=float(format(total_current, '.2f')),
+                                                 col5=float(format(total_previous, '.2f')),
+                                                 col6=float(format(total_current_percentage, '.2f')),
+                                                 col7=float(format(total_previous_percentage, '.2f')),
+                                                 col8=float(format(total_current, '.2f')) - float(format(total_previous, '.2f')),
+                                                 col9=float(format(total_var, '.2f')))
+                        counter += 1
+
+                if this[0] != 'NaN':
+
+                    if float(gtotal_current) != 0:
+                        gtotal_current_percentage = float(format(gtotal_current, '.2f')) / float(format(gtotal_current, '.2f')) * 100
+                    if float(gtotal_previous) != 0:
+                        gtotal_previous_percentage = float(format(gtotal_previous, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
+                        gtotal_variance = float(format(gtotal_current, '.2f')) - float(format(gtotal_previous, '.2f'))
+                    if float(gtotal_previous) != 0:
+                        gtotal_var = float(format(gtotal_variance, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
+
+                    datalist[counter] = dict(title='yes',main='nogtotal',
+                                             col1='TOTAL ' + 'TOTAL ' + str(this[1]).upper(),
+                                             col2='',
+                                             col4=float(format(gtotal_current, '.2f')),
+                                             col5=float(format(gtotal_previous, '.2f')),
+                                             col6=float(format(gtotal_current_percentage, '.2f')),
+                                             col7=float(format(gtotal_previous_percentage, '.2f')),
+                                             col8=float(format(gtotal_variance, '.2f')),
+                                             col9=float(format(gtotal_var, '.2f')))
+                    counter += 1
+
+
+            if float(cur_liab_equity) != 0:
+                cur_liab_equity_percentage = float(format(cur_liab_equity, '.2f')) / float(
+                    format(cur_liab_equity, '.2f')) * 100
+            else:
+                cur_liab_equity_percentage = 0
+
+            if float(prev_liab_equity) != 0:
+                prev_liab_equity_percentage = float(format(prev_liab_equity, '.2f')) / float(
+                    format(prev_liab_equity, '.2f')) * 100
+            else:
+                prev_liab_equity = 0
+
+            liab_equity_variance = float(format(cur_liab_equity, '.2f')) - float(format(prev_liab_equity, '.2f'))
+
+            if float(prev_liab_equity) != 0:
+                liab_equity_var = float(format(liab_equity_variance, '.2f')) / float(
+                    format(prev_liab_equity, '.2f')) * 100
+            else:
+                liab_equity_var = 0
+
+
+
+            datalist[counter] = dict(title='yes',main='nogtotal',
+                                     col1='TOTAL LIABILITIES & CAPITAL',
+                                     col2='',
+                                     col4=float(format(cur_liab_equity, '.2f')),
+                                     col5=float(format(prev_liab_equity, '.2f')),
+                                     col6=float(format(cur_liab_equity_percentage, '.2f')),
+                                     col7=float(format(prev_liab_equity_percentage, '.2f')),
+                                     col8=float(format(liab_equity_variance, '.2f')),
+                                     col9=float(format(liab_equity_var, '.2f')))
+
+            counter += 1
+
+            print datalist
+            context["result"] = datalist
+            context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
+            context['prev_month'] = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
+            context['prev_year'] = prevdate.year
+            return Render.render('generalledgerbook/bs_pdf.html', context)
         elif report == 'IS':
-            return Render.render('generalledgerbook/report_3.html', context)
-        elif report == 'YETB':
-            return Render.render('generalledgerbook/report_3.html', context)
+            datalist = {}
+            counter = 0
+            col = 0
+            cur_netsales = 0
+            prev_netsales = 0
+            current_percentage = 0
+            prev_percentage = 0
+            variance_percentage = 0
+            variance = 0
+            noi_cur = 0
+            noi_prev = 0
+            noi_todate = 0
+            incometax_cur = 0
+            incometax_prev = 0
+            incometax_todate = 0
+
+            dataset = pd.DataFrame(result)
+            dcur_netsales = dataset.groupby('group_code')['current_amount'].sum()
+            dprev_netsales = dataset.groupby('group_code')['prev_amount'].sum()
+            dtodate_netsales = dataset.groupby('group_code')['todate_amount'].sum()
+            cur_netsales = dcur_netsales['GS']  # dataset['current_amount'][dataset['group_code'] == 'GS'].sum()
+            prev_netsales = dprev_netsales['GS']  # dataset['prev_amount'][dataset['group_code'] == 'GS'].sum()
+            todate_netsales = dtodate_netsales['GS']  # dataset['todate_amount'][dataset['group_code'] == 'GS'].sum()
+            for group, maintitle in dataset.fillna('NaN').groupby(['group_code', 'group_desc', 'group_title']):
+                if group[0] != 'NaN' and group[0] != 'PFIT' and group[0] != 'OTHER':
+                    datalist[counter] = dict(title='yes', main='yesheader', col1=group[1].upper())
+                    counter += 1
+                total_current = 0
+                total_previous = 0
+                total_todate = 0
+                total_variance = 0
+                total_current_percentage = 0
+                total_previous_percentage = 0
+                for title, maingroup in maintitle.fillna('NaN').sort_values(by=['maingroup_code'],ascending=True).groupby(['group_code', 'group_desc', 'group_title', 'maingroup_title']):
+                    net_total_current = 0
+                    net_total_previous = 0
+                    net_total_todate = 0
+                    net_total_variance = 0
+                    net_total_current_percentage = 0
+                    net_total_previous_percentage = 0
+                    for main, subgroup in maingroup.fillna('NaN').sort_values(by=['subgroup_code'],ascending=True).groupby(['maingroup_code', 'maingroup_desc']):
+                        datalist[counter] = dict(title='yes', main='no', col1=main[1])
+                        counter += 1
+                        subtotal_current = 0
+                        subtotal_previous = 0
+                        subtotal_todate = 0
+                        subtotal_variance = 0
+                        subtotal_var = 0
+                        subtotal_current_percentage = 0
+                        subtotal_previous_percentage = 0
+                        for data, sub in subgroup.iterrows():
+
+                            if float(cur_netsales) > 0:
+                                current_percentage = float(format(sub['current_amount'], '.2f')) / float(
+                                    format(cur_netsales, '.2f')) * 100
+
+                            if float(prev_netsales) > 0:
+                                previous_percentage = float(format(sub['prev_amount'], '.2f')) / float(
+                                    format(prev_netsales, '.2f')) * 100
+
+                            variance = float(format(sub['current_amount'], '.2f')) - float(
+                                format(sub['prev_amount'], '.2f'))
+
+                            if float(variance) != 0:
+                                if float(format(sub['prev_amount'], '.2f')) == 0:
+                                    if float(variance) > 0:
+                                        variance_percentage = 100
+                                    else:
+                                        variance_percentage = 100 * -1
+                                else:
+                                    variance_percentage = float(variance) / float(
+                                        format(sub['prev_amount'], '.2f')) * 100
+                            else:
+                                variance_percentage = 0
+
+                            datalist[counter] = dict(title='no', col1=sub['subgroup_code'], col2=sub['subgroup_desc'],
+                                                     col4=float(format(sub['current_amount'], '.2f')),
+                                                     col5=float(format(sub['prev_amount'], '.2f')),
+                                                     col6=float(format(sub['todate_amount'], '.2f')),
+                                                     col7=float(format(current_percentage, '.2f')),
+                                                     col8=float(format(previous_percentage, '.2f')),
+                                                     col9=float(format(variance, '.2f')),
+                                                     col10= float(format(variance_percentage, '.2f')))
+
+                            subtotal_current += float(format(sub['current_amount'], '.2f'))
+                            subtotal_previous += float(format(sub['prev_amount'], '.2f'))
+                            subtotal_todate += float(format(sub['todate_amount'], '.2f'))
+                            subtotal_variance += float(format(variance, '.2f'))
+                            counter += 1
+
+                        if float(cur_netsales) > 0:
+                            subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(
+                                format(cur_netsales, '.2f')) * 100
+                        if float(prev_netsales) > 0:
+                            subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(
+                                format(prev_netsales, '.2f')) * 100
+                        if subtotal_previous > 0:
+                            subtotal_var = float(format(subtotal_variance, '.2f')) / float(
+                                format(subtotal_previous, '.2f')) * 100
+
+                        datalist[counter] = dict(title='yes', main='nosub',
+                                                 col1='TOTAL ' + str(main[1].upper()),
+                                                 col3='',
+                                                 col4=float(format(subtotal_current, '.2f')),
+                                                 col5=float(format(subtotal_previous, '.2f')),
+                                                 col6=float(format(subtotal_todate, '.2f')),
+                                                 col7=float(format(subtotal_current_percentage, '.2f')),
+                                                 col8=float(format(subtotal_previous_percentage, '.2f')),
+                                                 col9=float(format(subtotal_current, '.2f')) - float(format(subtotal_previous, '.2f')),
+                                                 col10=float(format(subtotal_var, '.2f')))
+
+
+                        total_current += float(subtotal_current)
+                        total_previous += float(subtotal_previous)
+                        total_todate += float(subtotal_todate)
+                        net_total_current += float(subtotal_current)
+                        net_total_previous += float(subtotal_previous)
+                        net_total_todate += float(subtotal_todate)
+                        counter += 1
+
+                    if title[3] != 'NaN':
+                        if title[3] == 'GROSS INCOME FROM SALES':
+
+
+                            gross_current = float(format(cur_netsales, '.2f')) - float(format(net_total_current, '.2f'))
+                            gross_previous = float(format(prev_netsales, '.2f')) - float(format(net_total_previous, '.2f'))
+                            gross_todate = float(format(todate_netsales, '.2f')) - float(format(net_total_todate, '.2f'))
+
+                            gross_total_current_percentage = 0
+                            gross_total_previous_percentage = 0
+                            if float(cur_netsales) > 0:
+                                gross_total_current_percentage = float(format(gross_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                            if float(prev_netsales) > 0:
+                                gross_total_previous_percentage = float(format(gross_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                            gross_total_variance = float(format(gross_current, '.2f')) - float(format(gross_previous, '.2f'))
+                            gross_total_var = float(format(gross_total_variance, '.2f')) / float(format(gross_previous, '.2f')) * 100
+
+                            datalist[counter] = dict(title='yes', main='nototal',
+                                                     col1=str(title[3]).upper(),
+                                                     col2='',
+                                                     col4=float(format(gross_current, '.2f')),
+                                                     col5=float(format(gross_previous, '.2f')),
+                                                     col6=float(format(gross_todate, '.2f')),
+                                                     col7=float(format(gross_total_current_percentage, '.2f')),
+                                                     col8=float(format(gross_total_previous_percentage, '.2f')),
+                                                     col9=float(format(gross_current, '.2f')) - float(format(gross_previous, '.2f')),
+                                                     col10=float(format(gross_total_var, '.2f')))
+
+                        elif title[3] == 'NET INCOME BEFORE TAX':
+                            print 'x'
+
+
+                            incometax_cur = float(format(noi_cur, '.2f')) + float(format(total_current, '.2f'));
+                            incometax_prev = float(format(noi_prev, '.2f')) + float(format(total_previous, '.2f'));
+                            incometax_todate = float(format(noi_todate, '.2f')) + float(format(total_todate, '.2f'));
+
+
+                            incometax_total_current_percentage = 0
+                            incometax_total_previous_percentage = 0
+                            if float(cur_netsales) > 0:
+                                incometax_total_current_percentage = float(format(incometax_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                            if float(prev_netsales) > 0:
+                                incometax_total_previous_percentage = float(format(incometax_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                            incometax_total_variance = float(format(incometax_cur, '.2f')) - float(format(incometax_prev, '.2f'))
+                            incometax_total_var = float(format(incometax_total_variance, '.2f')) / float(format(incometax_prev, '.2f')) * 100
+
+                            datalist[counter] = dict(title='yes', main='nototal',
+                                                     col1=str(title[3]).upper(),
+                                                     col2='',
+                                                     col4=float(format(incometax_cur, '.2f')),
+                                                     col5=float(format(incometax_prev, '.2f')),
+                                                     col6=float(format(incometax_todate, '.2f')),
+                                                     col7=float(format(incometax_total_current_percentage, '.2f')),
+                                                     col8=float(format(incometax_total_previous_percentage, '.2f')),
+                                                     col9=float(format(incometax_cur, '.2f')) - float(format(incometax_prev, '.2f')),
+                                                     col10=float(format(incometax_total_var, '.2f')))
+
+                        elif title[3] == 'NET INCOME (LOSS) AFTER TAX':
+                            print 'x'
+                            # worksheet.write(row, col + 1, str(title[3]), cell_format)
+                            #
+                            # incometaxafter_cur = float(format(incometax_cur, '.2f')) + float(
+                            #     format(total_current, '.2f'));
+                            # incometaxafter_prev = float(format(incometax_prev, '.2f')) + float(
+                            #     format(total_previous, '.2f'));
+                            # incometaxafter_todate = float(format(incometax_todate, '.2f')) + float(
+                            #     format(total_todate, '.2f'));
+                            # worksheet.write(row, col + 3, float(format(incometaxafter_cur, '.2f')))
+                            # worksheet.write(row, col + 4, float(format(incometaxafter_prev, '.2f')))
+                            # worksheet.write(row, col + 5, float(format(incometaxafter_todate, '.2f')))
+                            #
+                            # incometaxafter_total_current_percentage = 0
+                            # if float(cur_netsales) > 0:
+                            #     incometaxafter_total_current_percentage = float(
+                            #         format(incometaxafter_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                            # incometaxafter_total_previous_percentage = 0
+                            # if float(prev_netsales) > 0:
+                            #     incometaxafter_total_previous_percentage = float(
+                            #         format(incometaxafter_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                            # incometaxafter_total_variance = float(format(incometaxafter_cur, '.2f')) - float(
+                            #     format(incometaxafter_prev, '.2f'))
+                            # incometaxafter_total_var = float(format(incometaxafter_total_variance, '.2f')) / float(
+                            #     format(incometaxafter_prev, '.2f')) * 100
+                            #
+                            # worksheet.write(row, col + 6, float(format(incometaxafter_total_current_percentage, '.2f')))
+                            # worksheet.write(row, col + 7,
+                            #                 float(format(incometaxafter_total_previous_percentage, '.2f')))
+                            # worksheet.write(row, col + 8, float(format(incometaxafter_cur, '.2f')) - float(
+                            #     format(incometaxafter_prev, '.2f')))
+                            # worksheet.write(row, col + 9, float(format(incometaxafter_total_var, '.2f')))
+                        else:
+                            print 'x'
+                            # worksheet.write(row, col + 1, str(title[3]), cell_format)
+                            # worksheet.write(row, col + 3, float(format(net_total_current, '.2f')))
+                            # worksheet.write(row, col + 4, float(format(net_total_previous, '.2f')))
+                            # worksheet.write(row, col + 5, float(format(net_total_todate, '.2f')))
+                            #
+                            # if float(cur_netsales) > 0:
+                            #     net_total_current_percentage = float(format(net_total_current, '.2f')) / float(
+                            #         format(cur_netsales, '.2f')) * 100
+                            # if float(prev_netsales) > 0:
+                            #     net_total_previous_percentage = float(format(net_total_previous, '.2f')) / float(
+                            #         format(prev_netsales, '.2f')) * 100
+                            # net_total_variance = float(format(net_total_current, '.2f')) - float(
+                            #     format(net_total_previous, '.2f'))
+                            # net_total_var = float(format(net_total_variance, '.2f')) / float(
+                            #     format(net_total_previous, '.2f')) * 100
+                            #
+                            # worksheet.write(row, col + 6, float(format(net_total_current_percentage, '.2f')))
+                            # worksheet.write(row, col + 7, float(format(net_total_previous_percentage, '.2f')))
+                            # worksheet.write(row, col + 8, float(format(net_total_current, '.2f')) - float(
+                            #     format(net_total_previous, '.2f')))
+                            # worksheet.write(row, col + 9, float(format(net_total_var, '.2f')))
+                        counter += 1
+
+            counter += 1
+            print datalist
+            context["result"] = datalist
+            context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
+            context['prev_month'] = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
+            context['prev_year'] = prevdate.year
+            return Render.render('generalledgerbook/is_pdf.html', context)
+        # elif report == 'YETB':
+        #     return Render.render('generalledgerbook/report_3.html', context)
         else:
             return Render.render('generalledgerbook/report_1.html', context)
 
@@ -279,7 +722,7 @@ def excel(request):
 
     if report == 'TB':
         result = query_trial_balance(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
-        return excel_trail_balance(result, report, type, year, month)
+        return excel_trail_balance(request, result, report, type, year, month)
     elif report == 'BS':
         result = query_balance_sheet(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
         current_month = datetime.date(int(year), int(month), 10).strftime("%B")
@@ -874,7 +1317,8 @@ def namedtuplefetchall(cursor):
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
 
-def excel_trail_balance(result, report, type, year, month):
+def excel_trail_balance(request, result, report, type, year, month):
+    company = Companyparameter.objects.all().first()
     mon = datetime.date(int(year), int(month), 10).strftime("%B")
     if type == 'P':
         type = 'preliminary'
@@ -889,28 +1333,48 @@ def excel_trail_balance(result, report, type, year, month):
     worksheet = workbook.add_worksheet()
 
     # variables
+    # variables
     bold = workbook.add_format({'bold': 1})
+    formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+    centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+    cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
+
+    # title
+
+    worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+    worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+    worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+    worksheet.write('A4', 'GENERAL JOURNAL BOOK - DETAILED ENTRIES', bold)
+    worksheet.write('A5', 'for the period ' + str(month) + ' , ' + str(year), bold)
+
+    worksheet.write('C1', 'Software:')
+    worksheet.write('C2', 'User:')
+    worksheet.write('C3', 'Datetime:')
+
+    worksheet.write('D1', 'iES Financial System v. 1.0')
+    worksheet.write('D2', str(request.user.username))
+    worksheet.write('D3', datetime.datetime.now(), cell_format)
 
     # header
-    worksheet.write('A1', 'Account Code', bold)
-    worksheet.write('B1', 'Chart of Account', bold)
-    worksheet.write('C1', 'Beg Debit', bold)
-    worksheet.write('D1', 'Beg Credit', bold)
-    worksheet.write('E1', 'Mon Debit', bold)
-    worksheet.write('F1', 'Mon Credit', bold)
-    worksheet.write('G1', 'End Debit', bold)
-    worksheet.write('H1', 'End Credit', bold)
-    worksheet.write('I1', 'Inc Debit', bold)
-    worksheet.write('J1', 'Inc Credit', bold)
-    worksheet.write('K1', 'Bal Debit', bold)
-    worksheet.write('L1', 'Bal Credit', bold)
-    worksheet.write('M1', 'Main Group Code', bold)
-    worksheet.write('N1', 'Main Group Description', bold)
-    worksheet.write('O1', 'Sub Group Code', bold)
-    worksheet.write('P1', 'Sub Group Description', bold)
+    worksheet.write('A7', 'Account Code', bold)
+    worksheet.write('B7', 'Chart of Account', bold)
+    worksheet.write('C7', 'Beg Debit', bold)
+    worksheet.write('D7', 'Beg Credit', bold)
+    worksheet.write('E7', 'Mon Debit', bold)
+    worksheet.write('F7', 'Mon Credit', bold)
+    worksheet.write('G7', 'End Debit', bold)
+    worksheet.write('H7', 'End Credit', bold)
+    worksheet.write('I7', 'Inc Debit', bold)
+    worksheet.write('J7', 'Inc Credit', bold)
+    worksheet.write('K7', 'Bal Debit', bold)
+    worksheet.write('L7', 'Bal Credit', bold)
+    worksheet.write('M7', 'Main Group Code', bold)
+    worksheet.write('N7', 'Main Group Description', bold)
+    worksheet.write('O7', 'Sub Group Code', bold)
+    worksheet.write('P7', 'Sub Group Description', bold)
 
     # Start from the first cell. Rows and columns are zero indexed.
-    row = 1
+    row = 7
     col = 0
     total_beg_debit = 0
     total_beg_credit = 0
