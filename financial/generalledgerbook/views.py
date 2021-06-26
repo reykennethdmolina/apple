@@ -616,60 +616,112 @@ class GeneratePDF(View):
 
                         elif title[3] == 'NET INCOME (LOSS) AFTER TAX':
                             print 'x'
-                            # worksheet.write(row, col + 1, str(title[3]), cell_format)
-                            #
-                            # incometaxafter_cur = float(format(incometax_cur, '.2f')) + float(
-                            #     format(total_current, '.2f'));
-                            # incometaxafter_prev = float(format(incometax_prev, '.2f')) + float(
-                            #     format(total_previous, '.2f'));
-                            # incometaxafter_todate = float(format(incometax_todate, '.2f')) + float(
-                            #     format(total_todate, '.2f'));
-                            # worksheet.write(row, col + 3, float(format(incometaxafter_cur, '.2f')))
-                            # worksheet.write(row, col + 4, float(format(incometaxafter_prev, '.2f')))
-                            # worksheet.write(row, col + 5, float(format(incometaxafter_todate, '.2f')))
-                            #
-                            # incometaxafter_total_current_percentage = 0
-                            # if float(cur_netsales) > 0:
-                            #     incometaxafter_total_current_percentage = float(
-                            #         format(incometaxafter_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
-                            # incometaxafter_total_previous_percentage = 0
-                            # if float(prev_netsales) > 0:
-                            #     incometaxafter_total_previous_percentage = float(
-                            #         format(incometaxafter_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
-                            # incometaxafter_total_variance = float(format(incometaxafter_cur, '.2f')) - float(
-                            #     format(incometaxafter_prev, '.2f'))
-                            # incometaxafter_total_var = float(format(incometaxafter_total_variance, '.2f')) / float(
-                            #     format(incometaxafter_prev, '.2f')) * 100
-                            #
-                            # worksheet.write(row, col + 6, float(format(incometaxafter_total_current_percentage, '.2f')))
-                            # worksheet.write(row, col + 7,
-                            #                 float(format(incometaxafter_total_previous_percentage, '.2f')))
-                            # worksheet.write(row, col + 8, float(format(incometaxafter_cur, '.2f')) - float(
-                            #     format(incometaxafter_prev, '.2f')))
-                            # worksheet.write(row, col + 9, float(format(incometaxafter_total_var, '.2f')))
+
+                            incometaxafter_cur = float(format(incometax_cur, '.2f')) + float(format(total_current, '.2f'));
+                            incometaxafter_prev = float(format(incometax_prev, '.2f')) + float(format(total_previous, '.2f'));
+                            incometaxafter_todate = float(format(incometax_todate, '.2f')) + float(format(total_todate, '.2f'));
+
+                            incometaxafter_total_current_percentage = 0
+                            if float(cur_netsales) > 0:
+                                incometaxafter_total_current_percentage = float(format(incometaxafter_cur, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                            incometaxafter_total_previous_percentage = 0
+                            if float(prev_netsales) > 0:
+                                incometaxafter_total_previous_percentage = float(format(incometaxafter_prev, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                            incometaxafter_total_variance = float(format(incometaxafter_cur, '.2f')) - float(format(incometaxafter_prev, '.2f'))
+                            incometaxafter_total_var = float(format(incometaxafter_total_variance, '.2f')) / float(format(incometaxafter_prev, '.2f')) * 100
+
+                            datalist[counter] = dict(title='yes', main='nototal',
+                                                     col1=str(title[3]).upper(),
+                                                     col2='',
+                                                     col4=float(format(incometaxafter_cur, '.2f')),
+                                                     col5=float(format(incometaxafter_prev, '.2f')),
+                                                     col6=float(format(incometaxafter_todate, '.2f')),
+                                                     col7=float(format(incometaxafter_total_current_percentage, '.2f')),
+                                                     col8=float(format(incometaxafter_total_previous_percentage, '.2f')),
+                                                     col9=float(format(incometaxafter_cur, '.2f')) - float(format(incometaxafter_prev, '.2f')),
+                                                     col10=float(format(incometaxafter_total_var, '.2f')))
+
+
                         else:
                             print 'x'
-                            # worksheet.write(row, col + 1, str(title[3]), cell_format)
-                            # worksheet.write(row, col + 3, float(format(net_total_current, '.2f')))
-                            # worksheet.write(row, col + 4, float(format(net_total_previous, '.2f')))
-                            # worksheet.write(row, col + 5, float(format(net_total_todate, '.2f')))
-                            #
-                            # if float(cur_netsales) > 0:
-                            #     net_total_current_percentage = float(format(net_total_current, '.2f')) / float(
-                            #         format(cur_netsales, '.2f')) * 100
-                            # if float(prev_netsales) > 0:
-                            #     net_total_previous_percentage = float(format(net_total_previous, '.2f')) / float(
-                            #         format(prev_netsales, '.2f')) * 100
-                            # net_total_variance = float(format(net_total_current, '.2f')) - float(
-                            #     format(net_total_previous, '.2f'))
-                            # net_total_var = float(format(net_total_variance, '.2f')) / float(
-                            #     format(net_total_previous, '.2f')) * 100
-                            #
-                            # worksheet.write(row, col + 6, float(format(net_total_current_percentage, '.2f')))
-                            # worksheet.write(row, col + 7, float(format(net_total_previous_percentage, '.2f')))
-                            # worksheet.write(row, col + 8, float(format(net_total_current, '.2f')) - float(
-                            #     format(net_total_previous, '.2f')))
-                            # worksheet.write(row, col + 9, float(format(net_total_var, '.2f')))
+
+                            if float(cur_netsales) > 0:
+                                net_total_current_percentage = float(format(net_total_current, '.2f')) / float(
+                                    format(cur_netsales, '.2f')) * 100
+                            if float(prev_netsales) > 0:
+                                net_total_previous_percentage = float(format(net_total_previous, '.2f')) / float(
+                                    format(prev_netsales, '.2f')) * 100
+                            net_total_variance = float(format(net_total_current, '.2f')) - float(
+                                format(net_total_previous, '.2f'))
+                            net_total_var = float(format(net_total_variance, '.2f')) / float(
+                                format(net_total_previous, '.2f')) * 100
+
+                            datalist[counter] = dict(title='yes', main='nototal',
+                                                     col1=str(title[3]).upper(),
+                                                     col2='',
+                                                     col4=float(format(net_total_current, '.2f')),
+                                                     col5=float(format(net_total_previous, '.2f')),
+                                                     col6=float(format(net_total_todate, '.2f')),
+                                                     col7=float(format(net_total_current_percentage, '.2f')),
+                                                     col8=float(format(net_total_previous_percentage, '.2f')),
+                                                     col9=float(format(net_total_current, '.2f')) - float(format(net_total_previous, '.2f')),
+                                                     col10=float(format(net_total_var, '.2f')))
+
+                        counter += 1
+
+                if group[0] != 'NaN' and group[0] != 'PFIT' and group[0] != 'OTHER':
+                    if group[2] == "NET OPERATING INCOME (LOSS)":
+
+                        noi_cur = float(format(gross_current, '.2f')) - float(format(total_current, '.2f'));
+                        noi_prev = float(format(gross_previous, '.2f')) - float(format(total_previous, '.2f'));
+                        noi_todate = float(format(gross_todate, '.2f')) - float(format(total_todate, '.2f'));
+
+                        noi_total_current_percentage = 0
+                        noi_total_previous_percentage = 0
+                        if float(cur_netsales) > 0:
+                            noi_total_current_percentage = float(format(noi_cur, '.2f')) / float(
+                                format(cur_netsales, '.2f')) * 100
+                        if float(prev_netsales) > 0:
+                            noi_total_previous_percentage = float(format(noi_prev, '.2f')) / float(
+                                format(prev_netsales, '.2f')) * 100
+                        noi_total_variance = float(format(noi_cur, '.2f')) - float(format(noi_prev, '.2f'))
+                        noi_total_var = float(format(noi_total_variance, '.2f')) / float(
+                            format(noi_prev, '.2f')) * 100
+
+                        datalist[counter] = dict(title='yes', main='nototal',
+                                                 col1=str(group[2]),
+                                                 col2='',
+                                                 col4=float(format(noi_cur, '.2f')),
+                                                 col5=float(format(noi_prev, '.2f')),
+                                                 col6=float(format(noi_todate, '.2f')),
+                                                 col7=float(format(noi_total_current_percentage, '.2f')),
+                                                 col8=float(format(noi_total_previous_percentage, '.2f')),
+                                                 col9=float(format(noi_cur, '.2f')) - float(format(noi_prev, '.2f')),
+                                                 col10=float(format(noi_total_var, '.2f')))
+                        counter += 1
+                    else:
+
+                        if float(cur_netsales) > 0:
+                            total_current_percentage = float(format(total_current, '.2f')) / float(
+                                format(cur_netsales, '.2f')) * 100
+                        if float(prev_netsales) > 0:
+                            total_previous_percentage = float(format(total_previous, '.2f')) / float(
+                                format(prev_netsales, '.2f')) * 100
+                        total_variance = float(format(total_current, '.2f')) - float(format(total_previous, '.2f'))
+                        total_var = float(format(total_variance, '.2f')) / float(
+                            format(total_previous, '.2f')) * 100
+
+
+                        datalist[counter] = dict(title='yes', main='nototal',
+                                                 col1='TOTAL' + str(group[2]),
+                                                 col2='',
+                                                 col4=float(format(total_current, '.2f')),
+                                                 col5=float(format(total_previous, '.2f')),
+                                                 col6=float(format(total_todate, '.2f')),
+                                                 col7=float(format(total_current_percentage, '.2f')),
+                                                 col8=float(format(total_previous_percentage, '.2f')),
+                                                 col9=float(format(total_current, '.2f')) - float(format(total_previous, '.2f')),
+                                                 col10=float(format(total_var, '.2f')))
                         counter += 1
 
             counter += 1
@@ -727,12 +779,12 @@ def excel(request):
         result = query_balance_sheet(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
         current_month = datetime.date(int(year), int(month), 10).strftime("%B")
         prev_month = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
-        return excel_balance_sheet(result, report, type, year, month, current_month, prev_month, year, prevyear)
+        return excel_balance_sheet(request,result, report, type, year, month, current_month, prev_month, year, prevyear)
     elif report == 'IS':
         current_month = datetime.date(int(year), int(month), 10).strftime("%B")
         prev_month = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
         result = query_income_statement(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
-        return excel_income_statement(result, report, type, year, month, current_month, prev_month, year, prevyear)
+        return excel_income_statement(request,result, report, type, year, month, current_month, prev_month, year, prevyear)
     elif report == 'YETB':
         result = Chartofaccount.objects.filter(accounttype='P', isdeleted=0).order_by('accountcode')
         return excel_year_end_trial_balance(result)
@@ -1344,8 +1396,8 @@ def excel_trail_balance(request, result, report, type, year, month):
     worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
     worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
     worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
-    worksheet.write('A4', 'GENERAL JOURNAL BOOK - DETAILED ENTRIES', bold)
-    worksheet.write('A5', 'for the period ' + str(month) + ' , ' + str(year), bold)
+    worksheet.write('A4', 'TRIAL BALANCE', bold)
+    worksheet.write('A5', 'period covered ' + str(mon) + ' , ' + str(year), bold)
 
     worksheet.write('C1', 'Software:')
     worksheet.write('C2', 'User:')
@@ -1538,8 +1590,8 @@ def excel_trail_balance(request, result, report, type, year, month):
 
     return response
 
-def excel_balance_sheet(result, report, type, year, month, current_month, prev_month, current_year, prev_year):
-
+def excel_balance_sheet(request, result, report, type, year, month, current_month, prev_month, current_year, prev_year):
+    company = Companyparameter.objects.all().first()
     mon = datetime.date(int(year), int(month), 10).strftime("%B")
     if type == 'P':
         type = 'preliminary'
@@ -1562,19 +1614,31 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
     cell_format_size = workbook.add_format()
     cell_format_size.set_font_size(18)
     cell_format_size.set_bold()
+    cell_format2 = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
     # header
-    worksheet.merge_range('A1:C1', 'PHILIPPINE DAILY INQUIRER, INC.', bold)
-    worksheet.merge_range('A2:C2', 'BALANCE SHEET', bold)
-    worksheet.merge_range('A3:C3', 'AS OF ' + str(current_month).upper() + ' ' + str(current_year) + ' & ' + str(prev_month).upper() + ' ' + str(prev_year), bold)
-    worksheet.write('D4', current_month, bold)
-    worksheet.write('E4', prev_month, bold)
-    worksheet.write('F4', current_month +' %', bold)
-    worksheet.write('G4', prev_month +' %', bold)
-    worksheet.write('H4', 'Variance', bold)
-    worksheet.write('I4', '%', bold)
+    worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+    worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+    worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+    worksheet.write('A4', 'BALANCE SHEET', bold)
+    worksheet.write('A5', 'period covered ' + str(mon) + ' , ' + str(year), bold)
 
-    row = 4
+    worksheet.write('C1', 'Software:')
+    worksheet.write('C2', 'User:')
+    worksheet.write('C3', 'Datetime:')
+
+    worksheet.write('D1', 'iES Financial System v. 1.0')
+    worksheet.write('D2', str(request.user.username))
+    worksheet.write('D3', datetime.datetime.now(), cell_format2)
+
+    worksheet.write('D7', current_month, bold)
+    worksheet.write('E7', prev_month, bold)
+    worksheet.write('F7', current_month +' %', bold)
+    worksheet.write('G7', prev_month +' %', bold)
+    worksheet.write('H7', 'Variance', bold)
+    worksheet.write('I7', '%', bold)
+
+    row = 7
     col = 0
     current_percentage = 0
     prev_percentage = 0
@@ -1761,7 +1825,8 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
 
     return response
 
-def excel_income_statement(result, report, type, year, month, current_month, prev_month, current_year, prev_year):
+def excel_income_statement(request, result, report, type, year, month, current_month, prev_month, current_year, prev_year):
+    company = Companyparameter.objects.all().first()
     mon = datetime.date(int(year), int(month), 10).strftime("%B")
     if type == 'P':
         type = 'preliminary'
@@ -1781,19 +1846,33 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
     cell_format.set_align('right')
     # right = workbook.add_format({'right': 1}).set_align('right')
 
-    # header
-    worksheet.merge_range('A1:C1', 'PHILIPPINE DAILY INQUIRER, INC.', bold)
-    worksheet.merge_range('A2:C2', 'INCOME STATEMENT', bold)
-    worksheet.merge_range('A3:C3', 'AS OF ' + str(current_month).upper() + ' ' + str(current_year) + ' & ' + str(prev_month).upper() + ' ' + str(prev_year),bold)
-    worksheet.write('D4', current_month, bold)
-    worksheet.write('E4', prev_month, bold)
-    worksheet.write('F4', 'To Date', bold)
-    worksheet.write('G4', 'Net '+ current_month + ' %', bold)
-    worksheet.write('H4', 'Net '+ prev_month + ' %', bold)
-    worksheet.write('I4', 'Increase (Decrease)', bold)
-    worksheet.write('J4', '%', bold)
+    cell_format2 = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
 
-    row = 4
+    # header
+    worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+    worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+    worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+    worksheet.write('A4', 'INCOME STATEMENT', bold)
+    worksheet.write('A5', 'period covered ' + str(mon) + ' , ' + str(year), bold)
+
+    worksheet.write('C1', 'Software:')
+    worksheet.write('C2', 'User:')
+    worksheet.write('C3', 'Datetime:')
+
+    worksheet.write('D1', 'iES Financial System v. 1.0')
+    worksheet.write('D2', str(request.user.username))
+    worksheet.write('D3', datetime.datetime.now(), cell_format2)
+
+    # header
+    worksheet.write('D7', current_month, bold)
+    worksheet.write('E7', prev_month, bold)
+    worksheet.write('F7', 'To Date', bold)
+    worksheet.write('G7', 'Net '+ current_month + ' %', bold)
+    worksheet.write('H7', 'Net '+ prev_month + ' %', bold)
+    worksheet.write('I7', 'Increase (Decrease)', bold)
+    worksheet.write('J7', '%', bold)
+
+    row = 7
     col = 0
     cur_netsales = 0
     prev_netsales = 0
