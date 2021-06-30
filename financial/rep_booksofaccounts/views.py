@@ -710,6 +710,9 @@ class GenerateExcel(View):
                 worksheet.write(row, col + 7, float(format(data.debitamount, '.2f')))
                 worksheet.write(row, col + 8, float(format(data.creditamount, '.2f')))
 
+                bankaccount = ""
+                department = ""
+                departmentname = ""
                 row += 1
 
             workbook.close()
@@ -803,6 +806,10 @@ class GenerateExcel(View):
 
                 worksheet.write(row, col + 10, float(format(data.debitamount, '.2f')))
                 worksheet.write(row, col + 11, float(format(data.creditamount, '.2f')))
+
+                bankaccount = ""
+                departmentname = ""
+                department = ""
 
                 row += 1
 
@@ -899,6 +906,11 @@ class GenerateExcel(View):
                 worksheet.write(row, col + 9, float(format(data.debitamount, '.2f')))
                 worksheet.write(row, col + 10, float(format(data.creditamount, '.2f')))
 
+                bankaccount = ""
+                banktype = ""
+                departmentname = ""
+                department = ""
+
                 row += 1
 
             workbook.close()
@@ -942,12 +954,15 @@ class GenerateExcel(View):
             worksheet.write('A7', 'Date', bold)
             worksheet.write('B7', 'Number', bold)
             worksheet.write('C7', 'Payee', bold)
-            worksheet.write('D7', 'Particulars', bold)
-            worksheet.write('E7', 'Account Number', bold)
-            worksheet.write('F7', 'Account Title', bold)
-            worksheet.write('G7', 'Subledger', bold)
-            worksheet.write('H7', 'Debit Amount', bold)
-            worksheet.write('I7', 'Credit Amount', bold)
+            worksheet.write('D7', 'TIN', bold)
+            worksheet.write('E7', 'Address', bold)
+            worksheet.write('F7', 'Particulars', bold)
+            worksheet.write('G7', 'Account Number', bold)
+            worksheet.write('H7', 'Account Title', bold)
+            worksheet.write('I7', 'Subledger', bold)
+            worksheet.write('J7', 'Debit Amount', bold)
+            worksheet.write('K7', 'Credit Amount', bold)
+
 
             row = 7
             col = 0
@@ -969,10 +984,13 @@ class GenerateExcel(View):
                     worksheet.write(row, col + 3, '')
                 else:
                     worksheet.write(row, col + 2, data.apmain.payeename)
-                    worksheet.write(row, col + 3, data.apmain.particulars)
+                    worksheet.write(row, col + 5, data.apmain.particulars)
 
-                worksheet.write(row, col + 4, data.chartofaccount.accountcode)
-                worksheet.write(row, col + 5, data.chartofaccount.description)
+                worksheet.write(row, col + 3, data.apmain.payee.tin)
+                worksheet.write(row, col + 4, data.apmain.payee.address1 + ' ' + data.apmain.payee.address2 + ' ' + data.apmain.payee.address3)
+
+                worksheet.write(row, col + 6, data.chartofaccount.accountcode)
+                worksheet.write(row, col + 7, data.chartofaccount.description)
 
                 if data.department:
                     department = data.department.code
@@ -981,11 +999,15 @@ class GenerateExcel(View):
                     emp = data.employee.code
                     empname = data.employee.firstname+' '+data.employee.lastname
 
-                worksheet.write(row, col + 6,department+' '+departmentname+' '+empname)
+                worksheet.write(row, col + 8,department+' '+departmentname+' '+empname)
 
-                worksheet.write(row, col + 7, float(format(data.debitamount, '.2f')))
-                worksheet.write(row, col + 8, float(format(data.creditamount, '.2f')))
+                worksheet.write(row, col + 9, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 10, float(format(data.creditamount, '.2f')))
 
+                department = ""
+                departmentname = ""
+                emp = ""
+                empname = ""
                 row += 1
 
             workbook.close()
@@ -1161,6 +1183,10 @@ class GenerateExcel(View):
 
 
             # header
+            # PO Number, PO Date, Reference, Brief Description, Supplier, TIN, Address, Total Quantity, Gross Amount,
+            # Discount Amount, Vatable, VAT Exempt (blank header in excel), VAT Zero-Rated, VAT Amount (change VAT Exempt header to VAT Amount),
+            # Net Amount, Total Amount (still included since not sure if duplicate), VAT Rate, APV Amount (still included), ATC Amount.
+
             worksheet.write('A7', 'PO Number', bold)
             worksheet.write('B7', 'PO Date', bold)
             worksheet.write('C7', 'Reference', bold)
@@ -1168,20 +1194,22 @@ class GenerateExcel(View):
             worksheet.write('E7', 'Supplier', bold)
             worksheet.write('F7', 'TIN', bold)
             worksheet.write('G7', 'Address', bold)
-            worksheet.write('H7', 'Discount Amount', bold)
+            worksheet.write('H7', 'Total Quantity', bold)
             worksheet.write('I7', 'Gross Amount', bold)
-            worksheet.write('J7', 'Net Amount', bold)
+            worksheet.write('J7', 'Discount Amount', bold)
             worksheet.write('K7', 'Vatable', bold)
-            worksheet.write('L7', 'VAT Amount', bold)
-            worksheet.write('M7', 'VAT Exempt', bold)
-            worksheet.write('N7', 'VAT Rate', bold)
-            worksheet.write('O7', 'VAT Zero-Rated', bold)
+            worksheet.write('L7', 'VAT Exempt', bold)
+            worksheet.write('M7', 'VAT Zero-Rated', bold)
+            worksheet.write('N7', 'VAT Amount', bold)
+            worksheet.write('O7', 'Net Amount', bold)
             worksheet.write('P7', 'Total Amount', bold)
-            worksheet.write('Q7', 'Total Quantity', bold)
+            worksheet.write('Q7', 'VAT Rate', bold)
             worksheet.write('R7', 'APV Amount', bold)
             worksheet.write('S7', 'ATC Amount', bold)
 
-
+            # PO Number, PO Date, Reference, Brief Description, Supplier, TIN, Address, Total Quantity, Gross Amount,
+            # Discount Amount, Vatable, VAT Exempt (blank header in excel), VAT Zero-Rated, VAT Amount (change VAT Exempt header to VAT Amount),
+            # Net Amount, Total Amount (still included since not sure if duplicate), VAT Rate, APV Amount (still included), ATC Amount.
             row = 7
             col = 0
             q = query_bir(report, dfrom, dto)
@@ -1196,16 +1224,16 @@ class GenerateExcel(View):
                     worksheet.write(row, col + 4, data['supplier_name'])
                     worksheet.write(row, col + 5, data['tin'])
                     worksheet.write(row, col + 6, data['address'])
-                    worksheet.write(row, col + 7, float(format(data['discountamount'], '.2f')))
+                    worksheet.write(row, col + 7, float(format(data['totalquantity'], '.2f')))
                     worksheet.write(row, col + 8, float(format(data['grossamount'], '.2f')))
-                    worksheet.write(row, col + 9, float(format(data['netamount'], '.2f')))
+                    worksheet.write(row, col + 9, float(format(data['discountamount'], '.2f')))
                     worksheet.write(row, col + 10, float(format(data['vatable'], '.2f')))
-                    worksheet.write(row, col + 11, float(format(data['vatamount'], '.2f')))
-                    worksheet.write(row, col + 12, float(format(data['vatexempt'], '.2f')))
-                    worksheet.write(row, col + 13, float(format(data['vatrate'], '.2f')))
-                    worksheet.write(row, col + 14, float(format(data['vatzerorated'], '.2f')))
+                    worksheet.write(row, col + 11, float(format(data['vatexempt'], '.2f')))
+                    worksheet.write(row, col + 12, float(format(data['vatzerorated'], '.2f')))
+                    worksheet.write(row, col + 13, float(format(data['vatamount'], '.2f')))
+                    worksheet.write(row, col + 14, float(format(data['netamount'], '.2f')))
                     worksheet.write(row, col + 15, float(format(data['totalamount'], '.2f')))
-                    worksheet.write(row, col + 16, float(format(data['totalquantity'], '.2f')))
+                    worksheet.write(row, col + 16, float(format(data['vatrate'], '.2f')))
                     worksheet.write(row, col + 17, float(format(data['apvamount'], '.2f')))
                     worksheet.write(row, col + 18, float(format(data['atcamount'], '.2f')))
 

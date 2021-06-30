@@ -132,9 +132,13 @@
         <tr>
             <td style="text-align:left;width:200px;vertical-align:top;">{{ forloop.counter }}  {{ item.apmain.apprefix|upper }}{{ item.apmain.apnum|upper }}</td>
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.apmain.apdate|date:'Y-m-d' }}</td>
+            {% if not user.is_superuser and item.apmain.confi == 1 and item.apmain.enterby_id != user.id %}
+            <td style="text-align:left;vertical-align:top;" colspan="3">Reserved Transaction</td>
+            {% else %}
             <td style="text-align:left;vertical-align:top;width:270px;">{{ item.apmain.payeename }}</td>
             <td style="text-align:left;vertical-align:top;">{{ item.apmain.particulars }}</td>
             <td style="text-align:right;vertical-align:top;width:180px;">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
+            {% endif %}
         </tr>
     {% endfor %}
     <tr>
