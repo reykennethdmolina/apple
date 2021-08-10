@@ -244,7 +244,9 @@
                                     <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-1">
-                                <input type="checkbox" id="id_confi" name="confi" value="1" {% if confi == 1 %} checked="checked" {% endif %}> Confi
+                                    <input type="checkbox" id="id_confi" name="confi" value="1" {% if confi == 1  %} checked="checked" {% endif %}> Confi<br>
+                            <input type="checkbox" id="id_winvoice" name="winvoice" value="1" {% if winvoice == 1  %} checked="checked" {% endif %}> with Invoice<br>
+                            <input type="checkbox" id="id_wor" name="wor" value="1" {% if wor == 1  %} checked="checked" {% endif %}> with OR
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_branch">Branch</label>

@@ -89,6 +89,8 @@ class Cvmain(models.Model):
     cashier_remarks = models.TextField()
     ornum = models.CharField(max_length=150, null=True, blank=True)
     confi = models.IntegerField(default=0)
+    winvoice = models.IntegerField(default=0)
+    wor = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'cvmain'

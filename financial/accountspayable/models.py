@@ -88,6 +88,8 @@ class Apmain(models.Model):
     print_ctr = models.IntegerField(default=0)
     digicvmain_id = models.IntegerField(default=0)
     confi = models.IntegerField(default=0)
+    winvoice = models.IntegerField(default=0)
+    wor = models.IntegerField(default=0)
 
     # for CV
     cvamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)

@@ -263,6 +263,8 @@ class CreateView(CreateView):
         # bankbranchdisburseobject = Bankbranchdisburse.objects.get(pk=self.request.POST['bankbranchdisburse'], isdeleted=0)
 
         self.object.confi = self.request.POST.get('confi', 0)
+        self.object.winvoice = self.request.POST.get('winvoice', 0)
+        self.object.wor = self.request.POST.get('wor', 0)
         self.object.apnum = apnum
         self.object.apstatus = 'F'
         self.object.vatcode = vatobject.code
@@ -449,6 +451,8 @@ class UpdateView(UpdateView):
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
         context['confi'] = self.object.confi
+        context['winvoice'] = self.object.winvoice
+        context['wor'] = self.object.wor
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).order_by('first_name')
         context['originalapstatus'] = Apmain.objects.get(pk=self.object.id).apstatus
         context['actualapprover'] = None if Apmain.objects.get(
@@ -535,6 +539,8 @@ class UpdateView(UpdateView):
                 self.object.ataxrate = self.object.atax.rate
 
             self.object.confi = self.request.POST.get('confi', 0)
+            self.object.winvoice = self.request.POST.get('winvoice', 0)
+            self.object.wor = self.request.POST.get('wor', 0)
 
             self.object.save(update_fields=['apdate', 'aptype', 'apsubtype', 'payee', 'payeecode', 'payeename',
                                             'branch', 'bankaccount', 'vat', 'atax',
@@ -542,7 +548,7 @@ class UpdateView(UpdateView):
                                             'refno', 'deferred', 'particulars', 'remarks',
                                             'currency', 'fxrate', 'designatedapprover',
                                             'modifyby', 'modifydate', 'apstatus', 'vatcode', 'vatrate', 'ataxcode',
-                                            'ataxrate', 'confi'])
+                                            'ataxrate', 'confi', 'winvoice', 'wor'])
 
             if self.object.apstatus == 'F':
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])

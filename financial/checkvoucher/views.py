@@ -227,6 +227,8 @@ class CreateView(CreateView):
         self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
 
         self.object.confi = self.request.POST.get('confi', 0)
+        self.object.winvoice = self.request.POST.get('winvoice', 0)
+        self.object.wor = self.request.POST.get('wor', 0)
 
         self.object.save()
 
@@ -373,6 +375,8 @@ class UpdateView(UpdateView):
         context['reppcv_total_amount'] = cv_main_aggregate['amount__sum']
         context['cvnum'] = self.object.cvnum
         context['confi'] = self.object.confi
+        context['winvoice'] = self.object.winvoice
+        context['wor'] = self.object.wor
 
         if self.request.POST.get('payee', False):
             context['payee'] = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
@@ -435,6 +439,8 @@ class UpdateView(UpdateView):
             #     self.object.payee_name = self.request.POST['payee']
 
             self.object.confi = self.request.POST.get('confi', 0)
+            self.object.winvoice = self.request.POST.get('winvoice', 0)
+            self.object.wor = self.request.POST.get('wor', 0)
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
@@ -443,7 +449,7 @@ class UpdateView(UpdateView):
                                             'particulars', 'vat', 'atc', 'bankaccount',
                                             'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
                                             'branch', 'checknum', 'checkdate', 'ornum', 'vatrate', 'atcrate', 'payee',
-                                            'payee_code', 'payee_name', 'modifyby', 'modifydate', 'confi'])
+                                            'payee_code', 'payee_name', 'modifyby', 'modifydate', 'confi', 'winvoice', 'wor'])
 
             if self.object.cvstatus == 'F':
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
