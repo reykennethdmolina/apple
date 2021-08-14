@@ -493,6 +493,19 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_refnum_enable" class="col-sm-4 col-shrink control-label">Non-Trade: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_nontrade" name="nontrade" value="Y" {% if form.nontrade.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_nontrade">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_nontrade" name="nontrade" value="N" {% if form.nontrade.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_nontrade">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="col-md-12"><br></div>
                                 </div>
