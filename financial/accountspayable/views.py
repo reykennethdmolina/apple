@@ -2663,6 +2663,8 @@ class GenerateExcel(View):
             worksheet.write('E4', 'Subs Ledger', bold)
             worksheet.write('F4', 'Debit', bold)
             worksheet.write('G4', 'Credit', bold)
+            worksheet.write('H4', 'With Invoice', bold)
+            worksheet.write('I4', 'With OR', bold)
 
             row = 4
             col = 0
@@ -2670,15 +2672,26 @@ class GenerateExcel(View):
             totaldebit = 0
             totalcredit = 0
 
-            list = list.values('apmain__apnum', 'apmain__apdate', 'apmain__particulars', 'apmain__payeename', 'apmain__confi', 'apmain__enterby_id',
+            list = list.values('apmain__apnum', 'apmain__apdate', 'apmain__particulars', 'apmain__payeename', 'apmain__confi', 'apmain__enterby_id', 'apmain__winvoice', 'apmain__wor',
                                'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
                                'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
             dataset = pd.DataFrame.from_records(list)
 
             for apnum, detail in dataset.fillna('NaN').groupby(
-                    ['apmain__apnum', 'apmain__apdate', 'apmain__payeename', 'apmain__particulars', 'status', 'apmain__confi', 'apmain__enterby_id']):
+                    ['apmain__apnum', 'apmain__apdate', 'apmain__payeename', 'apmain__particulars', 'status', 'apmain__confi', 'apmain__enterby_id', 'apmain__winvoice', 'apmain__wor']):
                 worksheet.write(row, col, apnum[0])
                 worksheet.write(row, col + 1, apnum[1], formatdate)
+
+                winvoice = ''
+                wor = ''
+
+                if apnum[7] == 1:
+                    winvoice = 'YES'
+                if apnum[8] == 1:
+                    wor = 'YES'
+
+                worksheet.write(row, col + 7, winvoice)
+                worksheet.write(row, col + 8, wor)
 
                 debit = 0
                 credit = 0
@@ -2720,6 +2733,7 @@ class GenerateExcel(View):
                             worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
                             debit = data['debitamount']
                             credit = data['creditamount']
+
 
                         row += 1
                         totaldebit += debit

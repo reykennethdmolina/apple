@@ -2415,21 +2415,31 @@ class GenerateExcel(View):
             worksheet.write('E4', 'Subs Ledger', bold)
             worksheet.write('F4', 'Debit', bold)
             worksheet.write('G4', 'Credit', bold)
+            worksheet.write('H4', 'With Invoice', bold)
+            worksheet.write('I4', 'With OR', bold)
 
             row = 4
             col = 0
 
             totaldebit = 0
             totalcredit = 0
-            list = list.values('cvmain__cvnum', 'cvmain__cvdate', 'cvmain__particulars', 'cvmain__payee_name', 'cvmain__confi', 'cvmain__enterby_id',
+            list = list.values('cvmain__cvnum', 'cvmain__cvdate', 'cvmain__particulars', 'cvmain__payee_name', 'cvmain__confi', 'cvmain__enterby_id',  'cvmain__winvoice', 'cvmain__wor',
                                'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
                                'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
             dataset = pd.DataFrame.from_records(list)
 
             for cvnum, detail in dataset.fillna('NaN').groupby(
-                    ['cvmain__cvnum', 'cvmain__cvdate', 'cvmain__payee_name', 'cvmain__particulars', 'status', 'cvmain__confi', 'cvmain__enterby_id']):
+                    ['cvmain__cvnum', 'cvmain__cvdate', 'cvmain__payee_name', 'cvmain__particulars', 'status', 'cvmain__confi', 'cvmain__enterby_id', 'cvmain__winvoice', 'cvmain__wor']):
                 worksheet.write(row, col, cvnum[0])
                 worksheet.write(row, col + 1, cvnum[1], formatdate)
+
+                if cvnum[7] == 1:
+                    winvoice = 'YES'
+                if cvnum[8] == 1:
+                    wor = 'YES'
+
+                worksheet.write(row, col + 7, winvoice)
+                worksheet.write(row, col + 8, wor)
 
                 debit = 0
                 credit = 0
