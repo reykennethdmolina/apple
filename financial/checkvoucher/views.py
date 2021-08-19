@@ -2447,6 +2447,9 @@ class GenerateExcel(View):
                 worksheet.write(row, col, cvnum[0])
                 worksheet.write(row, col + 1, cvnum[1], formatdate)
 
+                winvoice = ''
+                wor = ''
+
                 if cvnum[7] == 1:
                     winvoice = 'YES'
                 if cvnum[8] == 1:
