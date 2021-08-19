@@ -2612,6 +2612,8 @@ class GenerateExcel(View):
             worksheet.write('D4', 'Particulars', bold)
             worksheet.write('E4', 'Amount', bold)
             worksheet.write('F4', 'CV#', bold)
+            worksheet.write('G4', 'With Invoice', bold)
+            worksheet.write('H4', 'With OR', bold)
 
             row = 5
             col = 0
@@ -2644,6 +2646,16 @@ class GenerateExcel(View):
                         worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
                         amount = data.amount
 
+                    winvoice = ''
+                    wor = ''
+
+                    if data.winvoice == 1:
+                        winvoice = 'YES'
+                    if data.wor == 1:
+                        wor = 'YES'
+
+                    worksheet.write(row, col + 5, winvoice)
+                    worksheet.write(row, col + 6, wor)
                     row += 1
                     totalamount += amount
 
