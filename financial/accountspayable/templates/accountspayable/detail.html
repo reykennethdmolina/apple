@@ -233,6 +233,16 @@
                                             <span class="detail-profile">{% if object.releaseby %}{{ object.releaseby.first_name }}&nbsp;{{ object.releaseby.last_name }}{% else %}N/A{% endif %}</span>
                                         </div>
                                     </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">With Invoice&nbsp;: </span>
+                                            <span class="detail-profile">{% if object.winvoice == 1 %}  Yes {% endif %}</span>
+                                        </div>
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">With OR&nbsp;: </span>
+                                            <span class="detail-profile">{% if object.wor == 1 %}  Yes {% endif %}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

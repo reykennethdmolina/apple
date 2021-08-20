@@ -304,6 +304,18 @@
                                             <span class="row col-md-8">{{ object.releaseto|default:'' }}</span>
                                         </div>
                                     </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">With Invoice</span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="detail-profile">{% if object.winvoice == 1 %}  Yes {% endif %}</span>
+                                        </div>
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">With OR</span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="detail-profile">{% if object.wor == 1 %}  Yes {% endif %}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
