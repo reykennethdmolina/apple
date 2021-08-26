@@ -362,7 +362,7 @@
                     $('#cashadv_amount').show()
                     $('#id_cashadv_amount').attr("required", true);
                     $('#id_cashadv_amount').val(1);
-                } else if (ofid == '9') {
+                } else if (ofid == '9' || ofid == '8') {
                     $("#id_designatedapprover option").attr('disabled','disabled');
                     $('#id_designatedapprover option[value="483"]').prop('disabled',false);
                     $('#id_designatedapprover').select2();

@@ -3515,10 +3515,10 @@ def goposteye(request):
                     currency_id = 1,
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
-                    actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'Auto approved from Operational Fund Posting',
+                    # actualapprover_id = 225, # Arlene Astapan
+                    approverremarks = 'For approved from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
-                    apstatus = 'A',
+                    apstatus = 'F',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,
@@ -3638,10 +3638,10 @@ def gopostanti(request):
                     currency_id = 1,
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
-                    actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'Auto approved from Operational Fund Posting',
+                    # actualapprover_id = 225, # Arlene Astapan
+                    approverremarks = 'For approved from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
-                    apstatus = 'A',
+                    apstatus = 'F',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,
