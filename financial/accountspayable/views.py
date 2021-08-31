@@ -3433,6 +3433,19 @@ def upload(request):
     return HttpResponseRedirect('/accountspayable/' + str(id) )
 
 
+def tagging(request):
+    if request.method == 'POST':
+        id = request.POST['taggingid']
+        winvoice = request.POST.get('winvoice', 0)
+        wor = request.POST.get('wor', 0)
+
+        Apmain.objects.filter(id=id).update(winvoice=winvoice,wor=wor)
+
+        return HttpResponseRedirect('/accountspayable/' + str(id) )
+
+    return HttpResponseRedirect('/accountspayable/' + str(id) )
+
+
 class LedgerView(ListView):
     model = Apmain
     template_name = 'accountspayable/ledger/index.html'

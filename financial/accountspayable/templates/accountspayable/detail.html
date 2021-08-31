@@ -281,6 +281,34 @@
             <div class="col-md-12">
                 <div class="nav-tabs nav-tabs-animate border-profile">
                     <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Documents</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="ref" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body">
+                                    <form action="{% url 'accountspayable:tagging' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="taggingid" value="{{ object.pk }}">
+                                    <div class="master-degree small">
+                                         <input type="checkbox" id="id_winvoice" name="winvoice" value="1" {% if object.winvoice == 1  %} checked="checked" {% endif %}> with Invoice
+                                    </div>
+
+                                    <div class="master-degree small">
+                                        <input type="checkbox" id="id_wor" name="wor" value="1" {% if object.wor == 1  %} checked="checked" {% endif %}> with OR
+                                    </div>
+
+                                    <button type="submit">Save Tagging</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
                         <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Revolving Fund Replenishment</a></li>
                     </ul>
                     <div class="tab-content padding-top-0">

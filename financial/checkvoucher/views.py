@@ -3320,6 +3320,18 @@ def upload(request):
         return HttpResponseRedirect('/checkvoucher/' + str(id) )
     return HttpResponseRedirect('/checkvoucher/' + str(id) )
 
+def tagging(request):
+    if request.method == 'POST':
+        id = request.POST['taggingid']
+        winvoice = request.POST.get('winvoice', 0)
+        wor = request.POST.get('wor', 0)
+
+        Cvmain.objects.filter(id=id).update(winvoice=winvoice,wor=wor)
+
+        return HttpResponseRedirect('/checkvoucher/' + str(id) )
+
+    return HttpResponseRedirect('/checkvoucher/' + str(id) )
+
 @csrf_exempt
 def datafix(request):
 

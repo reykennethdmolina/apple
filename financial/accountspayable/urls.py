@@ -29,5 +29,6 @@ urlpatterns = [
     url(r'^pdfledger/$', views.GenerateLedgerPDF.as_view(), name='pdfledger'),
     url(r'^excelledger/$', views.GenerateExcelLedger.as_view(), name='excelledger'),
     url(r'^filedelete/$', views.filedelete, name='filedelete'),
+    url(r'^tagging/$', views.tagging, name='tagging'),
     #url(r'^(?P<pk>[0-9]+)/disapproved/$', views.DisapprovedView.as_view(), name='disapproved'),
 ]
