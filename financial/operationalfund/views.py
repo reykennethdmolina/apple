@@ -3670,7 +3670,7 @@ def gopostanti(request):
                         branch_id = item.branch_id,
                         chartofaccount_id = item.chartofaccount_id,
                         customer_id = item.customer_id,
-                        department_id = item.department_id,
+                        department_id = 93, #item.department_id,
                         employee_id = item.employee_id,
                         inputvat_id = item.inputvat_id,
                         outputvat_id = item.outputvat_id,
