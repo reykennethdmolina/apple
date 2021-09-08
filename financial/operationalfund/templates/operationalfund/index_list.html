@@ -78,8 +78,11 @@
                                         {% elif data.hrstatus == 'A' or data.hrstatus == 'D' %}
 
                                         {% else %}
-                                            {% if data.oftype_id == '8' and data.oftype_id == '9' %}
+                                  
+                                            {% if data.oftype_id == 8 or data.oftype_id == 9 %}
+
                                             {% else %}
+
                                         <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"
                                             data-ofid={{ data.id }} data-response="A" data-toggle="tooltip" data-placement="left"
                                             data-trigger="hover" data-original-title="Click to Approve" aria-describedby="tooltip850155">
