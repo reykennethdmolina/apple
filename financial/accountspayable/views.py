@@ -2654,8 +2654,8 @@ class GenerateExcel(View):
                     if data.wor == 1:
                         wor = 'YES'
 
-                    worksheet.write(row, col + 7, winvoice)
-                    worksheet.write(row, col + 8, wor)
+                    worksheet.write(row, col + 6, winvoice)
+                    worksheet.write(row, col + 7, wor)
                     row += 1
                     totalamount += amount
 
