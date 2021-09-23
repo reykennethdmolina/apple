@@ -200,6 +200,7 @@
         $("#btn_detailsubmit").click(function() {
             var m_debitamount = $('#detail_debitamount').val();
 	        var m_creditamount = $('#detail_creditamount').val();
+	        var department = $('#detail_department').val();
             if ($("#detailform").valid()) {
 
                 if ((m_debitamount == 0 || m_debitamount == "" ) && (m_creditamount == 0 || m_creditamount == "")) {
@@ -241,7 +242,13 @@
                            'debitamount': $("#detail_debitamount").val(),
                     },
                     success: function(response) {
-                        $("#datatable").html(response['datatable']);
+
+                        if (response["status"] == "error") {
+                            alert(response['msg']);
+                            return false;
+                        } else {
+                            $("#datatable").html(response['datatable']);
+                        }
                     },
                     error: function(response) {
                         console.log(response);

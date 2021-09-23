@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^maccountingentry/$', views.maccountingentry, name='maccountingentry'),
     url(r'^checkchartvalidation/$', views.checkchartvalidation, name='checkchartvalidation'),
     url(r'^savemaccountingentry/$', views.savemaccountingentry, name='savemaccountingentry'),
+    url(r'^validateDepartment/$', views.validateDepartment, name='validateDepartment'),
     url(r'^breakdownentry/$', views.breakdownentry, name='breakdownentry'),
     url(r'^savemaccountingentrybreakdown/$', views.savemaccountingentrybreakdown, name='savemaccountingentrybreakdown'),
     url(r'^deletedetailbreakdown/$', views.deletedetailbreakdown, name='deletedetailbreakdown'),
