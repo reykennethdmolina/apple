@@ -197,7 +197,7 @@ def savemaccountingentry(request):
 
             mchart = Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P', pk=request.POST['chartofaccount']).first()
             dept = Department.objects.filter(isdeleted=0,pk=request.POST['department']).first()
-            deptchart = Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P', pk=dept.expchartofaccount_id).first()
+            deptchart = Chartofaccount.objects.filter(isdeleted=0, status='A', pk=dept.expchartofaccount_id).first()
 
             print mchart.accountcode[0:2]
             print deptchart.accountcode[0:2]
