@@ -211,100 +211,102 @@ def savemaccountingentry(request):
 
                 return JsonResponse(data)
 
-            else:
+        print 'dito ako'
 
-                # Save Data To JVDetail
+        # Save Data To JVDetail
 
-                data_table = validatetable(request.POST['table'])
+        data_table = validatetable(request.POST['table'])
 
-                # declare temp table
-                detailtemp = ''
-                exec("detailtemp = " + data_table['str_detailtemp'].title() + "()")
+        # declare temp table
+        detailtemp = ''
+        exec ("detailtemp = " + data_table['str_detailtemp'].title() + "()")
 
-                # save col_date
-                exec("detailtemp." + data_table['sal'] + "_date = datetime.datetime.now()")
+        # save col_date
+        exec ("detailtemp." + data_table['sal'] + "_date = datetime.datetime.now()")
 
-                # save item_counter
-                exec("detailtemp.item_counter = len(" + data_table['sal'].title() + "detailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1")
+        # save item_counter
+        exec ("detailtemp.item_counter = len(" + data_table[
+            'sal'].title() + "detailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1")
 
-                tabledetailtemp = data_table['str_detailtemp']
-                tablebreakdowntemp = data_table['str_detailbreakdowntemp']
+        tabledetailtemp = data_table['str_detailtemp']
+        tablebreakdowntemp = data_table['str_detailbreakdowntemp']
 
-                detailtemp.chartofaccount = request.POST['chartofaccount']
+        detailtemp.chartofaccount = request.POST['chartofaccount']
 
-                if request.POST['bankaccount']:
-                    detailtemp.bankaccount = request.POST['bankaccount']
-                if request.POST['department']:
-                    detailtemp.department = request.POST['department']
-                if request.POST['employee']:
-                    detailtemp.employee = request.POST['employee']
-                    employee = Employee.objects.get(pk=request.POST['employee'])
-                    if employee.multiplestatus == 'Y':
-                        detailtemp.employeebreakstatus = 1
-                if request.POST['supplier']:
-                    detailtemp.supplier = request.POST['supplier']
-                    supplier = Supplier.objects.get(pk=request.POST['supplier'])
-                    if supplier.multiplestatus == 'Y':
-                        detailtemp.supplierbreakstatus = 1
-                if request.POST['customer']:
-                    detailtemp.customer = request.POST['customer']
-                    customer = Customer.objects.get(pk=request.POST['customer'])
-                    if customer.multiplestatus == 'Y':
-                        detailtemp.customerbreakstatus = 1
-                if request.POST['unit']:
-                    detailtemp.unit = request.POST['unit']
-                if request.POST['branch']:
-                    detailtemp.branch = request.POST['branch']
-                if request.POST['product']:
-                    detailtemp.product = request.POST['product']
-                if request.POST['inputvat']:
-                    detailtemp.inputvat = request.POST['inputvat']
-                if request.POST['outputvat']:
-                    detailtemp.outputvat = request.POST['outputvat']
-                if request.POST['vat']:
-                    detailtemp.vat = request.POST['vat']
-                if request.POST['wtax']:
-                    detailtemp.wtax = request.POST['wtax']
-                if request.POST['ataxcode']:
-                    detailtemp.ataxcode = request.POST['ataxcode']
-                if request.POST['reftype']:
-                    detailtemp.reftype = request.POST['reftype']
-                if request.POST['refnum']:
-                    detailtemp.refnum = request.POST['refnum']
-                if request.POST['refdate']:
-                    detailtemp.refdate = request.POST['refdate']
+        if request.POST['bankaccount']:
+            detailtemp.bankaccount = request.POST['bankaccount']
+        if request.POST['department']:
+            detailtemp.department = request.POST['department']
+        if request.POST['employee']:
+            detailtemp.employee = request.POST['employee']
+            employee = Employee.objects.get(pk=request.POST['employee'])
+            if employee.multiplestatus == 'Y':
+                detailtemp.employeebreakstatus = 1
+        if request.POST['supplier']:
+            detailtemp.supplier = request.POST['supplier']
+            supplier = Supplier.objects.get(pk=request.POST['supplier'])
+            if supplier.multiplestatus == 'Y':
+                detailtemp.supplierbreakstatus = 1
+        if request.POST['customer']:
+            detailtemp.customer = request.POST['customer']
+            customer = Customer.objects.get(pk=request.POST['customer'])
+            if customer.multiplestatus == 'Y':
+                detailtemp.customerbreakstatus = 1
+        if request.POST['unit']:
+            detailtemp.unit = request.POST['unit']
+        if request.POST['branch']:
+            detailtemp.branch = request.POST['branch']
+        if request.POST['product']:
+            detailtemp.product = request.POST['product']
+        if request.POST['inputvat']:
+            detailtemp.inputvat = request.POST['inputvat']
+        if request.POST['outputvat']:
+            detailtemp.outputvat = request.POST['outputvat']
+        if request.POST['vat']:
+            detailtemp.vat = request.POST['vat']
+        if request.POST['wtax']:
+            detailtemp.wtax = request.POST['wtax']
+        if request.POST['ataxcode']:
+            detailtemp.ataxcode = request.POST['ataxcode']
+        if request.POST['reftype']:
+            detailtemp.reftype = request.POST['reftype']
+        if request.POST['refnum']:
+            detailtemp.refnum = request.POST['refnum']
+        if request.POST['refdate']:
+            detailtemp.refdate = request.POST['refdate']
 
-                if request.POST['creditamount'] != "" and float(request.POST['creditamount'].replace(',', '')) != 0:
-                    balancecode = 'C'
-                else:
-                    balancecode = 'D'
+        if request.POST['creditamount'] != "" and float(request.POST['creditamount'].replace(',', '')) != 0:
+            balancecode = 'C'
+        else:
+            balancecode = 'D'
 
-                if request.POST['creditamount']:
-                    detailtemp.creditamount = request.POST['creditamount'].replace(',', '')
-                if request.POST['debitamount']:
-                    detailtemp.debitamount = request.POST['debitamount'].replace(',', '')
+        if request.POST['creditamount']:
+            detailtemp.creditamount = request.POST['creditamount'].replace(',', '')
+        if request.POST['debitamount']:
+            detailtemp.debitamount = request.POST['debitamount'].replace(',', '')
 
-                detailtemp.balancecode = balancecode
-                detailtemp.secretkey = request.POST['secretkey']
-                detailtemp.enterby = request.user
-                detailtemp.enterdate = datetime.datetime.now()
-                detailtemp.modifyby = request.user
-                detailtemp.modifydate = datetime.datetime.now()
-                detailtemp.save()
+        detailtemp.balancecode = balancecode
+        detailtemp.secretkey = request.POST['secretkey']
+        detailtemp.enterby = request.user
+        detailtemp.enterdate = datetime.datetime.now()
+        detailtemp.modifyby = request.user
+        detailtemp.modifydate = datetime.datetime.now()
+        detailtemp.save()
 
-                table = request.POST['table']
-                context = {
-                    'tabledetailtemp': tabledetailtemp,
-                    'tablebreakdowntemp': tablebreakdowntemp,
-                    'datatemp': querystmtdetail(table, request.POST['secretkey']),
-                    'datatemptotal': querytotaldetail(table, request.POST['secretkey']),
-                }
-                data = {
-                    'datatable': render_to_string('acctentry/datatable.html', context),
-                    'status': 'success',
-                }
+        table = request.POST['table']
+        context = {
+            'tabledetailtemp': tabledetailtemp,
+            'tablebreakdowntemp': tablebreakdowntemp,
+            'datatemp': querystmtdetail(table, request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(table, request.POST['secretkey']),
+        }
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success',
+        }
 
-                return JsonResponse(data)
+        return JsonResponse(data)
+
     else:
         data = {
             'status': 'error',
