@@ -202,14 +202,18 @@ def savemaccountingentry(request):
             print mchart.accountcode[0:2]
             print deptchart.accountcode[0:2]
 
-            if mchart.accountcode[0:2] != deptchart.accountcode[0:2]:
+            if mchart.accountcode[0:1] == '5':
 
-                data = {
-                    'status': 'error',
-                    'msg': 'Expense code did not match with the department code'
-                }
+                if mchart.accountcode[0:2] != deptchart.accountcode[0:2]:
 
-                return JsonResponse(data)
+                    data = {
+                        'status': 'error',
+                        'msg': 'Expense code did not match with the department code'
+                    }
+
+                    return JsonResponse(data)
+            else:
+                print 'ignore'
 
         print 'dito ako'
 
