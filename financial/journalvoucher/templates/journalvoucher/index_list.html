@@ -161,9 +161,15 @@
                     type: "post",
                     data: {'id': $(this).data('id')},
                     success: function(response) {
-                        $('#btnA'+id).hide();
-                        $('#btnD'+id).hide();
-                        $('#status'+id).text('Approved').addClass('success');
+                        if (response['status'] == 'error') {
+                            alert('Opps something is wrong');
+                            alert(response['msg']);
+                            return false;
+                        } else {
+                            $('#btnA'+id).hide();
+                            $('#btnD'+id).hide();
+                            $('#status'+id).text('Approved').addClass('success');
+                        }
                     },
                     error: function(response) {
                         console.debug(response);

@@ -917,24 +917,112 @@ def importrepcsv(request):
 @csrf_exempt
 def approve(request):
     if request.method == 'POST':
+
         approval = Jvmain.objects.get(pk=request.POST['id'])
 
-        if (approval.jvstatus != 'R' and approval.status != 'O'):
-            approval.jvstatus = 'A'
-            approval.responsedate = str(datetime.datetime.now())
-            approval.approverremarks = str(approval.approverremarks) +';'+ 'Approved'
-            approval.actualapprover = User.objects.get(pk=request.user.id)
-            approval.save()
-            data = {'status': 'success'}
+        details = Jvdetail.objects.filter(jvmain_id=approval.id).order_by('item_counter')
+        print details
 
-            # Save Activity Logs
-            Activitylogs.objects.create(
-                user_id=request.user.id,
-                username=request.user,
-                remarks='Aproved JV Transaction #' + str(approval.jvnum)
-            )
+        msg = ""
+        error = 0
+        for item in details:
+
+            chartvalidate = Chartofaccount.objects.get(pk=item.chartofaccount_id)
+
+            ## Double Validation
+            msg += " Chart of Account: " + str(chartvalidate) + " "
+
+            if chartvalidate.bankaccount_enable == 'Y':
+                if item.bankaccount_id is None:
+                    error += 1
+                    msg += "Bank is Needed "
+
+            if chartvalidate.department_enable == 'Y':
+                if item.department_id is None:
+                    error += 1
+                    msg += "Department is Needed "
+                ## check expense
+                print chartvalidate.accountcode
+                if chartvalidate.accountcode[0:1] == '5':
+                    print "expense ako"
+                    dept = Department.objects.get(pk=item.department_id)
+                    deptchart = Chartofaccount.objects.filter(isdeleted=0, status='A',
+                                                              pk=dept.expchartofaccount_id).first()
+
+                    if chartvalidate.accountcode[0:2] != deptchart.accountcode[0:2]:
+                        error += 1
+                        msg += "Expense code did not match with the department code "
+
+            if chartvalidate.supplier_enable == 'Y':
+                if item.supplier_id is None:
+                    error += 1
+                    msg += "Supplier is Needed "
+
+            if chartvalidate.customer_enable == 'Y':
+                if item.customer_id is None:
+                    error += 1
+                    msg += "Customer is Needed "
+
+            if chartvalidate.branch_enable == 'Y':
+                if item.branch_id is None:
+                    error += 1
+                    msg += "Branch is Needed "
+
+            if chartvalidate.unit_enable == 'Y':
+                if item.unit_id is None:
+                    error += 1
+                    msg += "Unit is Needed "
+
+            if chartvalidate.inputvat_enable == 'Y':
+                if item.inputvat_id is None:
+                    error += 1
+                    msg += "Input VAT is Needed "
+
+            if chartvalidate.outputvat_enable == 'Y':
+                if item.outputvat_id is None:
+                    error += 1
+                    msg += "Output VAT is Needed "
+
+            if chartvalidate.vat_enable == 'Y':
+                if item.vat_id is None:
+                    error += 1
+                    msg += "VAT is Needed "
+
+            if chartvalidate.wtax_enable == 'Y':
+                if item.wtax_id is None:
+                    error += 1
+                    msg += "WTAX is Needed "
+
+            if chartvalidate.ataxcode_enable == 'Y':
+                if item.ataxcode_id is None:
+                    error += 1
+                    msg += "ATAX is Needed "
+
+            print error
+            print msg
+
+        if error > 0:
+            data = {'status': 'error', 'msg': msg}
+            return JsonResponse(data)
         else:
-            data = {'status': 'error'}
+            if (approval.jvstatus != 'R' and approval.status != 'O'):
+                approval.jvstatus = 'A'
+                approval.responsedate = str(datetime.datetime.now())
+                approval.approverremarks = str(approval.approverremarks) + ';' + 'Approved'
+                approval.actualapprover = User.objects.get(pk=request.user.id)
+                approval.save()
+                data = {'status': 'success'}
+
+                # Save Activity Logs
+                Activitylogs.objects.create(
+                    user_id=request.user.id,
+                    username=request.user,
+                    remarks='Aproved JV Transaction #' + str(approval.jvnum)
+                )
+            else:
+                data = {'status': 'error'}
+
+            return JsonResponse(data)
     else:
         data = { 'status': 'error' }
 
