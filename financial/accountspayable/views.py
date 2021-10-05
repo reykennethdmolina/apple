@@ -2224,7 +2224,9 @@ def generatedefaultentries(request):
                 ewtaxentry.ap_num = ''
                 ewtaxentry.ap_date = datetime.date.today()
                 ewtaxentry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_ewtax_id
+                ewtaxentry.supplier = int(request.POST['supplier'])
                 print ewtaxentry.chartofaccount
+                print 'pasok ka dito sa atc'
                 ewtaxentry.ataxcode = int(request.POST['atc'])
                 wtax_amount = float(taxable_amount) * (float(Ataxcode.objects.get(pk=int(request.POST['atc']))
                                                              .rate) / 100)
