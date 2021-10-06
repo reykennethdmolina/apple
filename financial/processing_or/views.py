@@ -81,6 +81,7 @@ def fileupload(request):
                             and storeupload(request.FILES['or_d_file'], sequence, 'txt', upload_d_directory):    # 2
                         orcount = 0
                         breakmain = 0
+                        breakstatus = 0
                         status_total = len(open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt").readlines(  ))
                         with open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt") as textFile:
                             for line in textFile:
@@ -90,7 +91,12 @@ def fileupload(request):
                                 for n, i in enumerate(data):
                                     data[n] = data[n].replace('"', '')
 
-                                if len(data) == 38 and breakmain == 0:
+                                print len(data)
+                                print str(data[0])
+                                print data[13]
+                                print breakmain
+                                print breakstatus
+                                if len(data) > 37 and breakmain == 0:
                                     status_percentage = str(int((float(orcount) / float(status_total)) * 100))
                                     print "(1/2 - " + status_percentage + "%) Processing: " + data[0]
 
@@ -102,24 +108,35 @@ def fileupload(request):
                                         importstatus = 'F'
                                         importremarks = 'Skipped: Already exists in this batch'
                                     elif not Bankaccount.objects.filter(code=data[13]):
+                                        print data[13]
+                                        print data[14]
                                         importstatus = 'F'
                                         importremarks = 'Failed: Bank account does not exist'
+                                        print 'Failed: Bank account does not exist'
                                         breakmain = 1
                                     elif not Adtype.objects.filter(code=data[6]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Adtype does not exist'
+                                        print 'Failed: Adtype does not exist'
                                         breakmain = 1
                                     elif not Customer.objects.filter(code=data[7] if data[7] else data[8]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Customer does not exist, please upload Client/Agency'
+                                        print 'Failed: Customer does not exist, please upload Client/Agency'
                                         breakmain = 1
                                     elif not Vat.objects.filter(code=data[33]):
+                                        print data[30]
+                                        print data[31]
+                                        print data[32]
+                                        print data[33]
                                         importstatus = 'F'
                                         importremarks = 'Failed: Vat Type does not exist'
+                                        print 'Failed: Vat Type does not exist'
                                         breakmain = 1
                                     elif not Circulationproduct.objects.filter(code=data[35]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Circulation Product does not exist'
+                                        print 'Failed: Circulation Product does not exist'
                                         breakmain = 1
                                     else:
                                         importstatus = 'S'
@@ -573,7 +590,7 @@ def exportsave(request):
                     orcount += 1
                     status_percentage = str(int((float(orcount) / float(status_total)) * 100))
                     print "(1/1 - " + status_percentage + "%) Processing: " + data.orno
-
+                    print "ok"
                     # logsormain to tempormain
                     temp_ormain = Temp_ormain.objects.create(
                         orno=data.orno,
@@ -861,7 +878,7 @@ def exportsave(request):
                         transaction_type='A',
                         outputvattype=Outputvattype.objects.get(code='OVT-S'),
                         remarks="Payee name: " + temp_ormain.payeename if temp_ormain.payeecode.upper() == 'WI' else '',
-                        logs=log_remarks + "Enter by: <b>" + temp_ormain.enterby + "</b><br>OR date: <b>" + str(temp_ormain.ordate) + "</b>"
+                        logs=log_remarks + "Enter by: <b>" + str(temp_ormain.enterby) + "</b><br>OR date: <b>" + str(temp_ormain.ordate) + "</b>"
                     ).save()
 
                     # temp ordetail to ordetail
