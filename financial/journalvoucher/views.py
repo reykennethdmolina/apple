@@ -924,13 +924,14 @@ def approve(request):
         print details
 
         msg = ""
+        msgchartname = ""
+        msgchart = ""
         error = 0
+        totalerror = 0
         for item in details:
 
             chartvalidate = Chartofaccount.objects.get(pk=item.chartofaccount_id)
 
-            ## Double Validation
-            msg += " Chart of Account: " + str(chartvalidate) + " "
 
             if chartvalidate.bankaccount_enable == 'Y':
                 if item.bankaccount_id is None:
@@ -954,14 +955,19 @@ def approve(request):
                         msg += "Expense code did not match with the department code "
 
             if chartvalidate.supplier_enable == 'Y':
-                if item.supplier_id is None:
-                    error += 1
-                    msg += "Supplier is Needed "
+
+                print chartvalidate.setup_supplier
+                if chartvalidate.setup_supplier is None:
+                    if item.supplier_id is None:
+                        error += 1
+                        msg += "Supplier is Needed "
 
             if chartvalidate.customer_enable == 'Y':
-                if item.customer_id is None:
-                    error += 1
-                    msg += "Customer is Needed "
+                print chartvalidate.setup_customer
+                if chartvalidate.setup_customer is None:
+                    if item.customer_id is None:
+                        error += 1
+                        msg += "Customer is Needed "
 
             if chartvalidate.branch_enable == 'Y':
                 if item.branch_id is None:
@@ -998,11 +1004,19 @@ def approve(request):
                     error += 1
                     msg += "ATAX is Needed "
 
-            print error
-            print msg
+            totalerror += error
+            if error > 0:
+                msgchartname = " Chart of Account: " + str(chartvalidate) + " "
+                ## Double Validation
+                msgchart += str(msgchartname) + " " + str(msg)
+                msg = ""
+                msgchartname = ""
+                error = 0
+            #print error
+            #print msg
 
-        if error > 0:
-            data = {'status': 'error', 'msg': msg}
+        if totalerror > 0:
+            data = {'status': 'error', 'msg': msgchart}
             return JsonResponse(data)
         else:
             if (approval.jvstatus != 'R' and approval.status != 'O'):

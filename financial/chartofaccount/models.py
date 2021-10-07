@@ -71,6 +71,8 @@ class Chartofaccount(models.Model):
     isdeleted = models.IntegerField(default=0)
     is_wtax = models.IntegerField(default=0)
     nontrade = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
+    setup_customer = models.CharField(max_length=250)
+    setup_supplier = models.CharField(max_length=250)
 
     # added for debitcreditmemo
     reftype_enable = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
