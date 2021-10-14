@@ -275,6 +275,7 @@ class GenerateExcelStatus(View):
         worksheet.write('H4', 'Date Received', bold)
         worksheet.write('I4', 'Date Claimed', bold)
         worksheet.write('J4', 'Amount', bold)
+        worksheet.write('J4', 'Cashier Remarks', bold)
 
 
         row = 5
@@ -293,6 +294,7 @@ class GenerateExcelStatus(View):
             worksheet.write(row, col + 6, data.cvmain.received_date, formatdate)
             worksheet.write(row, col + 7, data.cvmain.claimed_date, formatdate)
             worksheet.write(row, col + 8, float(format(data.creditamount, '.2f')))
+            worksheet.write(row, col + 9, data.cvmain.cashier_remarks)
             total += data.creditamount
 
             row += 1
