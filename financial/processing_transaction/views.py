@@ -401,6 +401,7 @@ def importtransdata(request):
                         ewt_entry.ap_date = newapv.cvdate
                     ewt_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_ewtax_id
                     ewt_entry.ataxcode = data_main.atc_id
+                    ewt_entry.supplier = data_main.supplier_id
                     ewt_entry.balancecode = 'C'
                     # ewt_entry.creditamount = float(newpoapvtrans.apamount) * (float(data_main.atcrate) / 100.0) follow
                     # EWT amount in PODETAIL
