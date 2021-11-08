@@ -203,6 +203,57 @@ def fileupload(request):
                                                     importstatus = 'S'
                                                     importremarks = 'Passed'
 
+
+
+                                                # branch = ''
+                                                #
+                                                # if branch_enabled == 'Y':
+                                                #     if data[13].strip() == '' and data[13].strip() is None:
+                                                #         print data[2]
+                                                #         print 'dito blank'
+                                                #         #branch = data[13]
+                                                #     else:
+                                                #         print data[2]
+                                                #         print 'hindi blank'
+                                                        #branch = 'HO'
+                                                #     if data3.branch.strip() != 'HO':
+                                                #         print 'dito ako' + data3.branch.strip()
+                                                #         finaljvdetail.branch = Branch.objects.get(
+                                                #             code=data3.branch.strip())
+                                                #         finaljvdetail.save(update_fields=['branch'])
+                                                #     else:
+                                                #         print 'def HO'
+                                                #         finaljvdetail.branch = Branch.objects.get(code='HO')
+                                                #         finaljvdetail.save(update_fields=['branch'])
+
+
+                                                # #print data[13]
+                                                # branch = ''
+                                                # if branch_enabled == 'Y':
+                                                #     #branch = 'HO'
+                                                #     if data[13]:
+                                                #         branch = 'HO'
+                                                #         #print 'may laman '+data[13]
+                                                #         if data[13] != 'HO':
+                                                #             print 'hindi HO'
+                                                #         #     branch = data[13]
+                                                #         # else:
+                                                #         #     print 'hindi'
+                                                #             #branch = 'HO'
+                                                #     # if data[13] != 'HO':
+                                                #     #     branch = data[13]
+                                                #     # if data[13] == '' or data[13] == None:
+                                                #     #     print 'hey'
+                                                #     #     branch = 'HO'
+                                                #     # if data[13] != 'HO':
+                                                #     #     branch = data[13]
+                                                #     # else:
+                                                #     #     branch = 'HO'
+                                                # # else:
+                                                # #     branch = ''
+                                                #
+                                                # print branch_enabled + ' | ' + branch
+
                                                 Logs_jvdetail.objects.create(
                                                     jvnum=data[0],
                                                     jvdate=data[1],
@@ -221,6 +272,13 @@ def fileupload(request):
                                                     importremarks=importremarks,
                                                     importby=request.user,
                                                 ).save()
+
+                                                # branch_enabled = Chartofaccount.objects.get(accountcode=data[2] + '0000').branch_enable
+                                                # temjvdet = Logs_jvdetail.objects.get(chartofaccount=data[2],batchkey=batchkey).branch
+                                                # print temjvdet
+                                                #print ljvdet.pk.first(
+                                                #.chartofaccount
+                                                #print ljdet.branch
                                                 breakstatus = 0
                                         elif len(data) == 17 and request.POST['upload_type'] == 'OTH-PAY':
                                             if Logs_jvmain.objects.filter(jvnum=data[0], batchkey=batchkey):
@@ -262,10 +320,35 @@ def fileupload(request):
                                             breakstatus = 1
                                             break
 
+                            #branch_enabled = Chartofaccount.objects.filter(branch_enable='Y',accounttype='P')
+                            # logs_ids = Logs_jvdetail.objects.filter(batchkey=batchkey).filter(~Q(branch__in=['PR0', 'ALA', 'ANT', 'CAB', 'CUB', 'HO', 'INT', 'MEG', 'MKT', 'SAN','NRT'])).values_list('pk', flat=True)
+                            logs_ids = Logs_jvdetail.objects.filter(batchkey=batchkey,importstatus='S')
+
+                            for lo in logs_ids:
+                                if str(lo.branch).lstrip() == '':
+                                    branch_enabled = Chartofaccount.objects.get(accountcode=lo.chartofaccount + '0000').branch_enable
+                                    if branch_enabled == 'Y':
+                                        Logs_jvdetail.objects.filter(pk=lo.id).update(branch='HO')
+                                        print lo.id
+                                        print 'tanga'
+                                        #print lo.branch
+
                             if breakstatus == 0:    # 5
                                 jvdata_list = []
                                 jvdata_d_list = []
                                 jvdata_d_total_list = []
+
+
+                                # for be in branch_enabled:
+                                #     ##print be.accountcode[0:6]
+                                #     ll = Logs_jvdetail.objects.filter(batchkey=batchkey,chartofaccount=be.accountcode[0:6]).exclude(branch__in=['PR0','ALA','ANT','CAB','CUB','HO','INT','MEG','MKT','SAN','NRT']) #.update(branch='HO')
+                                #     print ll
+                                #     #ll = Logs_jvdetail.objects.filter(batchkey=batchkey,chartofaccount=be.accountcode[0:6]).filter(branch__in=['PR0','ALA','ANT','CAB','CUB','HO','INT','MEG','MKT','SAN','NRT']) #.update(branch='HO')
+                                #     # for l in ll:
+                                #     #     if l.branch == '':
+                                #     #         print 'blank'
+                                #     #     else:
+                                #     #         print l.branch
 
                                 jvdata = Logs_jvmain.objects.filter(batchkey=batchkey).order_by('jvnum')
                                 jvdata_d = Logs_jvdetail.objects.filter(batchkey=batchkey).extra(
@@ -309,6 +392,10 @@ def fileupload(request):
 
                                 successcount = jvdata.filter(importstatus='S').count()
                                 rate = (float(successcount) / float(jvcount)) * 100
+
+
+                                #print branch_enabled
+                                #Logs_jvdetail.objects.filter(batchkey=batchkey, )
                                 data = {
                                     'result': 1,
                                     'upload_type': request.POST['upload_type'],
