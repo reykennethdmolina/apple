@@ -102,6 +102,9 @@
                 {% if ofmain.actualapprover and ofmain.approverresponse == 'A' and ofmain.ofstatus == 'A' %}
                     <div class="sign_here">SGD {{ ofmain.actualapprover.firstname }}&nbsp;{{ ofmain.actualapprover.lastname }}</div>
                     <div class="watermark"><i>Electronic Approved</i></div>
+                {% elif ofmain.actualapprover and ofmain.approverresponse == 'A' and ofmain.ofstatus == 'R' and ofmain.hrstatus == 'A'%}
+                    <div class="sign_here">SGD {{ aemp.firstname }}&nbsp;{{ aemp.actualapprover.lastname }}</div>
+                    <div class="watermark"><i>Electronic Approved</i></div>
                 {% else %}
                     <div class="sign_here">{{ ofmain.designatedapprover.firstname }}&nbsp;{{ ofmain.designatedapprover.lastname }}</div>
                     <i>Signature over printed name</i>

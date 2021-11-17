@@ -71,7 +71,7 @@ class IndexView(AjaxListView):
             user_employee = get_object_or_None(Employee, user=self.request.user)
 
             if user_employee is not None:
-                print user_employee.hr_approver
+
                 if user_employee.of_approver == 3:
                     print user_employee.group
                     oic_approver = Employee.objects.filter(of_approver=1, group=user_employee.group).values_list('id', flat=True)
@@ -79,8 +79,11 @@ class IndexView(AjaxListView):
                     print oic_approver
                     query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id) | Ofmain.objects.filter(designatedapprover__in=oic_approver)
                     #query = Ofmain.objects.filter(designatedapprover__in=oic_approver)
-                elif user_employee.of_approver == 4 and user_employee.hr_approver == 1:
-                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8,9],ofstatus__in=['A', 'R']) | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                #elif user_employee.of_approver == 4 and user_employee.hr_approver == 1:
+                    #query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8,9],ofstatus__in=['A', 'R']) | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                elif user_employee.of_approver == 6:
+                    print 'hello final'
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F','A', 'R'], nurse_approved = 'A', hr_approved_lvl1 = 'A', hr_approved_lvl2='A') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 else:
                     query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 query = query.filter(isdeleted=0)
@@ -90,10 +93,33 @@ class IndexView(AjaxListView):
             else:
                 query = Ofmain.objects.all().filter(isdeleted=0)
         else:
+
             if self.request.user.has_perm('operationalfund.approve_allof'):
                 query = Ofmain.objects.all().filter(isdeleted=0)
             else:
                 query = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
+
+            ## Eyeglass and Antibiotic
+            user_employee = get_object_or_None(Employee, user=self.request.user)
+
+            if user_employee:
+                print 'employee'
+                print user_employee.hr_approver
+                print 'hr approver ako'
+
+                if user_employee.of_approver == 4:
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F', 'A', 'R']) | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                elif user_employee.of_approver == 5:
+                    print 'hello'
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F','A', 'R'], nurse_approved='A', hr_approved_lvl1='A') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                elif user_employee.of_approver == 6:
+                    print 'hello final'
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F','A', 'R'], nurse_approved = 'A', hr_approved_lvl1 = 'A', hr_approved_lvl2='A') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+            else:
+                print self.request.user.id
+                if self.request.user.id == 274:
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[9, 10],  nurse_approved = 'F') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
@@ -228,6 +254,7 @@ class DetailView(DetailView):
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
+        context['aemp'] = Employee.objects.get(user_id=self.request.user.id)
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         # data for lookup
@@ -280,6 +307,20 @@ class CreateViewUser(CreateView):
         context['secretkey'] = self.mysecretkey
         context['mealexpense'] = Companyparameter.objects.get(code='PDI').pcv_meal_expenses_id
         context['mealbudget'] = Companyparameter.objects.get(code='PDI').pcv_meal_budget_limit
+        context['eyeglass'] = 0
+        ofdepsub = Ofmain.objects.filter(isdeleted=0, requestor_id=user_employee, ofstatus='F', oftype_id=10).aggregate(Sum('amount'))
+        print ofdepsub
+        context['anti_dep_amount'] = max(0, float(user_employee.anti_dep_amount))
+        if ofdepsub['amount__sum']:
+            context['anti_dep_amount'] = max(0, float(user_employee.anti_dep_amount) - float(ofdepsub['amount__sum']))
+
+        print context['anti_dep_amount']
+
+        today = datetime.date.today()
+        ed = user_employee.eyeglass_date
+        diff = today - ed
+        if diff.days > 365:
+            context['eyeglass'] = 1
 
         return context
 
@@ -611,6 +652,8 @@ class UpdateViewUser(UpdateView):
         context['releasedate'] = Ofmain.objects.get(
             pk=self.object.id).releasedate if Ofmain.objects.get(pk=self.object.id).releasedate else None
 
+        context['uploadlist'] = Ofupload.objects.filter(ofmain_id=self.object.pk).order_by('enterdate')
+
         # requested items
         context['itemtemp'] = Ofitemtemp.objects.filter(ofmain=self.object.pk, isdeleted=0,
                                                         secretkey=self.mysecretkey).order_by('item_counter')
@@ -655,6 +698,7 @@ class UpdateViewUser(UpdateView):
                         order_by('item_counter')
                     totalamount = 0
                     i = 1
+                    logs = ""
                     for itemtemp in itemtemp:
                         item = Ofitem()
                         item.item_counter = i
@@ -681,6 +725,8 @@ class UpdateViewUser(UpdateView):
                         itemtemp.delete()
                         totalamount += item.amount
                         i += 1
+                        # logs = itemtemp.particulars + " "
+
 
                     Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=2).delete()
                     # ----------------- END save ofitemtemp to ofitem END ---------------------
@@ -1135,9 +1181,9 @@ class UserPdf(PDFTemplateView):
         context['ofmain'] = Ofmain.objects.get(Q(pk=self.kwargs['pk']), Q(isdeleted=0), (Q(status='A') | Q(status='C')))
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         context['items'] = Ofitem.objects.filter(ofmain=self.kwargs['pk'], isdeleted=0).order_by('item_counter')
-
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
+        context['aemp'] = Employee.objects.get(user_id=context['ofmain'].actualapprover_id)
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
         printedof = Ofmain.objects.get(Q(pk=self.kwargs['pk']), Q(isdeleted=0), (Q(status='A') | Q(status='C')))
@@ -3268,6 +3314,22 @@ def upload(request):
         return HttpResponseRedirect('/operationalfund/' + str(id) )
     return HttpResponseRedirect('/operationalfund/' + str(id) )
 
+def uploadhere(request):
+    folder = 'media/ofupload/'
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        id = request.POST['dataid']
+        fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
+        filename = fs.save(myfile.name, myfile)
+
+        upl = Ofupload(ofmain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
+        upl.save()
+
+        uploaded_file_url = fs.url(filename)
+        return HttpResponseRedirect('/operationalfund/' + str(id) +'/userupdate' )
+    return HttpResponseRedirect('/operationalfund/' + str(id) +'/userupdate' )
+
+
 
 @csrf_exempt
 def filedelete(request):
@@ -3292,10 +3354,33 @@ def hrapprove(request):
 
         if request.POST['status'] == 'A':
             of_for_approval.hrstatus = request.POST['status']
+            of_for_approval.approverresponse = request.POST['status']
+            of_for_approval.responsedate = datetime.datetime.now()
             of_for_approval.ofstatus = 'R'
             of_for_approval.save()
 
+            aemp = Employee.objects.get(pk=request.user.id)
+            of_for_approval.actualapprover_id = aemp.id
+            of_for_approval.save()
+
+            print of_for_approval.amount
+            print of_for_approval.requestor_id
+            print of_for_approval.requestor_name
             print 'update items'
+
+            emp = Employee.objects.get(pk=of_for_approval.requestor_id)
+
+            if of_for_approval.oftype_id == 10:
+                print 'dependet'
+                bal = emp.anti_dep_amount - of_for_approval.amount
+                emp.anti_dep_amount = bal
+                emp.save()
+            elif of_for_approval.oftype_id == 8:
+                print 'eyeglass'
+                emp.eyeglass_amount = of_for_approval.amount
+                emp.save()
+
+
             of_items = Ofitem.objects.filter(ofmain_id=request.POST['id'])
             print of_items
 
@@ -3389,6 +3474,80 @@ def hrapprove(request):
         # send_mail(subject, message, email_from, recipient_list)
         #
         # print receiver.email
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def hrapprove1(request):
+    if request.method == 'POST':
+
+        of_for_approval = Ofmain.objects.get(pk=request.POST['id'])
+
+        of_for_approval.hr_approved_lvl1 = request.POST['status']
+        of_for_approval.hr_approved_lvl1_by = request.user.id
+        of_for_approval.hr_approved_lvl1_date = datetime.datetime.now()
+        of_for_approval.save()
+
+        if request.POST['status'] == 'D':
+            of_for_approval.status = 'C'
+            of_for_approval.save()
+
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def hrapprove2(request):
+    if request.method == 'POST':
+
+        of_for_approval = Ofmain.objects.get(pk=request.POST['id'])
+
+        of_for_approval.hr_approved_lvl2 = request.POST['status']
+        of_for_approval.hr_approved_lvl2_by = request.user.id
+        of_for_approval.hr_approved_lvl2_date = datetime.datetime.now()
+        of_for_approval.save()
+
+        if request.POST['status'] == 'D':
+            of_for_approval.status = 'C'
+            of_for_approval.save()
+
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def nurseapprove(request):
+    if request.method == 'POST':
+
+        of_for_approval = Ofmain.objects.get(pk=request.POST['id'])
+
+        of_for_approval.nurse_approved = request.POST['status']
+        of_for_approval.nurse_approved_date = datetime.datetime.now()
+        of_for_approval.save()
+
+        if request.POST['status'] == 'D':
+            of_for_approval.status = 'C'
+            of_for_approval.save()
+
         data = {
             'status': 'success',
         }

@@ -44,7 +44,7 @@
                     {% elif data.ofstatus == 'H' %} text-info
                     {% elif data.ofstatus == 'R' %} text-success
                     {% endif %}">
-                {% if data.oftype_id == 8 or data.oftype_id == 9%}
+                {% if data.oftype_id == 8 %}
                     {% if data.hrstatus == 'F' %}
                         {% if data.ofstatus == 'F' %}
                             {{ data.get_ofstatus_display }}
@@ -56,7 +56,24 @@
                     {% elif data.hrstatus == 'D' %}
                     <span class="text-danger">HR Disapproved</span>
                     {% endif %}
-                {% else %}
+
+                {% elif data.oftype_id == 9 or data.oftype_id == 10 %}
+                    {% if data.nurse_approved == 'F' and data.hrstatus == 'F' %}
+                        For Nurse Review
+                    {% else %}
+                        {% if data.hrstatus == 'F' %}
+                            {% if data.ofstatus == 'F' %}
+                                {{ data.get_ofstatus_display }}
+                            {% else %}
+                            <span class="text-info">HR Review</span>
+                            {% endif %}
+                        {% elif data.hrstatus == 'A' %}
+                        <span class="text-success">HR Approved</span>
+                        {% elif data.hrstatus == 'D' %}
+                        <span class="text-danger">HR Disapproved</span>
+                        {% endif %}
+                    {% endif %}
+                 {% else %}
                 <b>{{ data.get_ofstatus_display }}</b>
                 <br> {{ data.designatedapprover.firstname|first }}{{ data.designatedapprover.lastname }}
                 {% endif %}
@@ -78,8 +95,8 @@
                                         {% elif data.hrstatus == 'A' or data.hrstatus == 'D' %}
 
                                         {% else %}
-                                  
-                                            {% if data.oftype_id == 8 or data.oftype_id == 9 %}
+
+                                            {% if data.oftype_id == 8 or data.oftype_id == 9 or data.oftype_id == 10 %}
 
                                             {% else %}
 

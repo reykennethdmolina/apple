@@ -41,10 +41,24 @@ class Ofmain(models.Model):
     RESPONSE_CHOICES = (
         ('A', 'Approved'),
         ('D', 'Disapproved'),
+        ('F', 'For Approval'),
     )
     approverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     responsedate = models.DateTimeField(null=True, blank=True)
+
+    hr_approved_lvl1 = models.CharField(max_length=1, choices=RESPONSE_CHOICES, default='F')
+    hr_approved_lvl1_by = models.IntegerField(null=True, blank=True)
+    hr_approved_lvl1_date = models.DateTimeField(null=True, blank=True)
+
+    hr_approved_lvl2 = models.CharField(max_length=1, choices=RESPONSE_CHOICES, default='F')
+    hr_approved_lvl2_by = models.IntegerField(null=True, blank=True)
+    hr_approved_lvl2_date = models.DateTimeField(null=True, blank=True)
+
+    nurse_approved = models.CharField(max_length=1, choices=RESPONSE_CHOICES, default='F')
+    nurse_approved_date = models.DateTimeField(null=True, blank=True)
+
     remarks = models.CharField(max_length=250, null=True, blank=True)
+
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -174,7 +188,7 @@ class Ofitem(models.Model):
     closeby = models.ForeignKey(User, related_name='ofitem_close', null=True, blank=True)
     closedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
-
+    logs = models.TextField(null=True, blank=True)
     class Meta:
         db_table = 'ofitem'
         ordering = ['-pk']

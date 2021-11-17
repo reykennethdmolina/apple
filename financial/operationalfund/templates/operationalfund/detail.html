@@ -70,17 +70,65 @@
                             <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
                         </button>
                               </a>
-                        {% if object.oftype_id == 8  or object.oftype_id == 9  %}
-                        {% if object.hrstatus == 'F' %}
-                            <button type="button" id="hr_approved" class="btn btn-round btn-success btn-sm waves-effect
-                        waves-light hr_approved">
-                            <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; HR Approved
-                        </button>
-                        <button type="button" id="hr_disapproved" class="btn btn-round btn-danger btn-sm waves-effect
-                        waves-light hr_approved">
-                            <i class="icon fa-thumbs-down" aria-hidden="true"></i>&nbsp; HR Disapproved
-                        </button>
+                        {% if object.oftype_id == 8  %}
+                            {% if object.hrstatus == 'F' %}
+                                <button type="button" id="hr_approved" class="btn btn-round btn-success btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; HR Approved
+                            </button>
+                            <button type="button" id="hr_disapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-down" aria-hidden="true"></i>&nbsp; HR Disapproved
+                            </button>
+                            {% endif %}
                         {% endif %}
+                        {% if object.oftype_id == 9 or object.oftype_id == 10  %}
+                            {% if object.hrstatus == 'F' and object.nurse_approved == 'F' and user.id ==  274 %}
+                            <button type="button" id="nurse_approved" class="btn btn-round btn-success btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; Nurse Approved
+                            </button>
+                            <button type="button" id="nurse_disapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-down" aria-hidden="true"></i>&nbsp; Nurse Disapproved
+                            </button>
+                            {% endif %}
+
+                            {% if object.hrstatus == 'F' and object.nurse_approved == 'A' and object.hr_approved_lvl1 == 'F' and object.hr_approved_lvl2 == 'F' and aemp.of_approver == 4 %}
+                            <button type="button" id="hr1_approved" class="btn btn-round btn-success btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; (1) HR Approved
+                            </button>
+                            <button type="button" id="hr1_disapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-down" aria-hidden="true"></i>&nbsp; (1) HR Disapproved
+                            </button>
+                            {% endif %}
+
+                            {% if object.hrstatus == 'F' and object.nurse_approved == 'A' and object.hr_approved_lvl1 == 'A' and object.hr_approved_lvl2 == 'F' and aemp.of_approver == 5 %}
+                            <button type="button" id="hr2_approved" class="btn btn-round btn-success btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; (2) HR Approved
+                            </button>
+                            <button type="button" id="hr2_disapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-down" aria-hidden="true"></i>&nbsp; (2) HR Disapproved
+                            </button>
+                            {% endif %}
+
+
+                            {% if object.hrstatus == 'F' and object.nurse_approved == 'A' and object.hr_approved_lvl1 == 'A' and object.hr_approved_lvl2 == 'A' and aemp.of_approver == 6  %}
+                                <button type="button" id="hr_approved" class="btn btn-round btn-success btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; HR Approved
+                            </button>
+                            <button type="button" id="hr_disapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-down" aria-hidden="true"></i>&nbsp; HR Disapproved
+                            </button>
+                            {% endif %}
+
+
                         {% endif %}
 
                     </div>
@@ -183,17 +231,24 @@
                                             </div>
                                         </div>
 
+
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
                                                 <br>
                                                 <span class="text-info row col-md-1 margin-right-60"><b>Approver</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>
-                                                    {% if object.actualapprover %}
-                                                        {{ object.actualapprover.firstname }}&nbsp;{{ object.actualapprover.lastname }}
+                                                    {% if object.oftype_id == 8 or object.oftype_id == 9 or object.oftype_id == 10 %}
+                                                    {{ aemp.firstname }}&nbsp;{{ aemp.lastname }}
                                                     {% else %}
-                                                        {{ object.designatedapprover.firstname }}&nbsp;{{ object.designatedapprover.lastname }}
-                                                    {% endif %}</span>
+                                                        {% if object.actualapprover %}
+                                                            {{ object.actualapprover.firstname }}&nbsp;{{ object.actualapprover.lastname }}
+                                                        {% else %}
+                                                            {{ object.designatedapprover.firstname }}&nbsp;{{ object.designatedapprover.lastname }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                    </span>
+
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -237,7 +292,7 @@
                                                              {% endif %}"><b>{{ object.get_status_display }}</b></span>
                                             </div>
                                         </div>
-                                        {% if object.oftype_id == 8  or object.oftype_id == 9  %}
+                                        {% if object.oftype_id == 8  or object.oftype_id == 9 or object.oftype_id == 10  %}
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
                                                 <br>
@@ -247,6 +302,33 @@
                                                              {% elif object.hrstatus == 'A' or object.ofstatus == 'R' %} text-success
                                                              {% elif object.hrstatus == 'D' %} text-danger
                                                              {% endif %}"><b>{{ object.get_hrstatus_display }}</b></span>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if object.oftype_id == 9 or object.oftype_id == 10 %}
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+
+                                                <span class="text-info row col-md-2 margin-right-80"><b>Nurse Status</b></span>
+                                                <span class="text-info row col-md-3"><b>: </b></span>
+                                                <span>{{ object.get_nurse_approved_display }} {% if object.nurse_approved_date %} : {{ object.nurse_approved_date|date:'Y-m-d' }}  {% endif %}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+
+                                                <span class="text-info row col-md-2 margin-right-80"><b>(1) HR Status</b></span>
+                                                <span class="text-info row col-md-3"><b>: </b></span>
+                                                <span>{{ object.get_hr_approved_lvl1_display }}  {% if object.hr_approved_lvl1_date %} : {{ object.hr_approved_lvl1_date|date:'Y-m-d' }}  {% endif %}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+
+                                                <span class="text-info row col-md-2 margin-right-80"><b>(2) HR Status</b></span>
+                                                <span class="text-info row col-md-3"><b>: </b></span>
+                                                <span>{{ object.get_hr_approved_lvl2_display }}  {% if object.hr_approved_lvl2_date %} : {{ object.hr_approved_lvl2_date|date:'Y-m-d' }}  {% endif %}</span>
                                             </div>
                                         </div>
                                         {% endif %}
@@ -478,12 +560,14 @@
                                                     </button>
                                                 </a>
                                             {% endif %}
+                                            {% if request.user.id !=  274 %}
                                             {% if perms.operationalfund.delete_ofmain and object.ofstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                                                 <a href="{% url 'operationalfund:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
                                                     <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                                         <i class="icon_trash" aria-hidden="true"></i>
                                                     </button>
                                                 </a>
+                                            {% endif %}
                                             {% endif %}
                                         </div>
                                     </div>
@@ -513,7 +597,7 @@
                                           <th scope="col">Uploaded By</th>
                                           <th scope="col">Uploaded Date</th>
                                           <th scope="col">View</th>
-                                            <th scope="col">Delete</th>
+                                            {% if request.user.id !=  274 %}<th scope="col">Delete</th>{% endif %}
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -523,7 +607,7 @@
                                           <td>{{ data.enterby.username }}</td>
                                           <td>{{ data.enterdate }}</td>
                                           <td><a href="/media/ofupload/{{ data.filename }}" target="_blank">View</a></td>
-                                            <td><button type="button" class="deletefile" data-id="{{ data.id }}" style="color:red">Delete</button></td>
+                                            {% if request.user.id !=  274 %}<td><button type="button" class="deletefile" data-id="{{ data.id }}" style="color:red">Delete</button> </td>{% endif %}
                                         </tr>
                                         {% endfor %}
                                       </tbody>
@@ -633,6 +717,88 @@
 
         });
 
+
+
+        $("#hr1_approved").on('click', function() {
+            var con = confirm('Are you sure you want to approved this Operational Fund Request?');
+
+            if (con) {
+
+                var id = {{ object.pk }};
+                $.ajax({
+                    url: "{% url 'operationalfund:hrapprove1' %}",
+                    type: "post",
+                    data: {'id': id,
+                            'status': 'A'},
+                    success: function(response) {
+                    location.reload();
+                    }
+                });
+
+            }
+
+        });
+
+        $("#hr1_disapproved").on('click', function() {
+            var con = confirm('Are you sure you want to disapproved this Operational Fund Request?');
+
+            if (con) {
+
+                var id = {{ object.pk }};
+                $.ajax({
+                    url: "{% url 'operationalfund:hrapprove1' %}",
+                    type: "post",
+                    data: {'id': id,
+                            'status': 'D'},
+                    success: function(response) {
+                    location.reload();
+                    }
+                });
+
+            }
+
+        });
+
+        $("#hr2_approved").on('click', function() {
+            var con = confirm('Are you sure you want to approved this Operational Fund Request?');
+
+            if (con) {
+
+                var id = {{ object.pk }};
+                $.ajax({
+                    url: "{% url 'operationalfund:hrapprove2' %}",
+                    type: "post",
+                    data: {'id': id,
+                            'status': 'A'},
+                    success: function(response) {
+                    location.reload();
+                    }
+                });
+
+            }
+
+        });
+
+        $("#hr2_disapproved").on('click', function() {
+            var con = confirm('Are you sure you want to disapproved this Operational Fund Request?');
+
+            if (con) {
+
+                var id = {{ object.pk }};
+                $.ajax({
+                    url: "{% url 'operationalfund:hrapprove2' %}",
+                    type: "post",
+                    data: {'id': id,
+                            'status': 'D'},
+                    success: function(response) {
+                    location.reload();
+                    }
+                });
+
+            }
+
+        });
+
         $("#hr_approved").on('click', function() {
             var con = confirm('Are you sure you want to approved this Operational Fund Request?');
 
@@ -661,6 +827,46 @@
                 var id = {{ object.pk }};
                 $.ajax({
                     url: "{% url 'operationalfund:hrapprove' %}",
+                    type: "post",
+                    data: {'id': id,
+                            'status': 'D'},
+                    success: function(response) {
+                    location.reload();
+                    }
+                });
+
+            }
+
+        });
+
+        $("#nurse_approved").on('click', function() {
+            var con = confirm('Are you sure you want to approved this Operational Fund Request?');
+
+            if (con) {
+
+                var id = {{ object.pk }};
+                $.ajax({
+                    url: "{% url 'operationalfund:nurseapprove' %}",
+                    type: "post",
+                    data: {'id': id,
+                            'status': 'A'},
+                    success: function(response) {
+                    location.reload();
+                    }
+                });
+
+            }
+
+        });
+
+        $("#nurse_disapproved").on('click', function() {
+            var con = confirm('Are you sure you want to disapproved this Operational Fund Request?');
+
+            if (con) {
+
+                var id = {{ object.pk }};
+                $.ajax({
+                    url: "{% url 'operationalfund:nurseapprove' %}",
                     type: "post",
                     data: {'id': id,
                             'status': 'D'},

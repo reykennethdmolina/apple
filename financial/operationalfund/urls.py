@@ -16,6 +16,9 @@ urlpatterns = [
     url(r'^autoentry/$', views.autoentry, name='autoentry'),
     url(r'^approve/$', views.approve, name='approve'),
     url(r'^hrapprove/$', views.hrapprove, name='hrapprove'),
+    url(r'^hrapprove1/$', views.hrapprove1, name='hrapprove1'),
+    url(r'^hrapprove2/$', views.hrapprove2, name='hrapprove2'),
+    url(r'^nurseapprove/$', views.nurseapprove, name='nurseapprove'),
     url(r'^releaseof/$', views.releaseof, name='releaseof'),
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     url(r'^(?P<pk>[0-9]+)/userpdf/$', views.UserPdf.as_view(), name='userpdf'),
@@ -46,5 +49,6 @@ urlpatterns = [
     url(r'^gopostanti/$', views.gopostanti, name='gopostanti'),
 
     url(r'^upload/$', views.upload, name='upload'),
+    url(r'^uploadhere/$', views.uploadhere, name='uploadhere'),
     url(r'^filedelete/$', views.filedelete, name='filedelete'),
 ]
