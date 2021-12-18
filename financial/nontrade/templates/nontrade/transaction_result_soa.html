@@ -10,47 +10,47 @@
                     <th>Date</th>
                     <th>Type</th>
                     <th>Number</th>
-                    <th style="width:250px;">Customer / Supplier</th>
-                    <th style="width:300px;">Remarks</th>
+                    <th style="width:300px;">Particulars</th>
                     <th>Debit Amount</th>
                     <th>Credit Amount</th>
-                    <th>Ref Type</th>
-                    <th>Ref No</th>
-                    <th>Ref Date</th>
-                    <th>Action</th>
+                    <th>Balance</th>
                 </tr>
             </thead>
             <tbody>
-            {% for item in data %}
-            <tr {% if item.pcode == None %} class="text-danger" {% endif %}>
+            <tr>
+                <td colspan="4" class="text-right"><b><i>beginning balance</i></b></td>
+                <td class="text-right"></td>
+                <td class="text-right"></td>
+                {% if beg > 0 %}
+                <td class="text-right"><b><i>{{ beg|floatformat:2|intcomma }}</i></b></td>
+                {% else %}
+                <td class="text-right text-danger"><b><i>( {{ beg|abs|floatformat:2|intcomma }} )</i></b></td>
+                {% endif %}
+            </tr>
+            {% for key, item in datalist.items %}
+            <tr>
                 <td class="text-left">{{ item.document_date|date:'Y-m-d' }}</td>
                 <td class="text-left">{{ item.document_type }}</td>
                 <td class="text-left">{{ item.document_num }}</td>
-                <td class="text-left" >{{ item.pcode|default:"N/A" }} - {{ item.pname|default:"NO CUSTOMER/SUPPLIER" }}</td>
                 <td class="text-left">{{ item.particulars }}</td>
                 <td class="text-right">{{ item.debitamount|floatformat:2|intcomma }}</td>
                 <td class="text-right">{{ item.creditamount|floatformat:2|intcomma }}</td>
-                <td class="text-left">
-                    <select id="reftype{{ item.id }}" class="reftype">
-                        <option value="">--</option>
-                        <option value="AP" {% if item.document_reftype = 'AP' %} selected="selected" {% endif %}>AP</option>
-                        <option value="CV" {% if item.document_reftype = 'CV' %} selected="selected" {% endif %}>CV</option>
-                        <option value="JV" {% if item.document_reftype = 'JV' %} selected="selected" {% endif %}>JV</option>
-                        <option value="OR" {% if item.document_reftype = 'OR' %} selected="selected" {% endif %}>OR</option>
-                    </select>
-                </td>
-                <td class="text-left" class="refnum">
-                    <input type="text" style="width:80px"  id="refnum{{ item.id }}" value="{{ item.document_refnum|default:'' }}"></td>
-                <td class="text-left"><span  id="refdate{{ item.id }}">{{ item.document_refdate|date:'Y-m-d'|default:'' }}</span></td>
-                <td><button data-id="{{ item.id }}" class="tagbutton">Tag</button></td>
-
+                {% if item.balance >= 0 %}
+                <td class="text-right">{{ item.balance|floatformat:2|intcomma }}</td>
+                {% else %}
+                <td class="text-right text-danger">( {{ item.balance|abs|floatformat:2|intcomma }} )</td>
+                {% endif%}
             </tr>
             {% endfor %}
             <tr>
-                <td colspan="5" class="text-right">Total</td>
-                <td class="text-right">{{ tdebit|floatformat:2|intcomma }}</td>
-                <td class="text-right">{{ tcredit|floatformat:2|intcomma }}</td>
-                <td colspan="3" class="text-right"></td>
+                <td colspan="4" class="text-right"><b><i>ending balance</i></b></td>
+                <td class="text-right"></td>
+                <td class="text-right"></td>
+                {% if end > 0 %}
+                <td class="text-right"><b><i>{{ end|floatformat:2|intcomma }}</i></b></td>
+                {% else %}
+                <td class="text-right text-danger"><b><i>( {{ end|abs|floatformat:2|intcomma }} )</i></b></td>
+                {% endif %}
             </tr>
             </tbody>
         </table>

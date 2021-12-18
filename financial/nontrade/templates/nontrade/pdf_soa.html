@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load mathfilters %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>STATEMENT OF ACCOUNT</title>
+    <style>
+        @page {
+            size: {{ pagesize }} {{ orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 1cm;
+                height: 2cm;
+            }
+            @frame content_frame {
+                left: 1cm;
+                width: 19.5cm;
+                top: 2.5cm;
+                height: 19.5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 22cm;
+                height: 6cm;
+            }
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 165px;
+            border-bottom: 1px solid black;
+            padding-bottom: -3px;
+            margin-bottom: -3px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <table>
+
+        <tr>
+            <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
+            <td width="500px">
+                <p class="title center">PHILIPPINE DAILY INQUIRER, INC.<br>STATEMENT OF ACCOUNT</p>
+            </td>
+            <td>
+                <!--<p class="number right">SA No. {{ apmain.apnum }}</p>-->
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="footer_content">
+    <table>
+        <tr style="border-top: 2px solid black;border-left: 2px solid black;padding: 5px; padding-bottom: 0px;">
+            <td colspan="6" style="border-right: 2px solid black;"></td>
+        </tr>
+        <tr style="padding: 5px; padding-bottom: 0px;">
+            <td width="20%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;">
+                <div class="sign_here">
+                    {{ username.first_name }}&nbsp;{{ username.last_name }}
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+            <td width="20%"><b>Checked by</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
+                <div class="sign_here">
+                Arlene Astapan
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+        </tr>
+        <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
+            <td width="20%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;">
+                <div class="sign_here">&nbsp;</div>
+            </td>
+            <td width="20%"><b>Noted by</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
+                <div class="sign_here">
+                    Angela T. Garcia
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+        </tr>
+    </table>
+    <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
+        <tr>
+            <td>
+                {{ parameter.report_footer1 }}<br>
+                {{ parameter.report_footer2 }}<br>
+                {{ parameter.report_footer3 }}<br>
+                {{ parameter.report_footer4 }}<br>
+                <b>{{ parameter.report_footer5 }}</b><br>
+                <b>{{ parameter.report_footer6 }}</b><br>
+                {{ parameter.report_footer7 }}{{ request.user }} on {% now 'Y-m-d' %}
+            </td>
+            <td style="margin-left: 30px;width: 600px;">
+                {{ parameter.report_footer8 }}<br>
+                {{ parameter.report_footer9 }}<br>
+                {{ parameter.report_footer10 }}<br>
+                {{ parameter.report_footer11 }}<br>
+                {{ parameter.report_footer12 }}<br>
+                {{ parameter.report_footer13 }}<br>
+                {{ parameter.report_footer14 }}
+            </td>
+        </tr>
+    </table>
+    {%block page_foot%}
+        <div style="text-align: right; font-size: 8px;">
+            Page <pdf:pagenumber /> of <pdf:pagecount />
+        </div>
+    {%endblock%}
+</div>
+<table>
+    <tr>
+        <td><b>{{ cusup|upper }}</b></td>
+    </tr>
+    <tr>
+        <td><br><br><i>{{ datalist }}This is to bill you the amount of (P {{ end|abs|floatformat:2|intcomma }}) representing as follows:</i></td>
+    </tr>
+</table>
+
+
+<table style="padding-left: 5px; margin-top: 20px;">
+
+    <tr class="left" style="border-bottom: 2px solid black;border-top: 2px solid black;padding-top: 5px;">
+        <td style="width: 10%; border-left: 2px solid black">Date</td>
+        <td style="width: 8%" align="center">Type</td>
+        <td style="width: 10%">Number</td>
+        <td style="width: 38%">Particulars</td>
+        <td style="width: 10%" align="right">Debit</td>
+        <td style="width: 10%;" align="right">Credit&nbsp;&nbsp;&nbsp;</td>
+        <td style="width: 14%; border-right: 2px solid black" align="right">Balance&nbsp;&nbsp;&nbsp;</td>
+    </tr>
+    <tr style="padding-top: 5px;">
+        <td colspan="4" align="right"><b><i>beginning balance</i></b></td>
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+        {% if beg > 0 %}
+        <td align="right"><b><i>{{ beg|floatformat:2|intcomma }}</i></b></td>
+        {% else %}
+        <td align="right"><b><i>( {{ beg|abs|floatformat:2|intcomma }} )</i></b></td>
+        {% endif %}
+    </tr>
+    {% for key, item in listing.items %}
+    <tr style="padding-top: 5px;">
+        <td style="width: 12%;">{{ item.document_date|date:'Y-m-d' }}</td>
+        <td style="width: 12%" align="center">{{ item.document_type }}</td>
+        <td style="width: 12%">{{ item.document_num }}</td>
+        <td style="width: 30%">{{ item.particulars }}</td>
+        <td style="width: 10%" align="right">{{ item.debitamount|floatformat:2|intcomma }}</td>
+        <td style="width: 10%;" align="right">{{ item.creditamount|floatformat:2|intcomma }};</td>
+        {% if item.balance >= 0 %}
+        <td style="width: 14%; " align="right">{{ item.balance|floatformat:2|intcomma }}</td>
+        {% else %}
+        <td style="width: 14%; " align="right">( {{ item.balance|abs|floatformat:2|intcomma }} )</td>
+        {% endif%}
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="4" align="right"><b><i>ending balance</i></b></td>
+        <td align="right"></td>
+        <td align="right"></td>
+        {% if end > 0 %}
+        <td align="right"><b><i>{{ end|floatformat:2|intcomma }}</i></b></td>
+        {% else %}
+        <td align="right"><b><i>( {{ end|abs|floatformat:2|intcomma }} )</i></b></td>
+        {% endif %}
+    </tr>
+</table>
+{% block extra_js %}
+
+    <script>
+    alert('asda');
+    </script>
+{% endblock extra_js %}
+</body>
+</html>

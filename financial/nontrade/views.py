@@ -7,13 +7,23 @@ from mrstype.models import Mrstype
 from financial.utils import Render
 from django.utils import timezone
 from django.template.loader import get_template
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from companyparameter.models import Companyparameter
 from accountspayable.models import Apmain
+from checkvoucher.models import Cvmain
+from journalvoucher.models import Jvmain
+from officialreceipt.models import Ormain
+from subledger.models import Subledger
 from chartofaccount.models import Chartofaccount
 from collections import namedtuple
 from django.db import connection
 from django.template.loader import render_to_string
+import pandas as pd
+import io
+import xlsxwriter
+import datetime
+from datetime import timedelta
 
 
 class IndexView(TemplateView):
@@ -25,6 +35,95 @@ class IndexView(TemplateView):
 
         return context
 
+@csrf_exempt
+def tagging(request):
+
+    # print request.GET["id"]
+    # print request.GET["reftype"]
+    # print request.GET["refnum"]
+    # print request.GET["refdate"]
+
+    msg = 'Successfully tag'
+    status = 1
+    tdate= ''
+
+    if request.GET["reftype"] == '':
+        msg = 'Reftype is empty'
+        status = 0
+    elif request.GET["refnum"] == '':
+        msg = 'Refnum is empty'
+        status = 0
+    # elif request.GET["refdate"] == '':
+    #     msg = 'Refdate is empty'
+    #     status = 0
+    else:
+        sub = Subledger.objects.filter(isdeleted=0, id=request.GET["id"]).first()
+        if request.GET["reftype"] == 'AP':
+            print 'AP'
+            main = Apmain.objects.filter(isdeleted=0, apnum=request.GET["refnum"]).first()
+            if main:
+                msg = 'Valid AP Transaction'
+                tdate = main.apdate
+                status = 1
+            else:
+                msg = 'Invalid AP Transaction'
+                status = 0
+        elif request.GET["reftype"] == 'CV':
+            print 'CV'
+            main = Cvmain.objects.filter(isdeleted=0, cvnum=request.GET["refnum"]).first()
+            if main:
+                msg = 'Valid CV Transaction'
+                tdate = main.cvdate
+                status = 1
+            else:
+                msg = 'Invalid CV Transaction'
+                status = 0
+        elif request.GET["reftype"] == 'JV':
+            print 'JV'
+            main = Jvmain.objects.filter(isdeleted=0, jvnum=request.GET["refnum"]).first()
+            if main:
+                msg = 'Valid JV Transaction'
+                tdate = main.jvdate
+                status = 1
+            else:
+                msg = 'Invalid JV Transaction'
+                status = 0
+        elif request.GET["reftype"] == 'OR':
+            print 'OR'
+            main = Ormain.objects.filter(isdeleted=0, ornum=request.GET["refnum"]).first()
+            if main:
+                msg = 'Valid OR Transaction'
+                tdate = main.ordate
+                status = 1
+            else:
+                msg = 'Invalid OR Transaction'
+                status = 0
+
+
+        if status == 1:
+            print 'Valid Transaction'
+            if sub.document_type != request.GET["reftype"]:
+                msg = 'Invalid Transaction Tagging Subledger Type: '+ sub.document_type + ' vs Ref Type: '+ request.GET["reftype"]
+                status = 0
+            else:
+                msg = 'Successfully tag'
+                sub.document_reftype = request.GET["reftype"]
+                sub.document_refnum = request.GET["refnum"]
+                sub.document_refdate = tdate
+                sub.save()
+                status = 1
+
+            print sub.document_type
+            print status
+
+    data = {
+        'status': status,
+        'msg': msg,
+        'tdate': tdate
+    }
+
+
+    return JsonResponse(data)
 
 #@csrf_exempt
 def transgenerate(request):
@@ -34,60 +133,313 @@ def transgenerate(request):
     chartofaccount = request.GET["chartofaccount"]
     payeecode = request.GET["payeecode"]
     payeename = request.GET["payeename"]
+    report = request.GET["report"]
 
-    # status = request.GET["status"]
-
-
+    viewhtml = ''
     context = {}
 
-    print "transaction listing"
+    if report == '1':
+        print "subsidiary ledger"
 
-    data = query(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
-    #print data
+        data = queryLedger(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
 
-    # ndto = datetime.datetime.strptime(dto, "%Y-%m-%d")
-    # todate = datetime.date(int(ndto.year), int(ndto.month), 10)
-    # toyear = todate.year
-    # tomonth = todate.month
-    # nfrom = datetime.datetime.strptime(dfrom, "%Y-%m-%d")
-    # fromdate = datetime.date(int(nfrom.year), int(nfrom.month), 10)
-    # fromyear = fromdate.year
-    # frommonth = fromdate.month
-    #
-    # prevdate = datetime.date(int(fromyear), int(frommonth), 10) - timedelta(days=15)
-    # prevyear = prevdate.year
-    # prevmonth = prevdate.month
-    #
-    # begbalamount = 0
-    # endbalamount = 0
-    # endcode = ''
-    #
-    # if chart != '':
-    #     begbal =Subledgersummary.objects.filter(chartofaccount_id=chart, year=prevyear, month=prevmonth).first();
-    #     if begbal:
-    #         begbalamount = begbal.end_amount
-    #
-    #     endbal =Subledgersummary.objects.filter(chartofaccount_id=chart, year=toyear, month=tomonth).first();
-    #     if endbal:
-    #         endbalamount = endbal.end_amount
-    #         endcode = endbal.end_code
-    #
-    # context['result'] = query_transaction(dto, dfrom, chart, transtatus, status, payeecode, payeename)
-    # context['dto'] = dto
-    context['data'] = data
-    viewhtml = render_to_string('nontrade/transaction_result.html', context)
+        tdebit = 0
+        tcredit = 0
+        for val in data:
+            tdebit += val.debitamount
+            tcredit += val.creditamount
+
+        context['data'] = data
+        context['tdebit'] = tdebit
+        context['tcredit'] = tcredit
+        viewhtml = render_to_string('nontrade/transaction_result_ledger.html', context)
+    elif report == '2':
+        print "schedule"
+
+        data = queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+
+        tbal = 0
+        for val in data:
+            tbal += val.balamount
+
+        context['data'] = data
+        context['tbal'] = tbal
+        viewhtml = render_to_string('nontrade/transaction_result_scheduled.html', context)
+
+    elif report == '3':
+        print "statement of account"
+
+        data = querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+
+        chart = Chartofaccount.objects.filter(isdeleted=0, accounttype='P', nontrade='Y', id=chartofaccount).first()
+
+        print chart.balancecode
+
+        beg_code = 'D'
+        beg = 1000
+        end = 0
+
+        if beg_code != chart.balancecode:
+            beg = beg * -1
+
+        df = pd.DataFrame(data)
+        datalist = {}
+        counter = 0
+        amount = 0
+        balance = beg
+        for index, row in df.iterrows():
+
+            if row['balancecode'] == 'D':
+                amount = (row['debitamount'])
+            else:
+                amount = (row['creditamount'])
+
+            if row['balancecode'] != chart.balancecode:
+                amount = amount * -1
+
+            balance = balance + amount
+            datalist[counter] = dict(document_date=row['document_date'], document_type=row['document_type'], document_num=row['document_num'],
+                                     particulars=row['particulars'],
+                                     debitamount=float(format(row['debitamount'], '.2f')),
+                                     creditamount=float(format(row['creditamount'], '.2f')),
+                                     balance=float(format(balance, '.2f')))
+            end = balance
+            counter += 1
+        print datalist
+        context['datalist'] = datalist
+        context['beg'] = beg
+        context['end'] = end
+        viewhtml = render_to_string('nontrade/transaction_result_soa.html', context)
 
     data = {
         'status': 'success',
         'viewhtml': viewhtml,
-        # 'begbal': float(begbalamount),
-        # 'endbal': float(endbalamount),
-        # 'endcode': endcode
+
     }
     return JsonResponse(data)
 
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        dto = request.GET["dto"]
+        dfrom = request.GET["dfrom"]
+        transaction = request.GET["transaction"]
+        chartofaccount = request.GET["chartofaccount"]
+        payeecode = request.GET["payeecode"]
+        payeename = request.GET["payeename"]
+        report = request.GET["report"]
+        tbal = 0
+        begbal = 0
+        chart = Chartofaccount.objects.filter(isdeleted=0, accounttype='P', nontrade='Y', id=chartofaccount).first()
 
-def query(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
+        if report == '2':
+            title = 'SCHEDULE OF ACCOUNTS PAYABLE (NON-TRADE)'
+
+            data = queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+
+            for val in data:
+                tbal += val.balamount
+
+            context = {
+                "title": title,
+                "today": timezone.now(),
+                "company": company,
+                "listing": data,
+                "tbal": tbal,
+                "chartofaccount": chart,
+                "begbal": begbal,
+                "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
+                "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
+                "username": request.user,
+            }
+
+            return Render.render('nontrade/pdf_scheduled.html', context)
+        elif report == '3':
+            print "statement of account"
+
+            title = 'STATEMENT OF ACCOUNT'
+
+            data = querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+
+            chart = Chartofaccount.objects.filter(isdeleted=0, accounttype='P', nontrade='Y', id=chartofaccount).first()
+
+            print chart.balancecode
+
+            beg_code = 'D'
+            beg = 1000
+            end = 0
+
+            if beg_code != chart.balancecode:
+                beg = beg * -1
+
+            df = pd.DataFrame(data)
+            datalist = {}
+            counter = 0
+            amount = 0
+            balance = beg
+            cusup = ""
+            for index, row in df.iterrows():
+
+                if row['balancecode'] == 'D':
+                    amount = (row['debitamount'])
+                else:
+                    amount = (row['creditamount'])
+
+                if row['balancecode'] != chart.balancecode:
+                    amount = amount * -1
+
+                balance = balance + amount
+                cusup = row['pcode']+' - '+row['pname']
+                datalist[counter] = dict(document_date=row['document_date'], document_type=row['document_type'],
+                                         document_num=row['document_num'],
+                                         particulars=row['particulars'],
+                                         debitamount=float(format(row['debitamount'], '.2f')),
+                                         creditamount=float(format(row['creditamount'], '.2f')),
+                                         balance=float(format(balance, '.2f')))
+                end = balance
+                counter += 1
+            context = {
+                "title": title,
+                "today": timezone.now(),
+                "company": company,
+                "listing": datalist,
+                "balance": balance,
+                "chartofaccount": chart,
+                "beg": beg,
+                "end": end,
+                "cusup": cusup,
+                "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
+                "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
+                "username": request.user,
+            }
+            return Render.render('nontrade/pdf_soa.html', context)
+
+
+
+@method_decorator(login_required, name='dispatch')
+class TransExcel(View):
+    def get(self, request):
+
+        dto = request.GET["dto"]
+        dfrom = request.GET["dfrom"]
+        transaction = request.GET["transaction"]
+        chartofaccount = request.GET["chartofaccount"]
+        payeecode = request.GET["payeecode"]
+        payeename = request.GET["payeename"]
+        report = request.GET["report"]
+
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'MM/DD/YYYY'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        if report == '1':
+            print "subsidiary ledger"
+            filename = "subsidiary_ledger.xlsx"
+
+            result = queryLedger(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+
+            tdebit = 0
+            tcredit = 0
+
+            # title
+            worksheet.write('A1', 'NON-TRADE SUBSIDIARY LEDGER', bold)
+            worksheet.write('A2', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            # header
+            worksheet.write('A4', 'Date', bold)
+            worksheet.write('B4', 'Type', bold)
+            worksheet.write('C4', 'Number', bold)
+            worksheet.write('D4', 'Customer / Supplier', bold)
+            worksheet.write('E4', 'Remarks', bold)
+            worksheet.write('F4', 'Debit Amount', bold)
+            worksheet.write('G4', 'Credit Amount', bold)
+            worksheet.write('H4', 'Ref Type', bold)
+            worksheet.write('I4', 'Ref No', bold)
+            worksheet.write('J4', 'Ref Date', bold)
+
+            row = 5
+            col = 0
+
+            # print result
+
+            for data in result:
+                worksheet.write(row, col, data.document_date, formatdate)
+                worksheet.write(row, col + 1, data.document_type)
+                worksheet.write(row, col + 2, data.document_num)
+                if data.pcode:
+                    worksheet.write(row, col + 3, data.pcode+'-'+data.pname)
+                else:
+                    worksheet.write(row, col + 3, 'N/A - NO CUSTOMER/SUPPLIER')
+                worksheet.write(row, col + 4, data.particulars)
+                worksheet.write(row, col + 5, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.creditamount, '.2f')))
+                worksheet.write(row, col + 7, data.document_reftype)
+                worksheet.write(row, col + 8, data.document_refnum)
+                worksheet.write(row, col + 9, data.document_refdate, formatdate)
+
+                tdebit += data.debitamount
+                tcredit += data.creditamount
+
+                row += 1
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(tdebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(tcredit, '.2f')))
+
+        elif report == '2':
+            filename = "schedule.xlsx"
+
+            result = queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+
+            # title
+            worksheet.write('A1', 'NON-TRADE SCHEDULE', bold)
+            worksheet.write('A2', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            # header
+            worksheet.write('A4', 'Particulars', bold)
+            worksheet.write('B4', 'Amount', bold)
+
+            row = 5
+            col = 0
+            tbal = 0
+
+            for data in result:
+                if data.pcode:
+                    worksheet.write(row, col, data.pcode+'-'+data.pname)
+                else:
+                    worksheet.write(row, col, 'N/A - NO CUSTOMER/SUPPLIER')
+                worksheet.write(row, col + 1, float(format(data.balamount, '.2f')))
+                row += 1
+                tbal += data.balamount
+
+            worksheet.write(row, col, 'Total')
+            worksheet.write(row, col + 1, float(format(tbal, '.2f')))
+
+
+        workbook.close()
+
+        # Rewind the buffer.
+
+        output.seek(0)
+
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
+
+
+def queryLedger(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
 
     conchart = ""
     orderby = "ORDER BY document_date ASC, FIELD(a.document_type, 'AP','CV','JV','OR')"
@@ -112,7 +464,7 @@ def query(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
     query = "SELECT a.id, a.document_type, a.document_id, a.document_num, a.document_date, a.subtype, a.particulars, a.chartofaccount_id, a.document_reftype, a.document_refnum, a.document_refdate, " \
             "a.balancecode, IF (a.balancecode = 'C', a.amount, 0) AS creditamount, IF (a.balancecode = 'D', a.amount, 0) AS debitamount, " \
             "a.document_customer_id, a.document_supplier_id,  " \
-            "b.accountcode, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier, " \
+            "b.accountcode, b.description, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier, " \
             "IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) AS pcode,  " \
             "IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) AS pname, " \
             "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
@@ -125,7 +477,100 @@ def query(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
             "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
             ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby)
 
+    #print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
+    chart = Chartofaccount.objects.filter(isdeleted=0, accounttype='P', nontrade='Y', id=chartofaccount).first()
+
+    conchart = ""
+    orderby = "ORDER BY document_date ASC, FIELD(a.document_type, 'AP','CV','JV','OR')"
+    conpayeecode = ""
+    conpayeename = ""
+
+    if chartofaccount:
+        conchart = "SELECT id FROM chartofaccount WHERE id = '"+str(chartofaccount)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
+    else:
+        conchart  = "SELECT id FROM chartofaccount WHERE main = '"+str(transaction)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
+
+    if payeecode:
+        conpayeecode = "AND IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) = '"+str(payeecode)+"'"
+
+    if payeename:
+        conpayeename = "AND IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) LIKE '%"+str(payeename)+"%'"
+
+    print conchart
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT IFNULL(z.pcode, 'N/A') AS pcode, IFNULL(z.pname, ' NO CUSTOMER/SUPPLIER') AS pname, SUM(z.creditamount) AS creditamount, SUM(z.debitamount) AS debitamount, " \
+            "IF (z.cbcode = 'D', SUM(z.debitamount) - SUM(z.creditamount), SUM(z.creditamount) - SUM(z.debitamount)) AS balamount " \
+            "FROM ( SELECT a.id, a.document_type, a.document_id, a.document_num, a.document_date, a.subtype, a.particulars, a.chartofaccount_id, a.document_reftype, a.document_refnum, a.document_refdate, " \
+            "a.balancecode, IF (a.balancecode = 'C', a.amount, 0) AS creditamount, IF (a.balancecode = 'D', a.amount, 0) AS debitamount, " \
+            "a.document_customer_id, a.document_supplier_id, '"+str(chart.balancecode)+"' AS cbcode, " \
+            "b.accountcode, b.description, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier, " \
+            "IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) AS pcode,  " \
+            "IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) AS pname, " \
+            "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
+            "FROM subledger AS a " \
+            "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
+            "LEFT OUTER JOIN customer AS scust ON scust.id =  b.setup_customer " \
+            "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
+            "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
+            "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
+            ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby) +") AS z GROUP BY pcode ORDER BY pname"
+
     print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
+
+    conchart = ""
+    orderby = "ORDER BY document_date ASC, FIELD(a.document_type, 'AP','CV','JV','OR')"
+    conpayeecode = ""
+    conpayeename = ""
+
+    if chartofaccount:
+        conchart = "SELECT id FROM chartofaccount WHERE id = '"+str(chartofaccount)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
+    else:
+        conchart  = "SELECT id FROM chartofaccount WHERE main = '"+str(transaction)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
+
+    if payeecode:
+        conpayeecode = "AND IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) = '"+str(payeecode)+"'"
+
+    if payeename:
+        conpayeename = "AND IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) = '"+str(payeename)+"'"
+
+    print conchart
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT a.id, a.document_type, a.document_id, a.document_num, a.document_date, a.subtype, a.particulars, a.chartofaccount_id, a.document_reftype, a.document_refnum, a.document_refdate, " \
+            "a.balancecode, IF (a.balancecode = 'C', a.amount, 0) AS creditamount, IF (a.balancecode = 'D', a.amount, 0) AS debitamount, " \
+            "a.document_customer_id, a.document_supplier_id,  " \
+            "b.accountcode, b.description, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier, " \
+            "IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) AS pcode,  " \
+            "IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) AS pname, " \
+            "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
+            "FROM subledger AS a " \
+            "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
+            "LEFT OUTER JOIN customer AS scust ON scust.id =  b.setup_customer " \
+            "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
+            "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
+            "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
+            ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby)
+
+    #print query
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
