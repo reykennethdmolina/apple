@@ -71,7 +71,30 @@
                         </button>
                               </a>
                         {% if object.oftype_id == 8  %}
-                            {% if object.hrstatus == 'F' %}
+                            {% if object.hrstatus == 'F' and object.hr_approved_lvl1 == 'F' and object.hr_approved_lvl2 == 'F' and aemp.of_approver == 4 %}
+                            <button type="button" id="hr1_approved" class="btn btn-round btn-success btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; (1) HR Approved
+                            </button>
+                            <button type="button" id="hr1_disapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-down" aria-hidden="true"></i>&nbsp; (1) HR Disapproved
+                            </button>
+                            {% endif %}
+
+                            {% if object.hrstatus == 'F' and object.hr_approved_lvl1 == 'A' and object.hr_approved_lvl2 == 'F' and aemp.of_approver == 5 %}
+                            <button type="button" id="hr2_approved" class="btn btn-round btn-success btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; (2) HR Approved
+                            </button>
+                            <button type="button" id="hr2_disapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                            waves-light hr_approved">
+                                <i class="icon fa-thumbs-down" aria-hidden="true"></i>&nbsp; (2) HR Disapproved
+                            </button>
+                            {% endif %}
+
+
+                            {% if object.hrstatus == 'F' and object.hr_approved_lvl1 == 'A' and object.hr_approved_lvl2 == 'A' and aemp.of_approver == 6  %}
                                 <button type="button" id="hr_approved" class="btn btn-round btn-success btn-sm waves-effect
                             waves-light hr_approved">
                                 <i class="icon fa-thumbs-up" aria-hidden="true"></i>&nbsp; HR Approved
@@ -82,7 +105,7 @@
                             </button>
                             {% endif %}
                         {% endif %}
-                        {% if object.oftype_id == 9 or object.oftype_id == 10  %}
+                        {% if object.oftype_id == 9 or object.oftype_id == 10 %}
                             {% if object.hrstatus == 'F' and object.nurse_approved == 'F' and user.id ==  274 %}
                             <button type="button" id="nurse_approved" class="btn btn-round btn-success btn-sm waves-effect
                             waves-light hr_approved">
@@ -238,8 +261,8 @@
                                                 <span class="text-info row col-md-1 margin-right-60"><b>Approver</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>
-                                                    {% if object.oftype_id == 8 or object.oftype_id == 9 or object.oftype_id == 10 %}
-                                                    {{ aemp.firstname }}&nbsp;{{ aemp.lastname }}
+                                                    {% if object.oftype_id == 8 or object.oftype_id == 9 or object.oftype_id == 10 and object.hrstatus == 'A' %}
+                                                    {{ aap.firstname }}&nbsp;{{ aap.lastname }}
                                                     {% else %}
                                                         {% if object.actualapprover %}
                                                             {{ object.actualapprover.firstname }}&nbsp;{{ object.actualapprover.lastname }}
@@ -306,7 +329,8 @@
                                         </div>
                                         {% endif %}
 
-                                        {% if object.oftype_id == 9 or object.oftype_id == 10 %}
+                                        {% if object.oftype_id == 9 or object.oftype_id == 10  or object.oftype_id == 8 %}
+                                        {% if object.oftype_id != 8 %}
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="first-name-profile">
 
@@ -315,6 +339,7 @@
                                                 <span>{{ object.get_nurse_approved_display }} {% if object.nurse_approved_date %} : {{ object.nurse_approved_date|date:'Y-m-d' }}  {% endif %}</span>
                                             </div>
                                         </div>
+                                        {% endif %}
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="first-name-profile">
 

@@ -34,7 +34,13 @@
             <td>{{ data.ofdate|date:"Y-m-d" }}</td>
             <td>{{ data.oftype.description }}</td>
             <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
-            <td>{% if data.actualapprover %}{{ data.actualapprover.firstname }}&nbsp;{{ data.actualapprover.lastname }}{% else %}{{ data.designatedapprover.firstname }}&nbsp;{{ data.designatedapprover.lastname }}{% endif %}</td>
+            <td>
+                {% if data.oftype_id == 8 or data.oftype_id == 9 or data.oftype_id == 10 %}
+                HR Admin
+                {% else %}
+                {% if data.actualapprover %}{{ data.actualapprover.firstname }}&nbsp;{{ data.actualapprover.lastname }}{% else %}{{ data.designatedapprover.firstname }}&nbsp;{{ data.designatedapprover.lastname }}{% endif %}
+                {% endif %}
+            </td>
             <td>{{ data.enterby }}</td>
             <td class="tdOfStatus
                     {% if data.ofstatus == 'A' %} text-success
@@ -75,7 +81,10 @@
                     {% endif %}
                  {% else %}
                 <b>{{ data.get_ofstatus_display }}</b>
-                <br> {{ data.designatedapprover.firstname|first }}{{ data.designatedapprover.lastname }}
+                <br>
+
+                {{ data.designatedapprover.firstname|first }}{{ data.designatedapprover.lastname }}
+
                 {% endif %}
             </td>
 

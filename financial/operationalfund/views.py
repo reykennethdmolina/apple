@@ -83,7 +83,7 @@ class IndexView(AjaxListView):
                     #query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8,9],ofstatus__in=['A', 'R']) | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 elif user_employee.of_approver == 6:
                     print 'hello final'
-                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F','A', 'R'], nurse_approved = 'A', hr_approved_lvl1 = 'A', hr_approved_lvl2='A') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F','A', 'R'],  hr_approved_lvl1 = 'A', hr_approved_lvl2='A') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 else:
                     query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 query = query.filter(isdeleted=0)
@@ -111,10 +111,10 @@ class IndexView(AjaxListView):
                     query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F', 'A', 'R']) | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 elif user_employee.of_approver == 5:
                     print 'hello'
-                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F','A', 'R'], nurse_approved='A', hr_approved_lvl1='A') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F','A', 'R'],  hr_approved_lvl1='A') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
                 elif user_employee.of_approver == 6:
                     print 'hello final'
-                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F','A', 'R'], nurse_approved = 'A', hr_approved_lvl1 = 'A', hr_approved_lvl2='A') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                    query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(oftype_id__in=[8, 9, 10], ofstatus__in=['F','A', 'R'], hr_approved_lvl1 = 'A', hr_approved_lvl2='A') | Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
             else:
                 print self.request.user.id
                 if self.request.user.id == 274:
@@ -255,6 +255,9 @@ class DetailView(DetailView):
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['aemp'] = Employee.objects.get(user_id=self.request.user.id)
+        context['aap'] = []
+        if self.object.hrstatus == 'A':
+            context['aap'] = Employee.objects.get(user_id=self.object.actualapprover_id)
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         # data for lookup
@@ -3374,10 +3377,12 @@ def hrapprove(request):
                 print 'dependet'
                 bal = emp.anti_dep_amount - of_for_approval.amount
                 emp.anti_dep_amount = bal
+                emp.anti_dep_date = datetime.datetime.now()
                 emp.save()
             elif of_for_approval.oftype_id == 8:
                 print 'eyeglass'
                 emp.eyeglass_amount = of_for_approval.amount
+                emp.eyeglass_date = datetime.datetime.now()
                 emp.save()
 
 
@@ -3593,7 +3598,7 @@ def searchforpostingAntibiotic(request):
         dfrom = request.POST['dfrom']
         dto = request.POST['dto']
 
-        q = Ofmain.objects.filter(isdeleted=0,status='A',ofstatus='R',hrstatus='A',oftype_id=9).exclude(apmain_id__isnull=False).order_by('ofnum', 'ofdate')
+        q = Ofmain.objects.filter(isdeleted=0,status='A',ofstatus='R',hrstatus='A',oftype_id__in=[9, 10]).exclude(apmain_id__isnull=False).order_by('ofnum', 'ofdate')
         if dfrom != '':
             q = q.filter(ofdate__gte=dfrom)
         if dto != '':
