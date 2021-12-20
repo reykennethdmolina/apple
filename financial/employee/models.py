@@ -51,6 +51,11 @@ class Employee(models.Model):
     hr_approver = models.IntegerField(default=0)
     group = models.CharField(max_length=5, default='B')
 
+    anti_dep_amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2,max_digits=18)
+    anti_dep_date = models.DateTimeField(null=True, blank=True)
+    eyeglass_date = models.DateTimeField(null=True, blank=True)
+    eyeglass_amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2,max_digits=18)
+
     class Meta:
         db_table = 'employee'
         ordering = ['-pk']
