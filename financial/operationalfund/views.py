@@ -1186,7 +1186,7 @@ class UserPdf(PDFTemplateView):
         context['items'] = Ofitem.objects.filter(ofmain=self.kwargs['pk'], isdeleted=0).order_by('item_counter')
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
-        context['aemp'] = Employee.objects.get(user_id=context['ofmain'].actualapprover_id)
+        context['aemp'] = Employee.objects.get(user_id=context['ofmain'].actualapprover_id).first()
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
         printedof = Ofmain.objects.get(Q(pk=self.kwargs['pk']), Q(isdeleted=0), (Q(status='A') | Q(status='C')))
