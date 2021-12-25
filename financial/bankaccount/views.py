@@ -235,6 +235,9 @@ def transgenerate(request):
     endcode = 'D'
 
     cashinbank = 30
+    defcode = 'D'
+
+    print defcode
 
     data = query_transaction(dto, dfrom, cashinbank, bankaccount)
 
@@ -284,21 +287,26 @@ def transgenerate(request):
         begbalamount =float((adtransnet))
         begcode = adtranscode
 
-    # print begbalamount
-    # print netamount
+    print begbalamount
+    print begcode
+    print netamount
     # print endbalamount
 
     # print begbalamount
     # print netamount
-    # endbalamount = float(begbalamount) + float(netamount)
+    print '****'
+    endbalamount = float(begbalamount) + float(netamount)
 
-    if begcode == 'C':
-        endbalamount = (float(begbalamount) * -1) + float(netamount)
-    else:
-        endbalamount = float(abs(begbalamount)) + float(netamount)
+    # if begcode == 'C':
+    #     endbalamount = (float(begbalamount) * -1) + float(netamount)
+    # else:
+    #     endbalamount = float(abs(begbalamount)) + float(netamount)
 
     if float(endbalamount) < 0:
         endcode = 'C'
+
+    print endbalamount
+    print endcode
 
     context['result'] = query_transaction(dto, dfrom, cashinbank, bankaccount)
     context['dfrom'] = dfrom
