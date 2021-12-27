@@ -289,6 +289,8 @@ def transgenerate(request):
 
     print begbalamount
     print begcode
+    if begcode == 'D':
+        begbalamount = abs(begbalamount)
     print netamount
     # print endbalamount
 
