@@ -15,6 +15,7 @@ from checkvoucher.models import Cvmain
 from journalvoucher.models import Jvmain
 from officialreceipt.models import Ormain
 from subledger.models import Subledger
+from customer.models import Customer
 from chartofaccount.models import Chartofaccount
 from collections import namedtuple
 from django.db import connection
@@ -176,8 +177,24 @@ def transgenerate(request):
         print chart.balancecode
 
         beg_code = 'D'
-        beg = 1000
+        beg = 0
         end = 0
+
+        # Begging Balance
+        if transaction == '1':
+            cust = Customer.objects.filter(isdeleted=0, code=payeecode).first()
+            if cust:
+                begdata = begBalance(cust.id)
+
+                if begdata:
+                    for i in begdata:
+                        #print(i.id)
+                        beg = i.beg_amt
+                        beg_code = i.beg_code
+            # print type(begdata)
+            # print str(begdata['beg_amt'])
+            # print begdata.beg_code
+            # print begdata.beg_date
 
         if beg_code != chart.balancecode:
             beg = beg * -1
@@ -205,7 +222,7 @@ def transgenerate(request):
                                      balance=float(format(balance, '.2f')))
             end = balance
             counter += 1
-        print datalist
+        #print datalist
         context['datalist'] = datalist
         context['beg'] = beg
         context['end'] = end
@@ -262,6 +279,7 @@ class GeneratePDF(View):
 
             data = querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
 
+
             chart = Chartofaccount.objects.filter(isdeleted=0, accounttype='P', nontrade='Y', id=chartofaccount).first()
 
             print chart.balancecode
@@ -269,6 +287,20 @@ class GeneratePDF(View):
             beg_code = 'D'
             beg = 1000
             end = 0
+
+            # Begging Balance
+            if transaction == '1':
+                cust = Customer.objects.filter(isdeleted=0, code=payeecode).first()
+                if cust:
+                    begdata = begBalance(cust.id)
+
+                    if begdata:
+                        for i in begdata:
+                            # print(i.id)
+                            beg = i.beg_amt
+                            beg_code = i.beg_code
+
+
 
             if beg_code != chart.balancecode:
                 beg = beg * -1
@@ -413,9 +445,9 @@ class TransExcel(View):
 
             for data in result:
                 if data.pcode:
-                    worksheet.write(row, col, data.pcode+'-'+data.pname)
+                    worksheet.write(row, col, data.pname+' - '+data.pcode)
                 else:
-                    worksheet.write(row, col, 'N/A - NO CUSTOMER/SUPPLIER')
+                    worksheet.write(row, col, ' NO CUSTOMER/SUPPLIER - N/A')
                 worksheet.write(row, col + 1, float(format(data.balamount, '.2f')))
                 row += 1
                 tbal += data.balamount
@@ -489,8 +521,13 @@ def queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename
 
     conchart = ""
     orderby = "ORDER BY document_date ASC, FIELD(a.document_type, 'AP','CV','JV','OR')"
+    #orderby = "ORDER BY IFNULL(z.pcode, ' N/A') ASC, ' NO CUSTOMER/SUPPLIER') ASC"
     conpayeecode = ""
     conpayeename = ""
+    conbeg = ""
+
+    if transaction == '1':
+        conbeg = "LEFT OUTER JOIN beginningbalance AS beg ON (beg.code_id = z.pid AND beg.trans_code = 'NT' AND trans_type = 'AR')"
 
     if chartofaccount:
         conchart = "SELECT id FROM chartofaccount WHERE id = '"+str(chartofaccount)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
@@ -507,12 +544,15 @@ def queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename
     ''' Create query '''
     cursor = connection.cursor()
 
-    query = "SELECT IFNULL(z.pcode, 'N/A') AS pcode, IFNULL(z.pname, ' NO CUSTOMER/SUPPLIER') AS pname, SUM(z.creditamount) AS creditamount, SUM(z.debitamount) AS debitamount, " \
-            "IF (z.cbcode = 'D', SUM(z.debitamount) - SUM(z.creditamount), SUM(z.creditamount) - SUM(z.debitamount)) AS balamount " \
+    query = "SELECT IFNULL(z.pcode, 'N/A') AS pcode, IFNULL(z.pname, ' NO CUSTOMER/SUPPLIER') AS pname,z.pid, IFNULL(beg.beg_code, 'D') AS beg_code, IF (beg.beg_code = 'D', beg.beg_amt, beg.beg_amt * -1) AS begamt, " \
+            "SUM(z.creditamount) AS creditamount, SUM(z.debitamount) AS debitamount, " \
+            "IF (z.cbcode = 'D', SUM(z.debitamount) - SUM(z.creditamount), SUM(z.creditamount) - SUM(z.debitamount)) AS balamountx, " \
+            "IFNULL(IF (z.cbcode = 'D', (IF (beg.beg_code = 'D', beg.beg_amt, beg.beg_amt * -1) + (SUM(z.debitamount) - SUM(z.creditamount))), (IF (beg.beg_code = 'D', beg.beg_amt, beg.beg_amt * -1) + (SUM(z.creditamount) - SUM(z.debitamount)))), 0) AS balamount " \
             "FROM ( SELECT a.id, a.document_type, a.document_id, a.document_num, a.document_date, a.subtype, a.particulars, a.chartofaccount_id, a.document_reftype, a.document_refnum, a.document_refdate, " \
             "a.balancecode, IF (a.balancecode = 'C', a.amount, 0) AS creditamount, IF (a.balancecode = 'D', a.amount, 0) AS debitamount, " \
             "a.document_customer_id, a.document_supplier_id, '"+str(chart.balancecode)+"' AS cbcode, " \
             "b.accountcode, b.description, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier, " \
+            "IF (b.customer_enable = 'Y', dcust.id, IF (b.supplier_enable = 'Y', dsup.id, IF (b.setup_customer != '', scust.id, ssup.id))) AS pid,  " \
             "IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) AS pcode,  " \
             "IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) AS pname, " \
             "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
@@ -523,7 +563,7 @@ def queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename
             "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
             "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
             "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
-            ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby) +") AS z GROUP BY pcode ORDER BY pname"
+            ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby) +") AS z "+str(conbeg) +" GROUP BY pcode ORDER BY pname"
 
     print query
 
@@ -558,6 +598,7 @@ def querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
             "a.balancecode, IF (a.balancecode = 'C', a.amount, 0) AS creditamount, IF (a.balancecode = 'D', a.amount, 0) AS debitamount, " \
             "a.document_customer_id, a.document_supplier_id,  " \
             "b.accountcode, b.description, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier, " \
+            "IF (b.customer_enable = 'Y', dcust.id, IF (b.supplier_enable = 'Y', dsup.id, IF (b.setup_customer != '', scust.id, ssup.id))) AS pid,  " \
             "IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) AS pcode,  " \
             "IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) AS pname, " \
             "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
@@ -570,7 +611,21 @@ def querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
             "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
             ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby)
 
-    #print query
+    print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def begBalance(id):
+
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT * FROM beginningbalance WHERE trans_code = 'NT' AND code_id = '"+str(id)+"'"
+
+    print query
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)

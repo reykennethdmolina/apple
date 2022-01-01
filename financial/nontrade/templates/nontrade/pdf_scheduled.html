@@ -128,7 +128,7 @@
     <tbody>
     {% for item in listing %}
         <tr>
-            <td style="text-align:left;width:500px">{{ item.pcode|default:"N/A" }} - {{ item.pname|default:"NO CUSTOMER/SUPPLIER" }}</td>
+            <td style="text-align:left;width:500px">{{ item.pname|default:"NO CUSTOMER/SUPPLIER" }} - {{ item.pcode|default:"N/A" }}</td>
             {% if item.balamount > 0 %}
             <td class="text-right" style="text-align:right;width:180px">{{ item.balamount|floatformat:2|intcomma }}</td>
             {% else %}
