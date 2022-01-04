@@ -232,29 +232,51 @@ class CreateView(CreateView):
 
         self.object = form.save(commit=False)
 
-        try:
-            #ndto = datetime.datetime.strptime(self.request.POST['apdate'], "%Y-%m-%d")
-            #todate = datetime.date(int(ndto.year), int(ndto.month), 10)
-            #toyear = todate.year
+        year = str(form.cleaned_data['apdate'].year)
+        yearqs = Apmain.objects.filter(apnum__startswith=year)
 
-            apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+        if yearqs:
+            apnumlast = yearqs.latest('apnum')
             latestapnum = str(apnumlast)
-            #print latestapnum
-            print 'latestapnum'
-            if latestapnum[0:4] == str(datetime.datetime.now().year):
-            #if latestapnum[0:4] == str(toyear):
-                apnum = str(datetime.datetime.now().year)
-                last = str(int(latestapnum[4:])+1)
-                zero_addon = 6 - len(last)
-                for x in range(0, zero_addon):
-                    apnum += '0'
-                apnum += last
-                print 'sulod pota ka'
-                print apnum
-            else:
-                apnum = str(datetime.datetime.now().year) + '000001'
-        except Apmain.DoesNotExist:
-            apnum = str(datetime.datetime.now().year) + '000001'
+            print "latest: " + latestapnum
+
+            apnum = year
+            last = str(int(latestapnum[4:]) + 1)
+            print last
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                apnum += '0'
+            apnum += last
+
+        else:
+            apnum = year + '000001'
+
+        print 'apnum: ' + apnum
+
+
+        # try:
+        #     #ndto = datetime.datetime.strptime(self.request.POST['apdate'], "%Y-%m-%d")
+        #     #todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+        #     #toyear = todate.year
+        #
+        #     apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+        #     latestapnum = str(apnumlast)
+        #     #print latestapnum
+        #     print 'latestapnum'
+        #     if latestapnum[0:4] == str(datetime.datetime.now().year):
+        #     #if latestapnum[0:4] == str(toyear):
+        #         apnum = str(datetime.datetime.now().year)
+        #         last = str(int(latestapnum[4:])+1)
+        #         zero_addon = 6 - len(last)
+        #         for x in range(0, zero_addon):
+        #             apnum += '0'
+        #         apnum += last
+        #         print 'sulod pota ka'
+        #         print apnum
+        #     else:
+        #         apnum = str(datetime.datetime.now().year) + '000001'
+        # except Apmain.DoesNotExist:
+        #     apnum = str(datetime.datetime.now().year) + '000001'
 
         vatobject = Vat.objects.get(pk=self.request.POST['vat'], isdeleted=0)
         if self.request.POST['atax']:
