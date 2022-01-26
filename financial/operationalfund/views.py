@@ -254,7 +254,10 @@ class DetailView(DetailView):
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
-        context['aemp'] = Employee.objects.get(user_id=self.request.user.id)
+        if self.request.user.id != 274:
+            context['aemp'] = Employee.objects.filter(user_id=self.request.user.id).first()#Employee.objects.get(user_id=self.request.user.id)
+        else:
+            context['aemp'] = []
         context['aap'] = []
         if self.object.hrstatus == 'A':
             context['aap'] = Employee.objects.get(user_id=self.object.actualapprover_id)
@@ -2454,9 +2457,9 @@ def gopost(request):
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
                     actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'Auto approved from Operational Fund Posting',
+                    approverremarks = 'For approval from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
-                    apstatus = 'A',
+                    apstatus = 'F',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,
@@ -2577,9 +2580,9 @@ def gopostreim(request):
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
                     actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'Auto approved from Operational Fund Posting',
+                    approverremarks = 'For approval from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
-                    apstatus = 'A',
+                    apstatus = 'F',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,
@@ -2700,9 +2703,9 @@ def gopostrev(request):
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
                     actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'Auto approved from Operational Fund Posting',
+                    approverremarks = 'For approval from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
-                    apstatus = 'A',
+                    apstatus = 'F',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,
@@ -2993,7 +2996,7 @@ class GeneratePDF(View):
 
 
             #total = [] #list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
-
+        print list
         context = {
             "title": title,
             "today": timezone.now(),
@@ -3445,7 +3448,8 @@ def hrapprove(request):
 
                     counter += 1
 
-
+            #supplier = Supplier.objects.get(pk=of_for_approval.requestor_id)
+            print emp.supplier_id
             Ofdetail.objects.create(
                 ofmain_id=of_for_approval.id,
                 of_num=of_for_approval.ofnum,
@@ -3455,6 +3459,7 @@ def hrapprove(request):
                 creditamount=of_for_approval.amount,
                 balancecode='C',
                 chartofaccount_id=285,
+                supplier_id=emp.supplier_id,
                 status='A',
                 enterby_id=request.user.id,
                 enterdate=datetime.datetime.now(),
@@ -3682,7 +3687,7 @@ def goposteye(request):
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
                     # actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'For approved from Operational Fund Posting',
+                    approverremarks = 'For approval from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
                     apstatus = 'F',
                     enterby_id = request.user.id,
@@ -3718,6 +3723,7 @@ def goposteye(request):
                         inputvat_id = item.inputvat_id,
                         outputvat_id = item.outputvat_id,
                         product_id = item.product_id,
+                        supplier_id=item.supplier_id,
                         unit_id = item.unit_id,
                         vat_id = item.vat_id,
                         wtax_id = item.wtax_id,
@@ -3805,7 +3811,7 @@ def gopostanti(request):
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
                     # actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'For approved from Operational Fund Posting',
+                    approverremarks = 'For approval from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
                     apstatus = 'F',
                     enterby_id = request.user.id,
@@ -3818,8 +3824,11 @@ def gopostanti(request):
                 detail = Ofdetail.objects.filter(ofmain=of.pk).order_by('item_counter')
                 counter = 1
                 amount = 0
+                dept = 93
                 for item  in detail:
                     amount += item.debitamount
+                    if item.chartofaccount_id == 285:
+                        dept = ''
                     Apdetail.objects.create(
                         apmain_id = main.id,
                         ap_num = main.apnum,
@@ -3836,11 +3845,12 @@ def gopostanti(request):
                         branch_id = item.branch_id,
                         chartofaccount_id = item.chartofaccount_id,
                         customer_id = item.customer_id,
-                        department_id = 93, #item.department_id,
+                        department_id = dept, #item.department_id,
                         employee_id = item.employee_id,
                         inputvat_id = item.inputvat_id,
                         outputvat_id = item.outputvat_id,
                         product_id = item.product_id,
+                        supplier_id = item.supplier_id,
                         unit_id = item.unit_id,
                         vat_id = item.vat_id,
                         wtax_id = item.wtax_id,
@@ -3857,7 +3867,7 @@ def gopostanti(request):
 
                 ofmain = Ofmain.objects.filter(id=of.pk).update(
                     apmain_id = main.id,
-                    remarks = str(of.remarks)+' EYEGLASS SUBSIDY - AP '+str( main.apnum),
+                    remarks = str(of.remarks)+' ANTIBIOTIC SUBSIDY - AP '+str( main.apnum),
                 )
 
         data = {'status': 'success'}

@@ -1,0 +1,313 @@
+{% extends 'base-form.html' %}
+{% load endless %}
+{% load humanize %}
+{% load staticfiles %}
+{% block page-title %}<div style="margin-top: 15px; line-height: 25px;">Non Trade</div>{% endblock page-title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout//assets/css/global/panel-transition.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .panel-title{
+            padding: 12px;
+        }
+        .panel-actions{
+            margin-right: -29px;
+        }
+        .panel-actions a{
+            margin-right: -1px;
+        }
+        #iframe, #iframe_cash_in_bank{
+            width: 100%;
+            height: 900px;
+            position: relative;
+            z-index: 100;
+        }
+        .iframe_preview{
+            padding: 10px;
+            margin: auto;
+        }
+        .shade{
+            margin-left: -40px;
+            margin-top: -40px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel-body container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-bordered">
+                <div class="panel-body" style="padding: 20px;">
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <div class="form-group col-sm-3">
+                                <label class="control-label small">Transaction Date</label><br>
+                                <div class="input-daterange datarange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                        <input type="text" class="form-control input-sm datepickerfrom" id="dfrom">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">to</span>
+                                        <input type="text" class="form-control input-sm datepickerto" id="dto">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Transaction</label>
+                                <select class="form-control input-sm" id="transaction">
+                                    <option value="1">A/R Non-Trade</option>
+                                    <option value="2">A/P Non-Trade</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">Chart of Account</label>
+                                <select class="form-control input-sm" id="chartofaccount">
+                                    <option value="">--All--</option>
+                                    {% for data in chart %}
+                                    <option value="{{ data.id }}" data-main="{{ data.main }}" class="chrt t{{ data.main }}" {% if data.main == 2 %} style='display: none;'  {% endif %}>{{ data.accountcode }} - {{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="control-label small">Classification</label>
+                                <select class="form-control input-sm" id="classification">
+                                    <option value="1">Sorted by transaction date, transaction number with no grouping</option>
+                                    <option value="2">Sorted by supplier, transaction date, transaction number with grouping based on supplier</option>
+                                    <option value="3">Sorted by supplier, ref type/number/date, transaction date, transaction number with grouping based on supplier</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Type</label>
+                                <select class="form-control input-sm" id="report">
+                                    <option value="1">Subsidiary Ledger</option>
+                                    <option value="2">Schedule</option>
+                                    <option value="3">Statement of Account</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Code</label><br>
+                                <input type="text" class="form-control input-sm" id="payeecode">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">Payee </label>
+                                <input type="text" class="form-control input-sm" id="payeename">
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <a class="btn btn-primary waves-effect waves-dark" id="generate" style="margin-top: 22px; width: 30%;">
+                                    <i class="icon fa-file-search-o" aria-hidden="true"></i>&nbsp;&nbsp;Generate
+                                </a>
+                                <a class="btn btn-danger waves-effect waves-dark" id="pdf" style="margin-top: 22px; width: 30%;display:none">
+                                    <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;PDF
+                                </a>
+                                <a class="btn btn-info waves-effect waves-dark" id="excel" style="margin-top: 22px; width: 30%;">
+                                    <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Excel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="text-right">
+
+                <input type="hidden" value="{{ userrole }}" id="user_role">
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-12" style="text-align: center" id="report_container">
+            <div class="iframe_preview panel" id="iframe_preview">
+                <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
+                <iframe id="result" frameborder="0" scrolling="yes"></iframe>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+
+{% endblock page-content %}
+{% block extra_js %}
+    {% load staticfiles %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/panel/panel.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+
+<script>
+    $(function () {
+
+        $('#transaction').on('change', function() {
+            var v = $(this).val();
+
+            $('.chrt').hide();
+            $('#chartofaccount').val('');
+            $('.t'+v).show();
+        });
+
+        $('#report').on('change', function() {
+            var v = $(this).val();
+            $('#excel').show();
+            if (v == 2 || v == 3) {
+                $('#pdf').show();
+                if (v == 3) {
+                    $('#excel').hide();
+                }
+            } else {
+                $('#pdf').hide();
+
+            }
+        });
+
+        $('#generate').on('click', function() {
+
+            var dfrom = $('#dfrom').val();
+            var dto = $('#dto').val();
+            var chartofaccount = $('#chartofaccount').val();
+            var transaction = $('#transaction').val();
+            var classification = $('#classification').val();
+            var payeecode = $('#payeecode').val();
+            var payeename = $('#payeename').val();
+            var report = $('#report').val();
+
+            if (dfrom == '' || dto == '') {
+                alert('Transaction Date must not be empty');
+                return false;
+            }
+
+            if (report == 2) {
+                if (chartofaccount == '') {
+                    alert('Please select Chart of Account');
+                    return false;
+                }
+            } else if (report == 3) {
+                if (chartofaccount == '') {
+                    alert('Please select Chart of Account');
+                    return false;
+                }
+
+                if (payeecode == '' || payeename) {
+                    alert('Please enter Supplier/Customer Code or Name');
+                    return false;
+                }
+
+            }
+
+            $('#iframe_preview').slideUp( 300 ).delay( 800 ).fadeIn( 400 ).html('<iframe id="iframe" frameborder="0" scrolling="yes"></iframe>');
+
+            $.ajax({
+                url: "{% url 'nontrade:transgenerate' %}",
+                type: "get",
+                dataType: "json",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'dfrom': dfrom,
+                    'dto': dto,
+                    'chartofaccount': chartofaccount,
+                    'transaction': transaction,
+                    'classification': classification,
+                    'payeecode': payeecode,
+                    'payeename': payeename,
+                    'report': report,
+                },
+                success: function(response) {
+                    $("#iframe_preview").html(response['viewhtml']);
+                }
+            });
+        });
+
+
+        $('#excel').click(function(){
+
+            var dfrom = $('#dfrom').val();
+            var dto = $('#dto').val();
+            var chartofaccount = $('#chartofaccount').val();
+            var transaction = $('#transaction').val();
+            var classification = $('#classification').val();
+            var payeecode = $('#payeecode').val();
+            var payeename = $('#payeename').val();
+            var report = $('#report').val();
+
+            if (dfrom == '' || dto == '') {
+                alert('Transaction Date must not be empty');
+                return false;
+            }
+
+            if (report == 2) {
+                if (chartofaccount == '') {
+                    alert('Please select Chart of Account');
+                    return false;
+                }
+            } else if (report == 3) {
+                if (chartofaccount == '') {
+                    alert('Please select Chart of Account');
+                    return false;
+                }
+
+                if (payeecode == '' || payeename) {
+                    alert('Please enter Supplier/Customer Code or Name');
+                    return false;
+                }
+
+            }
+            console.log('excel');
+            url = "{% url 'nontrade:transexcel' %}"+"?report="+report+"&transaction="+transaction+"&dfrom="+dfrom+"&dto="+dto+"&chartofaccount="+chartofaccount+"&classification="+classification+"&payeecode="+payeecode+"&payeename="+payeename;
+            <!--$('#result').prop('src', url);-->
+            location.href = url
+        });
+
+        $('#pdf').on('click', function() {
+            var dfrom = $('#dfrom').val();
+            var dto = $('#dto').val();
+            var chartofaccount = $('#chartofaccount').val();
+            var transaction = $('#transaction').val();
+            var classification = $('#classification').val();
+            var payeecode = $('#payeecode').val();
+            var payeename = $('#payeename').val();
+            var report = $('#report').val();
+
+            if (dfrom == '' || dto == '') {
+                alert('Transaction Date must not be empty');
+                return false;
+            }
+
+            if (report == 2) {
+                if (chartofaccount == '') {
+                    alert('Please select Chart of Account');
+                    return false;
+                }
+            } else if (report == 3) {
+                if (chartofaccount == '') {
+                    alert('Please select Chart of Account');
+                    return false;
+                }
+
+                if (payeecode == '' || payeename) {
+                    alert('Please enter Supplier/Customer Code or Name');
+                    return false;
+                }
+
+            }
+            console.log('pdf');
+            url = "{% url 'nontrade:pdf' %}"+"?report="+report+"&transaction="+transaction+"&dfrom="+dfrom+"&dto="+dto+"&chartofaccount="+chartofaccount+"&classification="+classification+"&payeecode="+payeecode+"&payeename="+payeename;
+            window.open(url);
+        });
+
+	});
+
+
+    </script>
+{% endblock extra_js %}
