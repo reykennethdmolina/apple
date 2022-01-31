@@ -3611,7 +3611,7 @@ def query_ledger_add(report, type, dfrom, dto, aptrade, payee):
                 ") AS z " \
                 "ORDER BY z.trandate, z.tran"
 
-        print query
+        #print query
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
     #print query
@@ -3650,7 +3650,7 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 ") AS z " \
                 "ORDER BY z.trandate, z.tran"
 
-        print query
+        #print query
     else:
         con_ap = ""
         con_cv = ""
@@ -3694,7 +3694,7 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 "   ) AS z " + str(con_z) + " " \
                 "   GROUP BY z.payee_id " \
                 "   UNION " \
-                "   SELECT d.code_id, 'BEG' AS tran, '' AS trannum, d.beg_date, SUM(IF (d.beg_code = 'D', d.beg_amt, 0)) AS debitamount, SUM(IF (d.beg_code = 'C', d.beg_amt, 0)) AS creditamount, d.beg_code " \
+                "   SELECT d.code_id, 'BEG' AS tran, '' AS trannum, d.beg_date, SUM(IF (d.beg_code = 'D', 0, 0)) AS debitamount, SUM(IF (d.beg_code = 'C', 0, 0)) AS creditamount, d.beg_code " \
                 "   FROM beginningbalance AS d " \
                 "   WHERE d.accountcode = '2111100000'" + str(con_beg) + " " \
                 "   GROUP BY d.code_id	" \
@@ -3703,6 +3703,15 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 "WHERE z.payee_id IS NOT NULL " \
                 "GROUP BY z.payee_id ORDER BY s.name, s.code"
 
+        # SELECT
+        # d.code_id, 'BEG'
+        # AS
+        # tran, ''
+        # AS
+        # trannum, d.beg_date, SUM(IF(d.beg_code = 'D', d.beg_amt, 0)) AS
+        # debitamount, SUM(IF(d.beg_code = 'C', d.beg_amt, 0)) AS
+        # creditamount, d.beg_code
+        # " \
 
         # query = "SELECT s.code, s.name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, (SUM(z.debitamount) - SUM(z.creditamount)) AS balance, IF(SUM(z.debitamount) > SUM(z.creditamount), 'D', 'C') AS balancecode " \
         #         "FROM ( " \
@@ -3751,7 +3760,7 @@ def query_begbalance(account, payee):
     query = "SELECT * FROM beginningbalance WHERE accountcode = '"+str(account)+"' "+str(con)+""
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
-    # print query
+    #print query
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
@@ -3799,6 +3808,7 @@ class GenerateLedgerPDF(View):
 
             print begcode
             print begamount
+            print 'xx'
 
             addbeg = []
             if dfrom > '2018-12-31':
@@ -3821,6 +3831,8 @@ class GenerateLedgerPDF(View):
                         begcode = 'C'
 
             print begamount
+            print begcode
+            print 'xxx'
 
             q = query_ledger('detail', type, dfrom, dto, aptrade.id, sup.id)
             new_list = []
@@ -3835,7 +3847,7 @@ class GenerateLedgerPDF(View):
                         amount = row.amount
 
                     runbalance += amount
-
+                    print runbalance
                     new_list.append({'tran': row.tran, 'trannum': row.trannum, 'trandate': row.trandate,
                          'debitamount': row.debitamount, 'creditamount': row.creditamount, 'balamount': runbalance, 'particular': row.particulars })
 
@@ -3857,11 +3869,47 @@ class GenerateLedgerPDF(View):
 
             new_list = []
 
-            print apcode
+            begbalance = query_begbalance(aptrade.accountcode, sup.id)
+            apcode = aptrade.balancecode
+
+            if (begbalance):
+                begcode = begbalance[0].beg_code
+                begamount = begbalance[0].beg_amt
+
+            if (apcode != begcode):
+                begamount = begamount * -1
+
+            print begcode
+            print begamount
+
+            addbeg = []
+            if dfrom > '2018-12-31':
+                print dfrom
+                addbeg = query_ledger_add('detail', type, '2019-01-01', dfrom, aptrade.id, sup.id)
+
+                if addbeg:
+                    dfx = pd.DataFrame(addbeg)
+                    runbalancex = begamount
+                    amountx = 0
+                    for index, row in dfx.iterrows():
+                        if row.balancecode != apcode:
+                            amountx = row.amount * -1
+                        else:
+                            amountx = row.amount
+                        runbalancex += amountx
+
+                    begamount = runbalancex
+                    if begamount < 0:
+                        begcode = 'C'
+
+            print begamount
+            print begcode
+            print 'xxx'
+
             if q:
                 df = pd.DataFrame(q)
                 print df
-                runbalance = 0
+                runbalance = begamount
                 for index, row in df.iterrows():
 
                     if row['balancecode'] != apcode:
@@ -3872,8 +3920,10 @@ class GenerateLedgerPDF(View):
                     runbalance += amount
                    # print str(row['code'])+' | '+str(amount)
 
-                    new_list.append({'code': row['code'], 'name': row['name'], 'balance': amount,
-                                    'balancecode': row['balancecode'],})
+                    new_list.append({'code': row['code'], 'name': row['name'], 'balance': runbalance,
+                                    'balancecode': row['balancecode']})
+                    # new_list.append({'code': row['code'], 'name': row['name'], 'balance': amount,
+                    #                 'balancecode': row['balancecode'],})
                 print runbalance
                 list = new_list
 
