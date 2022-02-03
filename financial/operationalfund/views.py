@@ -2457,9 +2457,9 @@ def gopost(request):
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
                     actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'For approval from Operational Fund Posting',
+                    approverremarks = 'Automatic approval from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
-                    apstatus = 'F',
+                    apstatus = 'A',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,
@@ -2581,9 +2581,9 @@ def gopostreim(request):
                     fxrate = 1,
                     designatedapprover_id = 225, # Arlene Astapan
                     actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'For approval from Operational Fund Posting',
+                    approverremarks = 'Automatic approval from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
-                    apstatus = 'F',
+                    apstatus = 'A',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,
@@ -2613,6 +2613,7 @@ def gopostreim(request):
                         chartofaccount_id = item.chartofaccount_id,
                         customer_id = item.customer_id,
                         department_id = item.department_id,
+                        supplier_id=supplier.id,
                         employee_id = item.employee_id,
                         inputvat_id = item.inputvat_id,
                         outputvat_id = item.outputvat_id,
@@ -2702,11 +2703,12 @@ def gopostrev(request):
                     particulars = 'Revolving Fund '+str(of.requestor_name)+' '+str(billingremarks),
                     currency_id = 1,
                     fxrate = 1,
+                    supplier_id=supplier.id,
                     designatedapprover_id = 225, # Arlene Astapan
                     actualapprover_id = 225, # Arlene Astapan
-                    approverremarks = 'For approval from Operational Fund Posting',
+                    approverremarks = 'Automatic approval from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
-                    apstatus = 'F',
+                    apstatus = 'A',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,
