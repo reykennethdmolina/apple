@@ -331,8 +331,8 @@ def transgenerate(request):
     return JsonResponse(data)
 
 def query_sumtransaction(dto, dfrom, chart, bankaccount):
-    #dfrom  = str(dfrom)[0:11]
-    dfrom ='2020-01-01'
+    dfrom  = str(dfrom)[0:11]
+    #dfrom ='2020-01-01'
     dto  = str(dto)[0:11]
     print "Transaction Query"
     ''' Create query '''
