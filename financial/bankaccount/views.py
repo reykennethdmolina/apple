@@ -331,12 +331,15 @@ def transgenerate(request):
     return JsonResponse(data)
 
 def query_sumtransaction(dto, dfrom, chart, bankaccount):
-    dfrom  = str(dfrom)[0:11]
+    #dfrom  = str(dfrom)[0:11]
+    dfrom ='2020-01-01'
     dto  = str(dto)[0:11]
     print "Transaction Query"
     ''' Create query '''
     cursor = connection.cursor()
 
+    print dfrom
+    print '***'
     chart_condition = ''
     chart_bankaccount = ''
 
@@ -370,7 +373,7 @@ def query_sumtransaction(dto, dfrom, chart, bankaccount):
             "LEFT OUTER JOIN ordetail AS d ON m.id = d.ormain_id " \
             "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
             + str(chart_condition) + " " + str(chart_bankaccount)+") AS z "
-    #print query
+    print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
@@ -578,28 +581,28 @@ class GenerateTransExcel(View):
 
         for data in result:
 
-            worksheet.write(row, col + 1, data.tran, formatdate)
-            worksheet.write(row, col + 2, data.tnum, formatdate)
-            worksheet.write(row, col + 3, data.tdate, formatdate)
-            worksheet.write(row, col + 4, data.particulars)
-            worksheet.write(row, col + 5, data.accountcode)
-            worksheet.write(row, col + 6, data.chartofaccount)
-            worksheet.write(row, col + 7, float(format(data.debitamount, '.2f')))
-            worksheet.write(row, col + 8, float(format(data.creditamount, '.2f')))
+            worksheet.write(row, col, data.tran, formatdate)
+            worksheet.write(row, col + 1, data.tnum, formatdate)
+            worksheet.write(row, col + 2, data.tdate, formatdate)
+            worksheet.write(row, col + 3, data.particulars)
+            worksheet.write(row, col + 4, data.accountcode)
+            worksheet.write(row, col + 5, data.chartofaccount)
+            worksheet.write(row, col + 6, float(format(data.debitamount, '.2f')))
+            worksheet.write(row, col + 7, float(format(data.creditamount, '.2f')))
 
             row += 1
 
-        worksheet.write(row, col + 6, 'Total', bold)
-        worksheet.write(row, col + 7, float(format(totaldebit, '.2f')), bold)
-        worksheet.write(row, col + 8, float(format(totalcredit, '.2f')), bold)
+        worksheet.write(row, col + 5, 'Total', bold)
+        worksheet.write(row, col + 6, float(format(totaldebit, '.2f')), bold)
+        worksheet.write(row, col + 7, float(format(totalcredit, '.2f')), bold)
 
-        worksheet.write(row+1, col + 6, 'NET Amount', bold)
+        worksheet.write(row+1, col + 5, 'NET Amount', bold)
         if totaldebit > totalcredit:
-            worksheet.write(row+1, col + 7, float(format(netamount, '.2f')), bold)
-            worksheet.write(row+1, col + 8, float(format(0, '.2f')), bold)
+            worksheet.write(row+1, col + 6, float(format(netamount, '.2f')), bold)
+            worksheet.write(row+1, col + 7, float(format(0, '.2f')), bold)
         else:
-            worksheet.write(row + 1, col + 7, float(format(0, '.2f')), bold)
-            worksheet.write(row + 1, col + 8, float(format(netamount, '.2f')), bold)
+            worksheet.write(row + 1, col + 6, float(format(0, '.2f')), bold)
+            worksheet.write(row + 1, col + 7, float(format(netamount, '.2f')), bold)
 
         workbook.close()
 
