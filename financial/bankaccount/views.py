@@ -669,6 +669,119 @@ class GenerateSummaryTransPDF(View):
         }
         return Render.render('bankaccount/inquiry/cashinbankbalances.html', context)
 
+
+@method_decorator(login_required, name='dispatch')
+class GenerateSummaryTransExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        dto = request.GET["dto"]
+        dfrom = request.GET["dfrom"]
+
+        print "transaction listing"
+
+        ndto = datetime.datetime.strptime(dto, "%Y-%m-%d")
+        todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+        toyear = todate.year
+        tomonth = todate.month
+        nfrom = datetime.datetime.strptime(dfrom, "%Y-%m-%d")
+        fromdate = datetime.date(int(nfrom.year), int(nfrom.month), 10)
+        adfromdate = datetime.datetime.strptime(dfrom, "%Y-%m-%d") - timedelta(days=1)
+        fromyear = fromdate.year
+        frommonth = fromdate.month
+
+        prevdate = datetime.date(int(fromyear), int(frommonth), 10) - timedelta(days=15)
+        prevyear = prevdate.year
+        prevmonth = prevdate.month
+
+        if prevmonth != 12:
+            prevyear = prevdate.year - 1
+
+        cashinbank = 30
+        data = query_cashinbanktransaction(prevyear, dto, str(nfrom.year) + '-01-01', cashinbank, '')
+
+        debit = 0
+        credit = 0
+        grandtotal = 0
+        for l in data:
+            if l.endcode == 'D':
+                debit += l.endamount
+            else:
+                credit += l.endamount
+
+        grandtotal = abs(debit - credit)
+
+        print grandtotal
+
+        # Create an in-memory output file for the new workbook.
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', 'BANK ACCOUNT INQUIRY', bold)
+        worksheet.write('A2', 'AS OF '+str(dto), bold)
+
+        worksheet.write('A3', 'CASH IN BANK BALANCES', bold)
+
+        # header
+        worksheet.write('A5', 'Bank Account', bold)
+        worksheet.write('B5', 'Bank Description', bold)
+        worksheet.write('C5', 'Debit', bold)
+        worksheet.write('D5', 'Credit', bold)
+
+        row = 5
+        col = 0
+
+        debit = 0
+        credit = 0
+        grandtotal = 0
+        row = 5
+        col = 0
+        for l in data:
+            if l.endcode == 'D':
+                worksheet.write(row, col + 2, float(format(l.endamount, '.2f')))
+                worksheet.write(row, col + 3, float(format(0, '.2f')))
+                debit += l.endamount
+            else:
+                worksheet.write(row, col + 2, float(format(0, '.2f')))
+                worksheet.write(row, col + 3, float(format(l.endamount, '.2f')))
+                credit += l.endamount
+
+            worksheet.write(row, col, l.code)
+            worksheet.write(row, col + 1, str(l.bankcode) + ' ' + str(l.bankaccounttype) + ' #' + str(l.accountnumber))
+            row += 1
+
+        worksheet.write(row, col + 1, 'Total')
+        worksheet.write(row, col + 2, float(format(debit, '.2f')))
+        worksheet.write(row, col + 3, float(format(credit, '.2f')))
+        row += 1
+
+        grandtotal = abs(debit - credit)
+
+        worksheet.write(row, col + 1, 'Grand Total')
+        worksheet.write(row, col + 2, float(format(grandtotal, '.2f')))
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        filename = "summarybankaccountinquiry.xlsx"
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
+
 def query_cashinbanktransaction(prevyear, dto, dfrom, chart, bankaccount):
     dfrom  = str(dfrom)[0:11]
     print "Transaction Query"

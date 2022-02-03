@@ -16,5 +16,6 @@ urlpatterns = [
     url(r'^inquiry/$', views.InquiryView.as_view(), name='inquiry'),
     url(r'^transgenerate/$', views.transgenerate, name='transgenerate'),
     url(r'^transexcel/$', views.GenerateTransExcel.as_view(), name='transexcel'),
-    url(r'^summarytranspdf/$', views.GenerateSummaryTransPDF.as_view(), name='summarytranspdf')
+    url(r'^summarytranspdf/$', views.GenerateSummaryTransPDF.as_view(), name='summarytranspdf'),
+    url(r'^summarytransexcel/$', views.GenerateSummaryTransExcel.as_view(), name='summarytransexcel')
 ]
