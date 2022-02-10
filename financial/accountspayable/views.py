@@ -3635,14 +3635,14 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 "(IFNULL(z.debitamount, 0)) AS debitamount, (IFNULL(z.creditamount, 0)) AS creditamount, ((IFNULL(z.debitamount, 0)) + (IFNULL(z.creditamount, 0))) AS amount, z.balancecode, z.particulars " \
                 "FROM ( " \
                 "SELECT s.document_supplier_id AS payee_id, s.document_type AS tran, s.document_num AS trannum, s.document_date AS trandate,  " \
-                "0 AS debitamount, (IFNULL(s.amount, 0)) AS creditamount,  s.balancecode, s.particulars " \
+                "0 AS debitamount, (IFNULL(s.amount, 0)) AS creditamount,  s.balancecode, s.particulars, s.id " \
                 "FROM subledger AS s " \
                 "WHERE s.chartofaccount_id = '"+str(aptrade)+"' AND s.document_date >= '"+str(dfrom)+"' AND s.document_date <= '"+str(dto)+"' AND s.document_supplier_id = '"+str(payee)+"' " \
                 "AND s.document_supplier_id IS NOT NULL " \
                 "AND s.balancecode = 'C' " \
                 "UNION " \
                 "SELECT ss.document_supplier_id AS payee_id, ss.document_type AS tran, ss.document_num AS trannum, ss.document_date AS trandate, " \
-                "(IFNULL(ss.amount, 0)) AS debitamount, 0 AS creditamount, ss.balancecode, ss.particulars " \
+                "(IFNULL(ss.amount, 0)) AS debitamount, 0 AS creditamount, ss.balancecode, ss.particulars, ss.id " \
                 "FROM subledger AS ss " \
                 "WHERE ss.chartofaccount_id = '"+str(aptrade)+"' AND ss.document_date >= '"+str(dfrom)+"' AND ss.document_date <= '"+str(dto)+"' AND ss.document_supplier_id = '"+str(payee)+"' " \
                 "AND ss.document_supplier_id IS NOT NULL " \
@@ -3650,7 +3650,7 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 ") AS z " \
                 "ORDER BY z.trandate, z.tran"
 
-        #print query
+        print query
     else:
         con_ap = ""
         con_cv = ""
