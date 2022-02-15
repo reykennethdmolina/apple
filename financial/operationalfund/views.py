@@ -2703,7 +2703,6 @@ def gopostrev(request):
                     particulars = 'Revolving Fund '+str(of.requestor_name)+' '+str(billingremarks),
                     currency_id = 1,
                     fxrate = 1,
-                    supplier_id=supplier.id,
                     designatedapprover_id = 225, # Arlene Astapan
                     actualapprover_id = 225, # Arlene Astapan
                     approverremarks = 'Automatic approval from Operational Fund Posting',
@@ -2743,6 +2742,7 @@ def gopostrev(request):
                         outputvat_id = item.outputvat_id,
                         product_id = item.product_id,
                         unit_id = item.unit_id,
+                        supplier_id=supplier.id,
                         vat_id = item.vat_id,
                         wtax_id = item.wtax_id,
                         status='A',
