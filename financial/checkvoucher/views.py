@@ -3182,6 +3182,7 @@ def exportsave(request):
                     balancecode='D',
                     amount=data.amount,
                     chartofaccount_id=aptrade,
+                    supplier_id=apdata.apmain.payee_id,
                     enterby_id=request.user.id,
                     enterdate=datetime.datetime.now(),
                     modifyby_id=request.user.id,
