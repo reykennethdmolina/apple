@@ -3859,17 +3859,17 @@ class GenerateLedgerPDF(View):
                 sup = Supplier.objects.filter(code=payee).first()
                 supplier = str(sup.code) + ' - ' + str(sup.name)
                 q = query_ledger('summary', type, dfrom, dto, aptrade.id, sup.id)
-                #begbalance = query_begbalance(aptrade.accountcode, sup.id)
+                begbalance = query_begbalance(aptrade.accountcode, sup.id)
             else:
                 q = query_ledger('summary', type, dfrom, dto, aptrade.id, 'all')
-                #begbalance = query_begbalance(aptrade.accountcode, 'all')
+                begbalance = query_begbalance(aptrade.accountcode, 'all')
 
             new_list = []
 
-            if type == '1':
-                begbalance = query_begbalance(aptrade.accountcode, sup.id)
-            else:
-                begbalance = query_begbalance(aptrade.accountcode, '')
+            # if type == '1':
+            #     begbalance = query_begbalance(aptrade.accountcode, sup.id)
+            # else:
+            #     begbalance = query_begbalance(aptrade.accountcode, '')
             apcode = aptrade.balancecode
 
             if (begbalance):
@@ -3883,24 +3883,25 @@ class GenerateLedgerPDF(View):
             print begamount
 
             addbeg = []
-            if dfrom > '2018-12-31':
-                print dfrom
-                addbeg = query_ledger_add('detail', type, '2019-01-01', dfrom, aptrade.id, sup.id)
+            if type == '1':
+                if dfrom > '2018-12-31':
+                    print dfrom
+                    addbeg = query_ledger_add('detail', type, '2019-01-01', dfrom, aptrade.id, sup.id)
 
-                if addbeg:
-                    dfx = pd.DataFrame(addbeg)
-                    runbalancex = begamount
-                    amountx = 0
-                    for index, row in dfx.iterrows():
-                        if row.balancecode != apcode:
-                            amountx = row.amount * -1
-                        else:
-                            amountx = row.amount
-                        runbalancex += amountx
+                    if addbeg:
+                        dfx = pd.DataFrame(addbeg)
+                        runbalancex = begamount
+                        amountx = 0
+                        for index, row in dfx.iterrows():
+                            if row.balancecode != apcode:
+                                amountx = row.amount * -1
+                            else:
+                                amountx = row.amount
+                            runbalancex += amountx
 
-                    begamount = runbalancex
-                    if begamount < 0:
-                        begcode = 'C'
+                        begamount = runbalancex
+                        if begamount < 0:
+                            begcode = 'C'
 
             print begamount
             print begcode
