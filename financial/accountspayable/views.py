@@ -3694,7 +3694,7 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 "   ) AS z " + str(con_z) + " " \
                 "   GROUP BY z.payee_id " \
                 "   UNION " \
-                "   SELECT d.code_id, 'BEG' AS tran, '' AS trannum, d.beg_date, SUM(IF (d.beg_code = 'D', 0, 0)) AS debitamount, SUM(IF (d.beg_code = 'C', 0, 0)) AS creditamount, d.beg_code " \
+                "   SELECT d.code_id, 'BEG' AS tran, '' AS trannum, d.beg_date, SUM(IF (d.beg_code = 'D', beg_amt, 0)) AS debitamount, SUM(IF (d.beg_code = 'C', beg_amt, 0)) AS creditamount, d.beg_code " \
                 "   FROM beginningbalance AS d " \
                 "   WHERE d.accountcode = '2111100000'" + str(con_beg) + " " \
                 "   GROUP BY d.code_id	" \
@@ -3741,7 +3741,7 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
         #         ") AS z LEFT OUTER JOIN supplier AS s ON s.id = z.payee_id WHERE z.payee_id IS NOT NULL GROUP BY z.payee_id ORDER BY s.name, s.code"
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
-    #print query
+    print query
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
