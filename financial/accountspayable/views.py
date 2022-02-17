@@ -3668,7 +3668,8 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
             con_z = "WHERE z.payee_id = '" + str(payee) + "' "
             con_beg = " AND d.code_id = '" + str(payee) + "' "
 
-        query = "SELECT s.code, s.name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, " \
+
+        query = "SELECT s.code, IFNULL(z.payee_id, '   NO SUPPLIER', s.name) AS name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, " \
                 "(SUM(z.debitamount) - SUM(z.creditamount)) AS balance, " \
                 "IF(SUM(z.debitamount) > SUM(z.creditamount), 'D', 'C') AS balancecode " \
                 "FROM (" \
@@ -3680,7 +3681,6 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 "       0 AS debitamount, SUM(IFNULL(s.amount, 0)) AS creditamount,  s.balancecode " \
                 "       FROM subledger AS s " \
                 "       WHERE s.chartofaccount_id = '"+str(aptrade)+"' AND s.document_date >= '"+str(dfrom)+"' AND s.document_date <= '"+str(dto)+"' " \
-                "       AND s.document_supplier_id IS NOT NULL " \
                 "       AND s.balancecode = 'C' " + str(con_s) + " " \
                 "       GROUP BY s.document_supplier_id " \
                 "       UNION" \
@@ -3688,7 +3688,6 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 "       SUM(IFNULL(ss.amount, 0)) AS debitamount, 0 AS creditamount, ss.balancecode " \
                 "       FROM subledger AS ss " \
                 "       WHERE ss.chartofaccount_id = '"+str(aptrade)+"' AND ss.document_date >= '"+str(dfrom)+"' AND ss.document_date <= '"+str(dto)+"' " \
-                "       AND ss.document_supplier_id IS NOT NULL " \
                 "       AND ss.balancecode = 'D' " + str(con_ss) + " " \
                 "       GROUP BY ss.document_supplier_id" \
                 "   ) AS z " + str(con_z) + " " \
@@ -3702,43 +3701,41 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 "LEFT OUTER JOIN supplier AS s ON s.id = z.payee_id " \
                 "WHERE z.payee_id IS NOT NULL " \
                 "GROUP BY z.payee_id ORDER BY s.name, s.code"
-
-        # SELECT
-        # d.code_id, 'BEG'
-        # AS
-        # tran, ''
-        # AS
-        # trannum, d.beg_date, SUM(IF(d.beg_code = 'D', d.beg_amt, 0)) AS
-        # debitamount, SUM(IF(d.beg_code = 'C', d.beg_amt, 0)) AS
-        # creditamount, d.beg_code
-        # " \
-
-        # query = "SELECT s.code, s.name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, (SUM(z.debitamount) - SUM(z.creditamount)) AS balance, IF(SUM(z.debitamount) > SUM(z.creditamount), 'D', 'C') AS balancecode " \
-        #         "FROM ( " \
-        #         "   SELECT m.payee_id, 'AP' AS tran, d.ap_num AS trannum, d.ap_date AS trandate, SUM(IFNULL(d.debitamount, 0)) AS debitamount, SUM(IFNULL(d.creditamount, 0)) AS creditamount, d.balancecode " \
-        #         "   FROM apdetail AS d " \
-        #         "   LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
-        #         "   WHERE d.chartofaccount_id = '" + str(aptrade) + "'" + str(con_ap) + " " \
-        #         "   AND d.ap_date >= '" + str(dfrom) + "' AND d.ap_date <= '" + str(dto) + "' " \
-        #         "   GROUP BY d.supplier_id" \
+        # query = "SELECT s.code, s.name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, " \
+        #         "(SUM(z.debitamount) - SUM(z.creditamount)) AS balance, " \
+        #         "IF(SUM(z.debitamount) > SUM(z.creditamount), 'D', 'C') AS balancecode " \
+        #         "FROM (" \
+        #         "   SELECT z.payee_id, z.tran, z.trannum, z.trandate, " \
+        #         "   SUM(IFNULL(z.debitamount, 0)) AS debitamount, SUM(IFNULL(z.creditamount, 0)) AS creditamount, " \
+        #         "   IF(SUM(z.debitamount) > SUM(z.creditamount), 'D', 'C') AS balancecode " \
+        #         "   FROM ( " \
+        #         "       SELECT s.document_supplier_id AS payee_id, s.document_type AS tran, s.document_num AS trannum, s.document_date AS trandate, " \
+        #         "       0 AS debitamount, SUM(IFNULL(s.amount, 0)) AS creditamount,  s.balancecode " \
+        #         "       FROM subledger AS s " \
+        #         "       WHERE s.chartofaccount_id = '"+str(aptrade)+"' AND s.document_date >= '"+str(dfrom)+"' AND s.document_date <= '"+str(dto)+"' " \
+        #         "       AND s.document_supplier_id IS NOT NULL " \
+        #         "       AND s.balancecode = 'C' " + str(con_s) + " " \
+        #         "       GROUP BY s.document_supplier_id " \
+        #         "       UNION" \
+        #         "       SELECT ss.document_supplier_id AS payee_id, ss.document_type AS tran, ss.document_num AS trannum, ss.document_date AS trandate, " \
+        #         "       SUM(IFNULL(ss.amount, 0)) AS debitamount, 0 AS creditamount, ss.balancecode " \
+        #         "       FROM subledger AS ss " \
+        #         "       WHERE ss.chartofaccount_id = '"+str(aptrade)+"' AND ss.document_date >= '"+str(dfrom)+"' AND ss.document_date <= '"+str(dto)+"' " \
+        #         "       AND ss.document_supplier_id IS NOT NULL " \
+        #         "       AND ss.balancecode = 'D' " + str(con_ss) + " " \
+        #         "       GROUP BY ss.document_supplier_id" \
+        #         "   ) AS z " + str(con_z) + " " \
+        #         "   GROUP BY z.payee_id " \
         #         "   UNION " \
-        #         "   SELECT m.payee_id, 'CV' AS tran, d.cv_num, d.cv_date, SUM(IFNULL(d.debitamount, 0)) AS debitamount, SUM(IFNULL(d.creditamount, 0)) AS creditamount, d.balancecode " \
-        #         "   FROM cvdetail AS d " \
-        #         "   LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
-        #         "   WHERE d.chartofaccount_id = '" + str(aptrade) + "'" + str(con_cv) + " " \
-        #         "   AND d.cv_date >= '" + str(dfrom) + "' AND d.cv_date <= '" + str(dto) + "' " \
-        #         "   GROUP BY d.supplier_id" \
-        #         "   UNION " \
-        #         "   SELECT d.supplier_id, 'JV' AS tran, d.jv_num, d.jv_date, SUM(IFNULL(d.debitamount, 0)) AS debitamount, SUM(IFNULL(d.creditamount, 0)) AS creditamount, d.balancecode " \
-        #         "   FROM jvdetail AS d " \
-        #         "   LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
-        #         "   WHERE d.chartofaccount_id = '" + str(aptrade) + "'" + str(con_jv) + " " \
-        #         "   AND d.jv_date >= '" + str(dfrom) + "' AND d.jv_date <= '" + str(dto) + "' " \
-        #         "   GROUP BY d.supplier_id	UNION SELECT d.code_id, 'BEG' AS tran, '' AS trannum, d.beg_date, SUM(IF (d.beg_code = 'D', d.beg_amt, 0)) AS debitamount, SUM(IF (d.beg_code = 'C', d.beg_amt, 0)) AS creditamount, d.beg_code " \
+        #         "   SELECT d.code_id, 'BEG' AS tran, '' AS trannum, d.beg_date, SUM(IF (d.beg_code = 'D', beg_amt, 0)) AS debitamount, SUM(IF (d.beg_code = 'C', beg_amt, 0)) AS creditamount, d.beg_code " \
         #         "   FROM beginningbalance AS d " \
         #         "   WHERE d.accountcode = '2111100000'" + str(con_beg) + " " \
         #         "   GROUP BY d.code_id	" \
-        #         ") AS z LEFT OUTER JOIN supplier AS s ON s.id = z.payee_id WHERE z.payee_id IS NOT NULL GROUP BY z.payee_id ORDER BY s.name, s.code"
+        #         ") AS z " \
+        #         "LEFT OUTER JOIN supplier AS s ON s.id = z.payee_id " \
+        #         "WHERE z.payee_id IS NOT NULL " \
+        #         "GROUP BY z.payee_id ORDER BY s.name, s.code"
+
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
     print query
