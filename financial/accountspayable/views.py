@@ -3866,7 +3866,10 @@ class GenerateLedgerPDF(View):
 
             new_list = []
 
-            begbalance = query_begbalance(aptrade.accountcode, sup.id)
+            if type == '1':
+                begbalance = query_begbalance(aptrade.accountcode, sup.id)
+            else:
+                begbalance = query_begbalance(aptrade.accountcode, '')
             apcode = aptrade.balancecode
 
             if (begbalance):
