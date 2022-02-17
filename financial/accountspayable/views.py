@@ -3669,7 +3669,7 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
             con_beg = " AND d.code_id = '" + str(payee) + "' "
 
 
-        query = "SELECT s.code, IFNULL(z.payee_id, '   NO SUPPLIER', s.name) AS name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, " \
+        query = "SELECT s.code, IFNULL(s.name, '  NO SUPPLIER') AS name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, " \
                 "(SUM(z.debitamount) - SUM(z.creditamount)) AS balance, " \
                 "IF(SUM(z.debitamount) > SUM(z.creditamount), 'D', 'C') AS balancecode " \
                 "FROM (" \
