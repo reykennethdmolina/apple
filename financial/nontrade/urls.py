@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^tagging/$', views.tagging, name='tagging'),
     url(r'^transexcel/$', views.TransExcel.as_view(), name='transexcel'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
+    url(r'^datafix/$', views.datafix, name='datafix'),
 ]

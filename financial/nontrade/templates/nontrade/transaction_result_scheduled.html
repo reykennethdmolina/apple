@@ -8,6 +8,8 @@
             <thead>
                 <tr>
                     <th>Particulars</th>
+                    <th>Beginning Balance as of 2018-12-31	</th>
+                    <th>Transaction Balance below 2019-03-01</th>
                     <th>Amount</th>
                 </tr>
             </thead>
@@ -15,6 +17,8 @@
             {% for item in data %}
             <tr {% if item.pcode == None %} class="text-danger" {% endif %}>
                 <td class="text-left"> {{ item.pname|default:"NO CUSTOMER/SUPPLIER" }} - {{ item.pcode|default:"N/A" }}</td>
+                <td>1</td>
+                <td>2</td>
                 {% if item.balamount >= 0 %}
                 <td class="text-right">{{ item.balamount|floatformat:2|intcomma }}</td>
                 {% else %}
@@ -24,6 +28,8 @@
             {% endfor %}
             <tr>
                 <td class="text-right">Total</td>
+                <td>1</td>
+                <td>2</td>
                 {% if tbal > 0 %}
                 <td class="text-right">{{ tbal|floatformat:2|intcomma }}</td>
                 {% else %}

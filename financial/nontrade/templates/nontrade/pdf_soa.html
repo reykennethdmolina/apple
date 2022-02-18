@@ -169,13 +169,23 @@
         <td style="width: 14%; border-right: 2px solid black" align="right">Balance&nbsp;&nbsp;&nbsp;</td>
     </tr>
     <tr style="padding-top: 5px;">
-        <td colspan="4" align="right"><b><i>beginning balance</i></b></td>
+        <td colspan="4" align="right"><b><i>beginning balance as of 2018-12-31</i></b></td>
         <td class="text-right"></td>
         <td class="text-right"></td>
         {% if beg > 0 %}
         <td align="right"><b><i>{{ beg|floatformat:2|intcomma }}</i></b></td>
         {% else %}
         <td align="right"><b><i>( {{ beg|abs|floatformat:2|intcomma }} )</i></b></td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td colspan="4" align="right"><b><i>transaction balance below {{ dfrom}}</i></b></td>
+        <td class="text-right"></td>
+        <td class="text-right"></td>
+        {% if transbeg > 0 %}
+        <td align="right"><b><i>{{ transbeg|floatformat:2|intcomma }}</i></b></td>
+        {% else %}
+        <td align="right"><b><i>( {{ transbeg|abs|floatformat:2|intcomma }} )</i></b></td>
         {% endif %}
     </tr>
     {% for key, item in listing.items %}

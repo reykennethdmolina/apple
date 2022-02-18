@@ -10,7 +10,7 @@ from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from companyparameter.models import Companyparameter
-from accountspayable.models import Apmain
+from accountspayable.models import Apmain, Apdetail
 from checkvoucher.models import Cvmain
 from journalvoucher.models import Jvmain
 from officialreceipt.models import Ormain
@@ -171,6 +171,7 @@ def transgenerate(request):
         print "statement of account"
 
         data = querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+        transdata = querySOATran(dfrom, '2019-01-01', transaction, chartofaccount, payeecode, payeename)
 
         chart = Chartofaccount.objects.filter(isdeleted=0, accounttype='P', nontrade='Y', id=chartofaccount).first()
 
@@ -199,11 +200,30 @@ def transgenerate(request):
         if beg_code != chart.balancecode:
             beg = beg * -1
 
-        df = pd.DataFrame(data)
         datalist = {}
         counter = 0
         amount = 0
         balance = beg
+        transdebit = 0
+        transcredit = 0
+        dft = pd.DataFrame(transdata)
+        for index, row in dft.iterrows():
+            if row['balancecode'] == 'D':
+                amount = (row['debitamount'])
+                transdebit += (row['debitamount'])
+            else:
+                amount = (row['creditamount'])
+                transcredit += (row['creditamount'])
+
+            if row['balancecode'] != chart.balancecode:
+                amount = amount * -1
+
+            balance = balance + amount
+            end = balance
+
+
+        transbeg = transdebit - transcredit
+        df = pd.DataFrame(data)
         for index, row in df.iterrows():
 
             if row['balancecode'] == 'D':
@@ -225,6 +245,8 @@ def transgenerate(request):
         #print datalist
         context['datalist'] = datalist
         context['beg'] = beg
+        context['dfrom'] = dfrom
+        context['transbeg'] = transbeg
         context['end'] = end
         viewhtml = render_to_string('nontrade/transaction_result_soa.html', context)
 
@@ -278,6 +300,7 @@ class GeneratePDF(View):
             title = 'STATEMENT OF ACCOUNT'
 
             data = querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+            transdata = querySOATran(dfrom, '2019-01-01', transaction, chartofaccount, payeecode, payeename)
 
 
             chart = Chartofaccount.objects.filter(isdeleted=0, accounttype='P', nontrade='Y', id=chartofaccount).first()
@@ -305,12 +328,31 @@ class GeneratePDF(View):
             if beg_code != chart.balancecode:
                 beg = beg * -1
 
-            df = pd.DataFrame(data)
             datalist = {}
             counter = 0
             amount = 0
             balance = beg
+            transdebit = 0
+            transcredit = 0
             cusup = ""
+            dft = pd.DataFrame(transdata)
+            for index, row in dft.iterrows():
+                if row['balancecode'] == 'D':
+                    amount = (row['debitamount'])
+                    transdebit += (row['debitamount'])
+                else:
+                    amount = (row['creditamount'])
+                    transcredit += (row['creditamount'])
+
+                if row['balancecode'] != chart.balancecode:
+                    amount = amount * -1
+
+                balance = balance + amount
+                end = balance
+
+            transbeg = transdebit - transcredit
+            df = pd.DataFrame(data)
+
             for index, row in df.iterrows():
 
                 if row['balancecode'] == 'D':
@@ -341,6 +383,7 @@ class GeneratePDF(View):
                 "beg": beg,
                 "end": end,
                 "cusup": cusup,
+                "transbeg": transbeg,
                 "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
                 "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
                 "username": request.user,
@@ -509,7 +552,7 @@ def queryLedger(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
             "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
             ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby)
 
-    #print query
+    print query
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
@@ -528,6 +571,8 @@ def queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename
 
     if transaction == '1':
         conbeg = "LEFT OUTER JOIN beginningbalance AS beg ON (beg.code_id = z.pid AND beg.trans_code = 'NT' AND trans_type = 'AR')"
+    else:
+        conbeg = "LEFT OUTER JOIN beginningbalance AS beg ON (beg.code_id = z.pid AND beg.trans_code = 'NT' AND trans_type = 'AP')"
 
     if chartofaccount:
         conchart = "SELECT id FROM chartofaccount WHERE id = '"+str(chartofaccount)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
@@ -611,6 +656,52 @@ def querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
             "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
             ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby)
 
+    #print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def querySOATran(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
+
+    conchart = ""
+    orderby = "ORDER BY document_date ASC, FIELD(a.document_type, 'AP','CV','JV','OR')"
+    conpayeecode = ""
+    conpayeename = ""
+
+    if chartofaccount:
+        conchart = "SELECT id FROM chartofaccount WHERE id = '"+str(chartofaccount)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
+    else:
+        conchart  = "SELECT id FROM chartofaccount WHERE main = '"+str(transaction)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
+
+    if payeecode:
+        conpayeecode = "AND IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) = '"+str(payeecode)+"'"
+
+    if payeename:
+        conpayeename = "AND IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) = '"+str(payeename)+"'"
+
+    print conchart
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT a.id, a.document_type, a.document_id, a.document_num, a.document_date, a.subtype, a.particulars, a.chartofaccount_id, a.document_reftype, a.document_refnum, a.document_refdate, " \
+            "a.balancecode, IF (a.balancecode = 'C', a.amount, 0) AS creditamount, IF (a.balancecode = 'D', a.amount, 0) AS debitamount, " \
+            "a.document_customer_id, a.document_supplier_id,  " \
+            "b.accountcode, b.description, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier, " \
+            "IF (b.customer_enable = 'Y', dcust.id, IF (b.supplier_enable = 'Y', dsup.id, IF (b.setup_customer != '', scust.id, ssup.id))) AS pid,  " \
+            "IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) AS pcode,  " \
+            "IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) AS pname, " \
+            "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
+            "FROM subledger AS a " \
+            "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
+            "LEFT OUTER JOIN customer AS scust ON scust.id =  b.setup_customer " \
+            "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
+            "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
+            "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
+            ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) > '"+str(dfrom)+"' AND DATE(document_date) < '"+str(dto)+"' "+str(orderby)
+
     print query
 
     cursor.execute(query)
@@ -637,3 +728,27 @@ def namedtuplefetchall(cursor):
     desc = cursor.description
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
+
+@csrf_exempt
+def datafix(request):
+    print 'AP datafix'
+
+    chart = Chartofaccount.objects.filter(isdeleted=0).filter(customer_enable='Y').values_list('id', flat=True)
+    print chart
+    detail = Apdetail.objects.filter(isdeleted=0).filter(chartofaccount_id__in=chart)
+
+    #print detail.count()
+    counter = 1
+    for d in detail:
+
+        s = Subledger.objects.filter(document_type='AP').filter(document_id=d.id).first()
+
+        if s:
+            if s.document_customer_id != d.customer_id:
+                print str(d.id)+'|'+str(d.customer_id)+'|'+str(d.ap_num)+'|'+str(s.document_customer_id)+'|'+str(s.document_num)
+                print counter
+                counter += 1
+
+    print counter
+
+    return 'hey'
