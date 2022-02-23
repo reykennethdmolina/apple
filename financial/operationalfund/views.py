@@ -292,7 +292,16 @@ class CreateViewUser(CreateView):
         self.mysecretkey = generatekey(self)
 
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+
+        # Controlled Pilot Testing 13, 218, 1, 191, 154, 274
+        d = {"13": 13, "218": 218, "1": 1, "191": 191,  "154": 154, "274": 274}
+
+        if str(self.request.user.id) in d:
+            context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+            print 'dito'
+        else:
+            context['oftype'] = Oftype.objects.filter(id__in=[1,2,3,4,5,6]).order_by('pk')
+        #context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         user_employee = get_object_or_None(Employee, user=self.request.user)
         if self.request.user.has_perm('operationalfund.assign_requestor'):
             context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
@@ -624,7 +633,16 @@ class UpdateViewUser(UpdateView):
         context['amount'] = self.object.amount
         # context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
         #     order_by('first_name')
-        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        #context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        # Controlled Pilot Testing 13, 218, 1, 191, 154, 274
+        d = {"13": 13, "218": 218, "1": 1, "191": 191, "154": 154, "274": 274}
+
+        if str(self.request.user.id) in d:
+            context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+            print 'dito'
+        else:
+            context['oftype'] = Oftype.objects.filter(id__in=[1, 2, 3, 4, 5, 6]).order_by('pk')
+        # context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         # context['requestor'] = User.objects.filter(pk=self.request.user.id)
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
@@ -2742,7 +2760,7 @@ def gopostrev(request):
                         outputvat_id = item.outputvat_id,
                         product_id = item.product_id,
                         unit_id = item.unit_id,
-                        supplier_id=supplier.id,
+                        supplier_id= supplier.id,
                         vat_id = item.vat_id,
                         wtax_id = item.wtax_id,
                         status='A',
