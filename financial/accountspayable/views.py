@@ -3699,7 +3699,6 @@ def query_ledger(report, type, dfrom, dto, aptrade, payee):
                 "   GROUP BY d.code_id	" \
                 ") AS z " \
                 "LEFT OUTER JOIN supplier AS s ON s.id = z.payee_id " \
-                #"WHERE z.payee_id IS NOT NULL " \
                 "GROUP BY z.payee_id ORDER BY s.name, s.code"
         # query = "SELECT s.code, s.name, z.payee_id, z.tran, z.trannum, z.trandate, SUM(z.debitamount) AS debitamount, SUM(z.creditamount) AS creditamount, " \
         #         "(SUM(z.debitamount) - SUM(z.creditamount)) AS balance, " \
