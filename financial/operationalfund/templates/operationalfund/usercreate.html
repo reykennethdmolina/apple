@@ -400,33 +400,38 @@
 
                         <!--$("#id_requestor option:selected").attr('disabled','disabled');-->
                     } else if ($("#id_oftype option:selected").text().indexOf("Eyeglass Subsidy") >= 0) {
-                        $("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');
-                        var user_id = {{ user_employee.id }}
-                        console.log(user_id);
+                        <!--$("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');-->
+                        <!--var user_id = {{ user_employee.id }}-->
+                        <!--console.log(user_id);-->
 
-                        $("#id_requestor option:selected").siblings().attr('disabled','disabled');
-                        $('#id_requestor').val(user_id).trigger("change");
-                        $("#id_requestor option[value='" + user_id + "']").attr("disabled", false);
+                        <!--$("#id_requestor option:selected").siblings().attr('disabled','disabled');-->
+                        <!--$('#id_requestor').val(user_id).trigger("change");-->
+                        <!--$("#id_requestor option[value='" + user_id + "']").attr("disabled", false);-->
+
+                        $("#id_requestor option[data-amount='0.00']").removeAttr('disabled');
 
                         <!--$("#id_requestor option:selected").attr('disabled','disabled');-->
                     } else if ($("#id_oftype option:selected").text().indexOf("Antibiotic - Dependent Subsidy") >= 0) {
-                        $("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');
-                        var user_id = {{ user_employee.id }}
-                        console.log(user_id);
+                        <!--$("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');-->
+                        <!--var user_id = {{ user_employee.id }}-->
+                        <!--console.log(user_id);-->
 
-                        $("#id_requestor option:selected").siblings().attr('disabled','disabled');
-                        $('#id_requestor').val(user_id).trigger("change");
-                        $("#id_requestor option[value='" + user_id + "']").attr("disabled", false);
+                        <!--$("#id_requestor option:selected").siblings().attr('disabled','disabled');-->
+                        <!--$('#id_requestor').val(user_id).trigger("change");-->
+                        <!--$("#id_requestor option[value='" + user_id + "']").attr("disabled", false);-->
+                        $("#id_requestor option[data-amount='0.00']").removeAttr('disabled');
 
                         <!--$("#id_requestor option:selected").attr('disabled','disabled');-->
                     } else if ($("#id_oftype option:selected").text().indexOf("Antibiotic - Employee Subsidy") >= 0) {
-                        $("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');
-                        var user_id = {{ user_employee.id }}
-                        console.log(user_id);
+                        <!--$("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');-->
+                        <!--var user_id = {{ user_employee.id }}-->
+                        <!--console.log(user_id);-->
 
-                        $("#id_requestor option:selected").siblings().attr('disabled','disabled');
-                        $('#id_requestor').val(user_id).trigger("change");
-                        $("#id_requestor option[value='" + user_id + "']").attr("disabled", false);
+                        <!--$("#id_requestor option:selected").siblings().attr('disabled','disabled');-->
+                        <!--$('#id_requestor').val(user_id).trigger("change");-->
+                        <!--$("#id_requestor option[value='" + user_id + "']").attr("disabled", false);-->
+
+                        $("#id_requestor option[data-amount='0.00']").removeAttr('disabled');
 
                         <!--$("#id_requestor option:selected").attr('disabled','disabled');-->
                     } else {
