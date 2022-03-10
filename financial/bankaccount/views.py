@@ -515,7 +515,12 @@ class GenerateTransExcel(View):
             if begbal.beg_code != adtranscode:
                 begbalamount = float(begbal.beg_amount) - float(abs(adtransnet))
             else:
-                begbalamount = float(begbal.beg_amount) + float(abs(adtransnet))
+                print begbal.beg_amount
+                print abs(adtransnet)
+                if begbal.beg_amount:
+                    begbalamount = float(begbal.beg_amount) + float(abs(adtransnet))
+                else:
+                    begbalamount = 0 + float(abs(adtransnet))
             if begbal.beg_amount >= abs(adtransnet):
                 begcode = begbal.beg_code
             else:
