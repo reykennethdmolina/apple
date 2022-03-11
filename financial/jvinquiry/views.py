@@ -69,6 +69,7 @@ class Generate(View):
         wtax = request.GET['wtax']
         inputvat = request.GET['inputvat']
         outputvat = request.GET['outputvat']
+        status = request.GET['status']
         chart = request.GET['chart']
         title = "Journal Voucher Inquiry List"
 
@@ -108,6 +109,10 @@ class Generate(View):
             q = q.filter(inputvat__exact=inputvat)
         if outputvat != '':
             q = q.filter(outputvat__exact=outputvat)
+        if status != '':
+            #pasok
+            print status
+            q = q.filter(jvmain__status__exact=status)
 
         list = q
 
@@ -157,6 +162,7 @@ class GeneratePDF(View):
         wtax = request.GET['wtax']
         inputvat = request.GET['inputvat']
         outputvat = request.GET['outputvat']
+        status = request.GET['status']
         chart = request.GET['chart']
         title = "Journal Voucher Inquiry List"
 
@@ -196,6 +202,8 @@ class GeneratePDF(View):
             q = q.filter(inputvat__exact=inputvat)
         if outputvat != '':
             q = q.filter(outputvat__exact=outputvat)
+        if status != '':
+            q = q.filter(status__exact=status)
 
         list = q
 
@@ -241,6 +249,7 @@ class GenerateExcel(View):
         wtax = request.GET['wtax']
         inputvat = request.GET['inputvat']
         outputvat = request.GET['outputvat']
+        status = request.GET['status']
         chart = request.GET['chart']
         title = "Journal Voucher Inquiry List"
 
@@ -281,6 +290,8 @@ class GenerateExcel(View):
             q = q.filter(inputvat__exact=inputvat)
         if outputvat != '':
             q = q.filter(outputvat__exact=outputvat)
+        if status != '':
+            q = q.filter(status__exact=status)
 
         list = q
 

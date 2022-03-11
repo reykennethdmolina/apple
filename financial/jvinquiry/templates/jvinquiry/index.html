@@ -133,7 +133,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
-                        <div class="form-group col-sm-5">
+                        <div class="form-group col-sm-3">
                             <label class="control-label small">ATAX</label>
                             <select class="form-control input-sm" id="atax">
                                 <option value="">-- Select --</option>
@@ -170,13 +170,22 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Status</label>
+                            <select class="form-control input-sm" id="status">
+                                <option value="">-- Select --</option>
+                                <option value="A">Active</option>
+                                <option value="O">Posted</option>
+                                <option value="C">Cancelled</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-12" id="viewhtml" style="min-height: 800px; max-height:1000px; border: 2px solid;overflow:auto">
             </div>
             <div class="col-md-12" style="min-height: 800px;display:none">
-                <iframe src="{% url 'jvinquiry:pdf' %}?report=0&from=&to=&chart=&supplier=null&payee=null&employee=null&department=&product=&branch=&bankaccount=&vat=&atax=&wtax=&inputvat=&outputvat=" id="result" height="800px" width="100%"></iframe>
+                <iframe src="{% url 'jvinquiry:pdf' %}?report=0&from=&to=&chart=&supplier=null&payee=null&employee=null&department=&product=&branch=&bankaccount=&vat=&atax=&wtax=&inputvat=&outputvat=&status=" id="result" height="800px" width="100%"></iframe>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -209,13 +218,14 @@ $(function(){
         var wtax = $('#wtax').val();
         var inputvat = $('#inputvat').val();
         var outputvat = $('#outputvat').val();
+        var status = $('#status').val();
 
         if (date_from == '' || date_to == '' || chart == '') {
             alert('Transaction Date and Chart of Account must not be empty');
             return false;
         }
 
-        url = "{% url 'jvinquiry:generate' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
+        url = "{% url 'jvinquiry:generate' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat+"&status="+status;
         $.ajax({
             url: url,
             type: "get",
@@ -247,13 +257,14 @@ $(function(){
         var wtax = $('#wtax').val();
         var inputvat = $('#inputvat').val();
         var outputvat = $('#outputvat').val();
+        var status = $('#status').val();
 
         if (date_from == '' || date_to == '' || chart == '') {
             alert('Transaction Date and Chart of Account must not be empty');
             return false;
         }
 
-        url = "{% url 'jvinquiry:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
+        url = "{% url 'jvinquiry:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat+"&status="+status;
         window.open(url , "_blank");
     });
 
@@ -275,13 +286,14 @@ $(function(){
         var wtax = $('#wtax').val();
         var inputvat = $('#inputvat').val();
         var outputvat = $('#outputvat').val();
+        var status = $('#status').val();
 
         if (date_from == '' || date_to == '' || chart == '') {
             alert('Transaction Date and Chart of Account must not be empty');
             return false;
         }
 
-        url = "{% url 'jvinquiry:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
+        url = "{% url 'jvinquiry:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat+"&status="+status;
         $('#result').prop('src', url);
     });
 
