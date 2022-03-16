@@ -32,7 +32,7 @@ $(".custom-alert").each(function(){
     $(this).remove();
 });
 function customAlert(e, duration){
-    var def_duration = duration >= 0 ? duration : 1000;
+    var def_duration = duration >= 0 ? duration : 4000;
     e.modal('show');
     setTimeout(function() { e.modal('hide'); }, def_duration);
 }
