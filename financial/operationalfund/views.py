@@ -2915,19 +2915,21 @@ class GeneratePDF(View):
         department = request.GET['department']
         status = request.GET['status']
         remarks = request.GET['remarks']
+        oftyped = Oftype.objects.filter(pk=oftype).first()
+        print oftyped
         title = "Operation Fund - Summary"
         list = Ofmain.objects.filter(isdeleted=0).order_by('ofnum')[:0]
         datefrom = ''
         dateto = ''
 
         if report == '1':
-            title = "Operation Fund - Summary"
+            title = "Operation Fund - Summary | " + str(oftyped.description)
             q = Ofmain.objects.filter(isdeleted=0).order_by('ofnum', 'ofdate')
         elif report == '2':
-            title = "Operation Fund - Detailed"
+            title = "Operation Fund - Detailed | " + str(oftyped.description)
             q = Ofitem.objects.select_related('ofmain').filter(isdeleted=0).order_by('ofnum', 'ofdate', 'item_counter')
         elif report == '3':
-            title = "Operation Fund - Accounting Entry Summary"
+            title = "Operation Fund - Accounting Entry Summary | " + str(oftyped.description)
             q = Ofdetail.objects.filter(isdeleted=0).order_by('of_num', 'of_date')
 
         if dfrom != '':
@@ -3056,19 +3058,21 @@ class GenerateExcel(View):
         department = request.GET['department']
         status = request.GET['status']
         remarks = request.GET['remarks']
+        oftyped = Oftype.objects.filter(pk=oftype).first()
+        print oftyped
         title = "Operation Fund - Summary"
         list = Ofmain.objects.filter(isdeleted=0).order_by('ofnum')[:0]
         datefrom = ''
         dateto = ''
 
         if report == '1':
-            title = "Operation Fund - Summary"
+            title = "Operation Fund - Summary | " + str(oftyped.description)
             q = Ofmain.objects.filter(isdeleted=0).order_by('ofnum', 'ofdate')
         elif report == '2':
-            title = "Operation Fund - Detailed"
+            title = "Operation Fund - Detailed | " + str(oftyped.description)
             q = Ofitem.objects.select_related('ofmain').filter(isdeleted=0).order_by('ofnum', 'ofdate', 'item_counter')
         elif report == '3':
-            title = "Operation Fund - Accounting Entry Summary"
+            title = "Operation Fund - Accounting Entry Summary | " + str(oftyped.description)
             q = Ofdetail.objects.filter(isdeleted=0).order_by('of_num', 'of_date')
 
         if dfrom != '':
