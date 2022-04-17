@@ -17,12 +17,20 @@
                 top: 1cm;
                 height: 4.5cm;
             }
+            @frame content_frame {
+                -pdf-frame-content: footer_content_prep;
+                left: 1cm; right: 1cm; bottom: -3cm; height: 6cm;
+            }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
+                {% if oftype == '8' or oftype == '9' or oftype == '10' %}
+                top: 5cm; left: 1cm; width: 19.5cm; height: 19.5cm;
+                {% else %}
                 top: 5cm; left: 1cm; width: 19.5cm; height: 21.5cm;
+                {% endif %}
             }
         }
         body{
@@ -83,6 +91,8 @@
     </style>
 </head>
 <body>
+
+
 
 <div id="header_content">
     <div class="card">
@@ -145,9 +155,53 @@
     </tbody>
 </table>
 
+{% if oftype == '8' or oftype == '9' or oftype == '10' %}
+<div id="footer_content_prep" style="text-align:right">
+    <table>
+        <tr>
+            <td align="center" width="33%"><b>Prepared by</b></td>
+
+            <td align="center" width="33%"><b>Noted by</b></td>
+
+            <td align="center" width="33%"><b>Approved by</b></td>
+
+        </tr>
+
+        <tr>
+
+            <td align="center" >
+                <div class="sign_here">
+                    Christine O. Soliman
+                </div>
+                <br>
+                <i>HR Officer</i>
+            </td>
+
+            <td align="center" >
+                <div class="sign_here">
+                    Jose Gil C. Pineda
+                </div>
+                <br>
+                <i>Human Resources Manager</i>
+            </td>
+
+            <td align="center" >
+                <div class="sign_here">
+                    Renato B. Lao
+                </div>
+                <br>
+                <i>VP - HR and Administration</i>
+            </td>
+        </tr>
+    </table>
+</div>
+{% endif %}
+
 <div id="footer_content" style="text-align:right">
     <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
 </div>
+
+
 
 </body>
 </html>

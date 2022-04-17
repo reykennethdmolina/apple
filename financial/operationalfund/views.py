@@ -3027,6 +3027,7 @@ class GeneratePDF(View):
             "list": list,
             "total": total,
             "datefrom": datefrom,
+            "oftype": oftype,
             "dateto": dateto,
             "username": request.user,
         }
@@ -3322,7 +3323,7 @@ def sendNotif(object):
     subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
     message = 'Hi Sir, \n\n' \
               'Requestor '+str(object.requestor_name)+' has filed Operational Fund Request for your approval. \n\n' \
-              'Click link here: http://128.1.44.21/operationalfund'
+              'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
     email_from = 'inq-noreply@inquirer.com.ph'
     recipient_list = [receiver.email]
     send_mail( subject, message, email_from, recipient_list )
@@ -3498,19 +3499,36 @@ def hrapprove(request):
             of_for_approval.hrstatus = request.POST['status']
             of_for_approval.save()
 
-        # ''' Send Email Notifacation '''
-        # receiver = Employee.objects.filter(isdeleted=0, status='A', id=self.object.designatedapprover_id).first()
-        # print 'send email notification'
-        # subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
-        # message = 'Hi Sir, \n\n' \
-        #           'Requestor ' + str(
-        #     self.object.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
-        #                                   'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
-        # email_from = 'inq-noreply@inquirer.com.ph'
-        # recipient_list = [receiver.email]
-        # send_mail(subject, message, email_from, recipient_list)
+
+        # if of_for_approval.oftype_id == 10 or of_for_approval.oftype_id == 9 or of_for_approval.oftype_id == 8:
+        #     #receiver = Employee.objects.filter(isdeleted=0, status='A', id=520).first()
+        #     receiver = Employee.objects.filter(isdeleted=0, status='A', id=93).first()
+        #     print 'send email notification'
+        #     subject = 'OPERATIONAL FUND APPROVER NOTIFICATION - HR APPROVE'
+        #     message = 'Hi Sir, \n\n' \
+        #               'Requestor ' + str(
+        #         of_for_approval.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
+        #                                           'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+        #     email_from = 'inq-noreply@inquirer.com.ph'
+        #     recipient_list = [receiver.email]
+        #     send_mail(subject, message, email_from, recipient_list)
         #
-        # print receiver.email
+        #     print 'email sent'
+        # else:
+        #
+        #     ''' Send Email Notifacation '''
+        #     receiver = Employee.objects.filter(isdeleted=0, status='A', id=self.object.designatedapprover_id).first()
+        #     print 'send email notification'
+        #     subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
+        #     message = 'Hi Sir, \n\n' \
+        #               'Requestor ' + str(
+        #         self.object.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
+        #                                       'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+        #     email_from = 'inq-noreply@inquirer.com.ph'
+        #     recipient_list = [receiver.email]
+        #     send_mail(subject, message, email_from, recipient_list)
+        #
+        #     print receiver.email
         data = {
             'status': 'success',
         }
@@ -3535,6 +3553,18 @@ def hrapprove1(request):
         if request.POST['status'] == 'D':
             of_for_approval.status = 'C'
             of_for_approval.save()
+        else:
+            receiver = Employee.objects.filter(isdeleted=0, status='A', id=520).first()
+            print 'send email notification'
+            subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
+            message = 'Hi Sir, \n\n' \
+                      'Requestor ' + str(of_for_approval.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
+                                         'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+            email_from = 'inq-noreply@inquirer.com.ph'
+            recipient_list = [receiver.email]
+            send_mail(subject, message, email_from, recipient_list)
+
+            print 'email sent'
 
         data = {
             'status': 'success',
@@ -3561,6 +3591,19 @@ def hrapprove2(request):
             of_for_approval.status = 'C'
             of_for_approval.save()
 
+        else:
+            receiver = Employee.objects.filter(isdeleted=0, status='A', id=483).first()
+            print 'send email notification'
+            subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
+            message = 'Hi Sir, \n\n' \
+                      'Requestor ' + str(of_for_approval.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
+                                         'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+            email_from = 'inq-noreply@inquirer.com.ph'
+            recipient_list = [receiver.email]
+            send_mail(subject, message, email_from, recipient_list)
+
+            print 'email sent'
+
         data = {
             'status': 'success',
         }
@@ -3584,6 +3627,19 @@ def nurseapprove(request):
         if request.POST['status'] == 'D':
             of_for_approval.status = 'C'
             of_for_approval.save()
+        else:
+            receiver = Employee.objects.filter(isdeleted=0, status='A', id=811).first()
+            #receiver = Employee.objects.filter(isdeleted=0, status='A', id=93).first()
+            print 'send email notification'
+            subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
+            message = 'Hi Sir, \n\n' \
+                      'Requestor ' + str(of_for_approval.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
+                                         'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+            email_from = 'inq-noreply@inquirer.com.ph'
+            recipient_list = [receiver.email]
+            send_mail(subject, message, email_from, recipient_list)
+
+            print 'email sent'
 
         data = {
             'status': 'success',
