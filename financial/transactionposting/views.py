@@ -735,6 +735,7 @@ def logjv(datefrom, dateto, batchkey, user):
             document_currency=data.jvmain.currency,
             document_fxrate=data.jvmain.fxrate,
             document_supplier=data.supplier,
+            document_customer=data.customer,
             enterby=user,
             modifyby=user,
             batchkey=batchkey,
