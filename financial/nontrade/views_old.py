@@ -631,12 +631,11 @@ def queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename
 
     query = "SELECT zz.pcode, zz.pname, pid, SUM(zz.creditamount) AS creditamount, SUM(zz.debitamount) AS debitamount, IFNULL(zz.beg_code, 'D') AS beg_code, " \
             "SUM(IFNULL(zz.begamt, 0)) AS begamt, SUM(zz.balamountx) AS balamountx, SUM(zz.extrabal) AS extrabal, SUM(zz.balamount) AS balamount " \
-            "FROM (" \
-            "SELECT IFNULL(z.pcode, 'NA') AS pcode, IFNULL(z.pname, ' NO CUSTOMER/SUPPLIER') AS pname, z.pid, " \
+            "FROM (SELECT IFNULL(z.pcode, 'N/A') AS pcode, IFNULL(z.pname, ' NO CUSTOMER/SUPPLIER') AS pname,z.pid, " \
             "SUM(z.creditamount) AS creditamount, SUM(z.debitamount) AS debitamount, " \
-            "IFNULL(z.balancecode, 'D') AS beg_code, 0 AS begamt, " \
-            "(SUM(IF(z.balancecode = 'D', z.debitamount, 0)) - SUM(IF(z.balancecode = 'C', z.creditamount, 0))) AS balamountx, 0 AS extrabal, " \
-            "(SUM(IF(z.balancecode = 'D', z.debitamount, 0)) - SUM(IF(z.balancecode = 'C', z.creditamount, 0))) AS balamount " \
+            "IFNULL(z.balancecode, 'D') AS beg_code, 0 AS begamt,  " \
+            "IF (z.cbcode = '"+str(chart.balancecode)+"', SUM(z.debitamount) - SUM(z.creditamount), SUM(z.creditamount) - SUM(z.debitamount)) AS balamountx,  IFNULL(extrans.bal, 0) AS extrabal, " \
+            "IF (z.cbcode = '"+str(chart.balancecode)+"', (SUM(z.debitamount) - SUM(z.creditamount) + IFNULL(extrans.bal, 0)), (SUM(z.creditamount) - SUM(z.debitamount) + IFNULL(extrans.bal, 0))) AS balamount " \
             "FROM ( SELECT a.id, a.document_type, a.document_id, a.document_num, a.document_date, a.subtype, a.particulars, a.chartofaccount_id, a.document_reftype, a.document_refnum, a.document_refdate, " \
             "a.balancecode, IF (a.balancecode = 'C', a.amount, 0) AS creditamount, IF (a.balancecode = 'D', a.amount, 0) AS debitamount, " \
             "a.document_customer_id, a.document_supplier_id, '"+str(chart.balancecode)+"' AS cbcode, " \
@@ -652,36 +651,7 @@ def queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename
             "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
             "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
             "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
-            ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby) +") AS z GROUP BY z.pcode " \
-            "UNION " \
-           "SELECT IFNULL(zx.pcode, 'NA') AS pcode, IFNULL(zx.pname, ' NO CUSTOMER/SUPPLIER') AS pname, zx.pid, " \
-           "SUM(zx.creditamount) AS creditamount, SUM(zx.debitamount) AS debitamount, " \
-           "IFNULL(zx.balancecode, 'D') AS beg_code, 0 AS begamt, " \
-           "0 AS balamountx, " \
-           "zx.bal  AS extrabal, " \
-           "zx.bal AS balamount " \
-           "FROM (  " \
-           "SELECT a.id, a.document_type, a.document_id, a.document_num, a.document_date, a.subtype, a.particulars, a.chartofaccount_id, a.document_reftype,  " \
-           "a.document_refnum, a.document_refdate, a.balancecode,  " \
-           "SUM(IF (a.balancecode = 'C', a.amount, 0)) AS creditamount, " \
-           "SUM(IF (a.balancecode = 'D', a.amount, 0)) AS debitamount,  " \
-           "(SUM(IF (a.balancecode = 'D', a.amount, 0)) - SUM(IF (a.balancecode = 'C', a.amount, 0))) AS bal,  " \
-           "a.document_customer_id, a.document_supplier_id,  b.accountcode, b.description, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier,  " \
-           "IF (b.customer_enable = 'Y', dcust.id, IF (b.supplier_enable = 'Y', dsup.id, IF (b.setup_customer != '', scust.id, ssup.id))) AS pid, " \
-           "IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code,  " \
-           "IF (b.setup_customer != '', scust.code, ssup.code))) AS pcode, " \
-           "IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) AS pname, " \
-           "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
-           "FROM subledger AS a " \
-           "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
-           "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
-           "LEFT OUTER JOIN customer AS scust ON scust.id = b.setup_customer " \
-           "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
-           "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
-           "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
-           "AND DATE(a.document_date) > '2019-01-01' AND DATE(a.document_date) <= '"+str(dfrom)+"' " \
-           "GROUP BY IF (b.customer_enable = 'Y', dcust.id, IF (b.supplier_enable = 'Y', dsup.id, IF (b.setup_customer != '', scust.id, ssup.id)))) AS zx " \
-           "GROUP BY zx.pcode " \
+            ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby) +") AS z  "+str(contran) +" GROUP BY pcode " \
             "UNION " \
             "SELECT IFNULL(s.code, 'N/A') AS pcode, IFNULL(s.name, ' NO CUSTOMER/SUPPLIER') AS pname, s.id AS pid, " \
             "0 AS creditamount, 0 AS debitamount, " \
