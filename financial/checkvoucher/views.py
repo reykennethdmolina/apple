@@ -2488,6 +2488,7 @@ class GenerateExcel(View):
                 if not request.user.is_superuser and data.confi == 1 and data.enterby_id != request.user.id:
                     worksheet.write(row, col + 2, 'Reserved Transaction')
                     worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    row += 1
 
                 else:
 

@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^generate/$', views.Generate.as_view(), name='generate'),
     url(r'^status/$', views.StatusView.as_view(), name='status'),
     url(r'^transgenerate/$', views.transgenerate, name='transgenerate'),
+    url(r'^stalecheck/$', views.stalecheck, name='stalecheck'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
     url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
     url(r'^excelstatus/$', views.GenerateExcelStatus.as_view(), name='excelstatus'),

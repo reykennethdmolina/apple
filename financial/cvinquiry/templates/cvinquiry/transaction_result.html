@@ -29,7 +29,7 @@
             <tbody>
             {% for item in result %}
             <tr>
-                <td class="text-left">{{ forloop.counter }}</td>
+                <td class="text-left">{{ forloop.counter }}{% if stat == '4' and item.cvmain.staled == 0  %} <input type="checkbox" id="staled{{ item.cvmain.id }}" class="stale" value="{{ item.cvmain.id }}"> {% endif %}</td>
                 <td class="text-left">{{ item.bankaccount.code }}</td>
                 <td class="text-left">{{ item.cv_num }}</td>
                 <td class="text-left">{{ item.cv_date }}</td>

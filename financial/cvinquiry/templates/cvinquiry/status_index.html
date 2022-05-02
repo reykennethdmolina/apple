@@ -119,7 +119,7 @@
                                 <input type="text" class="form-control input-sm" id="checkno">
                             </div>
                         </div>
-                        <div class="form-group col-sm-12">
+                        <div class="form-group col-sm-10">
                             <div class="form-group col-sm-5">
                                 <label class="control-label small">----- Select Filter -----</label><br>
                                 <label class="checkbox-inline"><input type="radio" style="opacity:90;height:auto" name="stat" class="stat" value="0" checked>All</label>
@@ -129,6 +129,11 @@
                                 <label class="checkbox-inline"><input type="radio" style="opacity:90;height:auto" name="stat" class="stat" value="4">Unclaimed</label>
 
                             </div>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <a class="btn btn-warning waves-effect waves-dark" id="stalecheck" style="margin-top: 22px; width:100%;">
+                                <i class="icon fa-arrow-rotate" aria-hidden="true"></i>&nbsp;&nbsp;Process Stale Check
+                            </a>
                         </div>
                     </div>
 
@@ -249,6 +254,41 @@
                     $("#iframe_preview").html(response['viewhtml']);
                 }
             });
+        });
+
+        $('#stalecheck').on('click', function() {
+            var con = confirm('Are you sure? You want to process stale check');
+
+            if (con) {
+
+                var ids = [];
+
+                $('.stale:checked').each(function() {
+                   ids.push(this.value);
+                });
+
+                var jids = JSON.stringify(ids);
+
+                $.ajax({
+                url: "{% url 'cvinquiry:stalecheck' %}",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'ids': jids,
+                },
+                success: function(response) {
+                    alert('Created '+response.counter + ' AP Staled Check');
+                    $('.stale:checked').each(function() {
+                       $("#staled"+this.value).hide();
+                    });
+                }
+
+
+            });
+            } else {
+                return false;
+            }
         });
 
 	});

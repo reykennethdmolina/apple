@@ -2,11 +2,15 @@ from django.views.generic import View, ListView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from checkvoucher.models import Cvmain, Cvdetail, Cvdetailtemp, Cvdetailbreakdown, Cvdetailbreakdowntemp
+from accountspayable.models import Apmain, Apdetail
 from companyparameter.models import Companyparameter
 from chartofaccount.models import Chartofaccount
 from django.db.models import Q, Sum
+from vat.models import Vat
+from ataxcode.models import Ataxcode
 from inputvat.models import Inputvat
 from outputvat.models import Outputvat
+from supplier.models import Supplier
 from product.models import Product
 from branch.models import Branch
 from bankaccount.models import Bankaccount
@@ -22,6 +26,7 @@ import pandas as pd
 from datetime import timedelta
 import io
 import xlsxwriter
+import json
 import datetime
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
@@ -59,6 +64,145 @@ class StatusView(ListView):
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
 
         return context
+
+def stalecheck(request):
+    if request.method == 'POST':
+        from django.db.models import CharField
+        from django.db.models.functions import Length
+
+        CharField.register_lookup(Length, 'length')
+
+        ids = request.POST['ids']
+
+        idlist = json.loads(ids)
+        amount = 0
+        counter = 0
+        for id in idlist:
+            cvmain = Cvmain.objects.filter(pk=id,staled=0,claimed=0).first()
+            if cvmain:
+                print cvmain.payee_id
+
+                # Create AP
+                try:
+                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                    latestapnum = str(apnumlast)
+                    #print latestapnum
+                    if latestapnum[0:4] == str(datetime.datetime.now().year):
+                        apnum = str(datetime.datetime.now().year)
+                        last = str(int(latestapnum[4:]) + 1)
+                        zero_addon = 6 - len(last)
+                        for x in range(0, zero_addon):
+                            apnum += '0'
+                        apnum += last
+                    else:
+                        apnum = str(datetime.datetime.now().year) + '000001'
+                except Apmain.DoesNotExist:
+                    apnum = str(datetime.datetime.now().year) + '000001'
+
+
+                #print 'AP' + str(apnum)
+
+                #print datetime.datetime.now()
+
+                # billingremarks = '';
+                #
+                # employee = Employee.objects.get(pk=of.requestor_id)
+                vat = Vat.objects.filter(pk=cvmain.vat_id).first()
+                atax = Ataxcode.objects.filter(pk=cvmain.atc_id).first()
+                supplier = Supplier.objects.get(pk=cvmain.payee_id)
+
+
+                main = Apmain.objects.create(
+                    apnum = apnum,
+                    apdate = datetime.datetime.now(),
+                    aptype_id = 13, # SB
+                    apsubtype_id = 15, # Stale Check
+                    branch_id = 5, # Head Office
+                    inputvattype_id = cvmain.inputvattype_id, # Service
+                    creditterm_id = 2, # 90 Days 2
+                    payee_id = cvmain.payee_id,
+                    payeecode = cvmain.payee_code,
+                    payeename = cvmain.payee_name,
+                    vat_id = cvmain.vat_id,
+                    vatcode = vat.code,
+                    vatrate = cvmain.vatrate,
+                    atax_id = cvmain.atc_id, # NO ATC 66
+                    ataxcode = atax.code, # NO ATC 66
+                    ataxrate = cvmain.atcrate,
+                    duedate = datetime.datetime.now(),
+                    refno = 'CV#'+str(cvmain.cvnum),
+                    particulars = cvmain.particulars,
+                    remarks = 'Stale Check CV#'+str(cvmain.cvnum),
+                    bankaccount_id=cvmain.bankaccount_id,
+                    currency_id = 1,
+                    fxrate = 1,
+                    designatedapprover_id = 225, # Arlene Astapan
+                    actualapprover_id = 225, # Arlene Astapan
+                    approverremarks = '',
+                    apstatus = 'F',
+                    enterby_id = request.user.id,
+                    enterdate = datetime.datetime.now(),
+                    modifyby_id = request.user.id,
+                    modifydate = datetime.datetime.now()
+                )
+
+
+                print 'dito 1'
+                amount = float(cvmain.amount)
+                Apdetail.objects.create(
+                    apmain_id = main.id,
+                    ap_num = main.apnum,
+                    ap_date = main.apdate,
+                    item_counter = 1,
+                    debitamount = amount,
+                    creditamount = 0,
+                    balancecode = 'D',
+                    bankaccount_id = cvmain.bankaccount_id,
+                    chartofaccount_id = 30, # Cash in bank
+                    status='A',
+                    enterby_id = request.user.id,
+                    enterdate = datetime.datetime.now(),
+                    modifyby_id = request.user.id,
+                    modifydate = datetime.datetime.now()
+                )
+                print 'dito 2'
+                Apdetail.objects.create(
+                    apmain_id = main.id,
+                    ap_num = main.apnum,
+                    ap_date = main.apdate,
+                    item_counter = 2,
+                    debitamount = 0,
+                    creditamount = amount,
+                    balancecode = 'D',
+                    chartofaccount_id = 310, # ACCOUNTS PAYABLE - STALE CHECKS
+                    status='A',
+                    enterby_id = request.user.id,
+                    enterdate = datetime.datetime.now(),
+                    modifyby_id = request.user.id,
+                    modifydate = datetime.datetime.now()
+                )
+
+                print 'dito 3'
+
+
+                main.amount = amount
+                main.save()
+
+                counter += 1
+
+                cvmain.staled = 1
+                cvmain.staled_date = datetime.datetime.now()
+                cvmainstaled_by_id = request.user.id
+                cvmain.save()
+
+                #CVMAIN update staled = 1, staled_date = now(), staled_by_id = user
+
+
+        data = {
+            'status': 'success',
+            'counter': counter,
+        }
+        return JsonResponse(data)
 
 def transgenerate(request):
     dto = request.GET["dto"]
@@ -113,6 +257,7 @@ def transgenerate(request):
     context['result'] = q #query_transaction(dto, dfrom, chart, transtatus, status, payeecode, payeename)
     context['dto'] = dto
     context['dfrom'] = dfrom
+    context['stat'] = stat
     viewhtml = render_to_string('cvinquiry/transaction_result.html', context)
 
 

@@ -92,6 +92,10 @@ class Cvmain(models.Model):
     winvoice = models.IntegerField(default=0)
     wor = models.IntegerField(default=0)
 
+    staled = models.IntegerField(default=0)
+    staled_by = models.ForeignKey(User, default=1, related_name='cvmain_staled', null=True)
+    staled_date = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         db_table = 'cvmain'
         ordering = ['-pk']
