@@ -173,7 +173,7 @@ def stalecheck(request):
                     item_counter = 2,
                     debitamount = 0,
                     creditamount = amount,
-                    balancecode = 'D',
+                    balancecode = 'C',
                     chartofaccount_id = 310, # ACCOUNTS PAYABLE - STALE CHECKS
                     status='A',
                     enterby_id = request.user.id,
