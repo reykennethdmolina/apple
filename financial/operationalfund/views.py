@@ -296,11 +296,13 @@ class CreateViewUser(CreateView):
         # Controlled Pilot Testing 13, 218, 1, 191, 154, 274
         d = {"13": 13, "218": 218, "1": 1, "191": 191,  "154": 154, "274": 274}
 
-        if str(self.request.user.id) in d:
-            context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-            print 'dito'
-        else:
-            context['oftype'] = Oftype.objects.filter(id__in=[1,2,3,4,5,6]).order_by('pk')
+        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+
+        # if str(self.request.user.id) in d:
+        #     context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        #     print 'dito'
+        # else:
+        #     context['oftype'] = Oftype.objects.filter(id__in=[1,2,3,4,5,6]).order_by('pk')
         #context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         user_employee = get_object_or_None(Employee, user=self.request.user)
         if self.request.user.has_perm('operationalfund.assign_requestor'):
@@ -637,11 +639,13 @@ class UpdateViewUser(UpdateView):
         # Controlled Pilot Testing 13, 218, 1, 191, 154, 274
         d = {"13": 13, "218": 218, "1": 1, "191": 191, "154": 154, "274": 274}
 
-        if str(self.request.user.id) in d:
-            context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-            print 'dito'
-        else:
-            context['oftype'] = Oftype.objects.filter(id__in=[1, 2, 3, 4, 5, 6]).order_by('pk')
+        # if str(self.request.user.id) in d:
+        #     context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        #     print 'dito'
+        # else:
+        #     context['oftype'] = Oftype.objects.filter(id__in=[1, 2, 3, 4, 5, 6]).order_by('pk')
+
+        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         # context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         # context['requestor'] = User.objects.filter(pk=self.request.user.id)
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
