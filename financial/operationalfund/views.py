@@ -450,6 +450,25 @@ class CreateViewUser(CreateView):
 
                     print 'email sent'
 
+                    ''' IF Antibiotic '''
+                    if self.object.oftype_id == 9 or self.object.oftype_id == 10:
+                        ''' Send Email Notifacation to Clinic '''
+                        #receiver = Employee.objects.filter(isdeleted=0, status='A',id=self.object.designatedapprover_id).first()
+                        print 'send email notification'
+                        subject = 'OPERATIONAL FUND APPROVER NOTIFICATION - CLINIC'
+                        message = 'Hi Sir, \n\n' \
+                                  'Requestor ' + str(
+                            self.object.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
+                                                          'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+                        email_from = 'inq-noreply@inquirer.com.ph'
+                        recipient_list = ['inq.clinic@gmail.com']
+                        # recipient_list = ['reykennethdmolina@gmail.com']
+                        send_mail(subject, message, email_from, recipient_list)
+
+                        print receiver.email
+
+                        print 'email sent'
+
                     # Save Activity Logs
                     Activitylogs.objects.create(
                         user_id=self.request.user.id,
