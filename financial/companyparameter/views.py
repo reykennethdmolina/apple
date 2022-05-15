@@ -11,6 +11,8 @@ from employee.models import Employee
 from django.contrib.auth.models import User
 from ofsubtype.models import Ofsubtype
 from oftype.models import Oftype
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -205,3 +207,15 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/companyparameter')
+
+@csrf_exempt
+def view(request):
+
+    code = request.GET["code"]
+
+    if code == 'f8505470e5e0e434fd83008577a862cc2faf5a10f5a3b62bf69cf9697c215010':
+        data = Companyparameter.objects.filter(isdeleted=0,pk=3).values()
+        return JsonResponse({'status': 'valid', 'data': list(data)})
+    else:
+        #return str('invalid')
+        return JsonResponse({'status': 'invalid'})
