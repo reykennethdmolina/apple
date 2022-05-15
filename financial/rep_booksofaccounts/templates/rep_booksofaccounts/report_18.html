@@ -114,15 +114,11 @@
             <thead>
                 <tr style="border-bottom: 2px solid #000;">
                     <th style="text-align:left;width:100px;font-size:13px">Date</th>
-                    <th style="text-align:left;width:130px;font-size:13px">Supplier’s TIN</th>
-                    <th style="text-align:left;width:200px;font-size:13px">Supplier's Name</th>
-                    <th style="text-align:left;width:250px;font-size:13px">Address</th>
-                    <th style="text-align:left;width:280px;font-size:13px">Description</th>
-                    <th style="text-align:left;width:120px;font-size:13px">Reference</th>
-                    <th style="text-align:right;width:130px;font-size:13px">Amount</th>
-                    <th style="text-align:right;width:130px;font-size:13px">Discount</th>
-                    <th style="text-align:right;width:130px;font-size:13px">VAT Amount (Input Tax)</th>
-                    <th style="text-align:right;width:130px;font-size:13px">Net Purchase</th>
+                    <th style="text-align:left;width:130px;font-size:13px">Reference</th>
+                    <th style="text-align:left;width:500px;font-size:13px">Brief Description/Explanation </th>
+                    <th style="text-align:left;width:250px;font-size:13px">Account Title</th>
+                    <th style="text-align:right;width:150px;font-size:13px">Debit</th>
+                    <th style="text-align:right;width:150px;font-size:13px">Credit</th>
                 </tr>
             </thead>
         </table>
@@ -132,23 +128,44 @@
 <table id="content-data">
     <tbody>
 
-
-    {% for item in list %}
+    {% regroup list by jv_num as jvlist %}
+    {% for item in jvlist %}
+        <tr>
+            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.list.0.jv_date|date:'m/d/Y' }}</td>
+            <td style="text-align:left;width:130px;vertical-align:top;">{{ item.list.0.jvmain.jvprefix|upper }}{{ item.list.0.jv_num|upper }}</td>
+            {% if item.list.0.jvmain.status == 'C' %}
+            <td colspan="4" style="text-align:left;width:500px;vertical-align:top;">C  A  N  C  E  L  L  E  D</td>
+            {% else %}
+            <td colspan="4" style="text-align:left;width:500px;vertical-align:top;">{{ item.list.0.jvmain.particular|upper }}</td>
+            {% endif %}
+        </tr>
+        {% if item.list.0.jvmain.status != 'C' %}
+            {% for data in item.list %}
             <tr>
-                <td style="text-align:left;width:100px;font-size:13px;vertical-align:top;">{{ item.podate|date:'m/d/Y' }}</td>
-                <td style="text-align:left;width:130px;font-size:13px;vertical-align:top;">{{ item.tin }}</td>
-                <td style="text-align:left;width:190px;font-size:13px;vertical-align:top;">{{ item.supplier_name|upper }}</td>
-                <td style="text-align:left;width:240px;font-size:13px;vertical-align:top;">{{ item.address }}</td>
-                <td style="text-align:left;width:270px;font-size:13px;vertical-align:top;">{{ item.particulars|upper }}</td>
-                <td style="text-align:left;width:120px;font-size:13px;vertical-align:top;">PO{{ item.ponum|default:"" }}</td>
-                <td style="text-align:right;width:130px;font-size:13px;vertical-align:top;">{{ item.grossamount|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:130px;font-size:13px;vertical-align:top;">{{ item.discountamount|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:130px;font-size:13px;vertical-align:top;">{{ item.vatamount|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:130px;font-size:13px;vertical-align:top;">{{ item.totalamount|default:""|floatformat:2|intcomma }}</td>
+                <td style="text-align:left;width:100px;vertical-align:top;"></td>
+                <td style="text-align:left;width:130px;vertical-align:top;"></td>
+                <td style="text-align:left;width:500px;vertical-align:top;"></td>
+                <td style="text-align:left;width:280px;vertical-align:top;">{{ data.chartofaccount.description }}</td>
+                <td style="text-align:right;width:150px;vertical-align:top;">{{ data.debitamount|default:""|floatformat:2|intcomma }}</td>
+                <td style="text-align:right;width:150px;vertical-align:top;">{{ data.creditamount|default:""|floatformat:2|intcomma }}</td>
             </tr>
-
-
+            {% endfor %}
+        {% endif %}
+    <tr><td colspan="6"></td></tr>
     {% endfor %}
+    <tr>
+        <td colspan="4"></td>
+        <td style="border-top:2px solid #000;padding:5px;"></td>
+        <td style="border-top:2px solid #000;padding:5px;"></td>
+    </tr>
+    <tr>
+        <td colspan="3"></td>
+        <td style="text-align:right;vertical-align:top;margin-right:20px;"><b>Total</b></td>
+        <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.debitamount__sum|default:""|floatformat:2|intcomma }}</b></td>
+        <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.creditamount__sum|default:""|floatformat:2|intcomma }}</b></td>
+    </tr>
+
+
 
     </tbody>
 </table>

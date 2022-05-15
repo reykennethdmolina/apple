@@ -62,8 +62,11 @@ class GeneratePDF(View):
         dto = request.GET['to']
         title = "GENERAL JOURNAL BOOK - DETAILED ENTRIES"
 
-        if report == '1':
-            title = "GENERAL JOURNAL BOOK - DETAILED ENTRIES"
+        if report == '1' or report == '18':
+            if report == '18':
+                title = "GENERAL JOURNAL BOOK"
+            else:
+                title = "GENERAL JOURNAL BOOK - DETAILED ENTRIES"
             q = Jvdetail.objects.all().filter(isdeleted=0,jvmain__jvstatus='R').exclude(jvmain__status='C').order_by('jv_date', 'jv_num', '-balancecode', 'item_counter')
             if dfrom != '':
                 q = q.filter(jv_date__gte=dfrom)
@@ -373,6 +376,8 @@ class GeneratePDF(View):
             return Render.render('rep_booksofaccounts/report_16.html', context)
         elif report == '17':
             return Render.render('rep_booksofaccounts/report_17.html', context)
+        elif report == '18':
+            return Render.render('rep_booksofaccounts/report_18.html', context)
         elif report == '19':
             return Render.render('rep_booksofaccounts/report_19.html', context)
         else:
@@ -648,7 +653,16 @@ class GenerateExcel(View):
             title = "GENERAL LEDGER BOOK - BIR FORMAT"
         elif report == '15':
             title = "CASH RECEIPTS BOOK - BIR FORMAT"
-        elif report == '16':
+        if report == '18':
+            title = "GENERAL JOURNAL BOOK - BIR FORMAT"
+            q = Jvdetail.objects.all().filter(isdeleted=0, jvmain__jvstatus='R').exclude(jvmain__status='C').order_by(
+                'jv_date', 'jv_num', '-balancecode', 'item_counter')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+            total = q.exclude(jvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+        elif report == '16' or report == '19':
             title = "PURCHASE BOOK - BIR FORMAT"
         else:
             q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
@@ -1329,6 +1343,73 @@ class GenerateExcel(View):
 
             # Set up the Http response.
             filename = "generalledgerbook_birv2.xlsx"
+
+        if report == '18':
+
+            # Create an in-memory output file for the new workbook.
+            output = io.BytesIO()
+
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
+
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
+
+            # title
+
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'GENERAL JOURNAL BOOK', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
+
+
+            # header
+            worksheet.write('A7', 'Date', bold)
+            worksheet.write('B7', 'Reference', bold)
+            worksheet.write('C7', 'Brief Description/Explanation', bold)
+            worksheet.write('D7', 'Account Title', bold)
+            worksheet.write('E7', 'Debit', bold)
+            worksheet.write('F7', 'Credit', bold)
+
+            row = 7
+            col = 0
+            jvnum = ''
+            bankaccount = ''
+            department = ''
+            departmentname = ''
+            for data in list:
+
+                worksheet.write(row, col, data.jv_date, formatdate)
+                worksheet.write(row, col + 1, 'JV'+data.jv_num)
+                worksheet.write(row, col + 2, data.jvmain.particular)
+                worksheet.write(row, col + 3, data.chartofaccount.description)
+                worksheet.write(row, col + 4, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.creditamount, '.2f')))
+
+                bankaccount = ""
+                department = ""
+                departmentname = ""
+                row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response.
+            filename = "generaljournalbook_birv2.xlsx"
 
         elif report == '19':
 
