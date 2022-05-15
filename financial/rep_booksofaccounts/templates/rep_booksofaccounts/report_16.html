@@ -118,15 +118,20 @@
                     <th style="text-align:left;width:120px;font-size:13px">Reference</th>
                     <th style="text-align:left;width:180px;font-size:13px">Description</th>
                     <th style="text-align:left;width:180px;font-size:13px">Supplier</th>
+                    <th style="text-align:center;width:120px;font-size:13px">Total Quantity</th>
+                    <th style="text-align:right;width:120px;font-size:13px">Gross Amount</th>
                     <th style="text-align:right;width:100px;font-size:13px">Discount</th>
-                    <th style="text-align:right;width:120px;font-size:13px">Gross</th>
-                    <th style="text-align:right;width:120px;font-size:13px">Net</th>
                     <th style="text-align:right;width:120px;font-size:13px">Vatable</th>
-                    <th style="text-align:right;width:120px;font-size:13px">VAT</th>
                     <th style="text-align:right;width:120px;font-size:13px">VAT Exempt</th>
                     <th style="text-align:right;width:120px;font-size:13px">VAT Zero</th>
+                    <th style="text-align:right;width:120px;font-size:13px">VAT Amount</th>
+
+                    <th style="text-align:right;width:120px;font-size:13px">Net</th>
+
+
+
                     <th style="text-align:center;width:120px;font-size:13px">Total Amount</th>
-                    <th style="text-align:center;width:120px;font-size:13px">Total Quantity</th>
+
                     <th style="text-align:right;width:90px;font-size:13px">APV</th>
                     <th style="text-align:right;width:90px;font-size:13px">ATC</th>
                 </tr>
@@ -172,17 +177,23 @@
                 <td style="text-align:left;width:100px;vertical-align:top;"></td>
                 <td style="text-align:left;width:120px;vertical-align:top;"></td>
                 <td colspan="2" style="text-align:left;width:360px;vertical-align:top;">{{ item.particulars|upper }}</td>
+                 <td style="text-align:right;width:120px;vertical-align:top;">{{ item.totalquantity|default:""|floatformat:2|intcomma }}</td>
+                 <td style="text-align:right;width:120px;vertical-align:top;">{{ item.grossamount|default:""|floatformat:2|intcomma }}</td>
                 <!--<td style="text-align:left;width:180px;vertical-align:top;">{{ item.supplier_name|upper }}</td>-->
                 <td style="text-align:right;width:100px;vertical-align:top;">{{ item.discountamount|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:120px;vertical-align:top;">{{ item.grossamount|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:120px;vertical-align:top;">{{ item.netamount|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:120px;vertical-align:top;">{{ item.vatable|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:120px;vertical-align:top;">{{ item.vatamount|default:""|floatformat:2|intcomma }}</td>
+                 <td style="text-align:right;width:120px;vertical-align:top;">{{ item.vatable|default:""|floatformat:2|intcomma }}</td>
+                 <td style="text-align:right;width:120px;vertical-align:top;">{{ item.vatamount|default:""|floatformat:2|intcomma }}</td>
                 <td style="text-align:right;width:120px;vertical-align:top;">{{ item.vatexempt|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:120px;vertical-align:top;">{{ item.vatrate|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:120px;vertical-align:top;">{{ item.vatzerorated|default:""|floatformat:2|intcomma }}</td>
+                 <td style="text-align:right;width:120px;vertical-align:top;">{{ item.vatzerorated|default:""|floatformat:2|intcomma }}</td>
+                 <td style="text-align:right;width:120px;vertical-align:top;">{{ item.vatamount|default:""|floatformat:2|intcomma }}</td>
+
+                <td style="text-align:right;width:120px;vertical-align:top;">{{ item.netamount|default:""|floatformat:2|intcomma }}</td>
+
+
+
+
                 <td style="text-align:right;width:120px;vertical-align:top;">{{ item.totalamount|default:""|floatformat:2|intcomma }}</td>
-                <td style="text-align:right;width:120px;vertical-align:top;">{{ item.totalquantity|default:""|floatformat:2|intcomma }}</td>
+
                 <td style="text-align:right;width:90px;vertical-align:top;">{{ item.apvamount|default:""|floatformat:2|intcomma }}</td>
                 <td style="text-align:right;width:90px;vertical-align:top;">{{ item.atcamount|default:""|floatformat:2|intcomma }}</td>
             </tr>

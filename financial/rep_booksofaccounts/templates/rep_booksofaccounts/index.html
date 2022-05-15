@@ -68,6 +68,9 @@
                                     <option value="14" data-cashinbank="0">GENERAL LEDGER BOOK - BIR FORMAT</option>
                                     <option value="15" data-cashinbank="0">CASH RECEIPTS BOOK - BIR FORMAT</option>
                                     <option value="16" data-cashinbank="0">PURCHASE BOOK - BIR FORMAT</option>
+                                    <option value="17" data-cashinbank="0">GENERAL LEDGER BOOK - BIR FORMAT V2</option>
+                                    <!--<option value="18" data-cashinbank="0">CASH RECEIPTS BOOK - BIR FORMAT V2</option>-->
+                                    <option value="19" data-cashinbank="0">PURCHASE BOOK - BIR FORMAT V2</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-4">
@@ -147,7 +150,7 @@
         $("#report_type").on('change', function() {
             var report = $('#report_type').val();
 
-            if (report == 1 || report == 4 || report == 7 || report == 10 || report == 14 || report == 15 || report == 16) {
+            if (report == 1 || report == 4 || report == 7 || report == 10 || report == 14 || report == 15 || report == 16 || report == 17 || report == 18 || report == 19) {
                 $('#excel').show();
                 <!--$('#search_results').hide();-->
             } else {

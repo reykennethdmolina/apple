@@ -165,6 +165,7 @@
             <td style="text-align:left;width:400px;vertical-align:top;"></td>
             <td style="text-align:center;width:150px;vertical-align:top;"></td>
             <td style="text-align:left;width:80px;vertical-align:top;"></td>
+            <td style="text-align:left;width:80px;vertical-align:top;"></td>
             <td style="text-align:left;width:150px;vertical-align:top;">{{ data.chartofaccount.accountcode }}</td>
             <td style="text-align:left;width:350px;vertical-align:top;">{{ data.chartofaccount.description|upper }}</td>
             <td style="text-align:left;width:150px;vertical-align:top;">{% if data.bankaccount %}{{ data.bankaccount.code }} {{ data.bankaccount.bank.code }} {{ data.bankaccount.bankaccounttype.code }}A{% elif data.department %}{{ data.department.code }}{% else %}&nbsp;{% endif %}</td>
@@ -176,12 +177,12 @@
     <tr><td colspan="12"></td></tr>
     {% endfor %}
     <tr>
-        <td colspan="9"></td>
+        <td colspan="10"></td>
         <td style="border-top:2px solid #000;padding:5px;"></td>
         <td style="border-top:2px solid #000;padding:5px;"></td>
     </tr>
     <tr>
-        <td colspan="8"></td>
+        <td colspan="9"></td>
         <td style="text-align:right;vertical-align:top;margin-right:20px;"><b>Total</b></td>
         <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.debitamount__sum|default:""|floatformat:2|intcomma }}</b></td>
         <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.creditamount__sum|default:""|floatformat:2|intcomma }}</b></td>

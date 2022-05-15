@@ -295,6 +295,14 @@ class GeneratePDF(View):
             title = "PURCHASE BOOK"
             q = query_bir(report, dfrom, dto)
             q = q[:100]
+        elif report == '17':
+            title = "GENERAL LEDGER BOOK"
+            q = query_bir(report, dfrom, dto)
+            q = q[:100]
+        elif report == '19':
+            title = "PURCHASE BOOK"
+            q = query_bir(report, dfrom, dto)
+            q = q[:100]
 
         else:
             q = Jvdetail.objects.filter(isdeleted=0,jvmain__jvstatus='R').exclude(jvmain__status='C').order_by('jv_date', 'jv_num')[:0]
@@ -363,6 +371,10 @@ class GeneratePDF(View):
             return Render.render('rep_booksofaccounts/report_15.html', context)
         elif report == '16':
             return Render.render('rep_booksofaccounts/report_16.html', context)
+        elif report == '17':
+            return Render.render('rep_booksofaccounts/report_17.html', context)
+        elif report == '19':
+            return Render.render('rep_booksofaccounts/report_19.html', context)
         else:
             return Render.render('rep_booksofaccounts/report_1.html', context)
 
@@ -632,7 +644,7 @@ class GenerateExcel(View):
             if dto != '':
                 q = q.filter(ap_date__lte=dto)
             total = q.exclude(apmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
-        elif report == '14':
+        elif report == '14' or report == '17':
             title = "GENERAL LEDGER BOOK - BIR FORMAT"
         elif report == '15':
             title = "CASH RECEIPTS BOOK - BIR FORMAT"
@@ -1213,17 +1225,26 @@ class GenerateExcel(View):
             row = 7
             col = 0
             q = query_bir(report, dfrom, dto)
+            print q
             new_list = []
             if q:
                 df = pd.DataFrame(q)
                 for index, data in df.iterrows():
+                    print data['ponum']
                     worksheet.write(row, col, data['ponum'])
+                    #print '1'
                     worksheet.write(row, col + 1, data['podate'], formatdate)
+                    #print '2'
                     worksheet.write(row, col + 2, data['refnum'], )
+                    #print '3'
                     worksheet.write(row, col + 3, data['particulars'])
+                    #print '4'
                     worksheet.write(row, col + 4, data['supplier_name'])
+                    #print '5'
                     worksheet.write(row, col + 5, data['tin'])
-                    worksheet.write(row, col + 6, data['address'])
+                    #print '6'
+                    worksheet.write(row, col + 6,   data['address'])
+                    #print '7'
                     worksheet.write(row, col + 7, float(format(data['totalquantity'], '.2f')))
                     worksheet.write(row, col + 8, float(format(data['grossamount'], '.2f')))
                     worksheet.write(row, col + 9, float(format(data['discountamount'], '.2f')))
@@ -1247,6 +1268,149 @@ class GenerateExcel(View):
             # Set up the Http response.
             filename = "purchasebooks_bir.xlsx"
 
+        elif report == '17':
+            print 'gen ledger v2'
+
+            # Create an in-memory output file for the new workbook.
+            output = io.BytesIO()
+
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
+
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
+
+            # title
+
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'GENERAL LEDGER BOOK', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
+
+            # header
+            worksheet.write('A7', 'DATE', bold)
+            worksheet.write('B7', 'REFERENCE', bold)
+            worksheet.write('C7', 'PARTICULARS', bold)
+            worksheet.write('D7', 'ACCOUNT TITLE', bold)
+            worksheet.write('E7', 'DEBIT', bold)
+            worksheet.write('F7', 'CREDIT', bold)
+
+            row = 7
+            col = 0
+            q = query_bir(report, dfrom, dto)
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                for index, data in df.iterrows():
+                    worksheet.write(row, col, data['transdate'], formatdate)
+                    worksheet.write(row, col + 1, data['transtype']+''+data['reference'])
+                    worksheet.write(row, col + 2, data['particulars'],)
+                    worksheet.write(row, col + 3, data['description'])
+                    worksheet.write(row, col + 4, float(format(data['debit'], '.2f')))
+                    worksheet.write(row, col + 5, float(format(data['credit'], '.2f')))
+                    row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response.
+            filename = "generalledgerbook_birv2.xlsx"
+
+        elif report == '19':
+
+            print 'purchase books v2'
+
+            output = io.BytesIO()
+
+            workbook = xlsxwriter.Workbook(output)
+            worksheet = workbook.add_worksheet()
+
+            # variables
+            bold = workbook.add_format({'bold': 1})
+            formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+            formatdatetime = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S'})
+            centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+            cell_format = workbook.add_format({'num_format': 'yyyy/mm/dd H:M:S', 'align': 'left'})
+
+            # title
+            worksheet.write('A1', 'THE PHILIPPINE DAILY INQUIRER, INC.', bold)
+            worksheet.write('A2', str(company.address1) + ' ' + str(company.address2), bold)
+            worksheet.write('A3', 'VAT REG TIN: ' + str(company.tinnum), bold)
+            worksheet.write('A4', 'PURCHASE BOOK', bold)
+            worksheet.write('A5', 'for the period ' + str(dfrom) + ' to ' + str(dto), bold)
+
+            worksheet.write('C1', 'Software:')
+            worksheet.write('C2', 'User:')
+            worksheet.write('C3', 'Datetime:')
+
+            worksheet.write('D1', 'iES Financial System v. 1.0')
+            worksheet.write('D2', str(request.user.username))
+            worksheet.write('D3', datetime.datetime.now(), cell_format)
+
+
+            # header
+            # PO Number, PO Date, Reference, Brief Description, Supplier, TIN, Address, Total Quantity, Gross Amount,
+            # Discount Amount, Vatable, VAT Exempt (blank header in excel), VAT Zero-Rated, VAT Amount (change VAT Exempt header to VAT Amount),
+            # Net Amount, Total Amount (still included since not sure if duplicate), VAT Rate, APV Amount (still included), ATC Amount.
+
+            worksheet.write('A7', 'Date', bold)
+            worksheet.write('B7', 'Supplier TIN', bold)
+            worksheet.write('C7', 'Supplier Name', bold)
+            worksheet.write('D7', 'Address', bold)
+            worksheet.write('E7', 'Description', bold)
+            worksheet.write('F7', 'Reference', bold)
+            worksheet.write('G7', 'Amount', bold)
+            worksheet.write('H7', 'Discount', bold)
+            worksheet.write('I7', 'VAT Amount (Input Tax)', bold)
+            worksheet.write('J7', 'Net Purchase', bold)
+
+            # PO Number, PO Date, Reference, Brief Description, Supplier, TIN, Address, Total Quantity, Gross Amount,
+            # Discount Amount, Vatable, VAT Exempt (blank header in excel), VAT Zero-Rated, VAT Amount (change VAT Exempt header to VAT Amount),
+            # Net Amount, Total Amount (still included since not sure if duplicate), VAT Rate, APV Amount (still included), ATC Amount.
+            row = 7
+            col = 0
+            q = query_bir(report, dfrom, dto)
+            print q
+            new_list = []
+            if q:
+                df = pd.DataFrame(q)
+                for index, data in df.iterrows():
+                    print data['ponum']
+                    worksheet.write(row, col, data['podate'], formatdate)
+                    worksheet.write(row, col + 1, data['tin'])
+                    worksheet.write(row, col + 2, data['supplier_name'])
+                    worksheet.write(row, col + 3, data['address'])
+                    worksheet.write(row, col + 4, data['particulars'])
+                    worksheet.write(row, col + 5, 'PO'+data['ponum'])
+                    worksheet.write(row, col + 6, float(format(data['grossamount'], '.2f')))
+                    worksheet.write(row, col + 7, float(format(data['discountamount'], '.2f')))
+                    worksheet.write(row, col + 8, float(format(data['vatamount'], '.2f')))
+                    worksheet.write(row, col + 9, float(format(data['totalamount'], '.2f')))
+
+                    row += 1
+
+            workbook.close()
+
+            # Rewind the buffer.
+            output.seek(0)
+
+            # Set up the Http response.
+            filename = "purchasebooks_birv2.xlsx"
+
         # Set up the Http response.
         response = HttpResponse(
             output,
@@ -1261,17 +1425,17 @@ def query_bir(report, dfrom, dto):
     ''' Create query '''
     cursor = connection.cursor()
 
-    if report == '14':
+    if report == '14' or report == '17':
         print 'gen ledger'
         query = "SELECT s.document_date AS transdate, s.document_type AS transtype, s.document_num AS reference, " \
-                "REPLACE(CONVERT(TRIM(REPLACE(REPLACE(s.particulars, '\n', ''), '\r', '')) USING ASCII), '?', '') AS particulars, " \
+                "REPLACE(CONVERT(TRIM(REPLACE(REPLACE(s.particulars, '\\n', ''), '\\r', '')) USING ASCII), '?', '') AS particulars, " \
                 "c.accountcode, c.description, IF (s.balancecode = 'D', s.amount, 0) AS debit, IF (s.balancecode = 'C', s.amount, 0) AS credit " \
                 "FROM subledger AS s " \
                 "LEFT OUTER JOIN chartofaccount AS c ON c.id = s.chartofaccount_id " \
                 "WHERE s.document_date >= '" + str(dfrom) + "' AND s.document_date <= '" + str(dto) + "' " \
                 "ORDER BY s.document_date, s.document_num, FIELD(s.document_type, 'AP','CV','JV','OR'), s.item_counter"
 
-    elif report == '15':
+    elif report == '15' or report == '18':
         print 'cash receipt'
         query = "SELECT o.ordate, o.ornum, o.payee_name, " \
                  "REPLACE(CONVERT(TRIM(REPLACE(REPLACE(o.particulars, '\\n', ''), '\\r', '')) USING ASCII), '?', '') AS particulars, " \
@@ -1283,9 +1447,9 @@ def query_bir(report, dfrom, dto):
                 "WHERE o.ordate >= '" + str(dfrom) + "' AND o.ordate <= '" + str(dto) + "' " \
                 "AND o.orstatus = 'R' AND o.status = 'O' " \
                 "ORDER BY o.ordate, o.ornum, d.balancecode DESC"
-    elif report == '16':
+    elif report == '16' or report == '19':
         print 'purchase order'
-        query = "SELECT po.ponum, po.podate, po.refnum, TRIM(REPLACE(REPLACE(particulars, '\n', ''), '\r', '')) AS particulars, po.supplier_name, po.discountamount, po.grossamount, po.netamount, " \
+        query = "SELECT po.ponum, po.podate, po.refnum, TRIM(REPLACE(REPLACE(particulars, '\\n', ''), '\\r', '')) AS particulars, po.supplier_name, po.discountamount, po.grossamount, po.netamount, " \
                 "po.vatable, po.vatamount, po.vatexempt, po.vatrate, po.vatzerorated, po.totalamount, po.totalquantity, po.apvamount, po.atcamount,s.tin, CONCAT(s.address1,' ', s.address2, ' ', s.address3) AS address " \
                 "FROM pomain AS po LEFT OUTER JOIN supplier AS s ON s.id = po.supplier_id " \
                 "WHERE po.podate >= '" + str(dfrom) + "' AND po.podate <= '" + str(dto) + "' " \
