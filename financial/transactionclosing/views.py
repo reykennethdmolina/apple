@@ -97,6 +97,7 @@ def proc_validate(request):
             'status': 'success',
             'message': val_message,
         }
+
     else:
         data = {
             'status': 'error',
@@ -695,13 +696,27 @@ def proc_yearendadjustment(request):
             #  checking unmatch expenses
             detail = Jvdetail.objects.all().filter(status='A', jvmain_id=jv.id, chartofaccount__main=5)
             for d in detail:
-                #print d.jv_num
-                if str(d.chartofaccount.accountcode)[0:2] != str(d.department.expchartofaccount)[0:2]:
-                    if d.department.code != 'IGC':
-                        remarks = 'JV#' + str(d.jv_num) + ' account '+str(d.chartofaccount.accountcode)+' unmacthed expense account vs department'
-                        data = {'status': 'error', 'remarks': remarks}
-                        error = 1
-                        return JsonResponse(data)
+                print d.jv_num
+                print d.id
+                print d.department_id
+                print d.chartofaccount_id
+                print d.chartofaccount.accountcode
+
+                if d.department_id:
+                    print d.department_id
+                    print 'None'
+                    if str(d.chartofaccount.accountcode)[0:2] != str(d.department.expchartofaccount)[0:2]:
+                        if d.department.code != 'IGC':
+                            remarks = 'JV#' + str(d.jv_num) + ' account ' + str(
+                                d.chartofaccount.accountcode) + ' unmacthed expense account vs department'
+                            data = {'status': 'error', 'remarks': remarks}
+                            error = 1
+                            return JsonResponse(data)
+                else:
+                    print 'hey  '
+
+
+
 
 
         if error == 0:
