@@ -737,44 +737,44 @@ def proc_yearendadjustment(request):
                     Jvdetail.objects.filter(pk=data.id).update(status='O', postby=request.user, postdate=datetime.datetime.now(),
                                                             closeby=request.user, closedate=datetime.datetime.now())
                     # Insert data in subsidiary ledger
-                    Subledger.objects.create(
-                        chartofaccount=data.chartofaccount,
-                        item_counter=data.item_counter,
-                        document_type='JV',
-                        document_id=data.pk,
-                        document_num=data.jv_num,
-                        document_date=data.jv_date,
-                        subtype=data.jvmain.jvtype,
-                        bankaccount=data.bankaccount,
-                        department=data.department,
-                        employee=data.employee,
-                        customer=data.customer,
-                        product=data.product,
-                        branch=data.branch,
-                        unit=data.unit,
-                        inputvat=data.inputvat,
-                        outputvat=data.outputvat,
-                        ataxcode=data.ataxcode,
-                        atccode=data.ataxcode.code if data.ataxcode else None,
-                        atcrate=data.ataxcode.rate if data.ataxcode else None,
-                        vat=data.vat,
-                        vatcode=data.vat.code if data.vat else None,
-                        vatrate=data.vat.rate if data.vat else None,
-                        wtax=data.wtax,
-                        wtaxcode=data.wtax.code if data.wtax else None,
-                        wtaxrate=data.wtax.rate if data.wtax else None,
-                        balancecode=data.balancecode,
-                        amount=data.debitamount if data.balancecode == 'D' else data.creditamount,
-                        particulars=data.jvmain.particular,
-                        remarks=data.jvmain.remarks,
-                        document_status=data.jvmain.status,
-                        document_branch=data.jvmain.branch,
-                        document_amount=data.jvmain.amount,
-                        document_currency=data.jvmain.currency,
-                        document_fxrate=data.jvmain.fxrate,
-                        enterby=d.enterby,
-                        modifyby=d.modifyby,
-                    )
+                    # Subledger.objects.create(
+                    #     chartofaccount=data.chartofaccount,
+                    #     item_counter=data.item_counter,
+                    #     document_type='JV',
+                    #     document_id=data.pk,
+                    #     document_num=data.jv_num,
+                    #     document_date=data.jv_date,
+                    #     subtype=data.jvmain.jvtype,
+                    #     bankaccount=data.bankaccount,
+                    #     department=data.department,
+                    #     employee=data.employee,
+                    #     customer=data.customer,
+                    #     product=data.product,
+                    #     branch=data.branch,
+                    #     unit=data.unit,
+                    #     inputvat=data.inputvat,
+                    #     outputvat=data.outputvat,
+                    #     ataxcode=data.ataxcode,
+                    #     atccode=data.ataxcode.code if data.ataxcode else None,
+                    #     atcrate=data.ataxcode.rate if data.ataxcode else None,
+                    #     vat=data.vat,
+                    #     vatcode=data.vat.code if data.vat else None,
+                    #     vatrate=data.vat.rate if data.vat else None,
+                    #     wtax=data.wtax,
+                    #     wtaxcode=data.wtax.code if data.wtax else None,
+                    #     wtaxrate=data.wtax.rate if data.wtax else None,
+                    #     balancecode=data.balancecode,
+                    #     amount=data.debitamount if data.balancecode == 'D' else data.creditamount,
+                    #     particulars=data.jvmain.particular,
+                    #     remarks=data.jvmain.remarks,
+                    #     document_status=data.jvmain.status,
+                    #     document_branch=data.jvmain.branch,
+                    #     document_amount=data.jvmain.amount,
+                    #     document_currency=data.jvmain.currency,
+                    #     document_fxrate=data.jvmain.fxrate,
+                    #     enterby=d.enterby,
+                    #     modifyby=d.modifyby,
+                    # )
 
         #Compute for net of total debits and total credits of additional JV
         jvlist2 = Jvmain.objects.all().filter(jvdate=ddate, jvtype_id=6, status='O', jvstatus='R').order_by('jvnum')
@@ -849,14 +849,18 @@ def proc_yearendadjustment(request):
 
                 newsubledsum_end_amount = (d['debitamount_sum'] - d['creditamount_sum'])
                 newsubledsum_ytd_amount = (d['debitamount_sum'] - d['creditamount_sum'])
-                subledsum_jv_totalcredit = d['debitamount_sum']
-                subledsum_jv_totaldebit = d['creditamount_sum']
+                subledsum_jv_totaldebit = d['debitamount_sum']
+                subledsum_jv_totalcredit = d['creditamount_sum']
 
                 if newsubledsum_end_amount < 0:
                     subledsum_end_code = 'C'
 
                 if newsubledsum_ytd_amount < 0:
                     subledsum_ytd_code = 'C'
+
+                if d['chartofaccount_id'] == '1093':
+                    print newsubledsum_end_amount
+                    subledsum_ytd_code
 
                 Subledgersummary.objects.create(year=str(yearend_year.year), month=12, chartofaccount_id=d['chartofaccount_id'],
                                                 beginning_amount=abs(newsubledsum_end_amount), beginning_code=subledsum_end_code,beginning_date=str(yearend_year.year) + '-12-31',
@@ -915,6 +919,8 @@ def proc_yearendadjustment(request):
                         .annotate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount'))\
                         .order_by('bankaccount_id')
 
+                    print jv_cash
+
                     for c in jv_cash:
                         bankacount = Bankaccount.objects.filter(pk=c['bankaccount_id']).first()
 
@@ -925,20 +931,32 @@ def proc_yearendadjustment(request):
                         bankaccount_new_beg_amount = 0
                         bankaccount_new_end_amount = 0
 
+                        print bankacount
+
                         if bankacount.beg_code == 'C':
                             bankaccount_beg_amount = bankacount.beg_amount * -1
                         else:
                             bankaccount_beg_amount = bankacount.beg_amount
+
+                        print c['debitamount_sum']
+                        print c['creditamount_sum']
+                        print bankacount
 
                         bankaccount_new_beg_amount = bankaccount_beg_amount + (c['debitamount_sum'] - c['creditamount_sum'])
 
                         if bankaccount_new_beg_amount < 0:
                             bankaccount_beg_code = 'C'
 
+                        bankaccount_end_amount = 0
                         if bankacount.run_code == 'C':
                             bankaccount_end_amount = bankacount.run_amount * -1
                         else:
                             bankaccount_end_amount = bankacount.run_amount
+
+                        print 'hehey'
+                        if bankaccount_end_amount is None:
+                            print 'ito na'
+                            bankaccount_end_amount = 0
 
                         bankaccount_end_amount = bankaccount_end_amount + (c['debitamount_sum'] - c['creditamount_sum'])
 
@@ -999,6 +1017,9 @@ def proc_yearendadjustment(request):
             .annotate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount')).order_by('chartofaccount__accountcode')
 
         for de in detailexpense:
+            print de['chartofaccount_id']
+            print de['department__id']
+
             acctexp = Accountexpensebalance.objects.filter(chartofaccount_id=de['chartofaccount_id'], department_id=de['department__id'], year=str(yearend_year.year), month=12).first()
 
             acctexpamount = 0
@@ -1022,10 +1043,15 @@ def proc_yearendadjustment(request):
                 if acctexpamount < 0:
                     acctexpcode = 'C'
 
+                print 'new'
+                print de['chartofaccount_id']
+                print de['department__id']
+                print acctexp
+
                 Accountexpensebalance.objects.create(year=str(yearend_year.year), month=12, date=str(yearend_year.year) + '-12-31',
                                                      chartofaccount_id=de['chartofaccount_id'], department_id=de['department__id'],
                                                      amount=abs(acctexpamount), code=acctexpcode)
-                print 'new'
+
             #print str(acctexp)
             #print str(de['chartofaccount_id'])+' '+str(de['department__id'])+' '+str(de['department__code'])+' '+str(de['debitamount_sum'])+' '+str(de['creditamount_sum'])
 
