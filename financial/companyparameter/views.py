@@ -172,7 +172,7 @@ class UpdateView(UpdateView):
                                         'wtaxsign_name',
                                         'wtaxsign_tin', 'wtaxsign_position', 'modifyby',
                                         'modifydate', 'company',
-                                        'pcv_meal_budget_limit', 'pcv_meal_expenses',
+                                        'pcv_meal_budget_limit',
                                         'report_footer1', 'report_footer2', 'report_footer3',
                                         'report_footer4', 'report_footer5', 'report_footer6',
                                         'report_footer7', 'report_footer8', 'report_footer9',

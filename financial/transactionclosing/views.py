@@ -777,13 +777,28 @@ def proc_yearendadjustment(request):
                     # )
 
         #Compute for net of total debits and total credits of additional JV
-        jvlist2 = Jvmain.objects.all().filter(jvdate=ddate, jvtype_id=6, status='O', jvstatus='R').order_by('jvnum')
+        #jvlist2 = Jvmain.objects.all().filter(jvdate=ddate, jvtype_id=6, status='O', jvstatus='R').order_by('jvnum')
+        jvlist2 = Jvmain.objects.all().filter(jvdate=ddate, jvtype_id=6, status='O', jvstatus='R').exclude(id=4485).order_by('jvnum')
         jv_id = jvlist2.values_list('id', flat=True)
 
         detail = Jvdetail.objects.filter(status='O', jvmain_id__in=jv_id).values('chartofaccount_id','chartofaccount__main','chartofaccount__clas','chartofaccount__item',
                                                                                     'chartofaccount__cont','chartofaccount__sub',
                                                                                     'chartofaccount__accountcode','chartofaccount__description') \
                             .annotate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount')).order_by('chartofaccount__accountcode')
+
+        # jvlist2 = Jvmain.objects.all().filter(jvdate=ddate, jvtype_id=6, status='O', jvstatus='R').exclude(id=4485).order_by('jvnum')
+        # jv_id = jvlist2.values_list('id', flat=True)
+        #
+        # detail = Jvdetail.objects.filter(status='O', jvmain_id__in=jv_id).values('chartofaccount_id',
+        #                                                                          'chartofaccount__main',
+        #                                                                          'chartofaccount__clas',
+        #                                                                          'chartofaccount__item',
+        #                                                                          'chartofaccount__cont',
+        #                                                                          'chartofaccount__sub',
+        #                                                                          'chartofaccount__accountcode',
+        #                                                                          'chartofaccount__description') \
+        #     .annotate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount')).order_by(
+        #     'chartofaccount__accountcode')
 
         for d in detail:
 
@@ -828,15 +843,32 @@ def proc_yearendadjustment(request):
                 if newsubledsum_ytd_amount < 0:
                     subledsum_ytd_code = 'C'
 
-                subledgersummary.end_amount = abs(newsubledsum_end_amount)
-                subledgersummary.end_code = subledsum_end_code
-                subledgersummary.end_date = str(yearend_year.year) + '-12-31'
-                subledgersummary.year_to_date_amount = abs(newsubledsum_ytd_amount)
-                subledgersummary.year_to_date_code = subledsum_ytd_code
-                subledgersummary.year_to_date_date = str(yearend_year.year) + '-12-31'
-                subledgersummary.journal_voucher_debit_total = subledsum_jv_totaldebit
-                subledgersummary.journal_voucher_credit_total = subledsum_jv_totalcredit
-                subledgersummary.save()
+                ## for data fixing
+                #if d['chartofaccount_id'] == 30 or d['chartofaccount_id'] == 178 or d['chartofaccount_id'] == 788:
+                if d['chartofaccount_id'] == 30 or d['chartofaccount_id'] == 178:
+                    print 'ignore'
+                    print d['chartofaccount_id']
+
+                else:
+                    subledgersummary.end_amount = abs(newsubledsum_end_amount)
+                    subledgersummary.end_code = subledsum_end_code
+                    subledgersummary.end_date = str(yearend_year.year) + '-12-31'
+                    subledgersummary.year_to_date_amount = abs(newsubledsum_ytd_amount)
+                    subledgersummary.year_to_date_code = subledsum_ytd_code
+                    subledgersummary.year_to_date_date = str(yearend_year.year) + '-12-31'
+                    subledgersummary.journal_voucher_debit_total = subledsum_jv_totaldebit
+                    subledgersummary.journal_voucher_credit_total = subledsum_jv_totalcredit
+                    subledgersummary.save()
+
+                # subledgersummary.end_amount = abs(newsubledsum_end_amount)
+                # subledgersummary.end_code = subledsum_end_code
+                # subledgersummary.end_date = str(yearend_year.year) + '-12-31'
+                # subledgersummary.year_to_date_amount = abs(newsubledsum_ytd_amount)
+                # subledgersummary.year_to_date_code = subledsum_ytd_code
+                # subledgersummary.year_to_date_date = str(yearend_year.year) + '-12-31'
+                # subledgersummary.journal_voucher_debit_total = subledsum_jv_totaldebit
+                # subledgersummary.journal_voucher_credit_total = subledsum_jv_totalcredit
+                # subledgersummary.save()
             else:
                 subledsum_end_amount = 0
                 subledsum_end_code = 'D'
@@ -862,11 +894,37 @@ def proc_yearendadjustment(request):
                     print newsubledsum_end_amount
                     subledsum_ytd_code
 
-                Subledgersummary.objects.create(year=str(yearend_year.year), month=12, chartofaccount_id=d['chartofaccount_id'],
-                                                beginning_amount=abs(newsubledsum_end_amount), beginning_code=subledsum_end_code,beginning_date=str(yearend_year.year) + '-12-31',
-                                                end_amount=abs(newsubledsum_end_amount), end_code=subledsum_end_code,end_date=str(yearend_year.year) + '-12-31',
-                                                year_to_date_amount=abs(newsubledsum_ytd_amount), year_to_date_code=subledsum_ytd_code,year_to_date_date=str(yearend_year.year) + '-12-31',
-                                                journal_voucher_debit_total = subledsum_jv_totaldebit, journal_voucher_credit_total=subledsum_jv_totalcredit)
+                ## for datafixing
+                #if d['chartofaccount_id'] == 30 or d['chartofaccount_id'] == 178 or d['chartofaccount_id'] == 788:
+                if d['chartofaccount_id'] == 30 or d['chartofaccount_id'] == 178:
+                    print 'ignore'
+                    print d['chartofaccount_id']
+
+                else:
+                    print d['chartofaccount_id']
+                    print 'hoyoyoyo'
+                    Subledgersummary.objects.create(year=str(yearend_year.year), month=12,
+                                                    chartofaccount_id=d['chartofaccount_id'],
+                                                    beginning_amount=abs(newsubledsum_end_amount),
+                                                    beginning_code=subledsum_end_code,
+                                                    beginning_date=str(yearend_year.year) + '-12-31',
+                                                    end_amount=abs(newsubledsum_end_amount),
+                                                    end_code=subledsum_end_code,
+                                                    end_date=str(yearend_year.year) + '-12-31',
+                                                    year_to_date_amount=abs(newsubledsum_ytd_amount),
+                                                    year_to_date_code=subledsum_ytd_code,
+                                                    year_to_date_date=str(yearend_year.year) + '-12-31',
+                                                    journal_voucher_debit_total=subledsum_jv_totaldebit,
+                                                    journal_voucher_credit_total=subledsum_jv_totalcredit)
+
+
+
+
+                # Subledgersummary.objects.create(year=str(yearend_year.year), month=12, chartofaccount_id=d['chartofaccount_id'],
+                #                                 beginning_amount=abs(newsubledsum_end_amount), beginning_code=subledsum_end_code,beginning_date=str(yearend_year.year) + '-12-31',
+                #                                 end_amount=abs(newsubledsum_end_amount), end_code=subledsum_end_code,end_date=str(yearend_year.year) + '-12-31',
+                #                                 year_to_date_amount=abs(newsubledsum_ytd_amount), year_to_date_code=subledsum_ytd_code,year_to_date_date=str(yearend_year.year) + '-12-31',
+                #                                 journal_voucher_debit_total = subledsum_jv_totaldebit, journal_voucher_credit_total=subledsum_jv_totalcredit)
                 print 'new ata ito'
 
 
