@@ -126,6 +126,7 @@ class IndexView(AjaxListView):
             query = query.filter(Q(ofnum__icontains=keysearch) |
                                  Q(ofdate__icontains=keysearch) |
                                  Q(amount__icontains=keysearch) |
+                                 Q(requestor_name__icontains=keysearch) |
                                  Q(particulars__icontains=keysearch))
 
         if self.request.COOKIES.get('keysearchtype_' + self.request.resolver_match.app_name):
