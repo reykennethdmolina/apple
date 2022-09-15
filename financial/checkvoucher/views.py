@@ -3148,8 +3148,8 @@ def exportsave(request):
                     particulars=data.remarks,
                     amount=data.amount,
                     amountinwords=amountinwords,
-                    designatedapprover_id=15,  # Angela
-                    actualapprover_id = 15, # Angela
+                    designatedapprover_id=141,  # Pat Luzon
+                    actualapprover_id = 141, # Pat Luzon
                     vat_id = apdata.apmain.vat_id,
                     inputvattype_id = apdata.apmain.inputvattype_id,
                     approverremarks = 'Auto approved from Digibanker Import File',
