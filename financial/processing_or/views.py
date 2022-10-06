@@ -108,8 +108,11 @@ def fileupload(request):
                                         importstatus = 'F'
                                         importremarks = 'Skipped: Already exists in this batch'
                                     elif not Bankaccount.objects.filter(code=data[13]):
+                                        print '**'
                                         print data[13]
+                                        print '***'
                                         print data[14]
+                                        print '****'
                                         importstatus = 'F'
                                         importremarks = 'Failed: Bank account does not exist'
                                         print 'Failed: Bank account does not exist'
@@ -290,7 +293,9 @@ def fileupload(request):
                                             return False
 
                                     if RepresentsInt:
-                                        totalassignamount = float(data.assignamount)
+                                        if data.assignamount:
+                                            totalassignamount = float(data.assignamount)
+
 
                                     def RepresentsInt(assignvatamount):
                                         try:
@@ -300,7 +305,8 @@ def fileupload(request):
                                             return False
 
                                     if RepresentsInt:
-                                        totalvatamount = float(data.assignvatamount)
+                                        if data.assignvatamount:
+                                            totalvatamount = float(data.assignvatamount)
 
                                     totalassign = totalassignamount + totalvatamount
 
@@ -386,6 +392,9 @@ def fileupload(request):
                                         importstatus = 'F'
                                         importremarks = 'Skipped: Already exists in this batch'
                                     elif not Bankaccount.objects.filter(code=data[13]):
+                                        print '**'
+                                        print data[13]
+                                        print '**'
                                         importstatus = 'F'
                                         importremarks = 'Failed: Bank account does not exist'
                                         breakmain = 1
@@ -476,6 +485,7 @@ def fileupload(request):
                                             print "(2/2 - " + status_percentage + "%) Processing: " + data[0]
 
                                             if Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey, accounttype='C'):
+                                                print data[16]
                                                 if not Productgroup.objects.filter(code=data[16].strip()):
                                                     importstatus = 'F'
                                                     importremarks = 'Failed: Product Group does not exist'
@@ -1044,6 +1054,7 @@ def exportsave(request):
                             ordetail = Logs_ordetail.objects.filter(importstatus='S', batchkey=request.POST['batchkey'], orno=data.orno)
                             for data_d in ordetail:
                                 temp_category = Circulationpaytype.objects.get(code=data.paytype, isdeleted=0).category
+                                print data_d.product
                                 temp_product = Productgroup.objects.get(code=data_d.product, isdeleted=0)
 
                                 temp_chartofaccount = Productgroupcategory.objects.get(category=temp_category, productgroup=temp_product)

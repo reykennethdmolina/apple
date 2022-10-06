@@ -310,15 +310,23 @@
                                                    "</tr>")
                                 }
 
-                                if(proceedinit){
+                                if (data['rate'] == 100) {
                                     $('#or_export').delay(300).fadeIn(300);
+                                    $('#or_batchkey').val(data['batchkey']);
+                                    $('#or_artype').val(data['artype']);
+                                    $('#or_step_verify').find('.price-title').removeClass('bg-teal-a400').addClass('bg-grey-600');
+                                    $('#or_step_upload').find('.price-title').removeClass('bg-grey-600').addClass('bg-teal-a400');
+                                    $('html, body').delay(300).animate({scrollTop: $('#or_step_upload').offset().top -80 }, 'slow');
                                 }
 
-                                $('#or_batchkey').val(data['batchkey']);
-                                $('#or_artype').val(data['artype']);
-                                $('#or_step_verify').find('.price-title').removeClass('bg-teal-a400').addClass('bg-grey-600');
-                                $('#or_step_upload').find('.price-title').removeClass('bg-grey-600').addClass('bg-teal-a400');
-                                $('html, body').delay(300).animate({scrollTop: $('#or_step_upload').offset().top -80 }, 'slow');
+                                console.log('dito');
+                                if(proceedinit){
+                                    console.log('dito2');
+                                    $('#or_export').delay(300).fadeIn(300);
+                                }
+                                console.alert('dito3');
+
+
                                 break;
                             case 2:
                                 customAlert($('#upload-error'));
