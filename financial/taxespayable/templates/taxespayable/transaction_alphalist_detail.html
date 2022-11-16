@@ -3,7 +3,7 @@
 {% load custom %}
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="page-wrap">
-        <h3>RESULTSX</h3>
+        <h3>RESULTS</h3>
         <table class="table table-striped table-bordered" style="font-size:12px">
             <thead>
                 <tr>
@@ -39,27 +39,27 @@
                  <td class="text-left"></td>
                 {% else %}
                  <td class="text-left"></td>
-                 <td class="text-left">{{ item.supplier }}</td>
-                 <td class="text-left"></td>
-                 <td class="text-left"></td>
+                 <td class="text-left">{{ item.lname }}</td>
+                 <td class="text-left">{{ item.mname }}</td>
+                 <td class="text-left">{{ item.fname }}</td>
                 {% endif%}
-                <td class="text-left">{{ dto|date:'d/m/Y' }}</td>
+                <td class="text-left">{{ item.document_date|date:'d/m/Y' }}</td>
                 <td class="text-left">{{ item.atccode }}</td>
                 <td class="text-left">{{ item.atcrate|floatformat:2 }}</td>
-                <td class="text-right">{{ item.taxesable|floatformat:2 }}</td>
-                <td class="text-right">{{ item.tax|floatformat:2 }}</td>
+                <td class="text-right">{{ item.taxesable|floatformat:2|intcomma }}</td>
+                <td class="text-right">{{ item.tax|floatformat:2|intcomma }}</td>
             </tr>
             {% endfor %}
             </tbody>
             <tfoot>
                 <tr>
+                    <th>C1</th>
+                    <th>1601EQ</th>
                     <th>000803607</th>
                     <th></th>
                     <th>{{ dto|date:'d/m/Y' }}</th>
-                    <th>63561536.66</th>
-                    <th>1730763.60</th>
-                    <th></th>
-                    <th></th>
+                    <th class="text-right">{{ ttaxesable|floatformat:2|intcomma }}</th>
+                    <th class="text-right">{{ ttax|floatformat:2|intcomma }}</th>
                     <th></th>
                     <th></th>
                     <th></th>
