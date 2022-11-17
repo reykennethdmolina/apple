@@ -24,6 +24,7 @@
                                     <th><span>Id</span></th>
                                     <th><span>Code</span></th>
                                     <th><span>Name</span></th>
+                                    <th><span>Supplier</span></th>
                                     <th class="text-center"><span>Action</span></th>
                                 </tr>
                             </thead>
@@ -33,6 +34,7 @@
                                     <td>{{ data.id }}</td>
                                     <td>{{ data.code }}</td>
                                     <td>{{ data.name }}</td>
+                                    <td>{{ data.supplier.code|default:'' }} {{ data.supplier.name|default:'' }}</td>
                                     <td class="text-center">
                                         <div class="iconlist-wrap auto-0">
                                             <div class="iconlist">
