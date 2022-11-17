@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from . models import Agent
 from agenttype.models import Agenttype
+from supplier.models import Supplier
 from financial.utils import Render
 from django.utils import timezone
 from django.template.loader import get_template
@@ -57,7 +58,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Agent
     template_name = 'agent/edit.html'
-    fields = ['code', 'agenttype', 'name', 'street', 'remarks', 'comments']
+    fields = ['code', 'agenttype', 'name', 'street', 'supplier', 'remarks', 'comments']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('agent.change_agent'):
@@ -67,13 +68,21 @@ class UpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['agenttype'] = Agenttype.objects.filter(isdeleted=0).order_by('code')
+
+        context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('name')
+
+        if self.request.POST.get('supplier', False):
+            context['supplier'] = Supplier.objects.get(pk=self.request.POST['supplier'], isdeleted=0)
+        elif self.object.supplier:
+            context['supplier'] = Supplier.objects.get(pk=self.object.supplier.id, isdeleted=0)
+
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['agenttype', 'name', 'street', 'remarks', 'comments', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['agenttype', 'name', 'street', 'remarks', 'comments', 'modifyby', 'modifydate', 'supplier'])
         return HttpResponseRedirect('/agent')
 
 
