@@ -154,7 +154,7 @@ def upload(request):
                                             item_id=str(data['ITEM_ID']),
                                             smf_code=str(data['SMF_CODE']),
                                             smf_name=str(data['SMF_NAME']),
-                                            smf_atccod=str(data['SMF_ATCCODE']),
+                                            smf_atccod=str(data['SMF_ATCCOD']),
                                             doc_type=str(data['DOC_TYPE']),
                                             smf_trate=data['SMF_TRATE'],
                                             enterby=request.user,
