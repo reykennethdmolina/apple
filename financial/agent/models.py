@@ -21,7 +21,6 @@ class Agent(models.Model):
         ('P', 'Printed'),
     )
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
-    supplier = models.ForeignKey('supplier.Supplier', related_name='agentsupplier_id', null=True, blank=True)
     enterby = models.ForeignKey(User, default=1, related_name='agent_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='agent_modify')
