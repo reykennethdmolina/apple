@@ -12,6 +12,7 @@ import decimal
 from dbfread import DBF
 from django.conf import settings
 from agent.models import Agent
+from agent.models import Newsboy
 from agenttype.models import Agenttype
 from customer.models import Customer
 from customertype.models import Customertype
@@ -100,6 +101,75 @@ def upload(request):
                                     successcount += 1
                                 else:
                                     failedcount += 1
+
+                                breakstatus = 0
+                            else:
+                                breakstatus = 1
+                                break
+                        if breakstatus == 0:
+                            data = {
+                                'result': 1,
+                                'datacount': datacount,
+                                'successcount': successcount,
+                                'failedcount': failedcount,
+                                'successdata': successdata,
+                                'faileddata': faileddata,
+                            }
+                        else:
+                            data = {
+                                'result': 5
+                            }
+                    else:
+                        data = {
+                            'result': 2
+                        }
+                elif request.POST['upload_type'] == 'newsboy' and request.FILES['upload_file'].name.endswith('.dbf'):
+                    print 'hoy'
+                    if storeupload(request.FILES['upload_file'], sequence, 'dbf', upload_directory + 'imported_newsboy/'):
+                        breakstatus = 1
+                        for data in DBF(settings.MEDIA_ROOT + '/' + upload_directory + 'imported_newsboy/' + str(sequence) + '.dbf', char_decode_errors='ignore'):
+                            datacount += 1
+                            saveproceed = 1
+
+                            if len(data) == 18:
+                                print data['DOC_NUM']
+                                newsboy = Newsboy.objects.filter(doc_num=data['DOC_NUM']).first()
+
+                                if newsboy is None:
+                                    print 'not existing'
+                                    if saveproceed == 1:
+                                        Newsboy.objects.create(
+                                            doc_num=str(data['DOC_NUM']),
+                                            doc_date=str(data['DOC_DATE']),
+                                            glf_act=str(data['GLF_ACCT']),
+                                            glf_code=str(data['GLF_CODE']),
+                                            glf_amt=data['GLF_AMT'],
+                                            glf_rem1=str(data['GLF_REM1']),
+                                            glf_rem2=str(data['GLF_REM2']),
+                                            glf_rem3=str(data['GLF_REM3']),
+                                            status=str(data['STATUS']),
+                                            status_d=str(data['STATUS_D']),
+                                            user_n=str(data['USER_N']),
+                                            user_d=str(data['USER_D']),
+                                            item_id=str(data['ITEM_ID']),
+                                            smf_code=str(data['SMF_CODE']),
+                                            smf_name=str(data['SMF_NAME']),
+                                            smf_atccod=str(data['SMF_ATCCODE']),
+                                            doc_type=str(data['DOC_TYPE']),
+                                            smf_trate=data['SMF_TRATE'],
+                                            enterby=request.user,
+                                            modifyby=request.user,
+                                            enterdate=datetime.now(),
+                                        ).save()
+                                        successdata.append(data['DOC_NUM'] + ' - ' + str(data['DOC_DATE']))
+                                        successcount += 1
+                                    else:
+                                        failedcount += 1
+                                else:
+                                    faileddata.append([data['DOC_NUM'] + ' - ' + str(data['DOC_DATE']), 'Doc Num exist',])
+                                    saveproceed = 0
+                                    failedcount += 1
+
 
                                 breakstatus = 0
                             else:
@@ -225,6 +295,7 @@ def upload(request):
                                 'faileddata': faileddata,
                             }
                         else:
+                            print data[0]
                             data = {
                                 'result': 5
                             }
@@ -359,3 +430,51 @@ def strip_non_ascii(string):
     ''' Returns the string without non ASCII characters'''
     stripped = (c for c in string if 0 < ord(c) < 127)
     return ''.join(stripped)
+
+
+@csrf_exempt
+def datafix(request):
+    print 'datafix'
+
+    # agent = Agent.objects.filter(isdeleted=0).order_by('pk')
+    #
+    # for a in agent:
+    #     print a.id
+    #     newsboy = Newsboy.objects.filter(smf_code=a.code).count()
+    #     print newsboy
+    #     if newsboy > 0:
+    #         print a.code
+    #         print '______________________________________________'
+    #
+    #         a.agent_type = 1
+    #         a.save()
+    #     # if newsboy:
+    #     #     print newsboy
+    #     # else:
+    #     #     print 'not existing'
+
+    # agent = Agent.objects.filter(isdeleted=0, agent_type = 1).order_by('pk')
+    #
+    # for a in agent:
+    #     print a.id
+    #     print a.code
+    #     # newsboy = Newsboy.objects.filter(smf_code=a.code).count()
+    #     # print newsboy
+    #     # if newsboy > 0:
+    #     #     print a.code
+    #     #     print '______________________________________________'
+    #     #
+    #     #     a.agent_type = 1
+    #     #     a.save()
+    #     # # if newsboy:
+    #     # #     print newsboy
+    #     # # else:
+    #     # #     print 'not existing'
+
+    data = {
+        'status': 'success',
+        'agent': agent,
+
+    }
+    return JsonResponse(data)
+
