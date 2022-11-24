@@ -1,4 +1,4 @@
-#__author__ = 'ken'
+ #__author__ = 'ken'
 
 from django.conf.urls import url
 from . import views

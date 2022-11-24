@@ -103,6 +103,17 @@ def transgenerate(request):
         context['ttax'] = ttax
         viewhtml = render_to_string('taxespayable/transaction_alphalist_detail.html', context)
 
+    elif report == '5':
+        print "newsboy"
+        datalist = queryNewsboy(1, dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+
+        context['datalist'] = datalist
+        context['beg'] = []
+        context['dfrom'] = datetime.datetime.strptime(dfrom, '%Y-%m-%d')
+        context['dto'] = datetime.datetime.strptime(dto, '%Y-%m-%d')
+
+        viewhtml = render_to_string('taxespayable/newsboy.html', context)
+
     data = {
         'status': 'success',
         'viewhtml': viewhtml,
@@ -322,6 +333,57 @@ class TransExcel(View):
             worksheet.write(row, col + 5, float(format(ttaxesable, '.2f')))
             worksheet.write(row, col + 6, float(format(ttax, '.2f')))
 
+        elif report == '5':
+            print "newsboy"
+            filename = "newsboy.xlsx"
+
+            datalist = queryNewsboy(2, dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+
+            # title
+            worksheet.write('A1', 'doc_date')
+            worksheet.write('B1', 'doc_type')
+            worksheet.write('C1', 'doc_num')
+            worksheet.write('D1', 'particulars')
+            worksheet.write('E1', 'smf_code')
+            worksheet.write('F1', 'smf_name')
+            worksheet.write('G1', 'last_name')
+            worksheet.write('H1', 'first_name')
+            worksheet.write('I1', 'middle_name')
+            worksheet.write('J1', 'debit_amt')
+            worksheet.write('K1', 'credit_amt')
+            worksheet.write('L1', 'sls_trate')
+            worksheet.write('M1', 'tax_amt')
+            worksheet.write('N1', 'gross_amt')
+            worksheet.write('O1', 'smf_add')
+            worksheet.write('P1', 'smf_tin')
+
+            row = 1
+            col = 0
+            ttaxesable = 0
+            ttax = 0
+            #
+            counter = 1
+            for data in datalist:
+                worksheet.write(row, col, data.docdate)
+                worksheet.write(row, col + 1, data.doc_type)
+                worksheet.write(row, col + 2, data.doc_num)
+                worksheet.write(row, col + 3, data.particulars)
+                worksheet.write(row, col + 4, data.suppliercode)
+                worksheet.write(row, col + 5, data.suppliername)
+                worksheet.write(row, col + 6, data.lname)
+                worksheet.write(row, col + 7, data.mname)
+                worksheet.write(row, col + 8, data.fname)
+                worksheet.write(row, col + 9, float(format(data.debit, '.2f')))
+                worksheet.write(row, col + 10, float(format(data.credit, '.2f')))
+                worksheet.write(row, col + 11, float(format(data.atcrate, '.2f')))
+                worksheet.write(row, col + 12, float(format(data.tax, '.2f')))
+                worksheet.write(row, col + 13, float(format(data.gross, '.2f')))
+                worksheet.write(row, col + 14, data.address)
+                worksheet.write(row, col + 15, data.tin)
+
+                row += 1
+                counter += 1
+
 
         workbook.close()
 
@@ -339,7 +401,44 @@ class TransExcel(View):
 
         return response
 
+def queryNewsboy(type, dto, dfrom, transaction, chartofaccount, payeecode, payeename):
+    print type
+    conchart = "AND s.chartofaccount_id IN (315,316,318)"
+    orderby = ""
+    groupby = ""
+    conpayeecode = ""
+    conpayeename = ""
 
+    if chartofaccount:
+        conchart = "AND s.chartofaccount_id IN ("+chartofaccount+")"
+
+    if payeename:
+        conpayeename = "AND s.name LIKE '%"+str(payeename)+"%'"
+
+    print conchart
+    ''' Create query '''
+    cursor = connection.cursor()
+
+
+    query = "SELECT n.*, DATE_FORMAT(CAST(n.doc_date as date), '%m/%d/%Y') as docdate, a.code as agentcode, a.name as agentname, n.smf_trate as atcrate, '' as particulars, " \
+            "a.supplier_id, sup.code as suppliercode, sup.name as suppliername, " \
+            "SUBSTRING_INDEX(REPLACE(sup.name,'*',''), ' ', 1) AS fname, '' AS mname, " \
+            "SUBSTRING_INDEX(REPLACE(sup.name,'*',''), ' ', -1) AS lname, " \
+            "IF(n.glf_code = 'C', n.glf_amt * (n.smf_trate / 100), 0) AS debit, IF(n.glf_code = 'D', n.glf_amt * (n.smf_trate / 100) , 0) AS credit, " \
+            "IF(n.glf_code = 'C', (n.glf_amt * (n.smf_trate / 100)), (n.glf_amt * (n.smf_trate / 100)) * -1) AS tax, " \
+            "IF(n.glf_code = 'C', n.glf_amt, (n.glf_amt * -1)) AS gross, CONCAT(sup.address1, ' ', sup.address2, ' ', sup.address3) AS address, sup.tin " \
+            "FROM newsboy AS n " \
+            "LEFT OUTER JOIN agent as a on a.code = n.smf_code " \
+            "LEFT OUTER JOIN supplier as sup on sup.id = a.supplier_id " \
+            "WHERE DATE(n.doc_date) >= '"+str(dfrom)+"' AND DATE(n.doc_date) <= '"+str(dto)+"' " \
+            +""+str(conpayeename)+" "+ "ORDER BY n.doc_date"
+
+    print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
 
 def queryAlphalist(type, dto, dfrom, transaction, chartofaccount, payeecode, payeename):
     print type
@@ -469,7 +568,7 @@ def querySchedule(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
             +""+str(conchart)+" "+ " " \
             +""+str(conpayeename)+" "+"GROUP BY sup.code, atcrate ORDER BY sup.name ASC"
 
-    print query
+    #print query
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
