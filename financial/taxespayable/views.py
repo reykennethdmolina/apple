@@ -27,6 +27,8 @@ import datetime
 from datetime import timedelta
 
 
+
+@method_decorator(login_required, name='dispatch')
 class IndexView(TemplateView):
     template_name = 'taxespayable/index.html'
 
@@ -37,6 +39,8 @@ class IndexView(TemplateView):
         return context
 
 #@csrf_exempt
+
+@method_decorator(login_required, name='dispatch')
 def transgenerate(request):
     dto = request.GET["dto"]
     dfrom = request.GET["dfrom"]
@@ -420,7 +424,8 @@ def queryNewsboy(type, dto, dfrom, transaction, chartofaccount, payeecode, payee
     cursor = connection.cursor()
 
 
-    query = "SELECT n.*, DATE_FORMAT(CAST(n.doc_date as date), '%m/%d/%Y') as docdate, a.code as agentcode, a.name as agentname, n.smf_trate as atcrate, '' as particulars, " \
+    query = "SELECT n.*, DATE_FORMAT(CAST(n.doc_date as date), '%m/%d/%Y') as docdate, a.code as agentcode, a.name as agentname, n.smf_trate as atcrate, '' as particulars," \
+            " " \
             "a.supplier_id, sup.code as suppliercode, sup.name as suppliername, " \
             "SUBSTRING_INDEX(REPLACE(sup.name,'*',''), ' ', 1) AS fname, '' AS mname, " \
             "SUBSTRING_INDEX(REPLACE(sup.name,'*',''), ' ', -1) AS lname, " \

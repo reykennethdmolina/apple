@@ -27,6 +27,7 @@ import datetime
 from datetime import timedelta
 
 
+@method_decorator(login_required, name='dispatch')
 class IndexView(TemplateView):
     template_name = 'nontrade/index.html'
 
@@ -127,6 +128,7 @@ def tagging(request):
     return JsonResponse(data)
 
 #@csrf_exempt
+@method_decorator(login_required, name='dispatch')
 def transgenerate(request):
     dto = request.GET["dto"]
     dfrom = request.GET["dfrom"]
