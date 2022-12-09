@@ -196,7 +196,7 @@ class CreateView(CreateView):
             latestjvnum = str(jvnumlast[0])
             print "latest: " + latestjvnum
 
-            cvnum = year
+            jvnum = year
             # print str(int(latestapnum[4:]))
             last = str(int(latestjvnum) + 1)
 
