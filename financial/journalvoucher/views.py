@@ -41,6 +41,7 @@ from financial.utils import Render
 from django.utils import timezone
 from django.template.loader import get_template
 from django.http import HttpResponse
+from django.db import connection
 import pandas as pd
 import io
 from django.shortcuts import render
@@ -50,6 +51,7 @@ from django.core.files.storage import FileSystemStorage
 from django.db.models import Max
 
 
+@method_decorator(login_required, name='dispatch')
 class IndexView(AjaxListView):
     model = Jvmain
     template_name = 'journalvoucher/index.html'
@@ -189,20 +191,30 @@ class CreateView(CreateView):
             year = str(form.cleaned_data['jvdate'].year)
             yearqs = Jvmain.objects.filter(jvnum__startswith=year)
 
-            if yearqs:
-                jvnumlast = yearqs.latest('jvnum')
-                latestjvnum = str(jvnumlast)
-                print "latest: " + latestjvnum
+            #if yearqs:
+            jvnumlast = lastNumber('true')
+            latestjvnum = str(jvnumlast[0])
+            print "latest: " + latestjvnum
 
-                jvnum = year
-                last = str(int(latestjvnum[4:]) + 1)
-                zero_addon = 6 - len(last)
-                for num in range(0, zero_addon):
-                    jvnum += '0'
-                jvnum += last
+            cvnum = year
+            # print str(int(latestapnum[4:]))
+            last = str(int(latestjvnum) + 1)
 
-            else:
-                jvnum = year + '000001'
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                jvnum += '0'
+
+            jvnum += last
+
+            #     jvnum = year
+            #     last = str(int(latestjvnum[4:]) + 1)
+            #     zero_addon = 6 - len(last)
+            #     for num in range(0, zero_addon):
+            #         jvnum += '0'
+            #     jvnum += last
+            #
+            # else:
+            #     jvnum = year + '000001'
 
             print 'jvnum: ' + jvnum
             # jvyear = form.cleaned_data['jvdate'].year
@@ -2416,4 +2428,17 @@ def filedelete(request):
         return HttpResponseRedirect('/journalvoucher/' + str(id) )
 
     return HttpResponseRedirect('/journalvoucher/' + str(id) )
+
+
+def lastNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(cvnum, 5) AS num FROM jvmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
 
