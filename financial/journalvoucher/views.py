@@ -2435,7 +2435,7 @@ def lastNumber(param):
     ''' Create query '''
     cursor = connection.cursor()
 
-    query = "SELECT  SUBSTRING(cvnum, 5) AS num FROM jvmain ORDER BY id DESC LIMIT 1"
+    query = "SELECT  SUBSTRING(jvnum, 5) AS num FROM jvmain ORDER BY id DESC LIMIT 1"
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
