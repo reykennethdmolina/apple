@@ -45,6 +45,7 @@ from django.db import connection
 import pandas as pd
 import io
 from django.shortcuts import render
+from collections import namedtuple
 import os
 import xlsxwriter
 from django.core.files.storage import FileSystemStorage
@@ -2442,3 +2443,9 @@ def lastNumber(param):
 
     return result[0]
 
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
