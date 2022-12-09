@@ -56,8 +56,10 @@ import io
 import xlsxwriter
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.db.models import Max
 
 
+@method_decorator(login_required, name='dispatch')
 class IndexView(AjaxListView):
     model = Apmain
     template_name = 'accountspayable/index.html'
@@ -233,23 +235,37 @@ class CreateView(CreateView):
         self.object = form.save(commit=False)
 
         year = str(form.cleaned_data['apdate'].year)
-        yearqs = Apmain.objects.filter(apnum__startswith=year)
+        #yearqs = Apmain.objects.filter(apdate__gte='2022-01-01')
+        #apnumlast = Apmain.objects.aggregate(Max('apnum')).order_by('pk') #yearqs.aggregate(Max('apnum'))
+        apnumlast = lastNumber('true')
 
-        if yearqs:
-            apnumlast = yearqs.latest('apnum')
-            latestapnum = str(apnumlast)
-            print "latest: " + latestapnum
+        ## SELECT RIGHT(MAX(LPAD(apnum, 10, 0)) , 6)  FROM apmain;
+        latestapnum = str(apnumlast[0])
+        apnum = year
+        #print str(int(latestapnum[4:]))
+        last = str(int(latestapnum) + 1)
+        print last
+        zero_addon = 6 - len(last)
+        for num in range(0, zero_addon):
+            apnum += '0'
+        apnum += last
 
-            apnum = year
-            last = str(int(latestapnum[4:]) + 1)
-            print last
-            zero_addon = 6 - len(last)
-            for num in range(0, zero_addon):
-                apnum += '0'
-            apnum += last
-
-        else:
-            apnum = year + '000001'
+        # if yearqs:
+        #     apnumlast = yearqs.latest('apnum')
+        #     print apnumlast
+        #     latestapnum = str(apnumlast)
+        #     print "latest: " + latestapnum
+        #
+        #     apnum = year
+        #     last = str(int(latestapnum[4:]) + 1)
+        #     print last
+        #     zero_addon = 6 - len(last)
+        #     for num in range(0, zero_addon):
+        #         apnum += '0'
+        #     apnum += last
+        #
+        # else:
+        #    apnum = year + '000001'
 
         print 'apnum: ' + apnum
 
@@ -4174,3 +4190,17 @@ def filedelete(request):
         return HttpResponseRedirect('/accountspayable/' + str(id) )
 
     return HttpResponseRedirect('/accountspayable/' + str(id) )
+
+
+
+def lastNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(apnum, 5) AS num FROM apmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
