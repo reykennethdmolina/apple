@@ -111,8 +111,12 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Reference No.&nbsp;: </span>
+                                            <span class="text-name-profile text-info">Reference No.&nbsp;:</span>
+                                            {% if object.apsubtype_id == 1 or object.apsubtype_id == 10 or object.apsubtype_id == 11 or object.apsubtype_id == 13 or object.apsubtype_id == 14 %}
+                                            <a href="{% url 'operationalfund:detail' ofid.id %}" target="_blank"><span class="detail-profile">{{ object.refno|default:'N/A' }}</span></a>
+                                            {% else %}
                                             <span class="detail-profile">{{ object.refno|default:'N/A' }}</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">

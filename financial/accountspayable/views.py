@@ -167,7 +167,12 @@ class DetailView(DetailView):
             context['vatablesale'] = 0
             context['vatexemptsale'] = 0
             context['vatzeroratedsale'] = taxable_total['debitamount__sum']
+        ofid = 0
+        if self.object.apsubtype_id == 1 or self.object.apsubtype_id == 10 or self.object.apsubtype_id == 11 or self.object.apsubtype_id == 13 or self.object.apsubtype_id == 14:
+            ofid = Ofmain.objects.filter(ofnum=self.object.refno).first()
 
+
+        context['ofid'] = ofid
         context['totalsale'] = taxable_total['debitamount__sum']
         context['addvat'] = vat_total['debitamount__sum']
         context['totalpayment'] = aptrade_total['creditamount__sum']
