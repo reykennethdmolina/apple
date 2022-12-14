@@ -110,6 +110,12 @@ class DetailView(DetailView):
         jv_main_aggregate = Ofmain.objects.filter(isdeleted=0, jvmain=self.object.id).aggregate(Sum('amount'))
         context['repcsv_total_amount'] = jv_main_aggregate['amount__sum']
 
+        ofid = 0
+        if self.object.jvsubtype_id == 19:
+            ofid = Ofmain.objects.filter(ofnum=self.object.refnum).first()
+
+        context['ofid'] = ofid
+
         context['uploadlist'] = Jvupload.objects.filter(jvmain_id=self.object.pk).order_by('enterdate')
 
         return context
