@@ -685,22 +685,41 @@ def exportsave(request):
                     # padnum = '{:06d}'.format(num)
                     # print padnum
                     # print 'hy'
-                    yearqs = Jvmain.objects.filter(jvnum__startswith=jvyear)
+                    #yearqs = Jvmain.objects.filter(jvnum__startswith=jvyear)
+                    year = str(form.cleaned_data['jvdate'].year)
+                    yearqs = Jvmain.objects.filter(jvnum__startswith=year)
 
-                    if yearqs:
-                        jvnumlast = yearqs.latest('jvnum')
-                        latestjvnum = str(jvnumlast)
-                        print "latest: " + latestjvnum
+                    # if yearqs:
+                    jvnumlast = lastNumber('true')
+                    latestjvnum = str(jvnumlast[0])
+                    print "latest: " + latestjvnum
 
-                        jvnum = str(jvyear)
-                        last = str(int(latestjvnum[4:]) + 1)
-                        zero_addon = 6 - len(last)
-                        for num in range(0, zero_addon):
-                            jvnum += '0'
-                        jvnum += last
-                        #self.object.jvnum = jvnum
-                        actualjvnum = jvnum
-                        print jvnum
+                    jvnum = year
+                    # print str(int(latestapnum[4:]))
+                    last = str(int(latestjvnum) + 1)
+
+                    zero_addon = 6 - len(last)
+                    for num in range(0, zero_addon):
+                        jvnum += '0'
+
+                    jvnum += last
+
+                    actualjvnum = jvnum
+
+                    # if yearqs:
+                    #     jvnumlast = yearqs.latest('jvnum')
+                    #     latestjvnum = str(jvnumlast)
+                    #     print "latest: " + latestjvnum
+                    #
+                    #     jvnum = str(jvyear)
+                    #     last = str(int(latestjvnum[4:]) + 1)
+                    #     zero_addon = 6 - len(last)
+                    #     for num in range(0, zero_addon):
+                    #         jvnum += '0'
+                    #     jvnum += last
+                    #     #self.object.jvnum = jvnum
+                    #     actualjvnum = jvnum
+                    #     print jvnum
 
                     # temp jvmain to jvmain
                     finaljvmain = Jvmain.objects.create(
@@ -727,20 +746,26 @@ def exportsave(request):
                     # actualjvnum = str(jvyear) + str(padnum)
                     yearqs = Jvmain.objects.filter(jvnum__startswith=jvyear)
 
-                    if yearqs:
-                        jvnumlast = yearqs.latest('jvnum')
-                        latestjvnum = str(jvnumlast)
-                        print "latest: " + latestjvnum
+                    year = str(form.cleaned_data['jvdate'].year)
+                    yearqs = Jvmain.objects.filter(jvnum__startswith=year)
 
-                        jvnum = str(jvyear)
-                        last = str(int(latestjvnum[4:]) + 1)
-                        zero_addon = 6 - len(last)
-                        for num in range(0, zero_addon):
-                            jvnum += '0'
-                        jvnum += last
-                        # self.object.jvnum = jvnum
-                        actualjvnum = jvnum
-                        print jvnum
+                    # if yearqs:
+                    jvnumlast = lastNumber('true')
+                    latestjvnum = str(jvnumlast[0])
+                    print
+                    "latest: " + latestjvnum
+
+                    jvnum = year
+                    # print str(int(latestapnum[4:]))
+                    last = str(int(latestjvnum) + 1)
+
+                    zero_addon = 6 - len(last)
+                    for num in range(0, zero_addon):
+                        jvnum += '0'
+
+                    jvnum += last
+
+                    actualjvnum = jvnum
 
                     # temp jvmain to jvmain
                     finaljvmain = Jvmain.objects.create(

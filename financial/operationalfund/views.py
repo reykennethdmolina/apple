@@ -52,6 +52,8 @@ from customer.models import Customer
 from annoying.functions import get_object_or_None
 from decimal import Decimal
 from financial.utils import Render
+from django.db import connection
+from collections import namedtuple
 import io
 import xlsxwriter
 import pandas as pd
@@ -351,22 +353,34 @@ class CreateViewUser(CreateView):
             year = str(form.cleaned_data['ofdate'].year)
             yearqs = Ofmain.objects.filter(ofnum__startswith=year)
 
-            if yearqs:
-                ofnumlast = yearqs.latest('ofnum')
-                latestofnum = str(ofnumlast)
-                print "latest: " + latestofnum
+            ofnumlast = lastNumber('true')
 
-                ofnum = year
-                last = str(int(latestofnum[4:]) + 1)
-                zero_addon = 6 - len(last)
-                for num in range(0, zero_addon):
-                    ofnum += '0'
-                ofnum += last
+            ## SELECT RIGHT(MAX(LPAD(apnum, 10, 0)) , 6)  FROM apmain;
+            latestofnum = str(ofnumlast[0])
+            ofnum = year
+            last = str(int(latestofnum) + 1)
 
-            else:
-                ofnum = year + '000001'
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                ofnum += '0'
+            ofnum += last
 
-            print 'ofnum: ' + ofnum
+            # if yearqs:
+            #     ofnumlast = yearqs.latest('ofnum')
+            #     latestofnum = str(ofnumlast)
+            #     print "latest: " + latestofnum
+            #
+            #     ofnum = year
+            #     last = str(int(latestofnum[4:]) + 1)
+            #     zero_addon = 6 - len(last)
+            #     for num in range(0, zero_addon):
+            #         ofnum += '0'
+            #     ofnum += last
+            #
+            # else:
+            #     ofnum = year + '000001'
+            #
+            # print 'ofnum: ' + ofnum
 
             total_amount = Ofitemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
                 aggregate(Sum('amount'))
@@ -2450,21 +2464,31 @@ def gopost(request):
 
         if data:
             for of in data:
-                try:
-                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
-                    latestapnum = str(apnumlast)
-                    print latestapnum
-                    if latestapnum[0:4] == str(datetime.datetime.now().year):
-                        apnum = str(datetime.datetime.now().year)
-                        last = str(int(latestapnum[4:]) + 1)
-                        zero_addon = 6 - len(last)
-                        for x in range(0, zero_addon):
-                            apnum += '0'
-                        apnum += last
-                    else:
-                        apnum = str(datetime.datetime.now().year) + '000001'
-                except Apmain.DoesNotExist:
-                    apnum = str(datetime.datetime.now().year) + '000001'
+
+                apnumlast = lastAPNumber('true')
+                latestapnum = str(apnumlast[0])
+                apnum = pdate[:4]
+                last = str(int(latestapnum) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    apnum += '0'
+                apnum += last
+
+                # try:
+                #     apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                #     latestapnum = str(apnumlast)
+                #     print latestapnum
+                #     if latestapnum[0:4] == str(datetime.datetime.now().year):
+                #         apnum = str(datetime.datetime.now().year)
+                #         last = str(int(latestapnum[4:]) + 1)
+                #         zero_addon = 6 - len(last)
+                #         for x in range(0, zero_addon):
+                #             apnum += '0'
+                #         apnum += last
+                #     else:
+                #         apnum = str(datetime.datetime.now().year) + '000001'
+                # except Apmain.DoesNotExist:
+                #     apnum = str(datetime.datetime.now().year) + '000001'
 
                 billingremarks = '';
                 ofitem = Ofitem.objects.filter(ofmain=of.pk).order_by('item_counter')
@@ -2578,21 +2602,29 @@ def gopostreim(request):
 
         if data:
             for of in data:
-                try:
-                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
-                    latestapnum = str(apnumlast)
-                    print latestapnum
-                    if latestapnum[0:4] == str(datetime.datetime.now().year):
-                        apnum = str(datetime.datetime.now().year)
-                        last = str(int(latestapnum[4:]) + 1)
-                        zero_addon = 6 - len(last)
-                        for x in range(0, zero_addon):
-                            apnum += '0'
-                        apnum += last
-                    else:
-                        apnum = str(datetime.datetime.now().year) + '000001'
-                except Apmain.DoesNotExist:
-                    apnum = str(datetime.datetime.now().year) + '000001'
+                apnumlast = lastAPNumber('true')
+                latestapnum = str(apnumlast[0])
+                apnum = pdate[:4]
+                last = str(int(latestapnum) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    apnum += '0'
+                apnum += last
+                #try:
+                #     apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                #     latestapnum = str(apnumlast)
+                #     print latestapnum
+                #     if latestapnum[0:4] == str(datetime.datetime.now().year):
+                #         apnum = str(datetime.datetime.now().year)
+                #         last = str(int(latestapnum[4:]) + 1)
+                #         zero_addon = 6 - len(last)
+                #         for x in range(0, zero_addon):
+                #             apnum += '0'
+                #         apnum += last
+                #     else:
+                #         apnum = str(datetime.datetime.now().year) + '000001'
+                # except Apmain.DoesNotExist:
+                #     apnum = str(datetime.datetime.now().year) + '000001'
 
                 billingremarks = '';
 
@@ -2702,21 +2734,29 @@ def gopostrev(request):
 
         if data:
             for of in data:
-                try:
-                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
-                    latestapnum = str(apnumlast)
-                    print latestapnum
-                    if latestapnum[0:4] == str(datetime.datetime.now().year):
-                        apnum = str(datetime.datetime.now().year)
-                        last = str(int(latestapnum[4:]) + 1)
-                        zero_addon = 6 - len(last)
-                        for x in range(0, zero_addon):
-                            apnum += '0'
-                        apnum += last
-                    else:
-                        apnum = str(datetime.datetime.now().year) + '000001'
-                except Apmain.DoesNotExist:
-                    apnum = str(datetime.datetime.now().year) + '000001'
+                apnumlast = lastAPNumber('true')
+                latestapnum = str(apnumlast[0])
+                apnum = pdate[:4]
+                last = str(int(latestapnum) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    apnum += '0'
+                apnum += last
+                # try:
+                #     apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                #     latestapnum = str(apnumlast)
+                #     print latestapnum
+                #     if latestapnum[0:4] == str(datetime.datetime.now().year):
+                #         apnum = str(datetime.datetime.now().year)
+                #         last = str(int(latestapnum[4:]) + 1)
+                #         zero_addon = 6 - len(last)
+                #         for x in range(0, zero_addon):
+                #             apnum += '0'
+                #         apnum += last
+                #     else:
+                #         apnum = str(datetime.datetime.now().year) + '000001'
+                # except Apmain.DoesNotExist:
+                #     apnum = str(datetime.datetime.now().year) + '000001'
 
                 billingremarks = '';
 
@@ -2825,22 +2865,30 @@ def gopostliq(request):
 
         if data:
             for of in data:
+                jvnumlast = lastJVNumber('true')
+                latestjvnum = str(jvnumlast[0])
+                jvnum = pdate[:4]
+                last = str(int(latestjvnum) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    jvnum += '0'
+                jvnum += last
 
-                try:
-                    jvnumlast = Jvmain.objects.filter(jvnum__length=10).latest('jvnum')
-                    latestjvnum = str(jvnumlast)
-                    print latestjvnum
-                    if latestjvnum[0:4] == str(datetime.datetime.now().year):
-                        jvnum = str(datetime.datetime.now().year)
-                        last = str(int(latestjvnum[4:]) + 1)
-                        zero_addon = 6 - len(last)
-                        for x in range(0, zero_addon):
-                            jvnum += '0'
-                        jvnum += last
-                    else:
-                        jvnum = str(datetime.datetime.now().year) + '000001'
-                except Jvmain.DoesNotExist:
-                    jvnum = str(datetime.datetime.now().year) + '000001'
+                # try:
+                #     jvnumlast = Jvmain.objects.filter(jvnum__length=10).latest('jvnum')
+                #     latestjvnum = str(jvnumlast)
+                #     print latestjvnum
+                #     if latestjvnum[0:4] == str(datetime.datetime.now().year):
+                #         jvnum = str(datetime.datetime.now().year)
+                #         last = str(int(latestjvnum[4:]) + 1)
+                #         zero_addon = 6 - len(last)
+                #         for x in range(0, zero_addon):
+                #             jvnum += '0'
+                #         jvnum += last
+                #     else:
+                #         jvnum = str(datetime.datetime.now().year) + '000001'
+                # except Jvmain.DoesNotExist:
+                #     jvnum = str(datetime.datetime.now().year) + '000001'
 
                 print 'hoy'
                 print jvnum
@@ -3746,21 +3794,29 @@ def goposteye(request):
 
         if data:
             for of in data:
-                try:
-                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
-                    latestapnum = str(apnumlast)
-                    print latestapnum
-                    if latestapnum[0:4] == str(datetime.datetime.now().year):
-                        apnum = str(datetime.datetime.now().year)
-                        last = str(int(latestapnum[4:]) + 1)
-                        zero_addon = 6 - len(last)
-                        for x in range(0, zero_addon):
-                            apnum += '0'
-                        apnum += last
-                    else:
-                        apnum = str(datetime.datetime.now().year) + '000001'
-                except Apmain.DoesNotExist:
-                    apnum = str(datetime.datetime.now().year) + '000001'
+                apnumlast = lastAPNumber('true')
+                latestapnum = str(apnumlast[0])
+                apnum = pdate[:4]
+                last = str(int(latestapnum) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    apnum += '0'
+                apnum += last
+                # try:
+                #     apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                #     latestapnum = str(apnumlast)
+                #     print latestapnum
+                #     if latestapnum[0:4] == str(datetime.datetime.now().year):
+                #         apnum = str(datetime.datetime.now().year)
+                #         last = str(int(latestapnum[4:]) + 1)
+                #         zero_addon = 6 - len(last)
+                #         for x in range(0, zero_addon):
+                #             apnum += '0'
+                #         apnum += last
+                #     else:
+                #         apnum = str(datetime.datetime.now().year) + '000001'
+                # except Apmain.DoesNotExist:
+                #     apnum = str(datetime.datetime.now().year) + '000001'
 
                 billingremarks = '';
 
@@ -3870,21 +3926,29 @@ def gopostanti(request):
 
         if data:
             for of in data:
-                try:
-                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
-                    latestapnum = str(apnumlast)
-                    print latestapnum
-                    if latestapnum[0:4] == str(datetime.datetime.now().year):
-                        apnum = str(datetime.datetime.now().year)
-                        last = str(int(latestapnum[4:]) + 1)
-                        zero_addon = 6 - len(last)
-                        for x in range(0, zero_addon):
-                            apnum += '0'
-                        apnum += last
-                    else:
-                        apnum = str(datetime.datetime.now().year) + '000001'
-                except Apmain.DoesNotExist:
-                    apnum = str(datetime.datetime.now().year) + '000001'
+                apnumlast = lastAPNumber('true')
+                latestapnum = str(apnumlast[0])
+                apnum = pdate[:4]
+                last = str(int(latestapnum) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    apnum += '0'
+                apnum += last
+                # try:
+                #     apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                #     latestapnum = str(apnumlast)
+                #     print latestapnum
+                #     if latestapnum[0:4] == str(datetime.datetime.now().year):
+                #         apnum = str(datetime.datetime.now().year)
+                #         last = str(int(latestapnum[4:]) + 1)
+                #         zero_addon = 6 - len(last)
+                #         for x in range(0, zero_addon):
+                #             apnum += '0'
+                #         apnum += last
+                #     else:
+                #         apnum = str(datetime.datetime.now().year) + '000001'
+                # except Apmain.DoesNotExist:
+                #     apnum = str(datetime.datetime.now().year) + '000001'
 
                 billingremarks = '';
 
@@ -3980,3 +4044,48 @@ def gopostanti(request):
         data = { 'status': 'error' }
 
     return JsonResponse(data)
+
+
+
+def lastNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(ofnum, 5) AS num FROM ofmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+def lastAPNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(apnum, 5) AS num FROM apmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+
+def lastJVNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(jvnum, 5) AS num FROM jvmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
