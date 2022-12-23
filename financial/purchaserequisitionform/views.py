@@ -28,6 +28,8 @@ from django.utils.dateformat import DateFormat
 from dateutil.relativedelta import relativedelta
 import datetime
 
+from django.db import connection
+from collections import namedtuple
 # pagination and search
 from endless_pagination.views import AjaxListView
 
@@ -142,19 +144,16 @@ class CreateView(CreateView):
             year = str(form.cleaned_data['prfdate'].year)
             yearQS = Prfmain.objects.filter(prfnum__startswith=year)
 
-            if yearQS:
-                prfnumlast = yearQS.latest('prfnum')
-                latestprfnum = str(prfnumlast)
+            prfnumlast = lastNumber('true')
+            latestprfnum = str(prfnumlast[0])
 
-                prfnum = year
-                last = str(int(latestprfnum[4:])+1)
-                zero_addon = 6 - len(last)
-                for x in range(0, zero_addon):
-                    prfnum += '0'
-                prfnum += last
+            prfnum = year
+            last = str(int(latestprfnum) + 1)
 
-            else:
-                prfnum = year + '000001'
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                prfnum += '0'
+            prfnum += last
 
             self.object.prfnum = prfnum
             self.object.branch = Branch.objects.get(pk=5)  # head office
@@ -1142,3 +1141,23 @@ def reportresultxlsx(request):
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
     return response
+
+
+def lastNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(prfnum, 5) AS num FROM prfmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]

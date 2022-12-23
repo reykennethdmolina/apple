@@ -28,6 +28,8 @@ from django.db.models import Q, Sum
 from utils.mixins import ReportContentMixin
 from django.utils.dateformat import DateFormat
 import datetime
+from django.db import connection
+from collections import namedtuple
 
 
 @method_decorator(login_required, name='dispatch')
@@ -142,20 +144,31 @@ class CreateView(CreateView):
             year = str(form.cleaned_data['rfdate'].year)
             yearqs = Rfmain.objects.filter(rfnum__startswith=year)
 
-            if yearqs:
-                rfnumlast = yearqs.latest('rfnum')
-                latestrfnum = str(rfnumlast)
-                print "latest: " + latestrfnum
+            rfnumlast = lastNumber('true')
+            latestrfnum = str(rfnumlast[0])
 
-                rfnum = year
-                last = str(int(latestrfnum[4:])+1)
-                zero_addon = 6 - len(last)
-                for num in range(0, zero_addon):
-                    rfnum += '0'
-                rfnum += last
+            rfnum = year
+            last = str(int(latestrfnum) + 1)
 
-            else:
-                rfnum = year + '000001'
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                rfnum += '0'
+            rfnum += last
+
+            # if yearqs:
+            #     rfnumlast = yearqs.latest('rfnum')
+            #     latestrfnum = str(rfnumlast)
+            #     print "latest: " + latestrfnum
+            #
+            #     rfnum = year
+            #     last = str(int(latestrfnum[4:])+1)
+            #     zero_addon = 6 - len(last)
+            #     for num in range(0, zero_addon):
+            #         rfnum += '0'
+            #     rfnum += last
+            #
+            # else:
+            #     rfnum = year + '000001'
 
             print 'rfnum: ' + rfnum
             self.object.rfnum = rfnum
@@ -716,3 +729,22 @@ def reportresultxlsx(request):
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
     return response
+
+def lastNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(rfnum, 5) AS num FROM rfmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
