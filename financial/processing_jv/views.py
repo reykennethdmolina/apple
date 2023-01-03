@@ -35,6 +35,8 @@ from django.utils.crypto import get_random_string
 from django.db.models import Q
 from django.conf import settings
 import datetime
+from django.db import connection
+from collections import namedtuple
 
 
 upload_directory = 'processing_jv/imported_main/'
@@ -929,3 +931,22 @@ def exportsave(request):
             }
 
         return JsonResponse(data)
+
+
+def lastNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(jvnum, 5) AS num FROM jvmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
