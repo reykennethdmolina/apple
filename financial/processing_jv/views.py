@@ -697,7 +697,7 @@ def exportsave(request):
                     latestjvnum = str(jvnumlast[0])
                     print "latest: " + latestjvnum
 
-                    jvnum = year
+                    jvnum = str(year)
                     # print str(int(latestapnum[4:]))
                     last = str(int(latestjvnum) + 1)
 
@@ -749,7 +749,7 @@ def exportsave(request):
                     # actualjvnum = str(jvyear) + str(padnum)
                     yearqs = Jvmain.objects.filter(jvnum__startswith=jvyear)
 
-                    year = jvyear
+                    year = str(jvyear)
                     yearqs = Jvmain.objects.filter(jvnum__startswith=year)
 
                     # if yearqs:
