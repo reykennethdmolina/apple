@@ -686,7 +686,8 @@ def exportsave(request):
                     # print padnum
                     # print 'hy'
                     #yearqs = Jvmain.objects.filter(jvnum__startswith=jvyear)
-                    year = str(form.cleaned_data['jvdate'].year)
+                    #year = str(form.cleaned_data['jvdate'].year)
+                    year = jvyear
                     yearqs = Jvmain.objects.filter(jvnum__startswith=year)
 
                     # if yearqs:
