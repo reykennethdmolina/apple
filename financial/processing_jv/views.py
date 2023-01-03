@@ -755,8 +755,7 @@ def exportsave(request):
                     # if yearqs:
                     jvnumlast = lastNumber('true')
                     latestjvnum = str(jvnumlast[0])
-                    print
-                    "latest: " + latestjvnum
+                    print "latest: " + latestjvnum
 
                     jvnum = year
                     # print str(int(latestapnum[4:]))
