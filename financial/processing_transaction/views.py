@@ -30,6 +30,8 @@ from vat.models import Vat
 from ataxcode.models import Ataxcode
 from . models import Poapvtransaction, Apvcvtransaction, Poapvdetailtemp
 from acctentry.views import generatekey
+from django.db import connection
+from collections import namedtuple
 
 
 @method_decorator(login_required, name='dispatch')
@@ -160,20 +162,30 @@ def importtransdata(request):
                 year = str(datetime.date.today().year)
                 yearqs = Apmain.objects.filter(apnum__startswith=year)
 
-                if yearqs:
-                    apnumlast = yearqs.latest('apnum')
-                    latestapnum = str(apnumlast)
-                    print "latest: " + latestapnum
+                apnumlast = lastAPNumber('true')
 
-                    apnum = year
-                    last = str(int(latestapnum[4:]) + 1)
-                    zero_addon = 6 - len(last)
-                    for num in range(0, zero_addon):
-                        apnum += '0'
-                    apnum += last
-                else:
-                    apnum = year + '000001'
-                print 'apnum: ' + apnum
+                latestapnum = str(apnumlast[0])
+                apnum = year
+                last = str(int(latestapnum) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    apnum += '0'
+                apnum += last
+
+                # if yearqs:
+                #     apnumlast = yearqs.latest('apnum')
+                #     latestapnum = str(apnumlast)
+                #     print "latest: " + latestapnum
+                #
+                #     apnum = year
+                #     last = str(int(latestapnum[4:]) + 1)
+                #     zero_addon = 6 - len(last)
+                #     for num in range(0, zero_addon):
+                #         apnum += '0'
+                #     apnum += last
+                # else:
+                #     apnum = year + '000001'
+                # print 'apnum: ' + apnum
 
                 newapv = Apmain()
                 if 'selectapvtype' in request.POST:
@@ -200,20 +212,17 @@ def importtransdata(request):
                 year = str(datetime.date.today().year)
                 yearqs = Cvmain.objects.filter(cvnum__startswith=year)
 
-                if yearqs:
-                    cvnumlast = yearqs.latest('cvnum')
-                    latestcvnum = str(cvnumlast)
-                    print "latest: " + latestcvnum
+                cvnumlast = lastCVNumber('true')
+                latestcvnum = str(cvnumlast[0])
 
-                    cvnum = year
-                    last = str(int(latestcvnum[4:]) + 1)
-                    zero_addon = 6 - len(last)
-                    for num in range(0, zero_addon):
-                        cvnum += '0'
-                    cvnum += last
-                else:
-                    cvnum = year + '000001'
-                print 'cvnum: ' + cvnum
+                cvnum = year
+                # print str(int(latestapnum[4:]))
+                last = str(int(latestcvnum) + 1)
+
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    cvnum += '0'
+                cvnum += last
 
                 newapv = Cvmain()
                 newapv.cvnum = cvnum
@@ -515,39 +524,46 @@ def importtransdata(request):
             year = str(datetime.date.today().year)
             yearqs = Cvmain.objects.filter(cvnum__startswith=year)
 
-            if yearqs:
-                cvnumlast = yearqs.latest('cvnum')
-                latestcvnum = str(cvnumlast)
-                print "latest: " + latestcvnum
+            # if yearqs:
+            #     cvnumlast = yearqs.latest('cvnum')
+            #     latestcvnum = str(cvnumlast)
+            #     print "latest: " + latestcvnum
+            #
+            #     cvnum = year
+            #     last = str(int(latestcvnum[4:]) + 1)
+            #     zero_addon = 6 - len(last)
+            #     for num in range(0, zero_addon):
+            #         cvnum += '0'
+            #     cvnum += last
+            # else:
+            #     cvnum = year + '000001'
+            # print 'cvnum: ' + cvnum
 
-                cvnum = year
-                last = str(int(latestcvnum[4:]) + 1)
-                zero_addon = 6 - len(last)
-                for num in range(0, zero_addon):
-                    cvnum += '0'
-                cvnum += last
-            else:
-                cvnum = year + '000001'
-            print 'cvnum: ' + cvnum
+            cvnumlast = lastCVNumber('true')
+            latestcvnum = str(cvnumlast[0])
+
+            cvnum = year
+            # print str(int(latestapnum[4:]))
+            last = str(int(latestcvnum) + 1)
+
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                cvnum += '0'
+            cvnum += last
 
             if request.POST['transtype'] == 'apvtoapv':
                 year = str(datetime.date.today().year)
                 yearqs = Apmain.objects.filter(apnum__startswith=year)
 
-                if yearqs:
-                    apnumlast = yearqs.latest('apnum')
-                    latestapnum = str(apnumlast)
-                    print "latest: " + latestapnum
+                apnumlast = lastAPNumber('true')
 
-                    apnum = year
-                    last = str(int(latestapnum[4:]) + 1)
-                    zero_addon = 6 - len(last)
-                    for num in range(0, zero_addon):
-                        apnum += '0'
-                    apnum += last
-                else:
-                    apnum = year + '000001'
-                print 'apnum: ' + apnum
+                latestapnum = str(apnumlast[0])
+                apnum = year
+                last = str(int(latestapnum) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    apnum += '0'
+                apnum += last
 
                 newapv = Apmain()
                 if 'selectapvtype' in request.POST:
@@ -575,20 +591,17 @@ def importtransdata(request):
                 year = str(datetime.date.today().year)
                 yearqs = Cvmain.objects.filter(cvnum__startswith=year)
 
-                if yearqs:
-                    cvnumlast = yearqs.latest('cvnum')
-                    latestcvnum = str(cvnumlast)
-                    print "latest: " + latestcvnum
+                cvnumlast = lastCVNumber('true')
+                latestcvnum = str(cvnumlast[0])
 
-                    cvnum = year
-                    last = str(int(latestcvnum[4:]) + 1)
-                    zero_addon = 6 - len(last)
-                    for num in range(0, zero_addon):
-                        cvnum += '0'
-                    cvnum += last
-                else:
-                    cvnum = year + '000001'
-                print 'cvnum: ' + cvnum
+                cvnum = year
+                # print str(int(latestapnum[4:]))
+                last = str(int(latestcvnum) + 1)
+
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    cvnum += '0'
+                cvnum += last
 
                 newapv = Cvmain()
                 newapv.cvtype = Cvtype.objects.get(description='AP')
@@ -767,3 +780,34 @@ def importtransdata(request):
         print "Something went wrong in saving APV/CV."
 
     return redirect('/processing_transaction/')
+
+
+def lastCVNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(cvnum, 5) AS num FROM cvmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+def lastAPNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(apnum, 5) AS num FROM apmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
