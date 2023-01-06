@@ -31,6 +31,8 @@ import datetime
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
+from django.db import connection
+from collections import namedtuple
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -83,21 +85,33 @@ def stalecheck(request):
                 print cvmain.payee_id
 
                 # Create AP
-                try:
-                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
-                    latestapnum = str(apnumlast)
-                    #print latestapnum
-                    if latestapnum[0:4] == str(datetime.datetime.now().year):
-                        apnum = str(datetime.datetime.now().year)
-                        last = str(int(latestapnum[4:]) + 1)
-                        zero_addon = 6 - len(last)
-                        for x in range(0, zero_addon):
-                            apnum += '0'
-                        apnum += last
-                    else:
-                        apnum = str(datetime.datetime.now().year) + '000001'
-                except Apmain.DoesNotExist:
-                    apnum = str(datetime.datetime.now().year) + '000001'
+                # try:
+                #     apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                #     latestapnum = str(apnumlast)
+                #     #print latestapnum
+                #     if latestapnum[0:4] == str(datetime.datetime.now().year):
+                #         apnum = str(datetime.datetime.now().year)
+                #         last = str(int(latestapnum[4:]) + 1)
+                #         zero_addon = 6 - len(last)
+                #         for x in range(0, zero_addon):
+                #             apnum += '0'
+                #         apnum += last
+                #     else:
+                #         apnum = str(datetime.datetime.now().year) + '000001'
+                # except Apmain.DoesNotExist:
+                #     apnum = str(datetime.datetime.now().year) + '000001'
+
+                apnumlast = lastNumber('true')
+
+                ## SELECT RIGHT(MAX(LPAD(apnum, 10, 0)) , 6)  FROM apmain;
+                latestapnum = str(apnumlast[0])
+                apnum = str(datetime.datetime.now().year)
+                # print str(int(latestapnum[4:]))
+                last = str(int(latestapnum) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    apnum += '0'
+                apnum += last
 
 
                 #print 'AP' + str(apnum)
@@ -918,3 +932,21 @@ class GenerateExcel(View):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
         return response
+
+def lastNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(apnum, 5) AS num FROM apmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
