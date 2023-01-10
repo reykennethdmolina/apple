@@ -5,8 +5,17 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
-    # url(r'^transgenerate/$', views.transgenerate, name='transgenerate'),
-    # url(r'^tagging/$', views.tagging, name='tagging'),
+    url(r'^upload/$', views.upload, name='upload'),
+    url(r'^transgenerate/$', views.transgenerate, name='transgenerate',),
+    url(r'^ajaxbankaccount/$', views.ajaxbankaccount, name='ajaxbankaccount'),
+    url(r'^ajaxbankinfo/$', views.ajaxbankinfo, name='ajaxbankinfo'),
+    url(r'^importguide/$', views.importguide, name='importguide'),
+    url(r'^tagging/$', views.tagging, name='tagging'),
+    url(r'^fxsave/$', views.fxsave, name='fxsave'),
+    url(r'^reportxls/$', views.reportxls, name='reportxls'),
+    url(r'^manualentry/$', views.ManualEntryView.as_view(), name='manualentry'),
+    url(r'^savemanualentry/$', views.savemanualentry, name='savemanualentry'),
+    # url(r'^tag/update/$', views.TagUpdateView.as_view(), name='tagging'),
     # url(r'^transexcel/$', views.TransExcel.as_view(), name='transexcel'),
     # url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
 ]

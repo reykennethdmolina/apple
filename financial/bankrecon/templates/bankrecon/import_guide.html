@@ -1,0 +1,676 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Bank Reconciliation {% endblock page-title %}
+{% block extra_css %}
+	{% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+	<style>
+		#table_container > div{
+            height: 250px;
+            overflow: scroll;
+            padding: 0px;
+        }
+        #data_result{
+            display: none;
+        }
+        .select2-results__options{
+            font-size: 12px;
+        }
+        .price-list{
+            background-color: white;            
+        }
+        .price-list .price-price{
+            font-size: 14px !important;
+            text-align: left;
+            color: #76838f !important;
+        }
+        .price-title.bg-teal-a400:before {
+            background: #00bfa5;
+        }
+        .price-list .price-title{
+            padding-top: 5px;
+            letter-spacing: 1px;
+        }
+        .price-title:before {
+            position: relative;
+            display: block;
+            width: 14px;
+            height: 14px;
+            content: '';
+            top: 42px;
+            transform: rotate(45deg);
+            text-align: center;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .price-footer{
+            margin-top: 40px;
+        }
+        .fa-spin {
+          -webkit-animation: fa-spin 2s infinite linear;
+          animation: fa-spin 2s infinite linear;
+        }
+        @-webkit-keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+        @keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+	</style>
+{% endblock extra_css %}
+{% block page-content %}
+    
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="page-wrap">
+                <div class="price-list margin-sm-0">
+                    <div class="price-header">
+                        <div class="price-title bg-teal-a400">IMPORT GUIDE</div>
+                        <div class="price-price teal-a400">
+                            <div class="panel-group" id="accordion">
+                                <div class="panel panel-default">
+                                    <br>
+                                    <p>This page is a guide for importing and further customizing the file when needed.</p>
+                                    <!-- <ul>
+                                        <li>No conversion needed for foreign currencies (indicated in Information panel) like US Dollar before uploading the file. Conversion takes place manually during the reconciliation process.</li>
+                                        <li>
+                                            In case two or more identical bank statements are encountered (Data exists), you may put additional characters (Ex. trans 2) to Description/Particulars to make it distinct.
+                                            <ul>
+                                                <li><a href="#bdo">See BDO</a></li>
+                                            </ul>
+                                        </li>
+                                        <li></li>
+                                    </ul> -->
+                                    <p>The following is the list of bank accounts with sample column structure and data format:</p>
+                                    <br>
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#bdo">
+                                                Banco de Oro &nbsp;&nbsp;&nbsp;&nbsp;BDO | BD2 | BD4 | BD5</a>
+                                        </h4>
+                                    </div>
+                                    <div id="bdo" class="panel-collapse collapse in">
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">File Type: CSV</li>
+                                                <li class="list-group-item">Columns: 7</li>
+                                                <li class="list-group-item">Comma ( , ) allowed: No</li>
+                                            </ul>
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>Posting Date</th>
+                                                        <th>Branch</th>
+                                                        <th>Description</th>
+                                                        <th>Debit</th>
+                                                        <th>Credit</th>
+                                                        <th>Running Balance</th>
+                                                        <th>Check Number</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>9/1/2022</td>
+                                                        <td>LUNETA-TM KALAW</td>
+                                                        <td>00451 CD</td>
+                                                        <td></td>
+                                                        <td>27.17</td>
+                                                        <td>142.67</td>
+                                                        <td>0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>9/30/2022</td>
+                                                        <td>RECON</td>
+                                                        <td>LOCAL REGULAR INWARD</td>
+                                                        <td>1150000</td>
+                                                        <td></td>
+                                                        <td>15490700.31</td>
+                                                        <td>520641</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <!-- <br /><br />
+                                            <p>With identical bank statements:</p>
+                                            <br />
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>Posting Date</th>
+                                                        <th>Branch</th>
+                                                        <th>Description</th>
+                                                        <th>Debit</th>
+                                                        <th>Credit</th>
+                                                        <th>Running Balance</th>
+                                                        <th>Check Number</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>10/10/2022</td>
+                                                        <td>PANGASINAN-CARMEN</td>
+                                                        <td>00551 CD NOVEMBER 2022 NOLAN E PULIDO</td>
+                                                        <td></td>
+                                                        <td>20000</td>
+                                                        <td>3192985.15</td>
+                                                        <td>0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>10/10/2022</td>
+                                                        <td>PANGASINAN-CARMEN</td>
+                                                        <td>00551 CD NOVEMBER 2022 NOLAN E PULIDO <span style="color: #fbc02d;">- trans 2</span></td>
+                                                        <td></td>
+                                                        <td>20000</td>
+                                                        <td>3192985.15</td>
+                                                        <td>0</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table> -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#bpi">
+                                               Bank of the Philippine Island &nbsp;&nbsp;&nbsp;&nbsp;BP2</a>
+                                        </h4>
+                                    </div>
+                                    <div id="bpi" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">File Type: CSV</li>
+                                                <li class="list-group-item">Columns: 9</li>
+                                                <li class="list-group-item">Comma ( , ) allowed: No</li>
+                                            </ul>
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>Date</th>
+                                                        <th>Check Number</th>
+                                                        <th>SBA Reference No.</th>
+                                                        <th>Branch</th>
+                                                        <th>Transaction Code</th>
+                                                        <th>Transaction Description</th>
+                                                        <th>Debit</th>
+                                                        <th>Credit</th>
+                                                        <th>Running Balance</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>9/23/2022</td>
+                                                        <td>1602158</td>
+                                                        <td></td>
+                                                        <td>495</td>
+                                                        <td>6454</td>
+                                                        <td>CK ISSUED</td>
+                                                        <td>500000.00</td>
+                                                        <td></td>
+                                                        <td>4796516.59</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>9/1/2022</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>322</td>
+                                                        <td>311</td>
+                                                        <td>CASH DEP</td>
+                                                        <td></td>
+                                                        <td>2700.00</td>
+                                                        <td>5975745.79</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#lbp">
+                                                Land Bank of the Philippines &nbsp;&nbsp;&nbsp;&nbsp;LBP</a>
+                                        </h4>
+                                    </div>
+                                    <div id="lbp" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">File Type: CSV</li>
+                                                <li class="list-group-item">Columns: 7</li>
+                                                <li class="list-group-item">Comma ( , ) allowed: No</li>
+                                            </ul>
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>Date</th>
+                                                        <th>Description</th>
+                                                        <th>Debit</th>
+                                                        <th>Credit</th>
+                                                        <th>Balance</th>
+                                                        <th>Branch</th>
+                                                        <th>Cheque Number</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>10/03/2022 23:59</td>
+                                                        <td>ICC-LOCAL CHECK</td>
+                                                        <td>460000</td>
+                                                        <td></td>
+                                                        <td>1129533.13</td>
+                                                        <td>PASONG TAMO</td>
+                                                        <td>1691886</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>10/03/2022 10:39</td>
+                                                        <td>CASH DEPOSIT</td>
+                                                        <td></td>
+                                                        <td>9576</td>
+                                                        <td>1589533.13</td>
+                                                        <td>CAMOTES ISLAND</td>
+                                                        <td></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#ew">
+                                                EastWest Bank &nbsp;&nbsp;&nbsp;&nbsp;EW1</a>
+                                        </h4>
+                                    </div>
+                                    <div id="ew" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">File Type: CSV</li>
+                                                <li class="list-group-item">Columns: 9</li>
+                                                <li class="list-group-item">Comma ( , ) allowed: No</li>
+                                            </ul>
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>POSTING DATE</th>
+                                                        <th>DESCRIPTION</th>
+                                                        <th>STORE</th>
+                                                        <th>DEBIT</th>
+                                                        <th>CREDIT</th>
+                                                        <th>RUNNING BALANCE</th>
+                                                        <th>FT REFERENCE NO.</th>
+                                                        <th>BATCH REFERENCE NO.</th>
+                                                        <th>CHECK NUMBER</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>10/14/2022 19:51</td>
+                                                        <td>Transfer in</td>
+                                                        <td>PH0022257</td>
+                                                        <td>0</td>
+                                                        <td>90882.00</td>
+                                                        <td>1467841.76</td>
+                                                        <td>FT22287HF643\E56</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>10/28/2022 6:06</td>
+                                                        <td>Interest - Capitalise</td>
+                                                        <td>PH0022257</td>
+                                                        <td>0</td>
+                                                        <td>122.86</td>
+                                                        <td>1467964.62</td>
+                                                        <td>AAACT22301DS9SZNF9</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#mb">
+                                               Metro Bank &nbsp;&nbsp;&nbsp;&nbsp;MB2</a>
+                                        </h4>
+                                    </div>
+                                    <div id="mb" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">File Type: CSV</li>
+                                                <li class="list-group-item">Columns: 11</li>
+                                                <li class="list-group-item">Comma ( , ) allowed: No</li>
+                                            </ul>
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>Transaction Date</th>
+                                                        <th>Posting Date</th>
+                                                        <th>Time</th>
+                                                        <th>Check Number</th>
+                                                        <th>Transaction Description</th>
+                                                        <th>Debit Amount</th>
+                                                        <th>Credit Amount</th>
+                                                        <th>Balance</th>
+                                                        <th>Branch/Channel</th>
+                                                        <th>Subscriber Number/TIN Number</th>
+                                                        <th>Sequence Number</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>9/1/2022</td>
+                                                        <td>9/1/2022</td>
+                                                        <td>14:20:34</td>
+                                                        <td>0</td>
+                                                        <td>WA CR</td>
+                                                        <td>0</td>
+                                                        <td>1999.00</td>
+                                                        <td>7512985.37</td>
+                                                        <td>SMM</td>
+                                                        <td></td>
+                                                        <td>724370</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>9/22/2022</td>
+                                                        <td>9/22/2022</td>
+                                                        <td>23:59:59</td>
+                                                        <td>2002821511</td>
+                                                        <td>IM IN-CLRNG-BATCH</td>
+                                                        <td>500000.00</td>
+                                                        <td>0</td>
+                                                        <td>6003756.94</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#pnb">
+                                                Philippine National Bank &nbsp;&nbsp;&nbsp;&nbsp;PN2</a>
+                                        </h4>
+                                    </div>
+                                    <div id="pnb" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">File Type: CSV</li>
+                                                <li class="list-group-item">Columns: 9</li>
+                                                <li class="list-group-item">Comma ( , ) allowed: No</li>
+                                            </ul>
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>Date</th>
+                                                        <th>Check/Seq. No.</th>
+                                                        <th>SBA Reference No.</th>
+                                                        <th>Negotiating Branch</th>
+                                                        <th>Transaction Code</th>
+                                                        <th>Transaction Description</th>
+                                                        <th>Withdrawals</th>
+                                                        <th>Deposits</th>
+                                                        <th>Running Balance</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>10/12/2022</td>
+                                                        <td>0000000000/876</td>
+                                                        <td>BNC377936</td>
+                                                        <td>1204 - MANILA-DAPITAN</td>
+                                                        <td>0941-CM INSTAPAY</td>
+                                                        <td>INSTAPAY FUND TRANSFER</td>
+                                                        <td></td>
+                                                        <td>3754.40</td>
+                                                        <td>1444564.61</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>10/06/2022</td>
+                                                        <td>0000000000/631</td>
+                                                        <td>BBS2479970522100600010</td>
+                                                        <td>2479 - QUEZON-GUMACA</td>
+                                                        <td>0724-CHK DEP (3)DAYS</td>
+                                                        <td>REGULAR CHECK</td>
+                                                        <td></td>
+                                                        <td>11286.00</td>
+                                                        <td>1440810.21</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#rs">
+                                                Robinson Savings Bank &nbsp;&nbsp;&nbsp;&nbsp;RS1</a>
+                                        </h4>
+                                    </div>
+                                    <div id="rs" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">File Type: XLS</li>
+                                                <li class="list-group-item">Columns: 13</li>
+                                                <li class="list-group-item">Comma ( , ) allowed: Yes</li>
+                                            </ul>
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>Posting Date</th>
+                                                        <th>Value Date</th>
+                                                        <th>Amount</th>
+                                                        <th>Dr/Cr Indicator</th>
+                                                        <th>Balance</th>
+                                                        <th>Transaction Narration</th>
+                                                        <th>Instrument Number</th>
+                                                        <th>Account No.</th>
+                                                        <th>Transaction Date</th>
+                                                        <th>Transaction Category</th>
+                                                        <th>Transaction ID</th>
+                                                        <th>Branch Name</th>
+                                                        <th>Remarks</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>20/10/2022</td>
+                                                        <td>20/10/2022</td>
+                                                        <td>277,200.00</td>
+                                                        <td>C</td>
+                                                        <td>530069.60</td>
+                                                        <td>LO-Outward Clearing</td>
+                                                        <td>S606195</td>
+                                                        <td>110230003013</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>1000</td>
+                                                        <td>SYSTEM:INSTRMNT VALUEDATE CHNG</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>20/10/2022</td>
+                                                        <td>20/10/2022</td>
+                                                        <td>277,200.00</td>
+                                                        <td>D</td>
+                                                        <td>252869.60</td>
+                                                        <td>LO-Outward Clearing</td>
+                                                        <td>S606195</td>
+                                                        <td>110230003013</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>1000</td>
+                                                        <td>SYSTEM:INSTRMNT VALUEDATE CHNG</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#sb">
+                                               Security Bank &nbsp;&nbsp;&nbsp;&nbsp;SB9 | SB7</a>
+                                        </h4>
+                                    </div>
+                                    <div id="sb" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">File Type: CSV</li>
+                                                <li class="list-group-item">Columns: 6</li>
+                                                <li class="list-group-item">Comma ( , ) allowed: No</li>
+                                            </ul>
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>Posting Date</th>
+                                                        <th>Transaction Description</th>
+                                                        <th>Credit Amount</th>
+                                                        <th>Debit Amount</th>
+                                                        <th>Running Balance</th>
+                                                        <th>Narrative</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>1-Sep-22</td>
+                                                        <td>MCBT MC/GC/DD BOUGH</td>
+                                                        <td></td>
+                                                        <td>1256147.58</td>
+                                                        <td>6302523.94</td>
+                                                        <td>DB REF NO. MC-083122-00225</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>29-Sep-22</td>
+                                                        <td>CHKD Off-Us Chk Dep</td>
+                                                        <td>15147.00</td>
+                                                        <td></td>
+                                                        <td>6068138.64</td>
+                                                        <td>DPU Value date SEP3022</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#ub">
+                                                Union Bank &nbsp;&nbsp;&nbsp;&nbsp;UB2</a>
+                                        </h4>
+                                    </div>
+                                    <div id="ub" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">File Type: XLSX</li>
+                                                <li class="list-group-item">Columns: minimized to 13 only</li>
+                                                <li class="list-group-item">Comma ( , ) allowed: Yes</li>
+                                            </ul>
+                                            <table class="table table-condensed">
+                                                <thead style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr style="font-weight: bold">
+                                                        <th>Transaction Date</th>
+                                                        <th>Posted Date</th>
+                                                        <th>Transaction ID</th>
+                                                        <th>Transaction Description</th>
+                                                        <th>Check Number</th>
+                                                        <th>Debits</th>
+                                                        <th>Credits</th>
+                                                        <th>Ending Balance</th>
+                                                        <th>Reference Number</th>
+                                                        <th>Remarks</th>
+                                                        <th>Remarks 1</th>
+                                                        <th>Remarks 2</th>
+                                                        <th>Branch</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>2022-10-29T00:00:00.000</td>
+                                                        <td>2022-10-30T04:04:23.000</td>
+                                                        <td>S6718065</td>
+                                                        <td>000310024560:Int.Pd:10012022 to 10312022</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>809.61</td>
+                                                        <td>5,548,712.35</td>
+                                                        <td></td>
+                                                        <td>Interest run</td>
+                                                        <td>Interest run</td>
+                                                        <td></td>
+                                                        <td>UNIONBANK VITO CRUZ BRANCH</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>2022-10-29T00:00:00.000</td>
+                                                        <td>2022-10-30T04:04:14.000</td>
+                                                        <td>S6718065</td>
+                                                        <td>000310024560:WTax.Pd:10012022to 10312022</td>
+                                                        <td></td>
+                                                        <td>161.92</td>
+                                                        <td></td>
+                                                        <td>5,547,902.74</td>
+                                                        <td></td>
+                                                        <td>Interest run</td>
+                                                        <td>Interest run</td>
+                                                        <td></td>
+                                                        <td>UNIONBANK VITO CRUZ BRANCH</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#extra">
+                                            extra</a>
+                                    </h4>
+                                </div>
+                                <div id="extra" class="panel-collapse collapse">
+                                    <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                                        commodo consequat.
+                                    </div>
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
+                    <div class="price-footer">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+{% endblock page-content %}

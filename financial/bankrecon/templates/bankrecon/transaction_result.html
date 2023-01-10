@@ -1,0 +1,905 @@
+{% load humanize %}
+{% load mathfilters %}
+{% load custom %}
+<br>
+<style>
+    .matched {
+            border-left: #8bc34a 4px solid;
+    }
+    input[type=search]::-webkit-search-cancel-button {
+        -webkit-appearance: searchfield-cancel-button;
+    }
+    .pointer {
+        cursor: pointer;
+    }
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number], 
+    .amount-right{
+        text-align: right;
+    }
+</style>
+<div class="col-md-12 col-sm-12 col-xs-12" id="bankrecon_result">
+    <div class="page-wrap">
+        <h3>PHILIPPINE DAILY INQUIRER, INC.</h3>
+        <h4>BANK RECONCILIATION TRANSACTION LISTING </h4>
+        <h4 style="text-transform:uppercase">AS OF {{ transdfrom }} to {{ transdto }}</h4>
+        <br>
+        <div class="row" style="margin-bottom: 9px;" id="search_row">
+            <div class="col-md-3">
+                <input type="search" class="form-control" id="booksearch" placeholder="Type to search..." style="margin-right: 5px;" />
+            </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-3">
+                <input type="search" class="form-control" id="banksearch" placeholder="Type to search..." style="margin-right: 5px;" />
+            </div>
+            <div class="col-md-3">
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="col-md-6 text-center"><h4>Book Data</h4></div>
+            <div class="col-md-6 text-center"><h4>Bank Data</h4></div>
+        </div>
+        <!-- for peso -->
+        <div class="row" id="local_currency">
+            <div class="col-md-6" style="min-height: 500px; max-height: 600px; overflow: auto;">
+                <table class="table table-condensed table-hover" id="pdi_table">
+                    <thead style="position: sticky; top: 0; z-index: 1; background: ghostwhite; border: none;">
+                        <tr class="border-0" id="pdi_table_header">
+                            <th style="color:#424242"></th>
+                            <th style="color:#424242">Date</th>
+                            <th style="color:#424242">Tag ID</th>
+                            <th style="color:#424242">Document Type</th>
+                            <th style="color:#424242">Document Number</th>
+                            <th style="color:#424242">Particulars</th>
+                            <th style="color:#424242">Debit</th>
+                            <th style="color:#424242">Credit</th>
+                        </tr>
+                    </thead>
+                    {% if pdi_data and record.is_currency_peso %}
+                    <tbody>
+                        {% for data in pdi_data %}
+                            {% if data.document_date|date:'Y-m-d' in record.daily_documentdate %}
+                                <tr class="row_{{ data.id }} date_{{ data.document_date|date:'Y-m-d' }}" style="border-left: #ffa726 4px solid;">
+                            {% else %}
+                                <tr class="row_{{ data.id }}">
+                            {% endif %}
+                                <td class="text-left">{{ forloop.counter }}</td>
+                                <td class="text-left">{{ data.document_date }}</td>
+                                <td class="text-left pointer" title="Click to see pair">{{ data.id|cut:' matched' }}</td>
+                                <td class="text-left">{{ data.document_type }}</td>
+                                <td class="text-left">{{ data.document_num }}</td>
+                                <td class="text-left">{{ data.particulars }}</td>
+                                {% if data.balancecode == 'D' %}
+                                    <td class="text-right pointer bookdebitamount" title="Click to see pair">{{ data.amount|floatformat:2|intcomma }}</td>
+                                    <td class="text-right pointer bookcreditamount" title="Click to see pair">0.00</td>
+                                {% elif data.balancecode == 'C' %}
+                                    <td class="text-right pointer bookdebitamount" title="Click to see pair">0.00</td>
+                                    <td class="text-right pointer bookcreditamount" title="Click to see pair">{{ data.amount|floatformat:2|intcomma }}</td>
+                                {% else %}
+                                    <td class="text-left"></td>
+                                    <td class="text-left"></td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% endif %}
+                </table>
+            </div>
+            
+            <div class="col-md-6" style="min-height: 500px; max-height: 600px; overflow: auto;">
+                <table class="table table-condensed" id="bank_table">
+                    <thead style="position: sticky; top: 0; left: 0; z-index: 1; background: ghostwhite;">
+                        <tr class="border-0" id="bank_table_header">
+                            <th style="color:#424242;"></th>
+                            <th style="color:#424242">Date</th>
+                            <th style="color:#424242">Tag ID</th>
+                            <th style="color:#424242">Particulars</th>
+                            <th style="color:#424242">Debit</th>
+                            <th style="color:#424242">Credit</th>
+                        </tr>
+                    </thead>
+                    {% if bank_data and record.is_currency_peso %}
+                    <tbody>
+                    
+                    {% for data in bank_data %}
+
+                        {% if data.tag_id == None %}
+                        <tr class="none" id="row_{{ forloop.counter }}">
+                        {% elif 'Total daily' in data.tag_id %}
+                        <tr class="date_{{ data.tag_id|cut:'Total daily sum of ' }}" id="row_{{ forloop.counter }}" style="border-left: #ffa726 4px solid;">
+                        {% else %}
+                        <tr class="row_{{ data.tag_id }} matched" id="row_{{ forloop.counter }}" style="border-left: #8bc34a 4px solid;">
+                        {% endif %}
+                            <td class="text-left">{{ forloop.counter }}</td>
+                            <td class="text-left">{{ data.transaction_date }}</td>
+                            <td class="text-center">
+                                <!-- searchable -->
+                                <span class="hidden">{{ data.tag_id }}</span>
+                                <!-- searchable -->
+                                <input type="text" class="input-sm" name="tag_input" id="input_{{ forloop.counter }}" value="{{ data.tag_id }}" autocomplete="off" style="width: 100px; border: none;" />
+                                <input value="{{ data.id }}" id="id_{{ forloop.counter }}" class="hidden" />
+                                <button type="button" class="btn btn-success btn-xs btn-round btn-submit-tag" id="btn_{{ forloop.counter }}" style="margin-top: 5px; display: none;"><i class="icon fa-check"></i></button>
+                            </td>
+                            <td class="text-left">{{ data.particulars }}</td>
+                            <td class="text-right pointer bankdebitamount" title="Click to see pair">{{ data.debit_amount|floatformat:2|intcomma }}</td>
+                            <td class="text-right pointer bankcreditamount" title="Click to see pair">{{ data.credit_amount|floatformat:2|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    {% else %}
+
+                    <a href="{% url 'bankrecon:upload' %}" target="_blank" class="btn btn-primary waves-effect waves-dark" style="position:absolute; margin: 30% 43%;">
+                        <i class="icon fa-upload" aria-hidden="true"></i>&nbsp;&nbsp;Upload
+                    </a>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- Foreign currencies -->
+        <div class="row" id="usd_currency" style="display: none;">
+            <div class="col-md-6" style="min-height: 500px; max-height: 600px; overflow: auto;">
+                <table class="table table-condensed table-hover" id="pdi_table">
+                    <thead style="position: sticky; top: 0; z-index: 1; background: ghostwhite; border: none;">
+                        <tr class="border-0" id="pdi_table_header">
+                            <th style="color:#424242"></th>
+                            <th style="color:#424242">Date</th>
+                            <th style="color:#424242">Tag ID</th>
+                            <th style="color:#424242">Document Type</th>
+                            <th style="color:#424242">Document Number</th>
+                            <th style="color:#424242">Particulars</th>
+                            <th style="color:#424242">Debit (<span class="currency_longname"></span>)</th>
+                            <th style="color:#424242">Credit (<span class="currency_longname"></span>)</th>
+                            <th style="color:#424242">Debit (PHP)</th>
+                            <th style="color:#424242">Credit (PHP)</th>
+                        </tr>
+                    </thead>
+                    {% if pdi_data and record.is_currency_peso == 0 %}
+                    <tbody>
+                        {% for data in pdi_data %}
+                            {% if data.document_date|date:'Y-m-d' in record.daily_documentdate %}
+                                <tr class="row_{{ data.id }} date_{{ data.document_date|date:'Y-m-d' }}" style="border-left: #ffa726 4px solid;">
+                            {% else %}
+                                <tr class="row_{{ data.id }}">
+                            {% endif %}
+                                <td class="text-left">{{ forloop.counter }}</td>
+                                <td class="text-left">{{ data.document_date }}</td>
+                                <td class="text-left pointer tag-id" title="Click to see pair">{{ data.id|cut:' matched' }}</td>
+                                <td class="text-left">{{ data.document_type }}</td>
+                                <td class="text-left">{{ data.document_num }}</td>
+                                <td class="text-left">{{ data.particulars }}</td>
+
+                                {% if data.fxamount and data.balancecode == 'D' %}
+                                    <td class="text-right bookdebit_dollar">{{ data.fxamount|floatformat:2|intcomma }}</td>
+                                {% elif data.balancecode == 'D' %}
+                                    <td class="text-right bookdebit_dollar">
+                                        <button class="btn btn-info btn-sm fxrate-btn" title="Enter FX rate" data-toggle='modal' id="posting" data-target='#fxrateModal'>
+                                            <i class="icon fa-exchange"> </i> Enter FX Rate
+                                        </button>
+                                    </td>
+                                {% else %}
+                                    <td class="text-right bookdebit_dollar">0.00</td>
+                                {% endif %}
+
+                                {% if data.fxamount and data.balancecode == 'C' %}
+                                    <td class="text-right bookcredit_dollar">{{ data.fxamount|floatformat:2|intcomma }}</td>
+                                {% elif data.balancecode == 'C' %}
+                                    <td class="text-right bookcredit_dollar">
+                                        <button class="btn btn-info btn-sm fxrate-btn" title="Enter FX rate" data-toggle='modal' id="posting" data-target='#fxrateModal'>
+                                            <i class="icon fa-exchange"> </i> Enter FX Rate
+                                        </button>
+                                    </td>
+                                {% else %}
+                                    <td class="text-right bookcredit_dollar">0.00</td>
+                                {% endif %}
+
+                                {% if data.balancecode == 'D' %}
+                                    <td class="text-right pointer bookdebitamount" title="Click to see pair">{{ data.amount|floatformat:2|intcomma }}</td>
+                                    <td class="text-right pointer bookcreditamount" title="Click to see pair">0.00</td>
+                                {% elif data.balancecode == 'C' %}
+                                    <td class="text-right pointer bookdebitamount" title="Click to see pair">0.00</td>
+                                    <td class="text-right pointer bookcreditamount" title="Click to see pair">{{ data.amount|floatformat:2|intcomma }}</td>
+                                {% else %}
+                                    <td class="text-right">0.00</td>
+                                    <td class="text-right">0.00</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% endif %}
+                </table>
+            </div>
+            
+            <div class="col-md-6" style="min-height: 500px; max-height: 600px; overflow: auto;">
+                <table class="table table-condensed" id="bank_table">
+                    <thead style="position: sticky; top: 0; left: 0; z-index: 1; background: ghostwhite;">
+                        <tr class="border-0" id="bank_table_header">
+                            <th style="color:#424242;"></th>
+                            <th style="color:#424242">Date</th>
+                            <th style="color:#424242">Tag ID</th>
+                            <th style="color:#424242">Particulars</th>
+                            <th style="color:#424242">Debit (<span class="currency_longname"></span>)</th>
+                            <th style="color:#424242">Credit (<span class="currency_longname"></span>)</th>
+                        </tr>
+                    </thead>
+                    {% if bank_data and record.is_currency_peso == 0 %}
+                    <tbody>
+                    
+                    {% for data in bank_data %}
+
+                        {% if data.tag_id == None %}
+                        <tr class="none" id="row_{{ forloop.counter }}">
+                        {% elif 'Total daily' in data.tag_id %}
+                        <tr class="date_{{ data.tag_id|cut:'Total daily sum of ' }}" id="row_{{ forloop.counter }}" style="border-left: #ffa726 4px solid;">
+                        {% else %}
+                        <tr class="row_{{ data.tag_id }} matched" id="row_{{ forloop.counter }}" style="border-left: #8bc34a 4px solid;">
+                        {% endif %}
+                            <td class="text-left">{{ forloop.counter }}</td>
+                            <td class="text-left">{{ data.transaction_date }}</td>
+                            <td class="text-center">
+                                <!-- searchable -->
+                                <span class="hidden">{{ data.tag_id }}</span>
+                                <input type="text" class="input-sm" name="tag_input" id="input_{{ forloop.counter }}" value="{{ data.tag_id }}" autocomplete="off" style="width: 100px; border: none;" />
+                                <input value="{{ data.id }}" id="id_{{ forloop.counter }}" class="hidden" />
+                                <button type="button" class="btn btn-success btn-xs btn-round btn-submit-tag" id="btn_{{ forloop.counter }}" style="margin-top: 5px; display: none;"><i class="icon fa-check"></i></button>
+                            </td>
+                            <td class="text-left">{{ data.particulars }}</td>
+                            <td class="text-right pointer bankdebit_dollar" title="Click to see pair">{{ data.debit_amount|floatformat:2|intcomma }}</td>
+                            <td class="text-right pointer bankcredit_dollar" title="Click to see pair">{{ data.credit_amount|floatformat:2|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    {% else %}
+
+                    <a href="{% url 'bankrecon:upload' %}" target="_blank" class="btn btn-primary waves-effect waves-dark" style="position:absolute; margin: 30% 43%;">
+                        <i class="icon fa-upload" aria-hidden="true"></i>&nbsp;&nbsp;Upload
+                    </a>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+        <!-- END OF USD ROW -->
+    </div>
+    <div class="col-md-12 col-sm-12 col-xs-12" style="margin-top: -45px;">
+        <div class="col-md-6 text-right">
+            <div class="col-md-8">
+                Debit Total: <strong id="bookdebit_total"><span class="currency-symbol">&#8369;</span>{{ record.pdidebit_total|floatformat:2|intcomma }}</strong>
+            </div>
+            <div class="col-md-4">
+                Credit Total: <strong id="bookcredit_total"><span class="currency-symbol">&#8369;</span>{{ record.pdicredit_total|floatformat:2|intcomma }}</strong>
+            </div>
+        </div>
+        <div class="col-md-6 text-right">
+            <div class="col-md-8">
+                Debit Total: <strong id="bankdebit_total"><span class="currency-symbol">&#8369;</span>{{ record.bankdebit_total|floatformat:2|intcomma }}</strong>
+            </div>
+            <div class="col-md-4">
+                Credit Total: <strong id="bankcredit_total"><span class="currency-symbol">&#8369;</span>{{ record.bankcredit_total|floatformat:2|intcomma }}</strong>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="col-md-12 col-sm-12 col-xs-12" style="border-top: #424242 1px dashed; padding: 4px;">
+        <div class="d-flex justify-content-between">
+            <div class="col-md-4 text-left">
+                {% if record.pdi_data_len > 1 %}
+                    <i class="small">** Total of transactions processed: <b id="pdi_total">{{ record.pdi_data_len }}</b> **</i>
+                {% else %}
+                    <i class="small">** Total of transaction processed: <b id="pdi_total">{{ record.pdi_data_len }}</b> **</i>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <span class="badge bg-light-green-500" id="badge-matched"></span>Matched:
+                    </li>
+                
+                    <li class="list-group-item">
+                        <span class="badge bg-red-400" id="badge-unmatched"></span>Unmatched:
+                    </li>
+                    
+                    <br>
+                </ul>
+            </div>
+            <div class="col-md-4 text-right">
+                {% if record.bank_data_len > 1 %}
+                    <i class="small">** Total of transactions processed: <b id="bank_total">{{ record.bank_data_len }}</b> **</i>
+                {% else %}
+                    <i class="small">** Total of transaction processed: <b id="bank_total">{{ record.bank_data_len }}</b> **</i>
+                {% endif %}
+            </div>
+            <br>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <a class="btn btn-primary waves-effect waves-dark" id="matched_rows" style="margin-top: 22px;">
+                    <i class="icon fa-th-list" aria-hidden="true"></i>&nbsp;&nbsp;Show Matched Rows
+                </a>
+                <a class="btn btn-primary waves-effect waves-dark" id="unmatched_rows" style="margin-top: 22px;">
+                    <i class="icon fa-th-list" aria-hidden="true"></i>&nbsp;&nbsp;Show Unmatched Rows
+                </a>
+                <a class="btn btn-primary waves-effect waves-dark" id="all_rows" style="margin-top: 22px;">
+                    <i class="icon fa-th-list" aria-hidden="true"></i>&nbsp;&nbsp;Show All Rows
+                </a>
+                <a class="btn btn-primary waves-effect waves-dark" id="multiple_pairs" style="margin-top: 22px;">
+                    <i class="icon fa-th-list" aria-hidden="true"></i>&nbsp;&nbsp;Show Multiple Pairs
+                </a>
+            </div>
+            <div class="col-md-6 text-right">
+                <form action="{% url 'bankrecon:reportxls' %}" method="POST" id="form_report" target="_blank" >
+                    {% csrf_token %}
+                    <input type="hidden" name="report_bank_account" id="report_bank_account"  />
+                    <input type="hidden" name="report_date_from" id="report_date_from" />
+                    <input type="hidden" name="report_date_to" id="report_date_to" />
+                    <input type="hidden" name="report_currency_details" id="report_currency_details" />
+                    <input type="hidden" name="report_book_data" id="report_book_data" />
+                    <input type="hidden" name="report_bank_data" id="report_bank_data" />
+
+                    <input type="hidden" name="report_bookdebit_total" id="report_bookdebit_total" />
+                    <input type="hidden" name="report_bookcredit_total" id="report_bookcredit_total" />
+                    <input type="hidden" name="report_bankdebit_total" id="report_bankdebit_total" />
+                    <input type="hidden" name="report_bankcredit_total" id="report_bankcredit_total" />
+
+                    <button type="button" id="get_xls" class="btn btn-info btn-sm waves-effect waves-light" style="margin-top: 22px;">
+                        <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp; XLS
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div id="fxrateModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 450px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Foreign Exchange Rate for Tag ID <strong id="tag_id_modal"></strong></h4>
+            </div>
+            <div class="modal-body" style="overflow:hidden;">
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <input type="hidden" id="id_tagid" />
+                        <!-- <input type="hidden" value="" id="id_" /> -->
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4">
+                                <label class="control-label" for="id_currency">Currency:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm"
+                                       readonly="readonly" style="padding: 5px 10px" id="id_currency" name="currency">
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4">
+                                <label class="control-label" for="id_fxrate">FX Rate:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon1">₱</span>
+                                    <input type="number" class="form-control input-sm" name="fxrate" id="id_fxrate" step="0.00001" aria-describedby="basic-addon1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4">
+                                <label class="control-label" for="id_fxamount">FX Amount:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon2"></span>
+                                    <input type="text" class="form-control input-sm amount-right" id="id_fxamount" aria-describedby="basic-addon2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div align="center">
+                    <button type="button" class="btn btn-sm btn-info" id="fx_save">Save</button>
+                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function(){
+        var currency_details = {};
+        if($('#bankaccount').val() === '5'){
+            // bd5
+            currency_details = {
+                'name': 'USD',
+                'long_name': 'US Dollar',
+                'symbol': '$',
+                'decimal_places': 5,
+                'country': {
+                    'short_name': 'US',
+                    'long_name': 'United States'
+                }
+            };
+            $('.currency_longname').text(currency_details.name);
+            $('.currency-symbol').text(currency_details.symbol);
+            $('#local_currency').hide();
+            $('#usd_currency').show();
+        } else {
+            $('#usd_currency').hide();
+            $('#local_currency').show();
+        }
+
+        var classname = '';
+        var forloop_count = '';
+        var inputval_before = '';
+        var php_amount = 0;
+
+        $('#pdi_table tbody tr, #bank_table tbody tr').hover(mouseEnter, mouseLeave);
+        function mouseEnter() {
+            classname = $(this).closest('tr').attr('class').split(' ')[0];
+            $('.'+classname).css("background", "#eee"); // .effect( "highlight")
+        };
+        function mouseLeave() {
+            var indexnum = $(this).closest('tr').index();
+            $('.'+classname).css("background", "none");
+        };
+
+        var matched_rows = $('#bank_table tbody tr.matched').filter(':visible').length;
+        var unmatched_rows = $('#bank_table tbody tr.none').filter(':visible').length;
+
+        $('#badge-matched').text(matched_rows);
+        $('#badge-unmatched').text(unmatched_rows);
+
+        function calc_total(){
+            var bookdebit_sum = 0;
+            var bookcredit_sum = 0;
+            var bankdebit_sum = 0;
+            var bankcredit_sum = 0;
+            var currency = 'PHP';
+
+            var class_bookdebitamount = 'bookdebitamount';
+            var class_bookcreditamount = 'bookcreditamount';
+            var class_bankdebitamount = 'bankdebitamount';
+            var class_bankcreditamount = 'bankcreditamount';
+
+            if (!$.isEmptyObject(currency_details)){
+                currency = currency_details.name;
+                class_bookdebitamount = 'bookdebit_dollar';
+                class_bookcreditamount = 'bookcredit_dollar';
+                class_bankdebitamount = 'bankdebit_dollar';
+                class_bankcreditamount = 'bankcredit_dollar';
+            } 
+
+            $('.'+ class_bookdebitamount).filter(':visible').each(function(){
+                var bookdeb = parseFloat($(this).text().replace(/,/g, ''));
+                if(!isNaN(bookdeb)) bookdebit_sum += bookdeb;
+            });
+            $('.'+ class_bookcreditamount).filter(':visible').each(function(){
+                var bookcred = parseFloat($(this).text().replace(/,/g, ''));
+                if(!isNaN(bookcred)) bookcredit_sum += bookcred;
+            });
+            $('.'+ class_bankdebitamount).filter(':visible').each(function(){
+                var bankdeb = parseFloat($(this).text().replace(/,/g, ''));
+                if(!isNaN(bankdeb)) bankdebit_sum += bankdeb;
+            });
+            $('.'+ class_bankcreditamount).filter(':visible').each(function(){
+                var bankcred = parseFloat($(this).text().replace(/,/g, ''));
+                if(!isNaN(bankcred)) bankcredit_sum += bankcred;
+            });
+            
+            if(isNaN(bookdebit_sum)) bookdebit_sum = 0;
+            if(isNaN(bookcredit_sum)) bookcredit_sum = 0;
+            if(isNaN(bankdebit_sum)) bankdebit_sum = 0;
+            if(isNaN(bankcredit_sum)) bankcredit_sum = 0;
+
+            $('#bookdebit_total').text(bookdebit_sum.toLocaleString('en-US', {style: 'currency',currency: currency}));
+            $('#bookcredit_total').text(bookcredit_sum.toLocaleString('en-US', {style: 'currency',currency: currency}));
+            $('#bankdebit_total').text(bankdebit_sum.toLocaleString('en-US', {style: 'currency',currency: currency}));
+            $('#bankcredit_total').text(bankcredit_sum.toLocaleString('en-US', {style: 'currency',currency: currency}));
+        }
+
+        function calc_match_unmatch(is_matched, is_unmatched){
+            if(is_matched){
+                var matched_count = parseInt($('#badge-matched').text()) + 1;
+                $('#badge-matched').text(matched_count);
+
+                var unmatched_count = parseInt($('#badge-unmatched').text()) - 1;
+                if (isNaN(unmatched_count || unmatched_count < 1)) unmatched_count = 0;
+                $('#badge-unmatched').text(unmatched_count);
+
+            } else if(is_unmatched){
+                var matched_count = parseInt($('#badge-matched').text()) - 1;
+                if (isNaN(matched_count || matched_count < 1)) matched_count = 0;
+                $('#badge-matched').text(matched_count);
+
+                var unmatched_count = parseInt($('#badge-unmatched').text()) + 1;
+                $('#badge-unmatched').text(unmatched_count);
+                
+            }
+        }
+
+        $('#matched_rows').click(function(e){
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: $("#search_row").offset().top
+            }, 1000);
+
+            $("#pdi_table tbody tr.matched").show();
+            $("#bank_table tbody tr.matched").show();
+
+            $("#pdi_table tbody tr:not(.matched)").hide();
+            $("#bank_table tbody tr:not(.matched)").hide();
+
+            calc_total();
+        });
+
+        $('#unmatched_rows').click(function(e){
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: $("#search_row").offset().top
+            }, 1000);
+
+            $("#pdi_table tbody tr.matched").hide();
+            $("#bank_table tbody tr.matched").hide();
+
+            $("#pdi_table tbody tr:not(.matched)").show();
+            $("#bank_table tbody tr:not(.matched)").show();
+
+            calc_total();
+        });
+
+        $('#all_rows').click(function(e){
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: $("#search_row").offset().top
+            }, 1000);
+
+            $("#pdi_table tbody tr.matched").show();
+            $("#bank_table tbody tr.matched").show();
+
+            $("#pdi_table tbody tr:not(.matched)").show();
+            $("#bank_table tbody tr:not(.matched)").show();
+
+            var bookdebit_sum = "{{ record.pdidebit_total|floatformat:2|intcomma }}";
+            var bookcredit_sum = "{{ record.pdicredit_total|floatformat:2|intcomma }}";
+            var bankdebit_sum = "{{ record.bankdebit_total|floatformat:2|intcomma }}";
+            var bankcredit_sum = "{{ record.bankcredit_total|floatformat:2|intcomma }}";
+
+            if(currency_details){
+                $('#bookdebit_total').html(currency_details.symbol + bookdebit_sum);
+                $('#bookcredit_total').html(currency_details.symbol + bookcredit_sum);
+                $('#bankdebit_total').html(currency_details.symbol + bankdebit_sum);
+                $('#bankcredit_total').html(currency_details.symbol + bankcredit_sum);
+            } else {
+                $('#bookdebit_total').html("&#8369;"+bookdebit_sum);
+                $('#bookcredit_total').html("&#8369;"+bookcredit_sum);
+                $('#bankdebit_total').html("&#8369;"+bankdebit_sum);
+                $('#bankcredit_total').html("&#8369;"+bankcredit_sum);
+            }
+            
+            calc_total();
+        });
+
+        $('#multiple_pairs').click(function (e){
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: $("#search_row").offset().top
+            }, 1000);
+
+            $('#pdi_table > tbody > tr').hide();
+            $('#bank_table > tbody > tr').hide();
+            $('#pdi_table > tbody  > tr').each(function() {
+                var $class = '.' + $(this).attr('class').split(' ')[0];
+                if ($($class).length > 2) {
+                    $($class).show();
+                } 
+            });
+            calc_total();
+        });
+
+        $('input[name=tag_input]').on('keyup paste',function(event){
+            $('.btn-submit-tag').hide();
+            var input_id = event.target.id.split('_');
+
+            forloop_count = input_id[1];
+            $('#btn_' + input_id[1]).show();
+        });
+
+        $('.btn-submit-tag').click(function(){
+            var tag_id = $('#input_' + forloop_count).val();
+            var bank_id = $('#id_' + forloop_count).val();
+
+            if((bank_id === '')){
+                alert('Tag and Bank IDs must not be empty.');
+                return false;
+            }
+
+            if(!(tag_id.match(/^$|^-?\d+$/))){
+                alert('Tag ID must be a number or just an empty value.');
+                return false;
+            }
+
+            var confirm_message = "Confirm "+tag_id+" as Tag ID?";
+            if (tag_id === ''){
+                confirm_message = "Are you sure to remove Tag ID?"
+            }
+
+            if (confirm(confirm_message) === true) {
+                $.ajax({
+                    url: "{% url 'bankrecon:tagging' %}",
+                    type: "post",
+                    data: {
+                        'csrfmiddlewaretoken': "{{csrf_token}}",
+                        'tag_id': tag_id,
+                        'bank_id': bank_id
+                    },
+                    success: function(response) {
+
+                        if (response.result === true){
+                            
+                            $('#btn_' + forloop_count).hide();
+                            var preval = $('#input_' + forloop_count).data('preval');
+                            if(tag_id !== ''){
+                                $('.row_'+ preval).css('border-left', 'none');
+                                $('.row_'+ tag_id).css('border-left', '#8bc34a 4px solid').addClass('matched');
+
+                                $('#input_' + forloop_count).closest('tr').css('border-left', '#8bc34a 4px solid')
+                                .removeClass().addClass('row_'+tag_id+' matched');
+
+                                $('#input_' + forloop_count).data('preval', tag_id);
+
+                                calc_match_unmatch(is_matched = true, is_unmatched = false);
+                            } else {
+                                
+                                $('.row_'+ preval).css('border-left', 'none').removeClass('matched');
+
+                                $('#input_' + forloop_count).closest('tr').css('border-left', 'none')
+                                .removeClass().addClass('none');
+
+                                calc_match_unmatch(is_matched = false, is_unmatched = true);
+                            }
+
+                        } else {
+                            customAlert($('#tag-failed'));
+                        }
+                    },
+                    error: function(response) {
+                        console.log('err: '+ response.result)
+                        alert('Tag error.');
+                    }
+                });
+                return false;
+            }
+        });
+
+        var $pdi_rows = $('#pdi_table tbody tr');
+        $('#booksearch').on('input', function() {
+            var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+            
+            $pdi_rows.show().filter(function() {
+                var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                return !~text.indexOf(val);
+            }).hide();
+        });
+
+        var $bank_rows = $('#bank_table tbody tr');
+        $('#banksearch').on('input', function() {
+            var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+            
+            $bank_rows.show().filter(function() {
+                var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                return !~text.indexOf(val);
+            }).hide();
+        });
+
+        $('.pointer').click(function(){
+            var row, table, elmnt;
+            row = $(this).closest('tr').attr('class');
+            table = $(this).closest('table').attr('id');
+            if (row.split(' ')[1] === 'matched'){
+                if (table === 'bank_table'){
+                    elmnt = document.querySelector("#pdi_table > tbody > ."+row.split(' ')[0]);
+                    elmnt.scrollIntoView({
+                        behavior: 'auto',
+                        block: 'center',
+                        inline: 'center'
+                    });
+                } else if (table === 'pdi_table') {
+                    elmnt = document.querySelector("#bank_table > tbody > ."+row.split(' ')[0]);
+                    elmnt.scrollIntoView({
+                        behavior: 'instant',
+                        block: 'center',
+                        inline: 'center'
+                    });
+                }
+            }
+        });
+
+        // foreign currencies
+        $('.fxrate-btn').click(function(){
+            var tag_id = $(this).closest('tr').find("td:nth-child(3)").text();
+            var php_debitamount = $(this).closest('tr').find("td:nth-child(9)").text();
+            var php_creditamount = $(this).closest('tr').find("td:nth-child(10)").text();
+
+            if (php_creditamount === '0.00' && php_debitamount != '0.00'){
+                php_amount = php_debitamount.replace(/,/g, '');
+            } else if(php_debitamount === '0.00' && php_creditamount != '0.00') {
+                php_amount = php_creditamount.replace(/,/g, '');
+            }
+            
+            $('#tag_id_modal').text(tag_id);
+            $('#basic-addon2').text(currency_details.symbol);
+            $('#id_tagid').val(tag_id);
+            $('#id_currency').val(currency_details.name+' ('+currency_details.long_name+')');
+            $('#id_fxrate').val('');
+            $('#id_fxamount').val('');
+        });
+
+        $('input[name=fxrate]').on('keyup paste',function(event){
+            var fxrate = event.target.value;
+            var fxamount = 0;
+            if(php_amount){
+                var fxamount = php_amount / fxrate;
+            }
+            
+            fxamount = fxamount.toFixed(2);
+            if(fxrate) {
+                $('#id_fxamount').val(amountWithCommas(fxamount));
+            } else {
+                $('#id_fxamount').val('');
+            }
+        });
+
+        function amountWithCommas(amount) {
+            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function countDecimals(value) { 
+            return value % 1 ? value.toString().split(".")[1].length:0;
+        };
+
+        $('#fx_save').click(function(){
+            var fx_rate = $('#id_fxrate').val();
+            var fx_amount = $('#id_fxamount').val();
+            var tag_id = $('#id_tagid').val();
+
+            if(fx_rate && fx_amount && tag_id){
+
+                var decimal_count = countDecimals(fx_rate);
+                alert(decimal_count)
+                if(decimal_count > 5){
+                    alert('Number of decimals must not exceed at 5.');
+                } else if(decimal_count < 5){
+                    alert('Number of decimals must be exactly at 5. Add trailing zeros to complete.');
+                } else {
+                    $.ajax({
+                        url: "{% url 'bankrecon:fxsave' %}",
+                        type: "post",
+                        data: {
+                            'csrfmiddlewaretoken': "{{csrf_token}}",
+                            'tag_id': tag_id,
+                            'fx_rate': fx_rate,
+                            'fx_amount': fx_amount
+                        },
+                        success: function(response) {
+
+                            if (response.result === true){
+
+                                $('#bank_table > tbody  > tr').each(function() {
+                                    var bank_debitamount = $(this).closest('tr').find("td:nth-child(5)").text(); // USD debit bank_table
+                                    var bank_creditamount = $(this).closest('tr').find("td:nth-child(6)").text(); // USD credit bank_table
+
+                                    if (bank_creditamount === '0.00' && bank_debitamount != '0.00'){
+                                        if(fx_amount == bank_debitamount){
+                                            
+                                            $('.row_'+ tag_id).css('border-left', '#8bc34a 4px solid').addClass('matched');
+                                            $('.row_'+ tag_id).find("td:nth-child(8)").text(fx_amount); // USD credit pdi_table
+                                            $(this).closest('tr').removeClass().css('border-left', '#8bc34a 4px solid').addClass('row_'+tag_id+' matched');
+                                            $(this).closest('tr').find('input[name=tag_input]').val(tag_id);
+
+                                        } 
+                                    } else if(bank_debitamount === '0.00' && bank_creditamount != '0.00') {
+                                        if(fx_amount == bank_creditamount){
+
+                                            $('.row_'+ tag_id).css('border-left', '#8bc34a 4px solid').addClass('matched');
+                                            $('.row_'+ tag_id).find("td:nth-child(7)").text(fx_amount); // USD debit pdi_table
+                                            $(this).closest('tr').removeClass().css('border-left', '#8bc34a 4px solid').addClass('row_'+tag_id+' matched');
+                                            $(this).closest('tr').find('input[name=tag_input]').val(tag_id);
+                                            
+                                        } 
+                                    }
+                                });
+                                calc_match_unmatch(is_matched = true, is_unmatched = false);
+                                calc_total();
+                                
+                            } else {
+                                customAlert($('#fx-failed'));
+                            }
+                            
+                            $('#fxrateModal').modal('toggle');
+                        },
+                        error: function(response) {
+                            console.log('err: '+ response.result)
+                            alert('FX save error.');
+                            $('#fxrateModal').modal('toggle');
+                        }
+                    });
+                }
+            } else {
+                alert('FX rate and FX amount are required and please use proper input format.');
+            }
+        });
+
+        $('#get_xls').click(function(){
+
+            var book_data = [];
+            var bank_data = [];
+            if (!$.isEmptyObject(currency_details)){
+                if(currency_details.name == 'USD'){
+                    $('#pdi_table > tbody > tr').filter(':visible').each(function(){
+                        var tag_id = (!isNaN($(this).find('td').eq(2).text())) ? $(this).find('td').eq(2).text() : '';
+                        book_data.push({
+                            date: $(this).find('td').eq(1).text(),
+                            tag_id: tag_id,
+                            doc_type: $(this).find('td').eq(3).text(),
+                            doc_num: $(this).find('td').eq(4).text(),
+                            particulars: $(this).find('td').eq(5).text(),
+                            debit_dollar: $(this).find('td').eq(6).text(),
+                            credit_dollar: $(this).find('td').eq(7).text(),
+                            debit_php: $(this).find('td').eq(8).text(),
+                            credit_php: $(this).find('td').eq(9).text(),
+                        });
+                    });
+                } 
+            } else {
+                $('#pdi_table > tbody > tr').filter(':visible').each(function(){
+                    var tag_id = (!isNaN($(this).find('td').eq(2).text())) ? $(this).find('td').eq(2).text() : '';
+                    book_data.push({
+                        date: $(this).find('td').eq(1).text(),
+                        tag_id: tag_id,
+                        doc_type: $(this).find('td').eq(3).text(),
+                        doc_num: $(this).find('td').eq(4).text(),
+                        particulars: $(this).find('td').eq(5).text(),
+                        debit: $(this).find('td').eq(6).text(),
+                        credit: $(this).find('td').eq(7).text(),
+                    });
+                });
+            }
+
+            $('#bank_table > tbody > tr').filter(':visible').each(function(){
+                var tag_id = (!isNaN($(this).find('input[name=tag_input]').val())) ? $(this).find('input[name=tag_input]').val() : '';
+                bank_data.push({
+                    date: $(this).find('td').eq(1).text(),
+                    tag_id: tag_id,
+                    particulars: $(this).find('td').eq(3).text(),
+                    debit: $(this).find('td').eq(4).text(),
+                    credit: $(this).find('td').eq(5).text(),
+                });
+            });
+
+            $('#report_bank_account').val($("#bankaccount option:selected").text());
+            $('#report_date_from').val($("#dfrom").val());
+            $('#report_date_to').val($("#dto").val());
+            $('#report_currency_details').val(JSON.stringify(currency_details));
+            $('#report_book_data').val(JSON.stringify(book_data));
+            $('#report_bank_data').val(JSON.stringify(bank_data));
+
+            $('#report_bankdebit_total').val($('#bankdebit_total').text());
+            $('#report_bankcredit_total').val($('#bankcredit_total').text());
+            $('#report_bookdebit_total').val($('#bookdebit_total').text());
+            $('#report_bookcredit_total').val($('#bookcredit_total').text());
+
+            $('#form_report').submit();
+        }); 
+    });
+
+</script>
