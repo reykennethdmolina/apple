@@ -172,9 +172,6 @@ urlpatterns = [
 
     # Part 2
     url(r'^nontrade/', include('nontrade.urls', app_name='nontrade', namespace='nontrade')),
-
-    # Jek
-    url(r'^bankrecon/', include('bankrecon.urls', app_name='bankrecon', namespace='bankrecon')),
     
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

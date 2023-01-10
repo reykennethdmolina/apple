@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %} Bank Reconciliation - File Upload {% endblock page-title %}
+{% block page-title %} Bank Reconciliation Entry {% endblock page-title %}
 {% block extra_css %}
 	{% load static %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
@@ -116,7 +116,9 @@
                                         </button>
                                     </div>
                                     <div style="float: right;">
-                                        <a href="{% url 'bankrecon:importguide' %}" target="_blank" title="Go to Import Guide"><span class="icon fa-question-circle"></span>&nbsp;</a>
+                                        <a href="{% url 'bankrecon:manualentry' %}" target="_blank" title="Go to manual entry of bank statements"><span class="icon fa-file-text"></span>&nbsp; Manual Entry</a>
+                                        &nbsp;&nbsp;&nbsp;
+                                        <a href="{% url 'bankrecon:importguide' %}" target="_blank" title="Go to Import Guide"><span class="icon fa-question-circle"></span>&nbsp;Help</a>
                                     </div>
                                 </div>
                             </div>

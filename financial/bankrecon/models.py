@@ -45,6 +45,7 @@ class Bankrecon(models.Model):
         permissions = (
             ("view_bankrecon", "Can view bankrecon"),
             ("tag_bankrecon", "Can tag bankrecon"),
+            ("upload_bankstatements", "Can upload bank statements")
         )
 
     def get_absolute_url(self):

@@ -183,9 +183,6 @@ INSTALLED_APPS = [
     'fxrate',
     'rep_contributionmargin',
     'nontrade',
-
-    # Jek
-    'bankrecon',
     
 ]
 

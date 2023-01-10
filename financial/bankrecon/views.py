@@ -2,10 +2,11 @@
 import datetime
 import hashlib
 import re
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.http import Http404, JsonResponse
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from bank.models import Bank
 from bankrecon.models import Bankrecon
@@ -16,11 +17,16 @@ from bankaccounttype.models import Bankaccounttype
 from subledger.models import Subledger
 from currency.models import Currency
 from endless_pagination.views import AjaxListView
+from django.db.models import Q
+from financial.utils import Render
 from django.utils import timezone
+from django.template.loader import get_template
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from companyparameter.models import Companyparameter
+from acctentry.views import generatekey
 from dateutil.parser import parse
+from string import digits
 from decimal import Decimal
 import json
 import xlwt
@@ -1137,4 +1143,60 @@ def reportxls(request):
             wb.save(response)
             return response
         except:
-            return Http404
+            raise Http404
+
+
+@method_decorator(login_required, name='dispatch')
+class ManualEntryView(CreateView):
+    model = Bankrecon
+    template_name = 'bankrecon/manual_upload.html'
+    fields = []
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('bankrecon.upload_bankstatements'):
+            raise Http404
+        return super(CreateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+       context = super(ManualEntryView, self).get_context_data(**kwargs)
+       context['bankaccount'] = Bankaccount.objects.all().filter(isdeleted=0).order_by('code')
+       context['banks'] = Bank.objects.all().order_by('description')
+       
+       return context
+
+@csrf_exempt
+def savemanualentry(request):
+    form_data = json.loads(request.POST.getlist('form_data')[0])
+    basic_info = form_data[0]['basic_info']
+    entries = form_data[1]['entries']
+    
+    successdata = []
+    successcount = 0
+    faileddata = []
+    failedcount = 0
+
+    for entry in list(entries):
+        try:
+            
+            Bankrecon.objects.create(
+                bank_id=basic_info['bank_id'],
+                bankaccount_id=basic_info['bank_account'],
+                transaction_date=basic_info['dto'],
+                particulars=str(entry['particulars']),
+                debit_amount=Decimal(entry['debit']),
+                credit_amount=Decimal(entry['credit'])
+            )
+            successdata.append([basic_info['dto'], entry['particulars'], entry['debit'], entry['credit']])
+            successcount += 1
+        except:
+            faileddata.append([basic_info['dto'], entry['particulars'], entry['debit'], entry['credit']])
+            failedcount += 1
+
+    return JsonResponse({
+        'successdata': successdata,
+        'successcount': successcount,
+        'faileddata': faileddata,
+        'failedcount': failedcount,
+        'datacount': successcount + failedcount
+    })
+

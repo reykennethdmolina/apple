@@ -1,0 +1,507 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Bank Reconciliation - Bank Statements Entry {% endblock page-title %}
+{% block extra_css %}
+	{% load static %}
+        <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+        <style>
+            #main{
+                margin-top: 16px;
+                max-height: 450px;
+                overflow: auto;
+            }
+            #data_result{
+                display: none;
+            }
+            .select2-results__options{
+                font-size: 12px;
+            }
+            .price-list{
+                background-color: white;            
+            }
+            .price-list .price-price{
+                font-size: 14px !important;
+                text-align: left;
+                color: #76838f !important;
+            }
+            .price-title.bg-teal-a400:before {
+                background: #00bfa5;
+            }
+            .price-list .price-title{
+                padding-top: 5px;
+                letter-spacing: 1px;
+            }
+            .price-title:before {
+                position: relative;
+                display: block;
+                width: 14px;
+                height: 14px;
+                content: '';
+                top: 42px;
+                transform: rotate(45deg);
+                text-align: center;
+                margin-right: auto;
+                margin-left: auto;
+            }
+            .price-footer{
+                margin-top: 40px;
+            }
+            .fa-spin {
+            -webkit-animation: fa-spin 2s infinite linear;
+            animation: fa-spin 2s infinite linear;
+            }
+            @-webkit-keyframes fa-spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(359deg);
+                transform: rotate(359deg);
+            }
+            }
+            @keyframes fa-spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(359deg);
+                transform: rotate(359deg);
+            }
+            }
+        </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel" id="data_entry">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="price-header">
+                <div class="price-list margin-sm-0">
+                    <div class="price-title bg-teal-a400">MANUAL DATA ENTRY</div>
+                </div>
+                <div style="margin-top: 30px;">
+                    <div class="form-group col-sm-4">
+                        <label class="control-label small">Transaction Date</label><br>
+                        <div class="input-daterange datarange">
+                            <div class="input-group">
+                                <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control input-sm datepickerfrom" id="dfrom" />
+                                <!-- value="2022-09-01" -->
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon input-sm">to</span>
+                                <input type="text" class="form-control input-sm datepickerto" id="dto" />
+                                <!-- value="2022-09-30" -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label class="control-label small">Bank</label>
+                        <select name="bank_id" id="bank_id" class="form-control input-sm select2" required>
+                            <option value="">-- Select --</option>
+                            {% for bank in banks %}
+                            <option value="{{ bank.id }}">{{ bank.description }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label class="control-label small">Bank Account Number</label>
+                        <select name="bank_account" id="bank_account" class="form-control input-sm select2" required>
+                            <option value="" disabled>-- Select a bank first --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-12" id="main">
+                
+                <table class="table table-striped border-0" id="table">
+                    <thead style="position: sticky; top: 0; z-index: 1; background-color: ghostwhite;">
+                        <tr style="font-weight: bold">
+                            <th></th>
+                            <th style="width: 60%;">Particulars</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr>
+                            <td>1</td>
+                            <td><input class="form-control" type="text" name="input_particulars" /></td>
+                            <td><input class="form-control" type="number" name="input_debit" style="text-align: right;" /></td>
+                            <td><input class="form-control" type="number" name="input_credit" style="text-align: right;" /></td>
+                            <td><button type="button" class="btn btn-xs btn-danger removeButton" title="Remove row 1"><i class="fa fa-minus"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><input class="form-control" type="text" name="input_particulars" /></td>
+                            <td><input class="form-control" type="number" name="input_debit" style="text-align: right;" /></td>
+                            <td><input class="form-control" type="number" name="input_credit" style="text-align: right;" /></td>
+                            <td><button type="button" class="btn btn-xs btn-danger removeButton" title="Remove row 2"><i class="fa fa-minus"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="form-group" style="margin-top: 10px; margin-right: 45px;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <input type="number" value="1" id="row_quantity" step="1" min="1" max="100" style="width: 40px; border: none; margin-left: 20px;" />
+                                <button type="button" class="btn btn-xs btn-info addButton" title="Add rows based on desired quantity. Limited at 100.">
+                                    <i class="fa fa-plus"></i>&nbsp;&nbsp; Add Row &nbsp; 
+                                </button>
+                            </div>
+                            <div class="col-md-2 text-center" >
+                                <b>Totals:</b>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="col-md-5 text-right">
+                                    <b id="total_input_debit"></b>
+                                </div>
+                                <div class="col-md-7 text-right">
+                                    <b id="total_input_credit"></b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <hr>
+        <br>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <button type="button" class="btn btn-primary" id="btn_save" title="Entered entries will be submitted and saved."><i class="fa fa-check-square-o"></i>&nbsp;&nbsp;&nbsp;Confirm & Save Entries</button>
+                <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="data_upload_loading">
+                    <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                    VERIFYING ...
+                </button>  
+            </div>
+        </div>
+    </div>
+</div>
+
+<br><br>
+<div id="data_result">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <div class="price-list margin-sm-0">
+                        <div class="price-header">
+                            <div class="price-title bg-teal-a400">ENTRIES SUMMARY</div>
+                            <div class="price-price teal-a400" id="formupload">
+                                <br>
+                                <div class="col-md-12" id="table_container">
+                                    <div class="col-md-6">
+                                        <!-- <div style="color:#76838f">&nbsp;&nbsp;<span id="upload_success"></span> Passed</div> -->
+                                        <table class="table table-condensed" id="success_table">
+                                            <thead class="bg-light-green-500" style="position: sticky; top: 0; z-index: 1;">
+                                                <tr>
+                                                    <th style="color:white"><small><b>Date</b></small></th>
+                                                    <th style="color:white">Particulars</th>
+                                                    <th style="color:white">Debit</th>
+                                                    <th style="color:white">Credit</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                        
+                                    </div>
+                                    <div class="col-md-6">
+                                        <!-- <div style="color:#76838f">&nbsp;&nbsp;<span id="upload_failed"></span> Failed</div> -->
+                                        <table class="table table-condensed" id="failed_table">
+                                            <thead class="bg-red-400" style="position: sticky; top: 0; z-index: 1;">
+                                                <tr >
+                                                    <th style="color:white"><small><b>Date</b></small></th>
+                                                    <th style="color:white">Particulars</th>
+                                                    <th style="color:white">Debit</th>
+                                                    <th style="color:white">Credit</th>
+                                                    <!-- <th style="color:white">Findings</th> -->
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                        
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <i class="small">** Total of <b id="upload_total"></b> items processed. **</i>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <ul class="list-group">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <li class="list-group-item">
+                                                            <span class="badge bg-light-green-500" id="badge-upload-passed"></span>Passed:
+                                                        </li>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <li class="list-group-item">
+                                                            <span class="badge bg-red-400" id="badge-upload-failed"></span>Failed:
+                                                        </li>
+                                                    </div>
+                                                </div>
+                                            </ul>
+                                        </div>
+                                        <br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="price-footer">
+                            <button type="button" class="btn btn-info waves-effect waves-light" onClick="window.location.reload(); return false;">
+                                <i class="icon fa-refresh font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                Reload page and save new entries
+                            </button>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<br><br>
+<div id="save-success" class="custom-alert success">Saved successfully.</div>
+
+<!-- File has been uploaded already -->
+<div id="save-failed" class="custom-alert danger">Failed saving.</div>
+{% endblock page-content %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script>
+    $(document).ready(function() {
+        $('#main').on('click', '.addButton', function() {
+            var previous_num = 0;
+            var row_quantity = 0;
+            var existing_row_count = 0;
+
+            row_quantity = $('#row_quantity').val();
+            existing_row_count = $('#table tbody tr').length;
+            
+            row_count = parseInt(row_quantity) + parseInt(existing_row_count);
+            if(row_count > 1000){
+                alert('Data entry per batch is limited to 1,000 rows. Please consider new batch of entries.')
+            } else {
+                if(row_quantity != '' && row_quantity > 0 && row_quantity <= 100){
+                    for (var i = 0; row_quantity > i; i++){
+                        previous_num = $('#table tr:last').find('td').eq(0).text();
+                        previous_num = parseInt(previous_num) + 1;
+                        $("#table tbody").append("\
+                        <tr>\
+                            <td>"+previous_num+"</td>\
+                            <td><input class='form-control' type='text' name='input_particulars' /></td>\
+                            <td><input class='form-control' type='number' name='input_debit' style='text-align: right;' /></td>\
+                            <td><input class='form-control' type='number' name='input_credit' style='text-align: right;' /></td>\
+                            <td><button type='button' class='btn btn-xs btn-danger removeButton' title='Remove row "+previous_num+"'><i class='fa fa-minus'></i></button></td>\
+                        </tr>\
+                        ");
+                    }
+                } else {
+                    if(row_quantity > 100 || row_quantity < 1){
+                        alert('Add limit is between 1 and 100 rows only.');
+                    } else {
+                        alert('Row quantity is incorrect.');
+                    }
+                }
+            }
+        }).on('click', '.removeButton', function() {
+            $(this).parents('tr').remove();
+            totals_update();
+        });
+
+        $(document).on('change paste', "input[name='input_debit'], input[name='input_credit']", function(){
+            if ($(this).val() != "" ) {
+
+                if($(this).attr('name') === 'input_debit'){
+                    $(this).parents("tr").find('input[name="input_credit"]').val('0.00');
+                } else {
+                    $(this).parents("tr").find('input[name="input_debit"]').val('0.00');
+                }
+                
+                $(this).val(parseFloat($(this).val()).toFixed(2));
+
+                totals_update();
+            }
+        });
+    
+        $('#bank_id').change(function(e){
+            e.preventDefault();
+            var bank_id = $(this).val();
+            
+            $.ajax({
+                url: "{% url 'bankrecon:ajaxbankaccount' %}" + '?bank_id='+ bank_id,
+                type: "GET",
+                dataType: "JSON",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                },
+                success: function (response){
+                    console.log(response);
+                    $('#bank_account').empty();
+                    $('#bank_account').append($('<option/>', { 
+                            value: "",
+                            text : "-- Select --" 
+                        }));
+                    $.each(response.bankaccount, function(propName, propVal) {
+                        $('#bank_account').append(
+                            $('<option/>', { 
+                                value: propVal['id'],
+                                text : propVal['accountnumber'] +" - "+ propVal['code']
+                            })
+                        );
+                    });
+                },
+                error: function (response) {
+                    console.log("err "+JSON.stringify(response))
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            return false
+        });
+
+        $('#btn_save').click(function(event){
+            event.preventDefault();
+
+            if ($('#dfrom').val() == '' || $('#bank_id').val() == '' || $('#bank_account').val() == ''){
+                alert('Transaction Date, Bank, and Account number fields are required.');
+                return false;
+            }
+
+            $(this).fadeOut(300);
+            $('#data_result').fadeOut(300);
+            $('#data_upload_loading').delay(300).fadeIn(300);
+
+            var form_data = [];
+            var entries = [];
+            form_data.push({
+                basic_info: {
+                    dfrom: $('#dfrom').val(),
+                    dto: $('#dto').val(),
+                    bank_id: $('#bank_id').val(),
+                    bank_account: $('#bank_account').val()
+                }
+            });
+            
+            $('#table > tbody > tr').each(function(){
+
+                var input_particulars = $(this).find('input[name=input_particulars]').val();
+                var input_debit = $(this).find('input[name=input_debit]').val();
+                var input_credit = $(this).find('input[name=input_credit]').val();
+                
+                if((input_debit == '' && input_credit == '') || (input_debit == '0.00' && input_credit == '0.00')){
+                    console.log(input_debit);
+                    console.log(input_credit);
+                } else {
+                    entries.push({
+                        particulars: input_particulars,
+                        debit: input_debit,
+                        credit: input_credit
+                    });
+                }
+            });
+
+            form_data.push({
+                entries: entries
+            });
+            
+            $.ajax({
+                url: "{% url 'bankrecon:savemanualentry' %}",
+                type: "post",
+                data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    form_data: JSON.stringify(form_data),
+                },
+                success: function (response){
+                    // console.log(response);
+                    customAlert($('#save-success'));
+                    importSummary(response);
+                },
+                error: function (response) {
+                    customAlert($('#save-failed'));
+                    console.log("err "+JSON.stringify(response))
+                }
+            });
+            return false
+        });
+        
+    });
+
+    function importSummary(data){
+
+        $('#data_upload_loading').fadeOut(300);
+        $('#btn_save').delay(300).fadeIn(300);
+
+        $('#success_table tbody').html('');
+        for (var i = 0; i < data['successdata'].length; i++) {
+            $('#success_table tbody').append("<tr> \
+                <td><small>" + data['successdata'][i][0] + "</small></td> \
+                <td><small>" + data['successdata'][i][1] + "</small></td> \
+                <td><small>" + data['successdata'][i][2] + "</small></td> \
+                <td><small>" + data['successdata'][i][3] + "</small></td> \
+            </tr>");
+        }
+        $('#failed_table tbody').html('');
+        
+        for (var i = 0; i < data['faileddata'].length; i++) {
+            $('#failed_table tbody').append("<tr class='"+data['faileddata'][i][6]+"'> \
+                <td><small>" + data['faileddata'][i][0] + "</small></td> \
+                <td><small>" + data['faileddata'][i][1] + "</small></td> \
+                <td><small>" + data['faileddata'][i][2] + "</small></td> \
+                <td><small>" + data['faileddata'][i][3] + "</small></td> \
+            </tr>");
+        }
+        $('#upload_total').text(data['datacount']);
+        $('#badge-upload-passed').text(data['successcount']);
+        $('#badge-upload-failed').text(data['failedcount']);
+        $('#data_result').fadeIn();
+
+        $('#data_entry').find('.price-title').removeClass('bg-teal-a400').addClass('bg-grey-600');
+        $('#data_result').find('.price-title').removeClass('bg-grey-600').addClass('bg-teal-a400');
+        $('html, body').delay(300).animate({scrollTop: $('#data_result').offset().top -80 }, 'slow');
+        return true;
+    }
+
+    function totals_update() {
+        var d_totals="input_debit";
+        var c_totals="input_credit";
+        update_in(d_totals);
+        update_in(c_totals);
+    }
+    
+    function update_in(name) {
+        var taskArray=new Array();
+        $("input[name*='"+name+"']").each(function() {
+            if ($(this).val()) {
+                taskArray.push($(this).val());
+            }
+        });
+        var result = taskArray.map(function(x) {
+            return parseFloat(x,".");
+        });
+        var sum=result.reduce(function(a,b) {
+            return a+b;
+        },0);
+        var sum=sum.toFixed(2);
+        $("#total_"+name).text(amountWithCommas(sum));
+    }
+
+    function amountWithCommas(amount) {
+        return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+</script>
+{% endblock extra_js %}
