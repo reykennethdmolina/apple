@@ -2,11 +2,15 @@
 
 import xlrd
 import hashlib
-import datetime
+import datetime as dt
 from decimal import Decimal
 from dateutil.parser import parse
 from bankrecon.models import Bankrecon
 from django.http import JsonResponse
+from dbfread import DBF
+from utils.views import storeupload
+from django.conf import settings
+from datetime import datetime
 
 
 bgblue = "bg-blue-400"
@@ -18,6 +22,101 @@ errorcommaorcolumnexceeded = "Comma detected or column count exceeded at "
 catchheaderorfooter = "Header or footer"
 catchheader = "Header"
 dataexists = " Data exists"
+
+
+def RobinsonSavingsBankDBF(request): 
+    allowedemptyfield = 5
+    headorfootcount = 0
+    count = 0
+    successcount = 0
+    failedcount = 0
+    existscount = 0
+    commadetectedcount = 0
+    dberrorcount = 0
+    datacount = 0
+    successdata = []
+    faileddata = []
+
+    upload_directory = 'bankrecon/'
+    sequence = datetime.now().isoformat().replace(':', '-')
+    if storeupload(request.FILES['data_file'], sequence, 'dbf', upload_directory + 'imported_bankstatement/'):
+        creditamount = '0.00'
+        debitamount = '0.00'
+        for field in DBF(settings.MEDIA_ROOT + '/' + upload_directory + 'imported_bankstatement/' + str(sequence) + '.dbf', char_decode_errors='ignore'):
+            datacount += 1
+
+            postingdate = field.values()[0] if field.values()[0] != '' else ''
+            valuedate = field.values()[1] if field.values()[1] != '' else ''
+            indicator = field.values()[3] if field.values()[3] != '' else ''
+            balance = field.values()[4] if field.values()[4] != '' else ''
+            transactionnarration = field.values()[5] if field.values()[5] != '' else ''
+            instrumentnumber = field.values()[6] if field.values()[6] != '' else ''
+            # accountno = fields[7] if fields[7] != '' else ''
+            # transactiondate = fields[8] if fields[8] != '' else ''
+            # transactioncategory = fields[9] if fields[9] != '' else ''
+            transactionid = field.values()[10] if field.values()[10] != '' else ''
+            branchname = field.values()[11] if field.values()[11] != '' else ''
+            remarks = field.values()[12] if field.values()[12] != '' else ''
+
+            if field.values().count('') <= allowedemptyfield:
+
+                if indicator == 'D':
+                    debitamount = field.values()[2] if field.values()[2] != '' else '0.00'
+                    creditamount = '0.00'
+                elif indicator == 'C':
+                    creditamount = field.values()[2] if field.values()[2] != '' else '0.00'
+                    debitamount = '0.00'
+
+                # Hash: transdate,particulars,debit,credit,balance
+                generatedkey = generate_hash_key(postingdate, transactionnarration, debitamount, creditamount, balance)
+
+                if Bankrecon.objects.filter(generatedkey=generatedkey, bankaccount_id=request.POST['bank_account'], bank_id=request.POST['bank_id']).exists():
+                    # Result: transdate,branch,particulars,debit,credit
+                    faileddata.append([postingdate, branchname, transactionnarration, debitamount, creditamount, dataexists, bgblue])
+                    failedcount += 1
+                    existscount += 1
+                else:
+                    try:
+                        postingdate = dt.datetime.strptime(str(postingdate), '%d/%m/%Y').strftime('%Y-%m-%d')
+                        Bankrecon.objects.create(
+                            bank_id=request.POST['bank_id'],
+                            bankaccount_id=request.POST['bank_account'],
+                            generatedkey=generatedkey,
+                            transaction_date=postingdate,
+                            posting_date=postingdate,
+                            branch=str(branchname),
+                            particulars=str(transactionnarration),
+                            debit_amount=Decimal(debitamount),
+                            credit_amount=Decimal(creditamount),
+                            balance_amount=Decimal(balance),
+                            checknumber=str(instrumentnumber),
+                            transactioncode = str(transactionid),
+                            remarks=str(remarks)
+                        )
+                        successdata.append([postingdate, branchname, transactionnarration, debitamount, creditamount])
+                        successcount += 1
+                    except:
+                        if debitamount.replace(' ', '').isalpha() or creditamount.replace(' ', '').isalpha() or balance.replace(' ', '').isalpha():
+                            faileddata.append([postingdate, branchname, transactionnarration, '', '', catchheader, bggrey])
+                            headorfootcount += 1
+                        elif not is_date(postingdate):
+                            faileddata.append([postingdate, "", transactionnarration, '', '', catchheaderorfooter, bggrey])
+                            headorfootcount += 1
+                        else:
+                            # can be special characters detected. - enye or date format conflict.
+                            faileddata.append([postingdate, branchname, transactionnarration, debitamount, creditamount, errorunabletoimport, bgorange])
+                            failedcount += 1
+                            dberrorcount += 1
+            else:
+                faileddata.append([postingdate, branchname, transactionnarration, '', '', catchheaderorfooter, bggrey])
+                headorfootcount += 1
+
+    count = successcount + failedcount
+    bodycount = datacount - headorfootcount
+    result = get_result(successcount, existscount, bodycount, dberrorcount, commadetectedcount)
+
+    return json_response(successcount,failedcount,faileddata,successdata,count,existscount,dberrorcount,commadetectedcount,headorfootcount,result)
+
 
 
 def RobinsonSavingsBank(request): 
@@ -35,7 +134,6 @@ def RobinsonSavingsBank(request):
     dberrorcount = 0
     successdata = []
     faileddata = []
-    
     
     # Iterate the rows
     for r in range(0, worksheet.nrows):
