@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from bank.models import Bank
 from bankrecon.models import Bankrecon
-from bankrecon.importexcel import RobinsonSavingsBank, UnionBank
+from bankrecon.importexcel import RobinsonSavingsBank, RobinsonSavingsBankDBF, UnionBank
 from bankaccount.models import Bankaccount
 from bankbranch.models import Bankbranch
 from bankaccounttype.models import Bankaccounttype
@@ -96,11 +96,11 @@ def upload(request):
                     'result': 4
                 })
         elif request.FILES['data_file'] \
-                and (request.FILES['data_file'].name.endswith('.xls') or request.FILES['data_file'].name.endswith('.xlsx')):
+                and (request.FILES['data_file'].name.endswith('.dbf') or request.FILES['data_file'].name.endswith('.xlsx')):
                 if request.FILES['data_file']._size < float(upload_size) * 1024 * 1024:
 
                     if request.POST['bank_account'] in ['15']:
-                        return RobinsonSavingsBank(request)
+                        return RobinsonSavingsBankDBF(request)
                     elif request.POST['bank_account'] in ['23']:
                         return UnionBank(request)
 
