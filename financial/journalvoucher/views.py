@@ -183,12 +183,11 @@ class CreateView(CreateView):
             yearqs = Jvmain.objects.filter(jvnum__startswith=year)
 
             if yearqs:
-                jvnumlast = yearqs.latest('jvnum')
-                latestjvnum = str(jvnumlast)
-                print "latest: " + latestjvnum
 
+                jvnumlast = lastNumber('true')
+                latestjvnum = str(jvnumlast[0])
                 jvnum = year
-                last = str(int(latestjvnum[4:]) + 1)
+                last = str(int(latestjvnum) + 1)
                 zero_addon = 6 - len(last)
                 for num in range(0, zero_addon):
                     jvnum += '0'
