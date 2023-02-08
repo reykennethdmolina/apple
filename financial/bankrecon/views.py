@@ -1460,12 +1460,12 @@ def fxsave(request):
     if request.method == 'POST':
         try:
             fxamount = str(request.POST['fx_amount']).replace(',', '')
-            # Subledger.objects.filter(id=request.POST['book_id']).update(
-            #     fxrate=float(request.POST['fx_rate']),
-            #     fxamount=float(fxamount),
-            #     modifyby_id=request.user.id, 
-            #     modifydate=datetime.datetime.now()
-            # )
+            Subledger.objects.filter(id=request.POST['book_id']).update(
+                fxrate=float(request.POST['fx_rate']),
+                fxamount=float(fxamount),
+                modifyby_id=request.user.id, 
+                modifydate=datetime.datetime.now()
+            )
             data = {'result': True}
         except:
             data = {'result': False}
