@@ -292,7 +292,7 @@ def UnionBankDBF(request):
                         successdata.append([transactiondate, branch, transactiondescription, debit, credit])
                         successcount += 1
                     except Exception as e:
-                        print e.message
+                        # print e.message
                         if debit.replace(' ', '').isalpha() or credit.replace(' ', '').isalpha() or endingbalance.replace(' ', '').isalpha():
                             faileddata.append([posteddate, branch, transactiondescription, '', '', catchheader, bggrey])
                             headorfootcount += 1
@@ -390,7 +390,7 @@ def UnionBank(request):
                     successdata.append([posteddate, branch, transactiondescription, debit, credit])
                     successcount += 1
                 except Exception as e:
-                    print e.message
+                    # print e.message
                     if debit.replace(' ', '').isalpha() or credit.replace(' ', '').isalpha() or endingbalance.replace(' ', '').isalpha():
                         faileddata.append([posteddate, branch, transactiondescription, '', '', catchheader, bggrey])
                         headorfootcount += 1

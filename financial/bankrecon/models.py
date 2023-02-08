@@ -9,7 +9,7 @@ from subledger.models import Subledger
 
 # Create your models here.
 class Bankrecon(models.Model):
-    tag = models.ForeignKey(Subledger, related_name='bankrecon_tag')
+    reference_number = models.CharField(max_length=50, null=True)
     bank = models.ForeignKey(Bank, related_name='bankrecon_bank')
     bankaccount = models.ForeignKey(Bankaccount, related_name='bankrecon_bankaccount')
     generatedkey = models.CharField(max_length=250)
