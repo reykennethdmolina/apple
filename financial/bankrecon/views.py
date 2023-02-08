@@ -1,7 +1,7 @@
 ''' Bankrecon Utility '''
 import datetime
 import hashlib
-import re
+import itertools
 from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -10,14 +10,14 @@ from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from bank.models import Bank
 from bankrecon.models import Bankrecon
-from bankrecon.importexcel import RobinsonSavingsBank, RobinsonSavingsBankDBF, UnionBank
+# from bankrecon.importexcel import RobinsonSavingsBank, RobinsonSavingsBankDBF, UnionBank, UnionBankDBF
 from bankaccount.models import Bankaccount
 from bankbranch.models import Bankbranch
 from bankaccounttype.models import Bankaccounttype
 from subledger.models import Subledger
 from currency.models import Currency
 from endless_pagination.views import AjaxListView
-from django.db.models import Q
+from django.db.models import Q, Sum
 from financial.utils import Render
 from django.utils import timezone
 from django.template.loader import get_template
@@ -78,9 +78,15 @@ def upload(request):
                     # 10-mb2
                 elif request.POST['bank_account'] in ['10']:
                     return MetroBank(request, columnlength=11)
+                    # 15-rs1
+                elif request.POST['bank_account'] in ['15']:
+                    return RobinsonSavingsBank(request, columnlength=13)
                     # 19-sb7, 22-sb9
                 elif request.POST['bank_account'] in ['19', '22']:
                     return SecurityBank(request, columnlength=6)
+                    # 23-ub2
+                elif request.POST['bank_account'] in ['23']:
+                    return UnionBank(request, columnlength=13)
                     # 32-ew1
                 elif request.POST['bank_account'] in ['32']:
                     return EastWestBank(request, columnlength=9)
@@ -95,19 +101,20 @@ def upload(request):
                 return JsonResponse({
                     'result': 4
                 })
-        elif request.FILES['data_file'] \
-                and (request.FILES['data_file'].name.endswith('.dbf') or request.FILES['data_file'].name.endswith('.xlsx')):
-                if request.FILES['data_file']._size < float(upload_size) * 1024 * 1024:
+        # elif request.FILES['data_file'] and (request.FILES['data_file'].name.endswith('.dbf')):
+        #         if request.FILES['data_file']._size < float(upload_size) * 1024 * 1024:
 
-                    if request.POST['bank_account'] in ['15']:
-                        return RobinsonSavingsBankDBF(request)
-                    elif request.POST['bank_account'] in ['23']:
-                        return UnionBank(request)
+        #             if request.POST['bank_account'] in ['15']:
+        #                 # 15-rs1
+        #                 return RobinsonSavingsBankDBF(request)
+        #             elif request.POST['bank_account'] in ['23']:
+        #                 # 23-ubs
+        #                 return UnionBankDBF(request)
 
-                else:
-                    return JsonResponse({
-                        'result': 4
-                    })
+        #         else:
+        #             return JsonResponse({
+        #                 'result': 4
+        #             })
         else:
             return JsonResponse({
                 'result': 5
@@ -454,6 +461,109 @@ def MetroBank(request, columnlength):
     return json_response(successcount,failedcount,faileddata,successdata,count,existscount,dberrorcount,commadetectedcount,headorfootcount,result)
 
 
+def RobinsonSavingsBank(request, columnlength):
+    csv_file = request.FILES["data_file"]
+    file_data = csv_file.read().decode("utf-8")
+    rows = file_data.split("\n")
+    
+    allowedemptyfield = 5
+    headorfootcount = 0
+    count = 0
+    successcount = 0
+    failedcount = 0
+    existscount = 0
+    commadetectedcount = 0
+    dberrorcount = 0
+    successdata = []
+    faileddata = []
+    fields = []
+    increment = 0
+    creditamount = '0.00'
+    debitamount = '0.00'
+
+    for row in rows:
+        
+        fields = row.split(",")
+        increment += 1
+        # validation
+        postingdate = fields[0] if fields[0] != '' else ''
+        valuedate = fields[1] if fields[1] != '' else ''
+        indicator = fields[3] if fields[3] != '' else ''
+        balance = fields[4] if fields[4] != '' else ''
+        transactionnarration = fields[5] if fields[5] != '' else ''
+        instrumentnumber = fields[6] if fields[6] != '' else ''
+        # accountno = fields[7] if fields[7] != '' else ''
+        # transactiondate = fields[8] if fields[8] != '' else ''
+        # transactioncategory = fields[9] if fields[9] != '' else ''
+        transactionid = fields[10] if fields[10] != '' else ''
+        branchname = fields[11] if fields[11] != '' else ''
+        remarks = fields[12] if fields[12] != '' else ''
+        
+        if fields.count('') <= allowedemptyfield:
+
+            if indicator == 'D':
+                debitamount = fields[2] if fields[2] != '' else '0.00'
+                creditamount = '0.00'
+            elif indicator == 'C':
+                creditamount = fields[2] if fields[2] != '' else '0.00'
+                debitamount = '0.00'
+            
+            if len(fields) == columnlength:
+                # Hash: transdate,particulars,debit,credit,balance
+                unique_description = str(transactionnarration) + '-seprtr-' + str(increment)
+                generatedkey = generate_hash_key(postingdate,unique_description,debitamount,creditamount,balance)
+
+                if Bankrecon.objects.filter(generatedkey=generatedkey, bankaccount_id=request.POST['bank_account'], bank_id=request.POST['bank_id']).exists():
+                    faileddata.append([postingdate, "", transactionnarration, debitamount, creditamount, dataexists, bgblue])
+                    failedcount += 1
+                    existscount += 1
+                else:
+                    try:
+                        postingdate = datetime.datetime.strptime(str(postingdate), '%d/%m/%Y').strftime('%Y-%m-%d')
+                        Bankrecon.objects.create(
+                            bank_id=request.POST['bank_id'],
+                            bankaccount_id=request.POST['bank_account'],
+                            generatedkey=generatedkey,
+                            transaction_date=postingdate,
+                            posting_date=postingdate,
+                            branch=str(branchname),
+                            particulars=str(transactionnarration),
+                            debit_amount=Decimal(debitamount),
+                            credit_amount=Decimal(creditamount),
+                            balance_amount=Decimal(balance),
+                            checknumber=str(instrumentnumber),
+                            transactioncode = str(transactionid),
+                            remarks=str(remarks)
+                        )
+                        successdata.append([postingdate, "", transactionnarration, debitamount, creditamount])
+                        successcount += 1
+                    except:
+                        if debitamount.replace(' ', '').isalpha() or creditamount.replace(' ', '').isalpha() or balance.replace(' ', '').isalpha():
+                            faileddata.append([postingdate, "", transactionnarration, '', '', catchheader, bggrey])
+                            headorfootcount += 1
+                        elif not is_date(postingdate):
+                            faileddata.append([postingdate, "", transactionnarration, '', '', catchheaderorfooter, bggrey])
+                            headorfootcount += 1
+                        else:
+                            # can be special characters detected. - enye
+                            faileddata.append([postingdate, "", transactionnarration, debitamount, creditamount, errorunabletoimport, bgorange])
+                            failedcount += 1
+                            dberrorcount += 1
+            else: 
+                faileddata.append([postingdate, "", transactionnarration, debitamount, creditamount, errorcommaorcolumnexceeded + str(columnlength), bgyellow])
+                failedcount += 1
+                commadetectedcount += 1
+        else:
+            faileddata.append([postingdate, "", transactionnarration, '', '', catchheaderorfooter, bggrey])
+            headorfootcount += 1
+    
+    count = successcount + failedcount
+    bodycount = len(rows) - headorfootcount
+    result = get_result(successcount, existscount, bodycount, dberrorcount, commadetectedcount)
+
+    return json_response(successcount,failedcount,faileddata,successdata,count,existscount,dberrorcount,commadetectedcount,headorfootcount,result)
+
+
 # Posting Date, Transaction Description, Credit Amount, Debit Amount, Running Balance, Narrative
 def SecurityBank(request, columnlength):
     csv_file = request.FILES["data_file"]
@@ -531,6 +641,102 @@ def SecurityBank(request, columnlength):
                 commadetectedcount += 1
         else:
             faileddata.append([postingdate, "", transactiondescription, '', '', catchheaderorfooter, bggrey])
+            headorfootcount += 1
+    
+    count = successcount + failedcount
+    bodycount = len(rows) - headorfootcount
+    result = get_result(successcount, existscount, bodycount, dberrorcount, commadetectedcount)
+
+    return json_response(successcount,failedcount,faileddata,successdata,count,existscount,dberrorcount,commadetectedcount,headorfootcount,result)
+
+
+def UnionBank(request, columnlength):
+    csv_file = request.FILES["data_file"]
+    file_data = csv_file.read().decode("utf-8")
+    rows = file_data.split("\n")
+    
+    allowedemptyfield = 32
+    headorfootcount = 0
+    count = 0
+    successcount = 0
+    failedcount = 0
+    existscount = 0
+    commadetectedcount = 0
+    dberrorcount = 0
+    successdata = []
+    faileddata = []
+    fields = []
+    increment = 0
+
+    for row in rows:
+        
+        fields = row.split(",")
+        increment += 1
+        # validation
+        transactiondate = fields[0] if fields[0] != '' else ''
+        posteddate = fields[1] if fields[1] != '' else ''
+        transactionid = fields[2] if fields[2] != '' else ''
+        transactiondescription = fields[3] if fields[3] != '' else ''
+        checknumber = fields[4] if fields[4] != '' else ''
+        debit = fields[5] if isinstance(fields[5], float) else '0.00'
+        credit = fields[6] if isinstance(fields[6], float) else '0.00'
+        endingbalance = fields[7] if fields[7] != '' else '0.00'
+        referencenumber = fields[8] if fields[8] != '' else ''
+        remarks = fields[9] if fields[9] != '' else ''
+        # remarks1 = fields[10] if fields[10] != '' else ''
+        # remarks2 = fields[11] if fields[11] != '' else ''
+        branch = fields[12] if fields[12] != '' else ''
+
+        if fields.count('') <= allowedemptyfield:
+            
+            # Hash: transdate,particulars,debit,credit,balance
+            unique_description = str(transactiondescription) + '-seprtr-' + str(increment)
+            generatedkey = generate_hash_key(transactiondescription,unique_description,debit,credit,endingbalance)
+
+            if Bankrecon.objects.filter(generatedkey=generatedkey, bankaccount_id=request.POST['bank_account'], bank_id=request.POST['bank_id']).exists():
+                faileddata.append([transactiondate, branch, transactiondescription, debit, credit, dataexists, bgblue])
+                failedcount += 1
+                existscount += 1
+            else:
+                try:
+                    transactiondate = transactiondate.split('T')[0]
+                    transactiondate = datetime.datetime.strptime(str(transactiondate), '%Y-%m-%d').strftime('%Y-%m-%d')
+
+                    pdate = posteddate.split('T')[0]
+                    pdate = datetime.datetime.strptime(str(pdate), '%Y-%m-%d').strftime('%Y-%m-%d')
+                    Bankrecon.objects.create(
+                        bank_id=request.POST['bank_id'],
+                        bankaccount_id=request.POST['bank_account'],
+                        generatedkey=generatedkey,
+                        transaction_date=transactiondate,
+                        posting_date=pdate,
+                        branch=str(branch),
+                        particulars=str(transactiondescription),
+                        debit_amount=Decimal(debit),
+                        credit_amount=Decimal(credit),
+                        balance_amount=Decimal(endingbalance),
+                        checknumber=str(checknumber),
+                        transactioncode = str(transactionid),
+                        refno=str(referencenumber),
+                        remarks=str(remarks)
+                    )
+                    successdata.append([posteddate, branch, transactiondescription, debit, credit])
+                    successcount += 1
+                except Exception as e:
+                    # print e.message
+                    if debit.replace(' ', '').isalpha() or credit.replace(' ', '').isalpha() or endingbalance.replace(' ', '').isalpha():
+                        faileddata.append([posteddate, branch, transactiondescription, '', '', catchheader, bggrey])
+                        headorfootcount += 1
+                    elif not is_date(posteddate):
+                        faileddata.append([posteddate, "", transactiondescription, '', '', catchheaderorfooter, bggrey])
+                        headorfootcount += 1
+                    else:
+                        # can be special characters detected. - enye or date format conflict.
+                        faileddata.append([posteddate, branch, transactiondescription, debit, credit, errorunabletoimport, bgorange])
+                        failedcount += 1
+                        dberrorcount += 1
+        else:
+            faileddata.append([posteddate, branch, transactiondescription, '', '', catchheaderorfooter, bggrey])
             headorfootcount += 1
     
     count = successcount + failedcount
@@ -869,14 +1075,13 @@ def transgenerate(request):
     dto = request.GET["dto"]
     document_type = request.GET["document_type"]
     bankaccount_id = request.GET["bankaccount"]
-    autoadd = request.GET["autoadd"]
-
+    
     cashinbank_id = Companyparameter.objects.filter(code='PDI').values('coa_cashinbank_id')
     pdi_data = Subledger.objects.filter(\
         bankaccount_id=bankaccount_id, \
         chartofaccount_id=cashinbank_id, \
         document_date__range=[dfrom, dto]\
-    ).values('id', 'document_type', 'document_num', 'document_date', 'balancecode', 'amount', 'fxrate', 'fxamount', 'particulars').order_by('document_date')
+    ).values('id', 'reference_number', 'document_type', 'document_num', 'document_date', 'balancecode', 'amount', 'fxrate', 'fxamount', 'document_checknum', 'document_branch_id', 'particulars').order_by('document_date')
 
     if document_type != '':
         pdi_data = pdi_data.filter(document_type=document_type)
@@ -884,95 +1089,288 @@ def transgenerate(request):
     bank_data = Bankrecon.objects.filter(\
         bankaccount_id=bankaccount_id, \
         transaction_date__range=[dfrom, dto]\
-    ).values('id', 'tag_id', 'transaction_date', 'debit_amount', 'credit_amount', 'particulars').order_by('transaction_date')
+    ).values('id', 'reference_number', 'transaction_date', 'debit_amount', 'credit_amount', 'branch', 'checknumber', 'particulars', 'transactioncode').order_by('transaction_date')
 
     bankdebit_total = 0
     bankcredit_total = 0
     pdidebit_total = 0
     pdicredit_total = 0
-    sorted_dailysum = []
-    daily_documentdate = []
+    sorted_book_dailysum = []
+    sorted_bank_dailysum = []
+    sorted_pdi_data = []
+    sorted_bank_data = []
+    posted_with_subtotal = []
+    bank_posted_with_subtotal = []
     # 5-bd5
     foreign_currencyaccounts = ['5']
     is_currency_peso = 1
     
-    for i, pdi in enumerate(pdi_data):
-        if pdi['balancecode'] == 'D':
-            if bankaccount_id in foreign_currencyaccounts:
-                pdidebit_total = pdidebit_total + pdi['fxamount']
-            else:
-                pdidebit_total = pdidebit_total + pdi['amount']
-        elif pdi['balancecode'] == 'C':
-            if bankaccount_id in foreign_currencyaccounts:
-                pdicredit_total = pdicredit_total + pdi['fxamount']
-            else:
-                pdicredit_total = pdicredit_total + pdi['amount']
-
-        if bank_data.filter(tag_id=pdi['id']).exists():
-            pdi_data[i]['id'] = str(pdi['id']) + ' matched'
-
     if bankaccount_id in foreign_currencyaccounts:
         is_currency_peso = 0
-        for b, bank in enumerate(bank_data):
-            
-            bankdebit_total = bankdebit_total + bank['debit_amount']
-            bankcredit_total = bankcredit_total + bank['credit_amount']
+        sorted_pdi_data = pdi_data
+        sorted_bank_data = bank_data
 
-            for p, pdi in enumerate(pdi_data):
-                if ((bank['debit_amount'] != Decimal(0.00) and bank['debit_amount'] == pdi['fxamount'])\
-                    or (bank['credit_amount'] != Decimal(0.00) and bank['credit_amount'] == pdi['fxamount'])) \
-                    and (bank['tag_id'] is None):
-                    if re.search('[a-zA-Z]', str(pdi['id'])):
-                        pdi['id'] = str(pdi['id']).split(' ')[0]
-                        
-                    bank_data[b]['tag_id'] = pdi['id']
-                    pdi_data[p]['id'] = str(pdi['id']) + ' matched'
-                    break
-    elif document_type == 'OR' and autoadd == 'true':
+        for bank in bank_data:
+            bankdebit_total += bank['debit_amount']
+            bankcredit_total += bank['credit_amount']
+
+        for pdi in pdi_data:
+            if pdi['balancecode'] == 'D':
+                pdidebit_total += pdi['fxamount']
+            elif pdi['balancecode'] == 'C':
+                pdicredit_total += pdi['fxamount']
+        
+    else:
         dates = list(set([docdate['document_date'] for docdate in pdi_data]))
         for date in dates:
-            sorted_dailysum.append(sum_daily_amount(date, pdi_data))
-        
-        for b, bank in enumerate(bank_data):
-            bankdebit_total = bankdebit_total + bank['debit_amount']
-            bankcredit_total = bankcredit_total + bank['credit_amount']
-            for p, pdi in enumerate(pdi_data):
-                
-                if (bank['debit_amount'] == pdi['amount'] or bank['credit_amount'] == pdi['amount']) \
-                    and (bank['tag_id'] is None):
-                    if re.search('[a-zA-Z]', str(pdi['id'])):
-                        pdi['id'] = str(pdi['id']).split(' ')[0]
-                        
-                    bank_data[b]['tag_id'] = pdi['id']
-                    pdi_data[p]['id'] = str(pdi['id']) + ' matched'
-                    break
-                elif bank['credit_amount'] != Decimal('0.00'):
-                    if any([bank['credit_amount'], pdi_data[p]['document_date']] == dailysum for dailysum in sorted_dailysum) \
-                        and bank_data[b]['tag_id'] is None:
-                        bank_data[b]['tag_id'] = 'Total daily sum of ' + str(pdi['document_date'])
-                        daily_documentdate.append(str(pdi['document_date']))
-                        break
-                elif bank['debit_amount'] != Decimal('0.00'):
-                    if any([bank['debit_amount'], pdi_data[p]['document_date']] == dailysum for dailysum in sorted_dailysum) \
-                        and bank_data[b]['tag_id'] is None:
-                        bank_data[b]['tag_id'] = 'Total daily sum of ' + str(pdi['document_date'])
-                        daily_documentdate.append(str(pdi['document_date']))
-                        break
-    else:
-        for b, bank in enumerate(bank_data):
-            
-            bankdebit_total = bankdebit_total + bank['debit_amount']
-            bankcredit_total = bankcredit_total + bank['credit_amount']
+            sorted_book_dailysum.append(sum_daily_amount(date, pdi_data))
 
-            for p, pdi in enumerate(pdi_data):
-                if (bank['debit_amount'] == pdi['amount'] or bank['credit_amount'] == pdi['amount']) \
-                    and (bank['tag_id'] is None):
-                    if re.search('[a-zA-Z]', str(pdi['id'])):
-                        pdi['id'] = str(pdi['id']).split(' ')[0]
-                        
-                    bank_data[b]['tag_id'] = pdi['id']
-                    pdi_data[p]['id'] = str(pdi['id']) + ' matched'
-                    break
+        bank_dates = list(set([transdate['transaction_date'] for transdate in bank_data]))
+        for bank_date in bank_dates:
+            sorted_bank_dailysum.append(bank_sum_daily_amount(bank_date, bank_data))
+        
+        # AP, CV, JV, OR
+        if document_type != '':
+
+            # process book daily sum, total, and separate data with refno
+            book_iterator = 0
+            with_refno = []
+            for data in pdi_data:
+
+                # totals
+                if data['balancecode'] == 'D':
+                    pdidebit_total += data['amount']
+                elif data['balancecode'] == 'C':
+                    pdicredit_total += data['amount']
+
+                # sorting
+                if data['reference_number']:
+                    # separate data with refno
+                    with_refno.append(data)
+                    # pdi_data = pdi_data.exclude(pk=data['id'])
+
+                else:
+                    # process book daily sum
+                    book_iterator += 1
+                    sorted_pdi_data.append(data)
+                    for dailysum in sorted_book_dailysum:
+                        if data['document_date'] == dailysum['date'] and dailysum['count'] == book_iterator:
+                            sorted_pdi_data.append({
+                                'balancecode': 'subtotal',
+                                'count': dailysum['count'],
+                                'date': dailysum['date'],
+                                'type': data['document_type'],
+                                'debit_amount': dailysum['debit_amount'],
+                                'credit_amount': dailysum['credit_amount']
+                            })
+                            book_iterator = 0
+
+            # book process refno
+            # sorted_pdi_data = pdi_data
+            with_refno = sorted(with_refno)
+            with_refno.sort(key=takeRefNo)
+            
+            iterator = 0
+            increment = 0
+            length = len(with_refno)
+            advance_check = 0
+            posted_debit = 0
+            posted_credit = 0
+            for i,data in enumerate(with_refno):
+                iterator += 1
+                increment += 1
+                
+                if data['balancecode'] == 'D':
+                    posted_debit += data['amount']
+                elif data['balancecode'] == 'C':
+                    posted_credit += data['amount']
+
+                advance_check = i + 1
+                if increment != length and data['reference_number'] == with_refno[advance_check]['reference_number']:
+                    posted_with_subtotal.append(data)
+                else:
+                    posted_with_subtotal.append(data)
+                    posted_with_subtotal.append({
+                        'balancecode': 'subtotal',
+                        'count': iterator,
+                        'debit_amount': posted_debit,
+                        'credit_amount': posted_credit
+                    })
+
+                    # compute the total sum then re-initiate
+                    posted_debit = 0
+                    posted_credit = 0
+                    iterator = 0
+                
+            # process bank daily sum, total, and exclude with refno
+            bank_iterator = 0
+            bank_with_refno = []
+            for b in bank_data:
+                # totals
+                bankdebit_total += b['debit_amount']
+                bankcredit_total += b['credit_amount']
+
+                # sorting
+                if b['reference_number']:
+                    bank_with_refno.append(b)
+                    
+                else:
+                    # process bank daily sum
+                    bank_iterator += 1
+                    sorted_bank_data.append(b)
+                    for bank_dailysum in sorted_bank_dailysum:
+                        if b['transaction_date'] == bank_dailysum['date'] and bank_dailysum['count'] == bank_iterator:
+                            sorted_bank_data.append({
+                                'transactioncode': 'subtotal',
+                                'count': bank_dailysum['count'],
+                                'date': bank_dailysum['date'],
+                                'debit_amount': bank_dailysum['debit_amount'],
+                                'credit_amount': bank_dailysum['credit_amount']
+                            })
+                            bank_iterator = 0
+            # bank process refno  
+            # sorted_bank_data = bank_data
+            bank_with_refno = sorted(bank_with_refno)
+            bank_with_refno.sort(key=takeRefNo)
+
+            iterator = 0
+            increment = 0
+            length = len(bank_with_refno)
+            advance_check = 0
+            posted_debit = 0
+            posted_credit = 0
+            for i,bank_refno in enumerate(bank_with_refno):
+                iterator += 1
+                increment += 1
+
+                posted_debit += bank_refno['debit_amount']
+                posted_credit += bank_refno['credit_amount']
+
+                advance_check = i + 1
+                if increment != length and bank_refno['reference_number'] == bank_with_refno[advance_check]['reference_number']:
+                    bank_posted_with_subtotal.append(bank_refno)
+                else:
+                    bank_posted_with_subtotal.append(bank_refno)
+                    bank_posted_with_subtotal.append({
+                        'transactioncode': 'subtotal',
+                        'count': iterator,
+                        'debit_amount': posted_debit,
+                        'credit_amount': posted_credit
+                    })
+
+                    # compute the total sum then re-initiate
+                    posted_debit = 0
+                    posted_credit = 0
+                    iterator = 0
+
+        else:
+            # all doc type
+
+            # process book daily sum, total, and exclude with refno
+            book_iterator = 0
+            with_refno = []
+            for data in pdi_data:
+
+                # totals
+                if data['balancecode'] == 'D':
+                    pdidebit_total += data['amount']
+                elif data['balancecode'] == 'C':
+                    pdicredit_total += data['amount']
+
+                # sorting
+                if data['reference_number']:
+                    # exclude with refno
+                    with_refno.append(data)
+                    # pdi_data = pdi_data.exclude(pk=data['id'])
+                else:
+                    sorted_pdi_data.append(data)
+
+            # book process refno
+            # sorted_pdi_data = pdi_data
+            with_refno = sorted(with_refno)
+            with_refno.sort(key=takeRefNo)
+            
+            iterator = 0
+            increment = 0
+            length = len(with_refno)
+            advance_check = 0
+            posted_debit = 0
+            posted_credit = 0
+            for i,data in enumerate(with_refno):
+                iterator += 1
+                increment += 1
+                
+                if data['balancecode'] == 'D':
+                    posted_debit += data['amount']
+                elif data['balancecode'] == 'C':
+                    posted_credit += data['amount']
+
+                advance_check = i + 1
+                if increment != length and data['reference_number'] == with_refno[advance_check]['reference_number']:
+                    posted_with_subtotal.append(data)
+                else:
+                    posted_with_subtotal.append(data)
+                    posted_with_subtotal.append({
+                        'balancecode': 'subtotal',
+                        'count': iterator,
+                        'debit_amount': posted_debit,
+                        'credit_amount': posted_credit
+                    })
+
+                    # compute the total sum then re-initiate
+                    posted_debit = 0
+                    posted_credit = 0
+                    iterator = 0
+
+            # process bank daily sum, total, and exclude with refno
+            bank_iterator = 0
+            bank_with_refno = []
+            for b in bank_data:
+                # totals
+                bankdebit_total += b['debit_amount']
+                bankcredit_total += b['credit_amount']
+
+                # sorting
+                if b['reference_number']:
+                    bank_with_refno.append(b)
+                    # bank_data = bank_data.exclude(pk=b['id'])
+            
+                else:
+                    sorted_bank_data.append(b)
+
+            # bank process refno  
+            bank_with_refno = sorted(bank_with_refno)
+            bank_with_refno.sort(key=takeRefNo)
+
+            iterator = 0
+            increment = 0
+            length = len(bank_with_refno)
+            advance_check = 0
+            posted_debit = 0
+            posted_credit = 0
+            for i,bank_refno in enumerate(bank_with_refno):
+                iterator += 1
+                increment += 1
+
+                posted_debit += bank_refno['debit_amount']
+                posted_credit += bank_refno['credit_amount']
+
+                advance_check = i + 1
+                if increment != length and bank_refno['reference_number'] == bank_with_refno[advance_check]['reference_number']:
+                    bank_posted_with_subtotal.append(bank_refno)
+                else:
+                    bank_posted_with_subtotal.append(bank_refno)
+                    bank_posted_with_subtotal.append({
+                        'transactioncode': 'subtotal',
+                        'count': iterator,
+                        'debit_amount': posted_debit,
+                        'credit_amount': posted_credit
+                    })
+
+                    # compute the total sum then re-initiate
+                    posted_debit = 0
+                    posted_credit = 0
+                    iterator = 0
                   
     viewhtml = ''
     context = {}
@@ -983,17 +1381,18 @@ def transgenerate(request):
         'bankcredit_total': bankcredit_total,
         'pdidebit_total': pdidebit_total,
         'pdicredit_total': pdicredit_total,
-        'daily_documentdate': daily_documentdate,
         'is_currency_peso': is_currency_peso
     }
-
+    
     context['transdfrom'] = dfrom
     context['transdto'] = dto
     context['record'] = record
-    context['pdi_data'] = pdi_data
-    context['bank_data'] = bank_data
+    context['pdi_data'] = sorted_pdi_data
+    context['bank_data'] = sorted_bank_data
+    context['posted_with_subtotal'] = posted_with_subtotal
+    context['bank_posted_with_subtotal'] = bank_posted_with_subtotal
     viewhtml = render_to_string('bankrecon/transaction_result.html', context)
-
+    
     data = {
         'status': 'success',
         'viewhtml': viewhtml
@@ -1001,26 +1400,59 @@ def transgenerate(request):
     return JsonResponse(data)
 
 
+# take second element for sort
+def takeRefNo(elem):
+    return elem['reference_number']
+
 def sum_daily_amount(date, pdi_data):
-    a = 0.00
+    debit_amount = 0.00
+    credit_amount = 0.00
+    i = 0
     for each in pdi_data:
         if date == each['document_date'] and str(each['id']).isdigit():
-            a += float(each['amount'])
-    return [a,date]
+            i += 1
+            if each['balancecode'] == 'D':
+                debit_amount += float(each['amount'])
+            elif each['balancecode'] == 'C':
+                credit_amount += float(each['amount'])
+
+    return {
+        'count': i, 
+        'debit_amount': debit_amount,
+        'credit_amount': credit_amount,
+        'date': date
+    }
+
+def bank_sum_daily_amount(date, bank_data):
+    debit_amount = 0.00
+    credit_amount = 0.00
+    i = 0
+    for each in bank_data:
+        if date == each['transaction_date'] and str(each['id']).isdigit():
+            i += 1
+            debit_amount += float(each['debit_amount'])
+            credit_amount += float(each['credit_amount'])
+
+    return {
+        'count': i, 
+        'debit_amount': debit_amount,
+        'credit_amount': credit_amount,
+        'date': date
+    }
 
 
-@csrf_exempt
-def tagging(request):
-    if request.method == 'POST':
-        try:
-            Bankrecon.objects.filter(id=request.POST['bank_id']).update(tag_id=request.POST['tag_id'], modifyby_id=request.user.id, modifydate=datetime.datetime.now())
-            data = {'result': True}
-        except:
-            data = {'result': False}
-    else:
-        data = {'result': False}
+# @csrf_exempt
+# def tagging(request):
+#     if request.method == 'POST':
+#         try:
+#             Bankrecon.objects.filter(id=request.POST['bank_id']).update(tag_id=request.POST['tag_id'], modifyby_id=request.user.id, modifydate=datetime.datetime.now())
+#             data = {'result': True}
+#         except:
+#             data = {'result': False}
+#     else:
+#         data = {'result': False}
 
-    return JsonResponse(data)
+#     return JsonResponse(data)
 
 
 @csrf_exempt
@@ -1028,7 +1460,7 @@ def fxsave(request):
     if request.method == 'POST':
         try:
             fxamount = str(request.POST['fx_amount']).replace(',', '')
-            Subledger.objects.filter(id=request.POST['tag_id']).update(
+            Subledger.objects.filter(id=request.POST['book_id']).update(
                 fxrate=float(request.POST['fx_rate']),
                 fxamount=float(fxamount),
                 modifyby_id=request.user.id, 
@@ -1047,9 +1479,9 @@ def fxsave(request):
 def reportxls(request):
     if request.method == 'POST':
         try:
-            bank_account = request.POST['report_bank_account']
-            date_from = request.POST['report_date_from']
-            date_to = request.POST['report_date_to']
+            bank_account = str(request.POST['report_bank_account'])
+            date_from = str(request.POST['report_date_from'])
+            date_to = str(request.POST['report_date_to'])
             currency_details = json.loads(request.POST.getlist('report_currency_details')[0])
             book_data = json.loads(request.POST.getlist('report_book_data')[0])
             bank_data = json.loads(request.POST.getlist('report_bank_data')[0])
@@ -1059,7 +1491,7 @@ def reportxls(request):
             bankdebit_total = request.POST['report_bankdebit_total']
             bankcredit_total = request.POST['report_bankcredit_total']
 
-            title = bank_account + " from " + date_from + " to " + date_to
+            title = "Bank Recon for " + bank_account.split('-')[0] + " from " + date_from + " to " + date_to
             response = HttpResponse(content_type='application/ms-excel')
             response['Content-Disposition'] = 'attachment; filename="' + title + '.xls"'
 
@@ -1073,9 +1505,9 @@ def reportxls(request):
             
             if currency_details:
                 if currency_details['name'] == 'USD':
-                    bookcolumns = ['', 'Date', 'Tag ID', 'Document Type', 'Document Number', 'Particulars', 'Debit (USD)', 'Credit (USD)', 'Debit (PHP)', 'Credit (PHP)']
+                    bookcolumns = ['', 'Date', 'Doc. Type', 'Doc. No.', 'Particulars', 'Debit (USD)', 'Credit (USD)', 'Debit (PHP)', 'Credit (PHP)', 'Ref. No.', 'Check No.']
             else:
-                bookcolumns = ['', 'Date', 'Tag ID', 'Document Type', 'Document Number', 'Particulars', 'Debit', 'Credit']
+                bookcolumns = ['', 'Date', 'Doc. Type', 'Doc. No.', 'Particulars', 'Debit', 'Credit', 'Ref. No.', 'Check No.']
 
             for col_num in range(len(bookcolumns)):
                 ws.write(row_num, col_num, bookcolumns[col_num], font_style)
@@ -1088,30 +1520,32 @@ def reportxls(request):
                         row_num +=1
                         ws.write(row_num, 0, row_num, font_style)
                         ws.write(row_num, 1, row['date'], font_style)
-                        ws.write(row_num, 2, row['tag_id'], font_style)
-                        ws.write(row_num, 3, row['doc_type'], font_style)
-                        ws.write(row_num, 4, row['doc_num'], font_style)
-                        ws.write(row_num, 5, row['particulars'], font_style)
-                        ws.write(row_num, 6, row['debit_dollar'], horiz_right)
-                        ws.write(row_num, 7, row['credit_dollar'], horiz_right)
-                        ws.write(row_num, 8, row['debit_php'], horiz_right)
-                        ws.write(row_num, 9, row['credit_php'], horiz_right)
+                        ws.write(row_num, 2, row['doc_type'], font_style)
+                        ws.write(row_num, 3, row['doc_num'], font_style)
+                        ws.write(row_num, 4, row['particulars'], font_style)
+                        ws.write(row_num, 5, row['debit_dollar'], horiz_right)
+                        ws.write(row_num, 6, row['credit_dollar'], horiz_right)
+                        ws.write(row_num, 7, row['debit_php'], horiz_right)
+                        ws.write(row_num, 8, row['credit_php'], horiz_right)
+                        ws.write(row_num, 9, row['reference_number'], font_style)
+                        ws.write(row_num, 10, row['check_number'], font_style)
             else:
                 for row in list(book_data):
                     row_num +=1
                     ws.write(row_num, 0, row_num, font_style)
                     ws.write(row_num, 1, row['date'], font_style)
-                    ws.write(row_num, 2, row['tag_id'], font_style)
-                    ws.write(row_num, 3, row['doc_type'], font_style)
-                    ws.write(row_num, 4, row['doc_num'], font_style)
-                    ws.write(row_num, 5, row['particulars'], font_style)
-                    ws.write(row_num, 6, row['debit'], horiz_right)
-                    ws.write(row_num, 7, row['credit'], horiz_right)
+                    ws.write(row_num, 2, row['doc_type'], font_style)
+                    ws.write(row_num, 3, row['doc_num'], font_style)
+                    ws.write(row_num, 4, row['particulars'], font_style)
+                    ws.write(row_num, 5, row['debit'], horiz_right)
+                    ws.write(row_num, 6, row['credit'], horiz_right)
+                    ws.write(row_num, 7, row['reference_number'], font_style)
+                    ws.write(row_num, 8, row['check_number'], font_style)
 
-            row_num +=2
-            ws.write(row_num, 5, "Total:", font_style)
-            ws.write(row_num, 6, bookdebit_total, horiz_right)
-            ws.write(row_num, 7, bookcredit_total, horiz_right)
+            row_num += 2
+            ws.write(row_num, 4, "Total:", font_style)
+            ws.write(row_num, 5, bookdebit_total, horiz_right)
+            ws.write(row_num, 6, bookcredit_total, horiz_right)
 
             ws = wb.add_sheet('Bank')
 
@@ -1119,7 +1553,7 @@ def reportxls(request):
             font_style = xlwt.XFStyle()
             font_style.font.bold=True
 
-            bankcolumns = ['', 'Date', 'Tag ID', 'Particulars', 'Debit', 'Credit']
+            bankcolumns = ['', 'Date', 'Doc. Type', 'Doc. No.', 'Particulars', 'Debit', 'Credit', 'Ref. No.', 'Check No.']
 
             for col_num in range(len(bankcolumns)):
                 ws.write(row_num, col_num, bankcolumns[col_num], font_style)
@@ -1130,15 +1564,18 @@ def reportxls(request):
                 row_num +=1
                 ws.write(row_num, 0, row_num, font_style)
                 ws.write(row_num, 1, row['date'], font_style)
-                ws.write(row_num, 2, row['tag_id'], font_style)
-                ws.write(row_num, 3, row['particulars'], font_style)
-                ws.write(row_num, 4, row['debit'], horiz_right)
-                ws.write(row_num, 5, row['credit'], horiz_right)
+                ws.write(row_num, 2, row['doc_type'], font_style)
+                ws.write(row_num, 3, row['doc_num'], font_style)
+                ws.write(row_num, 4, row['particulars'], font_style)
+                ws.write(row_num, 5, row['debit'], horiz_right)
+                ws.write(row_num, 6, row['credit'], horiz_right)
+                ws.write(row_num, 7, row['reference_number'], font_style)
+                ws.write(row_num, 8, row['check_number'], font_style)
 
             row_num +=2
-            ws.write(row_num, 3, "Total:", font_style)
-            ws.write(row_num, 4, bankdebit_total, horiz_right)
-            ws.write(row_num, 5, bankcredit_total, horiz_right)
+            ws.write(row_num, 4, "Total:", font_style)
+            ws.write(row_num, 5, bankdebit_total, horiz_right)
+            ws.write(row_num, 6, bankcredit_total, horiz_right)
             
             wb.save(response)
             return response
@@ -1200,3 +1637,47 @@ def savemanualentry(request):
         'datacount': successcount + failedcount
     })
 
+
+@csrf_exempt
+def savebatchpostingbook(request):
+    form_data = json.loads(request.POST.getlist('data')[0])
+    successcount = 0
+    failedcount = 0
+
+    for data in form_data:
+        
+        try:
+            trans = Subledger.objects.filter(pk=data['id'])
+            if trans[0].reference_number != data['refno']:
+                trans.update(reference_number=data['refno'], \
+                    modifyby_id=request.user.id, modifydate=datetime.datetime.now())
+
+                successcount += 1
+        except:
+            failedcount += 1
+
+    return JsonResponse({
+        'success_count': successcount,
+        'failed_count': failedcount
+    })
+
+
+@csrf_exempt
+def savebatchpostingbank(request):
+    form_data = json.loads(request.POST.getlist('data')[0])
+    successcount = 0
+    failedcount = 0
+
+    for data in form_data:
+        try:
+            Bankrecon.objects.filter(id=data['id'])\
+                .update(reference_number=data['refno'], \
+                    modifyby_id=request.user.id, modifydate=datetime.datetime.now())
+            successcount += 1
+        except:
+            failedcount += 1
+
+    return JsonResponse({
+        'success_count': successcount,
+        'failed_count': failedcount
+    })
