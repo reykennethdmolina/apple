@@ -591,7 +591,7 @@ class Pdf(PDFTemplateView):
 
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
-        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+        context['logo'] = "https://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
         printedcv = Cvmain.objects.get(pk=self.kwargs['pk'])
         printedcv.print_ctr += 1
@@ -3100,7 +3100,7 @@ def exportsave(request):
             try:
                 cvnumlast = Cvmain.objects.all().latest('cvnum')
                 latestcvnum = str(cvnumlast)
-                print latestcvnum
+                #print latestcvnum
                 if latestcvnum[0:4] == str(datetime.datetime.now().year):
                     cvnum = str(datetime.datetime.now().year)
                     last = str(int(latestcvnum[4:]) + 1)
@@ -3117,6 +3117,7 @@ def exportsave(request):
 
             bankacct = 22  # SB9
             confi = 0
+            print apdata.ap_num
             if apdata.apmain.confi == 1:
                 bankacct = 19 # SB7
                 confi = 1
