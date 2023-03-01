@@ -200,6 +200,7 @@ class CreateView(CreateView):
                         status='A').code
                     detail.quantity = self.request.POST.getlist('temp_quantity')[i - 1]
                     detail.unitcost = self.request.POST.getlist('temp_unitcost')[i - 1]
+                    print self.request.POST.getlist('temp_unitcost')[i - 1]
                     detail.discountrate = self.request.POST.getlist('temp_discountrate')[i - 1] if self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else 0
                     detail.remarks = self.request.POST.getlist('temp_remarks')[i - 1]
                     detail.status = dt.status
@@ -224,7 +225,9 @@ class CreateView(CreateView):
                     detail.currency = dt.currency
 
                     grossUnitCost = float(detail.unitcost) / (1 + (float(detail.vatrate) / 100))
+                    print grossUnitCost
                     detail.grossamount = grossUnitCost * float(detail.quantity)
+                    print detail.grossamount
                     detail.discountamount = detail.grossamount * float(detail.discountrate) / 100 if self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(self.request.POST.getlist('temp_discountamount')[i - 1])
                     discountedAmount = detail.grossamount - detail.discountamount
 
@@ -251,7 +254,7 @@ class CreateView(CreateView):
                     detail.vatexempt = self.request.POST.getlist('hdn_tblVatExempt')[i - 1]
                     detail.vatzerorated = self.request.POST.getlist('hdn_tblZeroRated')[i - 1]
                     detail.vatamount = self.request.POST.getlist('hdn_tblAddedVat')[i - 1]
-                    detail.netamount = float(detail.vatable) + float(detail.vatexempt) + float(detail.vatzerorated) + float(detail.vatamount)
+                    detail.netamount = self.request.POST.getlist('hdn_tblNetAmount')[i - 1]
 
                     # replaced the computed values with values provided by user on screens
 
