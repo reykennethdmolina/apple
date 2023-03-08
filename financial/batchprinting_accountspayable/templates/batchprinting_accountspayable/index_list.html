@@ -39,13 +39,13 @@
                 <tbody>
                     {% for data in ap_data %}
                         {% if not user.is_superuser and data.confi == 1 and data.enterby_id != user.id %}
-                            <tr>
+                            <!-- <tr>
                                 <td></td>
-                                <td>{{ data.id }}</td>
-                                <td>{{ data.apnum }}</td>
-                                <td>{{ data.apdate|date:'Y-m-d' }}</td>
+                                <td> data.id </td>
+                                <td> data.apnum </td>
+                                <td> data.apdate|date:'Y-m-d' </td>
                                 <td colspan="10" class="text-center"> Reserved Transaction </td>
-                            </tr>
+                            </tr> -->
                         {% else %}
                             <tr id="{{ data.id }}">
                                 <!-- checkbox -->
