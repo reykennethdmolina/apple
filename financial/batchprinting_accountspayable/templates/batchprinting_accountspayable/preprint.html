@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% load humanize %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts Payable Voucher - Batch Printing</title>
+    <style>
+       @page {
+            size: Letter portrait;
+            margin: 2;
+            
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 255px;
+            border-bottom: 1px solid black;
+            padding-bottom: -3px;
+            margin-bottom: -1px;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+        @media print {
+            #section-to-print, #section-to-print * {
+                visibility: visible;
+            }
+        }
+        #section-to-print {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    {% for key,value in parameter.items %}
+        {% if not value.is_multi_page %}
+            <div id="section-to-print" style="position: relative; width: 8.5in; height: 11in;">
+                <div id="header_content">
+                    <table>
+                        <tr>
+                            <td><img id="logo" src="{{ info.logo }}"/><br></td>
+                            <td width="500px">
+                                <p class="title center"><br>ACCOUNTS PAYABLE VOUCHER</p>
+                            </td>
+                            <td>
+                                <p class="number right">APV No. {{ value.apmain.apnum }}<br>APV Date: {{ value.apmain.apdate|date:'m/d/Y' }}</p>
+                            </td>
+                        </tr>
+                    </table>
+                    <br>
+                </div>
+                
+                <table>
+                    <tr><td colspan="3"></td></tr>
+                    <tr>
+                        <td colspan="3" style="line-height: 15px;">
+                            <span class="title">{{ info.parameter.description|upper }}</span><br>
+                            {{ info.parameter.address1 }}<br>
+                            {{ info.parameter.address2 }}<br>
+                            Tel: {{ info.parameter.telno1 }}, {{ info.parameter.telno2 }}<br>
+                            VAT REG TIN: {{ info.parameter.tinnum }}
+                        </td>
+                    </tr>
+                    <tr><td colspan="3"></td></tr>
+                    <tr>
+                        <td colspan="3">
+                            <br>
+                            <table>
+                                <tr>
+                                    <td width="25%" style="vertical-align: top"><b>APV&nbsp;Date</b></td>
+                                    <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                    <td width="40%" style="vertical-align: top;">{{ value.apmain.apdate|date:'Y-m-d' }}</td>
+                                    <td width="20%" style="vertical-align: top; padding-left: 80px;"><b>Ref.&nbsp;No.</b></td>
+                                    <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                    <td style="vertical-align: top;">{{ value.apmain.refno|default:'N/A' }}</td>
+                                    <td width="70%" style="vertical-align: top; padding-left: 80px;"><b>VATable&nbsp;Purchase</b></td>
+                                    <td width="5%" style="vertical-align: top;"><b>:</b></td>
+                                    <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.vatablesale|floatformat:2|intcomma }}</td>
+                                </tr>
+                                <tr>
+                                    <td width="25%" style="vertical-align: top"><b>Type</b></td>
+                                    <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                    <td width="40%" style="vertical-align: top;">{{ value.apmain.aptype.description }}</td>
+                                    <td width="20%" style="vertical-align: top; padding-left: 80px;"><b>Subtype</b></td>
+                                    <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                    <td style="vertical-align: top;">{{ value.apmain.apsubtype.code }}</td>
+                                    <td width="70%" style="vertical-align: top; padding-left: 80px;"><b>VAT&nbsp;Exempt&nbsp;Purchase</b></td>
+                                    <td width="5%" style="vertical-align: top;"><b>:</b></td>
+                                    <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.vatexemptsale|floatformat:2|intcomma }}</td>
+                                </tr>
+                                <tr>
+                                    <td width="25%" style="vertical-align: top;"><b>VAT</b></td>
+                                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                    <td width="40%" style="vertical-align: top;">{{ value.apmain.vat.description }}</td>
+                                    <td width="20%" style="vertical-align: top; padding-left: 80px;"><b>APV&nbsp;Status</b></td>
+                                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                    <td style="vertical-align: top;">{{ value.apmain.get_apstatus_display }}</td>
+                                    <td width="70%" style="vertical-align: top; padding-left: 80px; padding-right: 20px;"><b>VAT&nbsp;Zero-Rated&nbsp;Purchase</b></td>
+                                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                    <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.vatzeroratedsale|floatformat:2|intcomma }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="9">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td width="25%" style="vertical-align: top"><b>Payee</b></td>
+                                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                    <td style="vertical-align: top; padding-right: 20px;" colspan="4">[{{ value.apmain.payee.code }}]&nbsp;{{ value.apmain.payeename }}</td>
+                                    <td width="70%" style="vertical-align: top; padding-left: 80px;"><b>Total&nbsp;Purchase</b></td>
+                                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                    <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.totalsale|floatformat:2|intcomma }}</td>
+                                </tr>
+                                <tr>
+                                    <td width="25%" style="vertical-align: top"><b>Particulars</b></td>
+                                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                    <td style="vertical-align: top; padding-right: 20px;" colspan="4">{{ value.apmain.particulars }}</td>
+                                    <td width="70%" style="vertical-align: top; padding-left: 80px;"><b>Add&nbsp;VAT</b></td>
+                                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                    <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.addvat|floatformat:2|intcomma }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6">&nbsp;</td>
+                                    <td width="70%" style="vertical-align: top; padding-left: 80px;"><b>Total&nbsp;Amount</b></td>
+                                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                    <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;"><b>{{ value.totalpayment|floatformat:2|intcomma }}</b></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6">&nbsp;</td>
+                                    <td width="60%" style="vertical-align: top; padding-left: 80px;"><b><small>Noted&nbsp;{{ value.wtaxrate }}%&nbsp;wtax</small></b></td>
+                                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                    <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;"><small>{{ value.wtaxamount|floatformat:2|intcomma }}</small></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr><td></td></tr>
+                </table>
+                {% if value.reprfvmain %}
+                    <b>REVOLVING FUND REPLENISHMENTS</b>
+                    <table>
+                        <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+                            <td style="border-left: 2px solid black; padding-left: 5px;"></td>
+                            <td style="padding-left: 5px;"><b><i>Rep. RFV Number</i></b></td>
+                            <td><b><i>Rep. RFV Date</i></b></td>
+                            <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
+                        </tr>
+                        {% for data in value.reprfvmain %}
+                            <tr>
+                                <td width="5%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
+                                <td width="35%" style="padding-top: 5px; padding-left: 5px;">{{ data.reprfvnum }}</td>
+                                <td width="30%" style="padding-top: 5px; padding-left: 5px;">{{ data.reprfvdate|date:'Y-m-d' }}</td>
+                                <td width="30%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
+                            </tr>
+                        {% endfor %}
+                            <tr>
+                            <td colspan="3" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+                            <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ value.reprfv_total_amount|floatformat:2|intcomma }}</b></td>
+                        </tr>
+                    </table><br>
+                {% endif %}
+                
+                <table style="border-collapse: collapse; padding-left: 5px; margin-top: 20px;">
+                    <tr class="left" style="border-top: 2px solid black;">
+                        <td colspan="2" style="border-left: 2px solid black; padding: 10px 0px 5px 10px;"><b><i>------------------------General Ledger------------------------</i></b></td>
+                        <td colspan="2" style="padding-top: 10px;" align="left"><b><i>-------------------------Subsidiary Ledger-------------------------</i></b></td>
+                        <td colspan="2" style="border-right: 2px solid black; text-align: right; padding-top: 10px;"><b><i>---------Amount (PHP)---------</i></b>&nbsp;&nbsp;&nbsp;</td>
+                    </tr>
+                    <tr class="left" style="border-bottom: 2px solid black;">
+                        <td style="width: 9%; border-left: 2px solid black; padding: 5px 0px 10px 10px;">Acct Code</td>
+                        <td style="width: 28%; padding-top: 5px;" align="center">Acct Title</td>
+                        <td style="width: 10%; padding-top: 5px;">Code</td>
+                        <td style="width: 30%; padding-top: 5px;">Particulars</td>
+                        <td style="width: 11%; padding-top: 5px;" align="right">Debit</td>
+                        <td style="width: 11%; border-right: 2px solid black; padding-top: 5px;" align="right">Credit&nbsp;&nbsp;&nbsp;</td>
+                    </tr>
+                    {% for detail in value.detail %}
+                        <tr style="padding-top: 15px; padding-left: 20px;">
+                            <td style="width: 9%; vertical-align: top; padding-top: 10px;">{{ detail.chartofaccount.accountcode }}</td>
+                            <td style="width: 28%; vertical-align: top; padding-top: 10px; {% if detail.balancecode == 'C' %}; padding-left: 10px; {% endif %}">{{ detail.chartofaccount.description }}</td>
+                            <td style="width: 10%; vertical-align: top; padding-top: 10px;">
+                                {% if detail.balancecode == 'C' %}&nbsp;&nbsp;&nbsp;{% endif %}
+                                {% if detail.bankaccount %}
+                                    {{ detail.bankaccount.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.department %}
+                                    {{ detail.department.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.branch %}
+                                    {{ detail.branch.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.employee %}
+                                    {{ detail.employee.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.supplier %}
+                                    {{ detail.supplier.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.customer %}
+                                    {{ detail.customer.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.unit %}
+                                    {{ detail.unit.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.product %}
+                                    {{ detail.product.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.inputvat %}
+                                    {{ detail.inputvat.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.outputvat %}
+                                    {{ detail.outputvat.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.vat %}
+                                    {{ detail.vat.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.wtax %}
+                                    {{ detail.wtax.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.ataxcode %}
+                                    {{ detail.ataxcode.code }}&nbsp;&nbsp;
+                                {% endif %}
+                            </td>
+                            <td style="width: 30%; vertical-align: top; padding-top: 10px;">
+                                {% if detail.bankaccount %}
+                                    {{ detail.bankaccount.accountnumber }}
+                                {% endif %}
+                                {% if detail.department %}
+                                    {{ detail.department.departmentname }}
+                                {% endif %}
+                                {% if detail.employee %}
+                                    {{ detail.employee.firstname }}&nbsp;{{ detail.employee.lastname }}
+                                {% endif %}
+                                {% if detail.supplier %}
+                                    {{ detail.supplier.name }}
+                                {% endif %}
+                                {% if detail.customer %}
+                                    {{ detail.customer.name }}
+                                {% endif %}
+                                {% if detail.unit %}
+                                    {{ detail.unit.description }}
+                                {% endif %}
+                                {% if detail.product %}
+                                    {{ detail.product.description }}
+                                {% endif %}
+                                {% if detail.ataxcode %}
+                                    {{ detail.ataxcode.description }}
+                                {% endif %}
+                            </td>
+                            <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}
+                            <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}
+                        </tr>
+                    {% endfor %}
+                    <tr style="padding-top: 5px;">
+                        <td colspan="4" style="padding-top: 10px;" align="right"><b>TOTAL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                        <td align="right" style="padding-top: 10px;"><b>{{ value.totaldebitamount.debitamount__sum|intcomma }}</b></td>
+                        <td align="right" style="padding-top: 10px;"><b>{{ value.totalcreditamount.creditamount__sum|intcomma }}</b></td>
+                    </tr>
+                </table>
+
+                <div id="footer_content" style="position: absolute; bottom: 10px;">
+                    <table style="border-collapse: collapse; border: 2px solid #000;">
+                        <tr style="border-top: 2px solid black;border-left: 2px solid black;padding: 5px; padding-bottom: 0px;">
+                            <td colspan="6" style="border-right: 2px solid black;"></td>
+                        </tr>
+                        <tr>
+                            <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Prepared by</b></td>
+                            <td width="1%" style="padding: 40px 0px 20px 20px; text-align: right;"><b>:</b></td>
+                            <td align="center" style="padding: 35px 0px 20px 0px;">
+                                <div class="sign_here">
+                                    {% if value.apmain.actualapprover %}
+                                        SGD
+                                    {% endif %}
+                                    {{ value.apmain.enterby.first_name }}&nbsp;{{ value.apmain.enterby.last_name }}
+                                </div>
+                                <i>Signature over printed name</i>
+                            </td>
+                            <td width="1%"></td>
+                            <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Approved by</b></td>
+                            <td width="1%" style="padding: 40px 0px 20px 20px; text-align: right;"><b>:</b></td>
+                            <td align="center" style="padding: 35px 0px 20px 0px;">
+                                <div class="sign_here">
+                                    {% if value.apmain.actualapprover and value.apmain.approverresponse == 'A' %}
+                                        SGD {{ value.apmain.actualapprover.first_name }}&nbsp;{{ value.apmain.actualapprover.last_name }}
+                                    {% else %}
+                                        {{ value.apmain.designatedapprover.first_name }}&nbsp;{{ value.apmain.designatedapprover.last_name }}
+                                    {% endif %}
+                                </div>
+                                <i>Signature over printed name</i>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Date prepared</b></td>
+                            <td style="padding: 0; text-align: right;"><b>:</b></td>
+                            <td align="center" style="padding: 20px 0 10px 0; padding-top: 0;">
+                                <div class="sign_here">{{ value.apmain.enterdate|date:'Y-m-d' }}</div>
+                            </td>
+                            <td width="2%"></td>
+                            <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Date approved</b></td>
+                            <td style="padding: 0; text-align: right;"><b>:</b></td>
+                            <td align="center" style="padding: 20px 0 10px 0; padding-top: 0;">
+                                <div class="sign_here">
+                                    {% if value.apmain.actualapprover and value.apmain.approverresponse == 'A' %}
+                                        {{ value.apmain.responsedate|date:'Y-m-d' }}
+                                    {% else %}
+                                        &nbsp;
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="arial" style="font-size: 9px; margin-top: 10px;">
+                        <tr>
+                            <td width="30%">
+                                {{ info.parameter.report_footer1 }}<br>
+                                {{ info.parameter.report_footer2 }}<br>
+                                {{ info.parameter.report_footer3 }}<br>
+                                {{ info.parameter.report_footer4 }}<br>
+                                <b>{{ info.parameter.report_footer5 }}</b><br>
+                                <b>{{ info.parameter.report_footer6 }}</b><br>
+                                {{ info.parameter.report_footer7 }}{{ request.user }} on {% now 'Y-m-d' %}
+                            </td>
+                            <td width="20%" style="margin-left: 90px;">
+                                {{ info.parameter.report_footer8 }}<br>
+                                {{ info.parameter.report_footer9 }}<br>
+                                {{ info.parameter.report_footer10 }}<br>
+                                {{ info.parameter.report_footer11 }}<br>
+                                {{ info.parameter.report_footer12 }}<br>
+                                {{ info.parameter.report_footer13 }}<br>
+                                {{ info.parameter.report_footer14 }}
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <div style="text-align: right; font-size: 8px;">
+                        Page {{ value.pagenum }} of {{ info.pagenum }}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- multi page APV -->
+            {% for i in value.interval %}
+                <div id="section-to-print" style="position: relative; width: 8.5in; height: 11in;">
+                    <div id="header_content">
+                        <table>
+                            <tr>
+                                <td><img id="logo" src="{{ info.logo }}"/><br></td>
+                                <td width="500px">
+                                    <p class="title center"><br>ACCOUNTS PAYABLE VOUCHER</p>
+                                </td>
+                                <td>
+                                    <p class="number right">APV No. {{ value.apmain.apnum }}<br>APV Date: {{ value.apmain.apdate|date:'m/d/Y' }}</p>
+                                </td>
+                            </tr>
+                        </table>
+                        <br>
+                    </div>
+                    {% if forloop.first %}
+                        <table>
+                            <tr><td colspan="3"></td></tr>
+                            <tr>
+                                <td colspan="3" style="line-height: 15px;">
+                                    <span class="title">{{ info.parameter.description|upper }}</span><br>
+                                    {{ info.parameter.address1 }}<br>
+                                    {{ info.parameter.address2 }}<br>
+                                    Tel: ({{ info.parameter.telno1 }}, {{ info.parameter.telno2 }}<br>
+                                    VAT REG TIN: {{ info.parameter.tinnum }}
+                                </td>
+                            </tr>
+                            <tr><td colspan="3"></td></tr>
+                            <tr>
+                                <td colspan="3">
+                                    <br>
+                                        <table>
+                                            <tr>
+                                                <td width="25%" style="vertical-align: top"><b>APV&nbsp;Date</b></td>
+                                                <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                                <td width="40%" style="vertical-align: top;">{{ value.apmain.apdate|date:'Y-m-d' }}</td>
+                                                <td width="20%" style="vertical-align: top; padding-left: 80px;"><b>Ref.&nbsp;No.</b></td>
+                                                <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                                <td style="vertical-align: top;">{{ value.apmain.refno|default:'N/A' }}</td>
+                                                <td width="70%" style="vertical-align: top; padding-left: 80px; padding-right: 20px;"><b>VATable&nbsp;Purchase</b></td>
+                                                <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                                <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.vatablesale|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td width="25%" style="vertical-align: top"><b>Type</b></td>
+                                                <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                                <td width="40%" style="vertical-align: top;">{{ value.apmain.aptype.description }}</td>
+                                                <td width="20%" style="vertical-align: top; padding-left: 80px;"><b>Subtype</b></td>
+                                                <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                                <td style="vertical-align: top;">{{ value.apmain.apsubtype.code }}</td>
+                                                <td width="70%" style="vertical-align: top; padding-left: 80px; padding-right: 20px;"><b>VAT&nbsp;Exempt&nbsp;Purchase</b></td>
+                                                <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                                <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.vatexemptsale|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td width="25%" style="vertical-align: top;"><b>VAT</b></td>
+                                                <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                                <td width="40%" style="vertical-align: top;">{{ value.apmain.vat.description }}</td>
+                                                <td width="20%" style="vertical-align: top; padding-left: 80px;"><b>APV&nbsp;Status</b></td>
+                                                <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                                <td style="vertical-align: top;">{{ value.apmain.get_apstatus_display }}</td>
+                                                <td width="70%" style="vertical-align: top; padding-left: 80px; padding-right: 20px;"><b>VAT&nbsp;Zero-Rated&nbsp;Purchase</b></td>
+                                                <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                                <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.vatzeroratedsale|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="9">&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td width="25%" style="vertical-align: top"><b>Payee</b></td>
+                                                <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                                <td style="vertical-align: top; padding-right: 20px;" colspan="4">[{{ value.apmain.payee.code }}]&nbsp;{{ value.apmain.payeename }}</td>
+                                                <td width="70%" style="vertical-align: top; padding-left: 80px; padding-right: 20px;"><b>Total&nbsp;Purchase</b></td>
+                                                <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                                <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.totalsale|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td width="25%" style="vertical-align: top"><b>Particulars</b></td>
+                                                <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                                <td style="vertical-align: top; padding-right: 20px;" colspan="4">{{ value.apmain.particulars }}</td>
+                                                <td width="70%" style="vertical-align: top; padding-left: 80px; padding-right: 20px;"><b>Add&nbsp;VAT</b></td>
+                                                <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                                <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;">{{ value.addvat|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="6">&nbsp;</td>
+                                                <td width="70%" style="vertical-align: top; padding-left: 80px; padding-right: 20px;"><b>Total&nbsp;Amount</b></td>
+                                                <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                                <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;"><b>{{ value.totalpayment|floatformat:2|intcomma }}</b></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="6">&nbsp;</td>
+                                                <td width="60%" style="vertical-align: top; padding-left: 80px; padding-right: 20px;"><b><small>Noted&nbsp;{{ value.wtaxrate }}%&nbsp;wtax</small></b></td>
+                                                <td width="5%" style="vertical-align: top"><b>:</b></td>
+                                                <td style="vertical-align: top; padding-left: 40px; padding-right: 20px; text-align: right;"><small>{{ value.wtaxamount|floatformat:2|intcomma }}</small></td>
+                                            </tr>
+                                        </table>
+                                </td>
+                            </tr>
+                            <tr><td></td></tr>
+                        </table>
+                    {% endif %}
+                    {% if value.reprfvmain %}
+                        <b>REVOLVING FUND REPLENISHMENTS</b>
+                        <table>
+                            <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+                                <td style="border-left: 2px solid black; padding-left: 5px;"></td>
+                                <td style="padding-left: 5px;"><b><i>Rep. RFV Number</i></b></td>
+                                <td><b><i>Rep. RFV Date</i></b></td>
+                                <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
+                            </tr>
+                            {% for data in value.reprfvmain %}
+                                <tr>
+                                    <td width="5%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
+                                    <td width="35%" style="padding-top: 5px; padding-left: 5px;">{{ data.reprfvnum }}</td>
+                                    <td width="30%" style="padding-top: 5px; padding-left: 5px;">{{ data.reprfvdate|date:'Y-m-d' }}</td>
+                                    <td width="30%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan="3" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+                                <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ value.reprfv_total_amount|floatformat:2|intcomma }}</b></td>
+                            </tr>
+                        </table><br>
+                    {% endif %}
+                    
+                    <table style="border-collapse: collapse; padding-left: 5px; margin-top: 20px;">
+                        
+                            <tr class="left" style="border-top: 2px solid black;">
+                                <td colspan="2" style="border-left: 2px solid black; padding: 10px 0px 5px 10px;"><b><i>------------------------General Ledger------------------------</i></b></td>
+                                <td colspan="2" style="padding-top: 10px;" align="left"><b><i>-------------------------Subsidiary Ledger-------------------------</i></b></td>
+                                <td colspan="2" style="border-right: 2px solid black; text-align: right; padding-top: 10px;"><b><i>---------Amount (PHP)---------</i></b>&nbsp;&nbsp;&nbsp;</td>
+                            </tr>
+                            <tr class="left" style="border-bottom: 2px solid black;">
+                                <td style="width: 9%; border-left: 2px solid black; padding: 5px 0px 10px 10px;">Acct Code</td>
+                                <td style="width: 28%; padding-top: 5px;" align="center">Acct Title</td>
+                                <td style="width: 10%; padding-top: 5px;">Code</td>
+                                <td style="width: 30%; padding-top: 5px;">Particulars</td>
+                                <td style="width: 11%; padding-top: 5px;" align="right">Debit</td>
+                                <td style="width: 11%; border-right: 2px solid black; padding-top: 5px;" align="right">Credit&nbsp;&nbsp;&nbsp;</td>
+                            </tr>
+                        
+                        {% for detail in value.sorteddetail|keyvalue:i %}
+                            <tr style="padding-top: 15px; padding-left: 20px;">
+                                <td style="width: 9%; vertical-align: top; padding-top: 10px;">{{ detail.chartofaccount.accountcode }}</td>
+                                <td style="width: 28%; vertical-align: top; padding-top: 10px; {% if detail.balancecode == 'C' %}; padding-left: 10px; {% endif %}">{{ detail.chartofaccount.description }}</td>
+                                <td style="width: 10%; vertical-align: top; padding-top: 10px;">
+                                    {% if detail.balancecode == 'C' %}&nbsp;&nbsp;&nbsp;{% endif %}
+                                    {% if detail.bankaccount %}
+                                        {{ detail.bankaccount.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.department %}
+                                        {{ detail.department.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.branch %}
+                                        {{ detail.branch.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.employee %}
+                                        {{ detail.employee.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.supplier %}
+                                        {{ detail.supplier.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.customer %}
+                                        {{ detail.customer.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.unit %}
+                                        {{ detail.unit.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.product %}
+                                        {{ detail.product.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.inputvat %}
+                                        {{ detail.inputvat.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.outputvat %}
+                                        {{ detail.outputvat.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.vat %}
+                                        {{ detail.vat.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.wtax %}
+                                        {{ detail.wtax.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.ataxcode %}
+                                        {{ detail.ataxcode.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                </td>
+                                <td style="width: 30%; vertical-align: top; padding-top: 10px;">
+                                    {% if detail.bankaccount %}
+                                        {{ detail.bankaccount.accountnumber }}
+                                    {% endif %}
+                                    {% if detail.department %}
+                                        {{ detail.department.departmentname }}
+                                    {% endif %}
+                                    {% if detail.employee %}
+                                        {{ detail.employee.firstname }}&nbsp;{{ detail.employee.lastname }}
+                                    {% endif %}
+                                    {% if detail.supplier %}
+                                        {{ detail.supplier.name }}
+                                    {% endif %}
+                                    {% if detail.customer %}
+                                        {{ detail.customer.name }}
+                                    {% endif %}
+                                    {% if detail.unit %}
+                                        {{ detail.unit.description }}
+                                    {% endif %}
+                                    {% if detail.product %}
+                                        {{ detail.product.description }}
+                                    {% endif %}
+                                    {% if detail.ataxcode %}
+                                        {{ detail.ataxcode.description }}
+                                    {% endif %}
+                                </td>
+                                <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}
+                                <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}
+                            </tr>
+                        {% endfor %}
+                        {% if forloop.last %}
+                            <tr style="padding-top: 5px;">
+                                <td colspan="4" style="padding-top: 10px;" align="right"><b>TOTAL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                                <td align="right" style="padding-top: 10px;"><b>{{ value.totaldebitamount.debitamount__sum|intcomma }}</b></td>
+                                <td align="right" style="padding-top: 10px;"><b>{{ value.totalcreditamount.creditamount__sum|intcomma }}</b></td>
+                            </tr>
+                        {% endif %}
+                    </table>
+
+                    <div id="footer_content" style="position: absolute; bottom: 10px;">
+                        <table style="border-collapse: collapse; border: 2px solid #000;">
+                            <tr style="border-top: 2px solid black;border-left: 2px solid black;padding: 5px; padding-bottom: 0px;">
+                                <td colspan="6" style="border-right: 2px solid black;"></td>
+                            </tr>
+                            <tr>
+                                <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Prepared by</b></td>
+                                <td width="1%" style="padding: 40px 0px 20px 20px; text-align: right;"><b>:</b></td>
+                                <td align="center" style="padding: 35px 0px 20px 0px;">
+                                    <div class="sign_here">
+                                        {% if value.apmain.actualapprover %}
+                                            SGD
+                                        {% endif %}
+                                        {{ value.apmain.enterby.first_name }}&nbsp;{{ value.apmain.enterby.last_name }}
+                                    </div>
+                                    <i>Signature over printed name</i>
+                                </td>
+                                <td width="1%"></td>
+                                <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Approved by</b></td>
+                                <td width="1%" style="padding: 40px 0px 20px 20px; text-align: right;"><b>:</b></td>
+                                <td align="center" style="padding: 35px 0px 20px 0px;">
+                                    <div class="sign_here">
+                                        {% if value.apmain.actualapprover and value.apmain.approverresponse == 'A' %}
+                                            SGD {{ value.apmain.actualapprover.first_name }}&nbsp;{{ value.apmain.actualapprover.last_name }}
+                                        {% else %}
+                                            {{ value.apmain.designatedapprover.first_name }}&nbsp;{{ value.apmain.designatedapprover.last_name }}
+                                        {% endif %}
+                                    </div>
+                                    <i>Signature over printed name</i>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Date prepared</b></td>
+                                <td style="padding: 0; text-align: right;"><b>:</b></td>
+                                <td align="center" style="padding: 20px 0 10px 0; padding-top: 0;">
+                                    <div class="sign_here">{{ value.apmain.enterdate|date:'Y-m-d' }}</div>
+                                </td>
+                                <td width="2%"></td>
+                                <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Date approved</b></td>
+                                <td style="padding: 0; text-align: right;"><b>:</b></td>
+                                <td align="center" style="padding: 20px 0 10px 0; padding-top: 0;">
+                                    <div class="sign_here">
+                                        {% if value.apmain.actualapprover and value.apmain.approverresponse == 'A' %}
+                                            {{ value.apmain.responsedate|date:'Y-m-d' }}
+                                        {% else %}
+                                            &nbsp;
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="arial" style="font-size: 9px; margin-top: 10px;">
+                            <tr>
+                                <td width="30%">
+                                    {{ info.parameter.report_footer1 }}<br>
+                                    {{ info.parameter.report_footer2 }}<br>
+                                    {{ info.parameter.report_footer3 }}<br>
+                                    {{ info.parameter.report_footer4 }}<br>
+                                    <b>{{ info.parameter.report_footer5 }}</b><br>
+                                    <b>{{ info.parameter.report_footer6 }}</b><br>
+                                    {{ info.parameter.report_footer7 }}{{ request.user }} on {% now 'Y-m-d' %}
+                                </td>
+                                <td width="20%" style="margin-left: 90px;">
+                                    {{ info.parameter.report_footer8 }}<br>
+                                    {{ info.parameter.report_footer9 }}<br>
+                                    {{ info.parameter.report_footer10 }}<br>
+                                    {{ info.parameter.report_footer11 }}<br>
+                                    {{ info.parameter.report_footer12 }}<br>
+                                    {{ info.parameter.report_footer13 }}<br>
+                                    {{ info.parameter.report_footer14 }}
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <div style="text-align: right; font-size: 8px;">
+                            Page {{ value|keyvalue:i }} of {{ info.pagenum }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <!-- end multi page APV -->
+        {% endif %}
+    {% endfor %}
+</body>
+
+</html>
+<script type="text/javascript">
+    window.onafterprint = window.close;
+    window.onload = print();
+</script>
