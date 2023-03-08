@@ -2668,8 +2668,12 @@ def gopostreim(request):
                 detail = Ofdetail.objects.filter(ofmain=of.pk).order_by('item_counter')
                 counter = 1
                 amount = 0
+
                 for item  in detail:
                     amount += item.debitamount
+                    sup = item.supplier_id
+                    if item.chartofaccount_id == 285:
+                        sup = supplier.id
                     Apdetail.objects.create(
                         apmain_id = main.id,
                         ap_num = main.apnum,
@@ -2687,7 +2691,7 @@ def gopostreim(request):
                         chartofaccount_id = item.chartofaccount_id,
                         customer_id = item.customer_id,
                         department_id = item.department_id,
-                        supplier_id= item.supplier_id,
+                        supplier_id= sup,
                         employee_id = item.employee_id,
                         inputvat_id = item.inputvat_id,
                         outputvat_id = item.outputvat_id,
@@ -2802,6 +2806,9 @@ def gopostrev(request):
                 amount = 0
                 for item  in detail:
                     amount += item.debitamount
+                    sup = item.supplier_id
+                    if item.chartofaccount_id == 285:
+                        sup = supplier.id
                     Apdetail.objects.create(
                         apmain_id = main.id,
                         ap_num = main.apnum,
@@ -2824,7 +2831,7 @@ def gopostrev(request):
                         outputvat_id = item.outputvat_id,
                         product_id = item.product_id,
                         unit_id = item.unit_id,
-                        supplier_id = item.supplier_id,
+                        supplier_id = sup,
                         vat_id = item.vat_id,
                         wtax_id = item.wtax_id,
                         status='A',
@@ -3863,6 +3870,9 @@ def goposteye(request):
                 amount = 0
                 for item  in detail:
                     amount += item.debitamount
+                    sup = item.supplier_id
+                    if item.chartofaccount_id == 285:
+                        sup = supplier.id
                     Apdetail.objects.create(
                         apmain_id = main.id,
                         ap_num = main.apnum,
@@ -3884,7 +3894,7 @@ def goposteye(request):
                         inputvat_id = item.inputvat_id,
                         outputvat_id = item.outputvat_id,
                         product_id = item.product_id,
-                        supplier_id=item.supplier_id,
+                        supplier_id= sup,
                         unit_id = item.unit_id,
                         vat_id = item.vat_id,
                         wtax_id = item.wtax_id,
@@ -3998,6 +4008,9 @@ def gopostanti(request):
                     amount += item.debitamount
                     if item.chartofaccount_id == 285:
                         dept = ''
+                    sup = item.supplier_id
+                    if item.chartofaccount_id == 285:
+                        sup = supplier.id
                     Apdetail.objects.create(
                         apmain_id = main.id,
                         ap_num = main.apnum,
@@ -4019,7 +4032,7 @@ def gopostanti(request):
                         inputvat_id = item.inputvat_id,
                         outputvat_id = item.outputvat_id,
                         product_id = item.product_id,
-                        supplier_id = item.supplier_id,
+                        supplier_id = sup,
                         unit_id = item.unit_id,
                         vat_id = item.vat_id,
                         wtax_id = item.wtax_id,

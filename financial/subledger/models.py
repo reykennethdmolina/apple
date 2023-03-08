@@ -109,6 +109,7 @@ class Subledger(models.Model):
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
     breakdownsource_id = models.IntegerField(null=True, blank=True)
+    reference_number = models.CharField(max_length=50, null=True)
 
     class Meta:
         db_table = 'subledger'

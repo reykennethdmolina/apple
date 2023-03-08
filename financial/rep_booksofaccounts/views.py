@@ -621,6 +621,7 @@ class GenerateExcel(View):
                 q = q.filter(jv_date__gte=dfrom)
             if dto != '':
                 q = q.filter(jv_date__lte=dto)
+
             total = q.exclude(jvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
         elif report == '4':
             title = "CASH DISBURSEMENT BOOK - DETAILED ENTRIES"
@@ -653,7 +654,7 @@ class GenerateExcel(View):
             title = "GENERAL LEDGER BOOK - BIR FORMAT"
         elif report == '15':
             title = "CASH RECEIPTS BOOK - BIR FORMAT"
-        if report == '18':
+        elif report == '18':
             title = "GENERAL JOURNAL BOOK - BIR FORMAT"
             q = Jvdetail.objects.all().filter(isdeleted=0, jvmain__jvstatus='R').exclude(jvmain__status='C').order_by(
                 'jv_date', 'jv_num', '-balancecode', 'item_counter')
@@ -668,7 +669,7 @@ class GenerateExcel(View):
             q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
 
         list = q
-
+        print list
         if report == '1':
 
             # Create an in-memory output file for the new workbook.

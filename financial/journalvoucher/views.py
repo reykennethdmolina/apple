@@ -183,12 +183,11 @@ class CreateView(CreateView):
             yearqs = Jvmain.objects.filter(jvnum__startswith=year)
 
             if yearqs:
-                jvnumlast = yearqs.latest('jvnum')
-                latestjvnum = str(jvnumlast)
-                print "latest: " + latestjvnum
 
+                jvnumlast = lastNumber('true')
+                latestjvnum = str(jvnumlast[0])
                 jvnum = year
-                last = str(int(latestjvnum[4:]) + 1)
+                last = str(int(latestjvnum) + 1)
                 zero_addon = 6 - len(last)
                 for num in range(0, zero_addon):
                     jvnum += '0'
@@ -764,7 +763,7 @@ class Pdf(PDFTemplateView):
 
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
-        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+        context['logo'] = "https://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
         printedjv = Jvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
         printedjv.print_ctr += 1

@@ -1427,7 +1427,7 @@ class Pdf(PDFTemplateView):
             filter(ormain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
-        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+        context['logo'] = "https://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
         printedor = Ormain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
         printedor.print_ctr += 1
