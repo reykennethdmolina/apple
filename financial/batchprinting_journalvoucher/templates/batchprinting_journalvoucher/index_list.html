@@ -1,0 +1,109 @@
+{% load humanize %}
+{% block extra_css %}
+    <style>
+        .pointer {
+            cursor: pointer;
+        }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    
+        input[type=number], 
+        .amount-right{
+            text-align: right;
+        }
+    </style>
+{% endblock extra_css %}
+<a style="display: none;" href="" id="trigger_print" target="_blank">Print all</a>
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="table-responsive">
+        {% if jv_data %}
+            <table class="table table-striped table-bordered" id="jv_table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" class="pointer" name="chb_all" id="chb_all" title="Tick to include all." checked="Tick" /></th>
+                        <th><span>JV Number</span></th>
+                        <th><span>JV Date</span></th>
+                        <th><span>JV Subtype</span></th>
+                        <th><span>Particulars</span></th>
+                        <th><span>Approver</span></th>
+                        <th><span>Created by</span></th>
+                        <th><span>Status</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in jv_data %}
+                        {% if not user.is_superuser and data.confi == 1 and data.enterby_id != user.id %}
+                            <!-- <tr>
+                                <td></td>
+                                <td> data.jvnum </td>
+                                <td> data.jvdate|date:'Y-m-d' </td>
+                                <td colspan="7" class="text-center"> Reserved Transaction </td>
+                            </tr> -->
+                        {% else %}
+                            <tr id="{{ data.id }}">
+                                <!-- checkbox -->
+                                <td><input type="checkbox" class="jv-checkbox pointer" name="chb_{{ data.id }}" id="chb_{{ data.id }}" title="Tick to include JV {{ data.jvnum }}" checked /></td>
+                                <td>{{ data.jvnum }}</td>
+                                <td>{{ data.jvdate|date:'Y-m-d' }}</td>
+                                <td>{{ data.jvsubtype.code }}</td>
+                                <td>{{ data.particular }}</td>
+                                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- Not assigned yet --{% endif %}</td>
+                                <td>{{ data.enterby }}</td>
+                                <td class="tdJvStatus
+                                        {% if data.jvstatus == 'A' %} text-success
+                                        {% elif data.jvstatus == 'D' %} text-danger
+                                        {% elif data.jvstatus == 'F' %} text-info
+                                        {% elif data.jvstatus == 'R' %} text-success
+                                        {% endif %}"
+                                    id="status{{ data.id }}">
+                                    <b> {% if data.status != 'C' %}
+                                            {% if data.status == 'O' %}
+                                            POSTED
+                                            {% else %}
+                                            {{ data.get_jvstatus_display }}
+                                            {% endif %}
+                                        {% else %}
+                                        <span class="text-danger">CANCELLED</span>
+                                        {% endif %}
+                                    </b>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+
+            <div class="text-center">
+                <span><b>No results found.</b></span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    $(function () {
+        $(document).on('change', 'input[name="chb_all"]', function() {
+            $('.jv-checkbox').prop("checked", this.checked);
+        });
+
+        $('#print').click(function(){
+            
+            var count = 0;
+            var jv_ids = [];
+            $('#jv_table').find('tbody tr').each(function () {
+                if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                    count++;
+                    jv_ids.push($(this).attr('id'));
+                }
+            });
+            
+            $("#trigger_print").attr("href", "{% url 'batchprinting_journalvoucher:start' %}" + "?s=" + encodeURIComponent(JSON.stringify(jv_ids)));
+            $('#trigger_print')[0].click();
+        });
+    });
+
+    
+</script>
