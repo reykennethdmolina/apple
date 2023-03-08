@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% load humanize %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Voucher - Batch Printing</title>
+    <style>
+       @page {
+            size: Letter portrait;
+            margin: 2;
+            
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 265px;
+            border-bottom: 1px solid black;
+            padding-bottom: -3px;
+            margin-bottom: -1px;
+        }
+        body * {
+            visibility: hidden;
+        }
+        @media print {
+            #section-to-print, #section-to-print * {
+                visibility: visible;
+            }
+        }
+
+        #section-to-print {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    {% for key,value in parameter.items %}
+        {% if not value.is_multi_page %}
+            <div id="section-to-print" style="position: relative; width: 8.5in; height: 11in;">
+                <div id="header_content">
+                    <table>
+                        <tr>
+                            <td><br><img id="logo" src="{{ detail.logo }}" /><br></td>
+                            <td width="500px">
+                                <p class="title center"><br>CHECK VOUCHER</p>
+                            </td>
+                            <td>
+                                <p class="number right">CV No. {{ value.cvmain.cvnum }}<br>CV Date: {{ value.cvmain.cvdate|date:'m/d/Y' }}</p>
+                            </td>
+                        </tr>
+                    </table>
+                    <br>
+                </div>
+                
+                <table style="width: 100%;">
+                    <tr><td colspan="3"></td></tr>
+                    <tr>
+                        <td colspan="3" style="line-height: 15px;">
+                            <span class="title">{{ detail.parameter.description|upper }}</span><br>
+                            {{ detail.parameter.address1 }}<br>
+                            {{ detail.parameter.address2 }}<br>
+                            Tel: ({{ detail.parameter.telno1 }}, {{ detail.parameter.telno2 }}<br>
+                            VAT REG TIN: {{ detail.parameter.tinnum }}
+                        </td>
+                    </tr>
+                    <tr><td colspan="3"></td></tr>
+                    <tr>
+                        <td colspan="3">
+                            <br><br>
+                            <table >
+                                <tbody style="line-height: 15px;">
+                                    <tr>
+                                        <td width="10%" style="vertical-align: top"><b>CV&nbsp;Date</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="17%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.cvdate|date:'Y-m-d' }}</td>
+                                        <td width="10%" style="vertical-align: top"><b>Type</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="15%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.cvtype.description }}</td>
+                                        <td width="10%" style="vertical-align: top"><b>Subtype</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="29%" style="vertical-align: top;">{{ value.cvmain.cvsubtype.description }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td width="10%" style="vertical-align: top"><b>Branch</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="17%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.branch.description }}</td>
+                                        <td width="10%" style="vertical-align: top"><b>Status</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="15%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.get_cvstatus_display }}</td>
+                                        <td width="10%" style="vertical-align: top"><b>Bank&nbsp;Acct</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="29%" style="vertical-align: top;">{{ value.cvmain.bankaccount.code }} [{{ details.cvmain.bankaccount.bank.description }} - {{ cvmain.bankaccount.bankaccounttype.description }}]</td>
+                                    </tr>
+                                    <tr>
+                                        <td width="10%" style="vertical-align: top"><b>Check&nbsp;No.</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="17%" style="vertical-align: top">{{ value.cvmain.checknum }}</td>
+                                        <td width="10%" style="vertical-align: top"><b>Amount</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="15%" style="vertical-align: top">{{ value.cvmain.currency.symbol }}&nbsp;{{ details.cvmain.amount|floatformat:2|intcomma }}</td>
+                                        <td width="10%" style="vertical-align: top"><b>In&nbsp;Words</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="29%" style="vertical-align: top;">{{ value.cvmain.amountinwords }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td width="10%" style="vertical-align: top"><b>Check&nbsp;Date</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="17%"  style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.checkdate|date:'Y-m-d' }}</td>
+                                        <td width="10%" style="vertical-align: top"><b>VAT</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="15%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.vat.description }}</td>
+                                        <td width="10%" style="vertical-align: top"><b>Payee</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="29%" style="vertical-align: top;">{{ value.cvmain.payee_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td width="10%" style="vertical-align: top"><b>Input&nbsp;VAT</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="17%"  style="vertical-align: top">{{ value.cvmain.inputvattype.description }}</td>
+                                        <td width="10%" style="vertical-align: top"><b>ATC</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="15%" style="vertical-align: top">[{{ value.cvmain.atc.code }}]&nbsp;{{ cvmain.atcrate }}%</td>
+                                        <td width="10%" style="vertical-align: top"><b>Ref No</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td width="29%" style="vertical-align: top;">{{ value.cvmain.refnum }}</td>
+
+                                    </tr>
+                                    <tr>
+                                        <td width="10%" style="vertical-align: top"><b>Particulars</b></td>
+                                        <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                        <td colspan="7" width="80%" style="vertical-align: top;">{{ value.cvmain.particulars }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr><td></td></tr>
+                </table>
+                {% if value.reppcvmain %}
+                    <b>PETTY CASH REPLENISHMENTS</b>
+                    <table>
+                        <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+                            <td style="border-left: 2px solid black; padding-left: 5px;"></td>
+                            <td style="padding-left: 5px;"><b><i>Rep. PCV Number</i></b></td>
+                            <td><b><i>Rep. PCV Date</i></b></td>
+                            <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
+                        </tr>
+                        {% for data in value.reppcvmain %}
+                            <tr>
+                                <td width="5%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
+                                <td width="35%" style="padding-top: 5px; padding-left: 5px;">{{ data.reppcvnum }}</td>
+                                <td width="30%" style="padding-top: 5px; padding-left: 5px;">{{ data.reppcvdate|date:'Y-m-d' }}</td>
+                                <td width="30%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="3" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+                            <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ value.reppcv_total_amount|floatformat:2|intcomma }}</b></td>
+                        </tr>
+                    </table><br>
+                {% endif %}
+                <table style="border-collapse: collapse; margin-top: 40px;">
+                    
+                    <tr class="left" style="border: 2px solid black; border-bottom: none;">
+                        <td colspan="2" style="padding: 10px 0px 5px 10px;"><b><i>------------------------General Ledger------------------------</i></b></td>
+                        <td colspan="2" style="padding-top: 10px;" align="left"><b><i>-------------------------Subsidiary Ledger-------------------------</i></b></td>
+                        <td colspan="2" style="text-align: right; padding-top: 10px;"><b><i>---------Amount (PHP)---------</i></b>&nbsp;&nbsp;&nbsp;</td>
+                    </tr>
+                    <tr class="left" style="border: 2px solid black; border-top: none;">
+                        <td style="width: 10%; padding: 5px 0px 10px 10px;"><b>Acct Code</b></td>
+                        <td style="width: 28%; padding-top: 5px;" align="center"><b>Acct Title</b></td>
+                        <td style="width: 10%; padding-top: 5px;"><b>Code</b></td>
+                        <td style="width: 30%; padding-top: 5px;"><b>Particulars</b></td>
+                        <td style="width: 11%; padding-top: 5px;" align="right"><b>Debit</b></td>
+                        <td style="width: 11%; padding-top: 5px; padding-right: 5px;" align="right"><b>Credit</b>&nbsp;&nbsp;&nbsp;</td>
+                    </tr>
+                
+                    {% for detail in value.detail %}
+                        <tr style="padding-top: 15px; padding-left: 20px;">
+                            <td style="width: 9%; vertical-align: top; padding-top: 10px;">{{ detail.chartofaccount.accountcode }}</td>
+                            <td style="width: 28%; vertical-align: top; padding-top: 10px; {% if detail.balancecode == 'C' %}; padding-left: 10px; {% endif %}">{{ detail.chartofaccount.description }}</td>
+                            <td style="width: 10%; vertical-align: top; padding-top: 10px;">
+                                {% if detail.balancecode == 'C' %}&nbsp;&nbsp;&nbsp;{% endif %}
+                                {% if detail.bankaccount %}
+                                    {{ detail.bankaccount.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.department %}
+                                    {{ detail.department.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.branch %}
+                                    {{ detail.branch.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.employee %}
+                                    {{ detail.employee.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.supplier %}
+                                    {{ detail.supplier.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.customer %}
+                                    {{ detail.customer.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.unit %}
+                                    {{ detail.unit.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.product %}
+                                    {{ detail.product.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.inputvat %}
+                                    {{ detail.inputvat.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.outputvat %}
+                                    {{ detail.outputvat.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.vat %}
+                                    {{ detail.vat.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.wtax %}
+                                    {{ detail.wtax.code }}&nbsp;&nbsp;
+                                {% endif %}
+                                {% if detail.ataxcode %}
+                                    {{ detail.ataxcode.code }}&nbsp;&nbsp;
+                                {% endif %}
+                            </td>
+                            <td style="width: 30%; vertical-align: top; padding-top: 10px;">
+                                {% if detail.bankaccount %}
+                                    {{ detail.bankaccount.accountnumber }}
+                                {% endif %}
+                                {% if detail.department %}
+                                    {{ detail.department.departmentname }}
+                                {% endif %}
+                                {% if detail.employee %}
+                                    {{ detail.employee.firstname }}&nbsp;{{ detail.employee.lastname }}
+                                {% endif %}
+                                {% if detail.supplier %}
+                                    {{ detail.supplier.name }}
+                                {% endif %}
+                                {% if detail.customer %}
+                                    {{ detail.customer.name }}
+                                {% endif %}
+                                {% if detail.unit %}
+                                    {{ detail.unit.description }}
+                                {% endif %}
+                                {% if detail.product %}
+                                    {{ detail.product.description }}
+                                {% endif %}
+                                {% if detail.ataxcode %}
+                                    {{ detail.ataxcode.description }}
+                                {% endif %}
+                            </td>
+                            <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}
+                            <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}
+                        </tr>
+                    {% endfor %}
+                    
+                    <tr>
+                        <td colspan="4" style="padding-top: 10px;" align="right"><b>TOTAL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                        <td align="right" style="padding-top: 10px;"><b>{{ value.totaldebitamount.debitamount__sum|intcomma }}</b></td>
+                        <td align="right" style="padding-top: 10px;"><b>{{ value.totalcreditamount.creditamount__sum|intcomma }}</b></td>
+                    </tr>
+                </table>
+
+                <div id="footer_content" style="position: absolute; bottom: 0; ">
+                    <table style="border-collapse: collapse; border: 2px solid #000;">
+                        <tr>
+                            <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Prepared by</b></td>
+                            <td width="1%" style="padding: 40px 0px 20px 0px; text-align: right;"><b>:</b></td>    
+                            <td align="center" style="padding: 35px 0px 20px 0px;">
+                                <div class="sign_here">
+                                    {% if value.cvmain.actualapprover %}
+                                        SGD
+                                    {% endif %}
+                                    {{ value.cvmain.enterby.first_name|upper }}&nbsp;{{ value.cvmain.enterby.last_name|upper }}
+                                </div>
+                                <i>Signature over printed name</i>
+                            </td>
+                            <td width="1%"></td>
+                            <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Approved by</b></td>
+                            <td width="1%" style="padding: 40px 0px 20px 20px; text-align: right;"><b>:</b></td>
+                            <td align="center" style="padding: 35px 0px 20px 0px;">
+                                <div class="sign_here">
+                                    {% if value.cvmain.actualapprover and value.cvmain.approverresponse == 'A' %}
+                                        SGD {{ value.cvmain.actualapprover.first_name|upper }}&nbsp;{{ value.cvmain.actualapprover.last_name|upper }}
+                                    {% else %}
+                                        {{ value.cvmain.designatedapprover.first_name|upper }}&nbsp;{{ value.cvmain.designatedapprover.last_name|upper }}
+                                    {% endif %}
+                                </div>
+                                <i>Signature over printed name</i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Date prepared</b></td>
+                            <td style="padding: 0; text-align: right;"><b>:</b></td>
+                            <td align="center" style="padding: 20px 0 10px 0; padding-top: 0;">
+                                <div class="sign_here">{{ value.cvmain.enterdate|date:'Y-m-d' }}</div>
+                            </td>
+                            <td width="2%"></td>
+                            <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Received by</b></td>
+                            <td style="padding: 0; text-align: right;"><b>:</b></td>
+                            <td align="center" style="padding: 20px 0 10px 0; padding-top: 0;">
+                                <div class="sign_here"> .</div>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <table class="arial" style="font-size: 9px; margin-top: 10px;">
+                        <tr>
+                            <td width="30%">
+                                {{ detail.parameter.report_footer1 }}<br>
+                                {{ detail.parameter.report_footer2 }}<br>
+                                {{ detail.parameter.report_footer3 }}<br>
+                                {{ detail.parameter.report_footer4 }}<br>
+                                <b>{{ detail.parameter.report_footer5 }}</b><br>
+                                <b>{{ detail.parameter.report_footer6 }}</b><br>
+                                {{ detail.parameter.report_footer7 }} {{ request.user }} on {% now "SHORT_DATETIME_FORMAT" %}
+                            </td>
+                            <td width="20%" style="margin-left: 90px;">
+                                {{ detail.parameter.report_footer8 }}<br>
+                                {{ detail.parameter.report_footer9 }}<br>
+                                {{ detail.parameter.report_footer10 }}<br>
+                                {{ detail.parameter.report_footer11 }}<br>
+                                {{ detail.parameter.report_footer12 }}<br>
+                                {{ detail.parameter.report_footer13 }}<br>
+                                {{ detail.parameter.report_footer14 }}
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="text-align: right; font-size: 8px;">
+                        Page {{ value.pagenum }} of {{ detail.pagenum }}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- multi page CV -->
+            {% for i in value.interval %}
+
+                <div id="section-to-print" style="position: relative; width: 8.5in; height: 11in;">
+                    <div id="header_content">
+                        <table>
+                            <tr>
+                                <td><br><img id="logo" src="{{ detail.logo }}" /><br></td>
+                                <td width="500px">
+                                    <p class="title center"><br>CHECK VOUCHER</p>
+                                </td>
+                                <td>
+                                    <p class="number right">CV No. {{ value.cvmain.cvnum }}<br>CV Date: {{ value.cvmain.cvdate|date:'m/d/Y' }}</p>
+                                </td>
+                            </tr>
+                        </table>
+                        <br>
+                    </div>
+                    {% if forloop.first %}
+                    <table style="width: 100%;">
+                        <tr><td colspan="3"></td></tr>
+                        <tr>
+                            <td colspan="3" style="line-height: 15px;">
+                                <span class="title">{{ detail.parameter.description|upper }}</span><br>
+                                {{ detail.parameter.address1 }}<br>
+                                {{ detail.parameter.address2 }}<br>
+                                Tel: ({{ detail.parameter.telno1 }}, {{ detail.parameter.telno2 }}<br>
+                                VAT REG TIN: {{ detail.parameter.tinnum }}
+                            </td>
+                        </tr>
+                        <tr><td colspan="3"></td></tr>
+                        <tr>
+                            <td colspan="3">
+                                <br><br>
+                                <table>
+                                    <tbody style="line-height: 15px;">
+                                        <tr>
+                                            <td width="10%" style="vertical-align: top"><b>CV&nbsp;Date</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="17%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.cvdate|date:'Y-m-d' }}</td>
+                                            <td width="10%" style="vertical-align: top"><b>Type</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="15%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.cvtype.description }}</td>
+                                            <td width="10%" style="vertical-align: top"><b>Subtype</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="29%" style="vertical-align: top;">{{ value.cvmain.cvsubtype.description }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td width="10%" style="vertical-align: top"><b>Branch</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="17%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.branch.description }}</td>
+                                            <td width="10%" style="vertical-align: top"><b>Status</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="15%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.get_cvstatus_display }}</td>
+                                            <td width="10%" style="vertical-align: top"><b>Bank&nbsp;Acct</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="29%" style="vertical-align: top;">{{ value.cvmain.bankaccount.code }} [{{ details.cvmain.bankaccount.bank.description }} - {{ cvmain.bankaccount.bankaccounttype.description }}]</td>
+                                        </tr>
+                                        <tr>
+                                            <td width="10%" style="vertical-align: top"><b>Check&nbsp;No.</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="17%" style="vertical-align: top">{{ value.cvmain.checknum }}</td>
+                                            <td width="10%" style="vertical-align: top"><b>Amount</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="15%" style="vertical-align: top">{{ value.cvmain.currency.symbol }}&nbsp;{{ details.cvmain.amount|floatformat:2|intcomma }}</td>
+                                            <td width="10%" style="vertical-align: top"><b>In&nbsp;Words</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="29%" style="vertical-align: top;">{{ value.cvmain.amountinwords }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td width="10%" style="vertical-align: top"><b>Check&nbsp;Date</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="17%"  style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.checkdate|date:'Y-m-d' }}</td>
+                                            <td width="10%" style="vertical-align: top"><b>VAT</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="15%" style="vertical-align: top; padding-right: 20px;">{{ value.cvmain.vat.description }}</td>
+                                            <td width="10%" style="vertical-align: top"><b>Payee</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="29%" style="vertical-align: top;">{{ value.cvmain.payee_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td width="10%" style="vertical-align: top"><b>Input&nbsp;VAT</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="17%"  style="vertical-align: top">{{ value.cvmain.inputvattype.description }}</td>
+                                            <td width="10%" style="vertical-align: top"><b>ATC</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="15%" style="vertical-align: top">[{{ value.cvmain.atc.code }}]&nbsp;{{ cvmain.atcrate }}%</td>
+                                            <td width="10%" style="vertical-align: top"><b>Ref No</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td width="29%" style="vertical-align: top;">{{ value.cvmain.refnum }}</td>
+
+                                        </tr>
+                                        <tr>
+                                            <td width="10%" style="vertical-align: top"><b>Particulars</b></td>
+                                            <td width="3%" style="vertical-align: top"><b>:</b></td>
+                                            <td colspan="7" width="80%" style="vertical-align: top;">{{ value.cvmain.particulars }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr><td></td></tr>
+                    </table>
+                    {% endif %}
+                    {% if value.reppcvmain %}
+                        <b>PETTY CASH REPLENISHMENTS</b>
+                        <table>
+                            <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+                                <td style="border-left: 2px solid black; padding-left: 5px;"></td>
+                                <td style="padding-left: 5px;"><b><i>Rep. PCV Number</i></b></td>
+                                <td><b><i>Rep. PCV Date</i></b></td>
+                                <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
+                            </tr>
+                            {% for data in value.reppcvmain %}
+                                <tr>
+                                    <td width="5%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
+                                    <td width="35%" style="padding-top: 5px; padding-left: 5px;">{{ data.reppcvnum }}</td>
+                                    <td width="30%" style="padding-top: 5px; padding-left: 5px;">{{ data.reppcvdate|date:'Y-m-d' }}</td>
+                                    <td width="30%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan="3" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+                                <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ value.reppcv_total_amount|floatformat:2|intcomma }}</b></td>
+                            </tr>
+                        </table><br>
+                    {% endif %}
+                    <table style="border-collapse: collapse; margin-top: 40px;">
+                        
+                        <tr class="left" style="border: 2px solid black; border-bottom: none;">
+                            <td colspan="2" style="padding: 10px 0px 5px 10px;"><b><i>------------------------General Ledger------------------------</i></b></td>
+                            <td colspan="2" style="padding-top: 10px;" align="left"><b><i>-------------------------Subsidiary Ledger-------------------------</i></b></td>
+                            <td colspan="2" style="text-align: right; padding-top: 10px;"><b><i>---------Amount (PHP)---------</i></b>&nbsp;&nbsp;&nbsp;</td>
+                        </tr>
+                        <tr class="left" style="border: 2px solid black; border-top: none;">
+                            <td style="width: 10%; padding: 5px 0px 10px 10px;"><b>Acct Code</b></td>
+                            <td style="width: 28%; padding-top: 5px;" align="center"><b>Acct Title</b></td>
+                            <td style="width: 10%; padding-top: 5px;"><b>Code</b></td>
+                            <td style="width: 30%; padding-top: 5px;"><b>Particulars</b></td>
+                            <td style="width: 11%; padding-top: 5px;" align="right"><b>Debit</b></td>
+                            <td style="width: 11%; padding-top: 5px; padding-right: 5px;" align="right"><b>Credit</b>&nbsp;&nbsp;&nbsp;</td>
+                        </tr>
+                    
+                        {% for detail in value.sorteddetail|keyvalue:i %}
+                            <tr style="padding-top: 15px; padding-left: 20px;">
+                                <td style="width: 9%; vertical-align: top; padding-top: 10px;">{{ detail.chartofaccount.accountcode }}</td>
+                                <td style="width: 28%; vertical-align: top; padding-top: 10px; {% if detail.balancecode == 'C' %}; padding-left: 10px; {% endif %}">{{ detail.chartofaccount.description }}</td>
+                                <td style="width: 10%; vertical-align: top; padding-top: 10px;">
+                                    {% if detail.balancecode == 'C' %}&nbsp;&nbsp;&nbsp;{% endif %}
+                                    {% if detail.bankaccount %}
+                                        {{ detail.bankaccount.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.department %}
+                                        {{ detail.department.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.branch %}
+                                        {{ detail.branch.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.employee %}
+                                        {{ detail.employee.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.supplier %}
+                                        {{ detail.supplier.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.customer %}
+                                        {{ detail.customer.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.unit %}
+                                        {{ detail.unit.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.product %}
+                                        {{ detail.product.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.inputvat %}
+                                        {{ detail.inputvat.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.outputvat %}
+                                        {{ detail.outputvat.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.vat %}
+                                        {{ detail.vat.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.wtax %}
+                                        {{ detail.wtax.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                    {% if detail.ataxcode %}
+                                        {{ detail.ataxcode.code }}&nbsp;&nbsp;
+                                    {% endif %}
+                                </td>
+                                <td style="width: 30%; vertical-align: top; padding-top: 10px;">
+                                    {% if detail.bankaccount %}
+                                        {{ detail.bankaccount.accountnumber }}
+                                    {% endif %}
+                                    {% if detail.department %}
+                                        {{ detail.department.departmentname }}
+                                    {% endif %}
+                                    {% if detail.employee %}
+                                        {{ detail.employee.firstname }}&nbsp;{{ detail.employee.lastname }}
+                                    {% endif %}
+                                    {% if detail.supplier %}
+                                        {{ detail.supplier.name }}
+                                    {% endif %}
+                                    {% if detail.customer %}
+                                        {{ detail.customer.name }}
+                                    {% endif %}
+                                    {% if detail.unit %}
+                                        {{ detail.unit.description }}
+                                    {% endif %}
+                                    {% if detail.product %}
+                                        {{ detail.product.description }}
+                                    {% endif %}
+                                    {% if detail.ataxcode %}
+                                        {{ detail.ataxcode.description }}
+                                    {% endif %}
+                                </td>
+                                <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}
+                                <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}
+                            </tr>
+                        {% endfor %}
+                        {% if forloop.last %}
+                            <tr>
+                                <td colspan="4" style="padding-top: 10px;" align="right"><b>TOTAL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                                <td align="right" style="padding-top: 10px;"><b>{{ value.totaldebitamount.debitamount__sum|intcomma }}</b></td>
+                                <td align="right" style="padding-top: 10px;"><b>{{ value.totalcreditamount.creditamount__sum|intcomma }}</b></td>
+                            </tr>
+                        {% endif %}
+                    </table>
+
+                    <div id="footer_content" style="position: absolute; bottom: 0; ">
+                        <table style="border-collapse: collapse; border: 2px solid #000;">
+                            <tr>
+                                <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Prepared by</b></td>
+                                <td width="1%" style="padding: 40px 0px 20px 0px; text-align: right;"><b>:</b></td>    
+                                <td align="center" style="padding: 35px 0px 20px 0px;">
+                                    <div class="sign_here">
+                                        {% if value.cvmain.actualapprover %}
+                                            SGD
+                                        {% endif %}
+                                        {{ value.cvmain.enterby.first_name|upper }}&nbsp;{{ value.cvmain.enterby.last_name|upper }}
+                                    </div>
+                                    <i>Signature over printed name</i>
+                                </td>
+                                <td width="1%"></td>
+                                <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Approved by</b></td>
+                                <td width="1%" style="padding: 40px 0px 20px 20px; text-align: right;"><b>:</b></td>
+                                <td align="center" style="padding: 35px 0px 20px 0px;">
+                                    <div class="sign_here">
+                                        {% if value.cvmain.actualapprover and value.cvmain.approverresponse == 'A' %}
+                                            SGD {{ value.cvmain.actualapprover.first_name|upper }}&nbsp;{{ value.cvmain.actualapprover.last_name|upper }}
+                                        {% else %}
+                                            {{ value.cvmain.designatedapprover.first_name|upper }}&nbsp;{{ value.cvmain.designatedapprover.last_name|upper }}
+                                        {% endif %}
+                                    </div>
+                                    <i>Signature over printed name</i>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Date prepared</b></td>
+                                <td style="padding: 0; text-align: right;"><b>:</b></td>
+                                <td align="center" style="padding: 20px 0 10px 0; padding-top: 0;">
+                                    <div class="sign_here">{{ value.cvmain.enterdate|date:'Y-m-d' }}</div>
+                                </td>
+                                <td width="2%"></td>
+                                <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Received by</b></td>
+                                <td style="padding: 0; text-align: right;"><b>:</b></td>
+                                <td align="center" style="padding: 20px 0 10px 0; padding-top: 0;">
+                                    <div class="sign_here"> .</div>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <table class="arial" style="font-size: 9px; margin-top: 10px;">
+                            <tr>
+                                <td width="30%">
+                                    {{ detail.parameter.report_footer1 }}<br>
+                                    {{ detail.parameter.report_footer2 }}<br>
+                                    {{ detail.parameter.report_footer3 }}<br>
+                                    {{ detail.parameter.report_footer4 }}<br>
+                                    <b>{{ detail.parameter.report_footer5 }}</b><br>
+                                    <b>{{ detail.parameter.report_footer6 }}</b><br>
+                                    {{ detail.parameter.report_footer7 }} {{ request.user }} on {% now "SHORT_DATETIME_FORMAT" %}
+                                </td>
+                                <td width="20%" style="margin-left: 90px;">
+                                    {{ detail.parameter.report_footer8 }}<br>
+                                    {{ detail.parameter.report_footer9 }}<br>
+                                    {{ detail.parameter.report_footer10 }}<br>
+                                    {{ detail.parameter.report_footer11 }}<br>
+                                    {{ detail.parameter.report_footer12 }}<br>
+                                    {{ detail.parameter.report_footer13 }}<br>
+                                    {{ detail.parameter.report_footer14 }}
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="text-align: right; font-size: 8px;">
+                            Page {{ value|keyvalue:i }} of {{ detail.pagenum }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <!-- end multi page CV -->
+        {% endif %}
+    {% endfor %}
+</body>
+
+</html>
+<script type="text/javascript">
+    window.onafterprint = window.close;
+    window.onload = print();
+</script>

@@ -1,0 +1,130 @@
+{% load humanize %}
+{% block extra_css %}
+    <style>
+        .pointer {
+            cursor: pointer;
+        }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    
+        input[type=number], 
+        .amount-right{
+            text-align: right;
+        }
+    </style>
+{% endblock extra_css %}
+<a style="display: none;" href="" id="trigger_print" target="_blank">Print all</a>
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="table-responsive">
+        {% if cv_data %}
+            <table class="table table-striped table-bordered" id="cv_table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" class="pointer" name="chb_all" id="chb_all" title="Tick to include all." checked="Tick" /></th>
+                        <th><span>CV Number</span></th>
+                        <th><span>CV Date</span></th>
+                        <th><span>CV Status</span></th>
+                        <th><span>Payee Code</span></th>
+                        <th><span>Payee Name</span></th>
+                        <th><span>Reference Number</span></th>
+                        <th><span>Particulars</span></th>
+                        <th><span>Amount</span></th>
+                        <th><span>VAT Rate</span></th>
+                        <th><span>Bank Branch</span></th>
+                        <th><span>Check Number</span></th>
+                        <th><span>Check Date</span></th>
+                        <th><span>Status</span></th>
+                        <!-- <th><span>CV Type ID</span></th>
+                        <th><span>Print counter</span></th>
+                        <th><span>CV Sub-type ID</span></th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in cv_data %}
+                        {% if not user.is_superuser and data.confi == 1 and data.enterby_id != user.id %}
+                            <!-- <tr>
+                                <td></td>
+                                <td> data.cvnum </td>
+                                <td> data.cvdate|date:'Y-m-d' </td>
+                                <td colspan="10" class="text-center"> Reserved Transaction </td>
+                            </tr> -->
+                        {% else %}
+                            <tr id="{{ data.id }}">
+                                <!-- checkbox -->
+                                <td><input type="checkbox" class="cv-checkbox pointer" name="chb_{{ data.id }}" id="chb_{{ data.id }}" title="Tick to include CV {{ data.cvnum }}" checked /></td>
+                                <!-- CV Number -->
+                                <td><span>{{ data.cvnum }}</span></td>
+                                <!-- CV Date -->
+                                <td>{{ data.cvdate|date:'Y-m-d' }}</td>
+                                <!-- CV Status -->
+                                <td class="{% if data.cvstatus == 'A' %} text-success
+                                {% elif data.cvstatus == 'D' %} text-danger
+                                {% elif data.cvstatus == 'F' %} text-info
+                                {% elif data.cvstatus == 'R' %} text-success
+                                {% endif %}">{{ data.cvstatus }}</td>
+                                <!-- Payee Code -->
+                                <td>{{ data.payee_code }}</td>
+                                <!-- Payee Name -->
+                                <td>{{ data.payee_name }}</td>
+                                <!-- Reference Number -->
+                                <td>{{ data.refnum }}</td>
+                                <!-- Particulars -->
+                                <td>{{ data.particulars }}</td>
+                                <!-- VAT Code -->
+                                <td class="text-right">{{ data.amount|floatformat:2|intcomma }}</td>
+                                <!-- VAT Rate -->
+                                <td>{{ data.vat.rate }}</td>
+                                <!-- Bank Branch -->
+                                <td>{{ data.bankaccount.bankbranch.description }}</td>
+                                <!-- Check Number -->
+                                <td>{{ data.checknum }}</td>
+                                <!-- Check Date -->
+                                <td>{{ data.checkdate }}</td>
+                                <!-- Status -->
+                                <td>{{ data.status }}</td>
+                                <!-- CV Type ID -->
+                                <!-- <td>{{ data.cvtype_id }}</td> -->
+                                <!-- Print counter -->
+                                <!-- <td>{{ data.print_ctr }}</td> -->
+                                <!-- CV Sub-Type ID -->
+                                <!-- <td>{{ data.cvsubtype_id }}</td> -->
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+
+            <div class="text-center">
+                <span><b>No results found.</b></span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    $(function () {
+        $(document).on('change', 'input[name="chb_all"]', function() {
+            $('.cv-checkbox').prop("checked", this.checked);
+        });
+
+        $('#print').click(function(){
+            
+            var count = 0;
+            var cv_ids = [];
+            $('#cv_table').find('tbody tr').each(function () {
+                if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                    count++;
+                    cv_ids.push($(this).attr('id'));
+                }
+            });
+            
+            $("#trigger_print").attr("href", "{% url 'batchprinting_checkvoucher:start' %}" + "?s=" + encodeURIComponent(JSON.stringify(cv_ids)));
+            $('#trigger_print')[0].click();
+        });
+    });
+
+    
+</script>
