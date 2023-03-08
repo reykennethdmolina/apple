@@ -1,8 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from endless_pagination.views import AjaxListView
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404, JsonResponse
-from django.db.models import Q, Sum
+from django.http import JsonResponse
+from django.db.models import Sum
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
@@ -108,7 +108,7 @@ def start(request):
             parameter[ap_id] = {}
             parameter[ap_id]['is_multi_page'] = False
 
-            parameter[ap_id]['apmain'] = Apmain.objects.get(pk=ap_id, isdeleted=0)
+            parameter[ap_id]['apmain'] = Apmain.objects.get(pk=ap_id, isdeleted=0, confi=0)
             
             detail = Apdetail.objects.filter(isdeleted=0). \
                 filter(apmain_id=ap_id).order_by('-balancecode', 'item_counter')
