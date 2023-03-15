@@ -30,6 +30,7 @@
                             </span>
                         </div>
                     </div>
+                    <a href="{% url 'batchprinting_journalvoucher:index' %}" target="_blank"><button type="button" class="btn btn-info btn-sm waves-effect waves-light"> <i class="icon fa-print" aria-hidden="true"></i> Batch Printing</button></a>
                     <!-- pagination and search end -->
                     {% if perms.journalvoucher.can_postjv %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="posting" data-target='#postingModal'>
