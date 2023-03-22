@@ -114,7 +114,7 @@ class UpdateView(UpdateView):
                                         'creditterm', 'inputvattype', 'deferredvat', 'vat',
                                         'atc', 'currency', 'fxrate', 'vatrate', 'atcrate',
                                         'industry', 'suppliertype', 'modifyby', 'modifydate',
-                                        'bankaccount', 'bankbranchdisburse', 'paytype', 'account_number'])
+                                        'bankaccount', 'bankbranchdisburse', 'paytype', 'account_number', 'triplec', 'ccc'])
         return HttpResponseRedirect('/supplier')
 
     def get_context_data(self, **kwargs):
