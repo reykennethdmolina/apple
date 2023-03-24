@@ -138,8 +138,9 @@
                                 <select class="form-control input-sm" data-validation="required" id="id_jvtype" name="jvtype">
                                     {% for data in jvtype %}
                                         {% if data.id == 6 %}
+                                            <option value="{{ data.id }}" {% if form.jvtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
                                             {% if user.is_superuser %}
-                                                <option value="{{ data.id }}" {% if form.jvtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+
                                             {% endif %}
                                         {% else %}
                                         <option value="{{ data.id }}" {% if form.jvtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
