@@ -128,8 +128,10 @@ def tagging(request):
     return JsonResponse(data)
 
 #@csrf_exempt
-@method_decorator(login_required, name='dispatch')
+#@method_decorator(login_required, name='dispatch')
+@login_required
 def transgenerate(request):
+    print 'hoyoyoyo'
     dto = request.GET["dto"]
     dfrom = request.GET["dfrom"]
     transaction = request.GET["transaction"]
@@ -140,7 +142,7 @@ def transgenerate(request):
 
     viewhtml = ''
     context = {}
-
+    print 'hoy'
     if report == '1':
         print "subsidiary ledger"
 
