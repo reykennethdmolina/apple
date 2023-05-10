@@ -307,7 +307,8 @@ class CreateViewUser(CreateView):
         # else:
         #     context['oftype'] = Oftype.objects.filter(id__in=[1,2,3,4,5,6]).order_by('pk')
         #context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        user_employee = get_object_or_None(Employee, user=self.request.user)
+        #print self.request.user
+        user_employee = get_object_or_None(Employee, pk=self.request.user.id)
         if self.request.user.has_perm('operationalfund.assign_requestor'):
             context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
         else:
@@ -329,8 +330,9 @@ class CreateViewUser(CreateView):
         context['mealbudget'] = Companyparameter.objects.get(code='PDI').pcv_meal_budget_limit
         context['eyeglass'] = 0
         ofdepsub = Ofmain.objects.filter(isdeleted=0, requestor_id=user_employee, ofstatus='F', oftype_id=10).aggregate(Sum('amount'))
-        print ofdepsub
+        print 'hoy'
         context['anti_dep_amount'] = max(0, float(user_employee.anti_dep_amount))
+        print 'hoy2'
         if ofdepsub['amount__sum']:
             context['anti_dep_amount'] = max(0, float(user_employee.anti_dep_amount) - float(ofdepsub['amount__sum']))
 
