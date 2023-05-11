@@ -307,8 +307,8 @@ class CreateViewUser(CreateView):
         # else:
         #     context['oftype'] = Oftype.objects.filter(id__in=[1,2,3,4,5,6]).order_by('pk')
         #context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        #print self.request.user
-        user_employee = get_object_or_None(Employee, pk=self.request.user.id)
+        
+        user_employee = get_object_or_None(Employee, user=self.request.user)
         if self.request.user.has_perm('operationalfund.assign_requestor'):
             context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
         else:
