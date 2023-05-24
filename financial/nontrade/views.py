@@ -103,17 +103,16 @@ def tagging(request):
 
 
         if status == 1:
-            print 'Valid Transaction'
-            if sub.document_type != request.GET["reftype"]:
-                msg = 'Invalid Transaction Tagging Subledger Type: '+ sub.document_type + ' vs Ref Type: '+ request.GET["reftype"]
-                status = 0
-            else:
-                msg = 'Successfully tag'
-                sub.document_reftype = request.GET["reftype"]
-                sub.document_refnum = request.GET["refnum"]
-                sub.document_refdate = tdate
-                sub.save()
-                status = 1
+            # print 'Valid Transaction'
+            # if sub.document_type != request.GET["reftype"]:
+            #     msg = 'Invalid Transaction Tagging Subledger Type: '+ sub.document_type + ' vs Ref Type: '+ request.GET["reftype"]
+            #     status = 0
+            msg = 'Successfully tag'
+            sub.document_reftype = request.GET["reftype"]
+            sub.document_refnum = request.GET["refnum"]
+            sub.document_refdate = tdate
+            sub.save()
+            status = 1
 
             print sub.document_type
             print status
