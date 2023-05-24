@@ -559,13 +559,14 @@ def queryLedger(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
             "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
             "FROM subledger AS a " \
             "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
-            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
+            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.customer_id " \
             "LEFT OUTER JOIN customer AS scust ON scust.id =  b.setup_customer " \
             "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
             "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
             "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
             ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby)
 
+    ##"LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id "
     print query
 
     cursor.execute(query)
