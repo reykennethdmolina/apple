@@ -494,7 +494,7 @@ class UpdateView(UpdateView):
                                                                 (decimal.Decimal(self.object.wtaxrate) /
                                                                  decimal.Decimal(100)))
         # print non_vat_amount
-
+        print 'hello guys'
         if self.object.vatrate > 0:
             self.object.vatablesale = non_vat_amount
             self.object.vatexemptsale = 0
@@ -1497,6 +1497,7 @@ class GeneratePDF(View):
                 q = q.filter(ordate__lte=dto)
         elif report == '6':
             title = "Unbalanced Official Receipt Transaction List"
+            print title
             q = Ormain.objects.select_related('ordetail').filter(isdeleted=0).order_by('ordate', 'ornum')
             if dfrom != '':
                 q = q.filter(ordate__gte=dfrom)
@@ -1931,7 +1932,11 @@ class GenerateExcel(View):
             totalamount = 0
             amount = 0
             for data in list:
-                worksheet.write(row, col, data.ornum)
+                if data.orsource == 'A':
+                    worksheet.write(row, col, str('OR')+data.ornum)
+                else:
+                    worksheet.write(row, col, str('CR')+data.ornum)
+
                 worksheet.write(row, col + 1, data.ordate, formatdate)
                 if data.status == 'C':
                     worksheet.write(row, col + 2, 'C A N C E L L E D')
@@ -2497,7 +2502,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
     if ortype != '':
         conortype = "AND m.ortype = '" +str(ortype)+ "'"
     if artype != '':
-        conartype = "AND m.artype = '" + str(artype) + "'"
+        conartype = "AND m.orsource = '" + str(artype) + "'"
     if payee != 'null':
         conpayee = "AND m.payee_code = '" + str(payee) + "'"
     if branch != '':
@@ -2544,20 +2549,21 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
                 "(IFNULL(debit.total_amount, 0) - IFNULL(credit.total_amount, 0)) AS detaildiff, (m.amount - IFNULL(debit.total_amount, 0)) AS diff " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN ( " \
-                "   SELECT or_num, balancecode, chartofaccount_id, SUM(debitamount) AS total_amount " \
+                "   SELECT ormain_id, or_num, balancecode, chartofaccount_id, SUM(debitamount) AS total_amount " \
                 "   FROM ordetail WHERE balancecode = 'D' " \
-                "   GROUP BY or_num " \
-                ") AS debit ON debit.or_num = m.ornum	 " \
+                "   GROUP BY ormain_id " \
+                ") AS debit ON debit.ormain_id = m.id  " \
                 "LEFT OUTER JOIN ( " \
-                "   SELECT or_num, balancecode, chartofaccount_id, SUM(creditamount) AS total_amount " \
+                "   SELECT ormain_id, or_num, balancecode, chartofaccount_id, SUM(creditamount) AS total_amount " \
                 "   FROM ordetail WHERE balancecode = 'C' " \
-                "   GROUP BY or_num " \
-                ") AS credit ON credit.or_num = m.ornum	" \
+                "   GROUP BY ormain_id " \
+                ") AS credit ON credit.ormain_id = m.id 	" \
                 "WHERE m.ordate >= '"+str(dfrom)+"' AND m.ordate <= '"+str(dto)+"' " \
                 + str(conortype) + " " + str(conartype) + " " + str(conpayee) + " " + str(conbranch) + " " + str(concollector) + " " + str(conproduct) + " " \
                 + str(conadtype) + " " + str(conwtax) + " " + str(convat) + " " + str(conoutputvat) + " " + str(conbankaccount) + " " + str(constatus) + " " \
                 "AND m.status != 'C' ORDER BY m.ordate,  m.ornum) AS z WHERE z.detaildiff != 0 OR z.diff != 0;"
-        #print query
+        print 'dito'
+        print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
