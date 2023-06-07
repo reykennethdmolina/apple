@@ -101,10 +101,10 @@ def fileupload(request):
                                     print "(1/2 - " + status_percentage + "%) Processing: " + data[0]
 
                                     # log status filtering
-                                    if Logs_ormain.objects.filter(orno=data[0], importstatus='P'):
+                                    if Logs_ormain.objects.filter(orno=data[0], artype = 'A', importstatus='P'):
                                         importstatus = 'F'
                                         importremarks = 'Skipped: Already posted'
-                                    elif Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey, importstatus='S'):
+                                    elif Logs_ormain.objects.filter(orno=data[0], artype = 'A', batchkey=batchkey, importstatus='S'):
                                         importstatus = 'F'
                                         importremarks = 'Skipped: Already exists in this batch'
                                     elif not Bankaccount.objects.filter(code=data[13]):
@@ -204,6 +204,7 @@ def fileupload(request):
                                         importremarks=importremarks,
                                         importby=request.user,
                                         branchdesc=data[32],
+
                                     ).save()
                                     breakstatus = 0
                                 else:
@@ -385,10 +386,10 @@ def fileupload(request):
                                     print "(1/2 - " + status_percentage + "%) Processing: " + data[0]
 
                                     # log status filtering
-                                    if Logs_ormain.objects.filter(orno=data[0], importstatus='P'):
+                                    if Logs_ormain.objects.filter(orno=data[0], artype = 'C', importstatus='P'):
                                         importstatus = 'F'
                                         importremarks = 'Skipped: Already posted'
-                                    elif Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey, importstatus='S'):
+                                    elif Logs_ormain.objects.filter(orno=data[0], artype = 'C', batchkey=batchkey, importstatus='S'):
                                         importstatus = 'F'
                                         importremarks = 'Skipped: Already exists in this batch'
                                     elif not Bankaccount.objects.filter(code=data[13]):
@@ -423,6 +424,8 @@ def fileupload(request):
                                     accttype = data[3].lower()
                                     if data[3].lower() == 'b':
                                         accttype = 's'
+
+                                    #print data[1]
                                     Logs_ormain.objects.create(
                                         orno=data[0],
                                         ordate=data[1],
@@ -449,6 +452,7 @@ def fileupload(request):
                                         importby=request.user,
                                         subscription=data[21].strip(),
                                         status=data[16],
+
                                     ).save()
                                     breakstatus = 0
                                 else:
@@ -467,7 +471,7 @@ def fileupload(request):
                             if breakstatus == 0 and breakmain == 0:
                                 from django.db import connection
                                 cursor = connection.cursor()
-                                cursor.execute("UPDATE logs_ormain SET ordate = DATE_FORMAT(STR_TO_DATE(SUBSTRING(ordate, 1, 9), '%m/%d/%Y'), '%m/%d/%Y') WHERE batchkey = batchkey")
+                                cursor.execute("UPDATE logs_ormain SET ordate = DATE_FORMAT(STR_TO_DATE(SUBSTRING(ordate, 1, 10), '%m/%d/%Y'), '%m/%d/%Y') WHERE batchkey = batchkey")
 
                                 orcountd = 0
                                 status_total = len(open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt").readlines())
@@ -580,13 +584,17 @@ def exportsave(request):
         # data-result definition:
         #   1: success
         #   2: failed - artype error
+        print request.POST['artype']
         if request.POST['artype'] == 'a' or request.POST['artype'] == 'c':
-            ormain = Logs_ormain.objects.filter(importstatus='S', batchkey=request.POST['batchkey'])
+            ormain = Logs_ormain.objects.filter(importstatus='S', artype = request.POST['artype'], batchkey=request.POST['batchkey'])
             ormain_list = []
             ordetail_list = []
             log_remarks = ''
             successdebit = 0
             successcredit = 0
+
+            print ormain
+            print 'hello'
 
             if request.POST['artype'] == 'a':
                 orcount = 0
@@ -839,7 +847,7 @@ def exportsave(request):
                         temp_remarks = temp_ormain.payeename
                     else:
                         temp_remarks = ''
-
+                    print 'dito ako'
                     Ormain.objects.create(
                         ornum=temp_ormain.orno,
                         ordate=temp_ormain.ordate,
