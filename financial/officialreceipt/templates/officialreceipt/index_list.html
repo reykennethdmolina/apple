@@ -19,7 +19,7 @@
             {% for data in data_list %}
             <tr>
                 <td>{{ data.id }}</td>
-                <td>{{ data.ornum }}</td>
+                <td>{% if data.orsource == 'A'%}OR{% else %}CR{% endif %}{{ data.ornum }}</td>
                 <td>{{ data.ordate|date:"Y-m-d" }}</td>
                 <td>{{ data.payee_name }}</td>
                 <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>

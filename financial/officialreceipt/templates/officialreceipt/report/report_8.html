@@ -139,7 +139,7 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:120px;vertical-align:top;">{{ item.ornum|upper }}</td>
+            <td style="text-align:left;width:120px;vertical-align:top;">{% if item.orsource == 'A'%}OR{% else %}CR{% endif %}{{ item.ornum|upper }}</td>
             <td style="text-align:left;width:120px;vertical-align:top;">{{ item.ordate|date:'Y-m-d' }}</td>
             <td style="text-align:center;vertical-align:top;width:60px;">{{ item.government|default:"" }}</td>
             <td style="text-align:left;vertical-align:top;width:290px;">{{ item.payee_name }}</td>
