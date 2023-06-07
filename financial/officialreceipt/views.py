@@ -2210,7 +2210,11 @@ class GenerateExcel(View):
 
 
             for data in list:
-                worksheet.write(row, col, data.ornum)
+                if data.orsource == 'A':
+                    worksheet.write(row, col, str('OR')+data.ornum)
+                else:
+                    worksheet.write(row, col, str('CR')+data.ornum)
+                #worksheet.write(row, col, data.ornum)
                 worksheet.write(row, col + 1, data.ordate, formatdate)
                 if data.status == 'C':
                     worksheet.write(row, col + 2, 'C A N C E L L E D')
@@ -2527,7 +2531,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
         constatus = "AND m.status = '" + str(status) + "'"
 
     if type == 1:
-        query = "SELECT m.id, m.ornum, m.ordate, IF(m.status = 'C', 0, m.amount) AS amount, m.payee_name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, m.status, " \
+        query = "SELECT m.orsource, m.id, m.ornum, m.ordate, IF(m.status = 'C', 0, m.amount) AS amount, m.payee_name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, m.status, " \
                 "(m.amount - IFNULL(cash.total_amount, 0)) AS diff, (m.amount - IFNULL(ouput.total_amount,0)) AS amountdue " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN (" \
@@ -2547,7 +2551,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
                 "ORDER BY m.ordate,  m.ornum"
     elif type == 2:
         query = "SELECT z.*, ABS(z.detaildiff + z.diff) AS totaldiff FROM (" \
-                "SELECT m.id, m.ornum, m.ordate, m.payee_name, IF(m.status = 'C', 0, m.amount) AS amount, m.status, IFNULL(debit.total_amount, 0) AS debitamount, IFNULL(credit.total_amount, 0) AS creditamount, " \
+                "SELECT m.orsource, m.id, m.ornum, m.ordate, m.payee_name, IF(m.status = 'C', 0, m.amount) AS amount, m.status, IFNULL(debit.total_amount, 0) AS debitamount, IFNULL(credit.total_amount, 0) AS creditamount, " \
                 "(IFNULL(debit.total_amount, 0) - IFNULL(credit.total_amount, 0)) AS detaildiff, (m.amount - IFNULL(debit.total_amount, 0)) AS diff " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN ( " \
