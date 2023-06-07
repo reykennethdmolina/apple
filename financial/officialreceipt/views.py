@@ -283,7 +283,7 @@ class UpdateView(UpdateView):
     template_name = 'officialreceipt/update.html'
     fields = ['ordate', 'ortype', 'orsource', 'collector', 'branch', 'amount', 'amountinwords', 'vat',
               'wtax', 'outputvattype', 'deferredvat', 'circulationproduct', 'bankaccount', 'particulars', 'government',
-              'remarks', 'vatrate', 'wtaxrate', 'orsource', 'prnum', 'prdate', 'ornum', 'adtype']
+              'remarks', 'vatrate', 'wtaxrate', 'orsource', 'prnum', 'prdate',  'adtype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('officialreceipt.change_ormain'):
@@ -448,6 +448,8 @@ class UpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+
+        print 'hxxxello guys'
 
         if self.object.orsource == 'A':
             self.object.payee_type = self.request.POST['payee_adv']
