@@ -903,7 +903,11 @@ class GenerateExcel(View):
             for data in list:
 
                 worksheet.write(row, col, data.or_date, formatdate)
-                worksheet.write(row, col + 1, data.or_num)
+                if data.ormain.orsource == 'A':
+                    worksheet.write(row, col + 1, str('OR') + data.ormain.ornum)
+                else:
+                    worksheet.write(row, col + 1, str('CR') + data.ormain.ornum)
+                #worksheet.write(row, col + 1, data.or_num)
 
                 if data.status == 'C':
                     worksheet.write(row, col + 2, 'C  A  N  C  E  L  L  E  D')
@@ -1093,7 +1097,11 @@ class GenerateExcel(View):
                 df = pd.DataFrame(q)
                 for index, data in df.iterrows():
                     worksheet.write(row, col, data['transdate'], formatdate)
-                    worksheet.write(row, col + 1, data['transtype'])
+                    if data['orsource'] == 'A':
+                        worksheet.write(row, col + 1, str('OR'))
+                    else:
+                        worksheet.write(row, col + 1, str('CR'))
+                    #worksheet.write(row, col + 1, data['transtype'])
                     worksheet.write(row, col + 2, data['reference'])
                     worksheet.write(row, col + 3, data['particulars'],)
                     worksheet.write(row, col + 4, data['accountcode'])
@@ -1159,7 +1167,11 @@ class GenerateExcel(View):
                 df = pd.DataFrame(q)
                 for index, data in df.iterrows():
                     worksheet.write(row, col, data['ordate'], formatdate)
-                    worksheet.write(row, col + 1, data['ornum'])
+                    #worksheet.write(row, col + 1, data['ornum'])
+                    if data['orsource'] == 'A':
+                        worksheet.write(row, col, str('OR') + data['ornum'])
+                    else:
+                        worksheet.write(row, col, str('CR') + data['ornum'])
                     worksheet.write(row, col + 2, data['payee_name'])
                     worksheet.write(row, col + 3, data['particulars'], )
                     worksheet.write(row, col + 4, data['accountcode'])
@@ -1330,7 +1342,11 @@ class GenerateExcel(View):
                 df = pd.DataFrame(q)
                 for index, data in df.iterrows():
                     worksheet.write(row, col, data['transdate'], formatdate)
-                    worksheet.write(row, col + 1, data['transtype']+''+data['reference'])
+                    if data['orsource'] == 'A':
+                        worksheet.write(row, col + 1, str('OR')+''+data['reference'])
+                    else:
+                        worksheet.write(row, col + 1, str('CR')+''+data['reference'])
+                    #worksheet.write(row, col + 1, data['transtype']+''+data['reference'])
                     worksheet.write(row, col + 2, data['particulars'],)
                     worksheet.write(row, col + 3, data['description'])
                     worksheet.write(row, col + 4, float(format(data['debit'], '.2f')))
@@ -1509,17 +1525,19 @@ def query_bir(report, dfrom, dto):
 
     if report == '14' or report == '17':
         print 'gen ledger'
-        query = "SELECT s.document_date AS transdate, s.document_type AS transtype, s.document_num AS reference, " \
+        query = "SELECT s.document_date AS transdate, s.document_type AS transtype, s.document_num AS reference, om.orsource, " \
                 "REPLACE(CONVERT(TRIM(REPLACE(REPLACE(s.particulars, '\\n', ''), '\\r', '')) USING ASCII), '?', '') AS particulars, " \
                 "c.accountcode, c.description, IF (s.balancecode = 'D', s.amount, 0) AS debit, IF (s.balancecode = 'C', s.amount, 0) AS credit " \
                 "FROM subledger AS s " \
                 "LEFT OUTER JOIN chartofaccount AS c ON c.id = s.chartofaccount_id " \
+                "left outer join ordetail as od on (od.id = s.document_id and s.document_type = 'OR') " \
+                "left outer join ormain as om on od.ormain_id = om.id " \
                 "WHERE s.document_date >= '" + str(dfrom) + "' AND s.document_date <= '" + str(dto) + "' " \
                 "ORDER BY s.document_date, s.document_num, FIELD(s.document_type, 'AP','CV','JV','OR'), s.item_counter"
 
     elif report == '15' or report == '18':
         print 'cash receipt'
-        query = "SELECT o.ordate, o.ornum, o.payee_name, " \
+        query = "SELECT o.ordate, o.ornum, o.payee_name, o.orsource, " \
                  "REPLACE(CONVERT(TRIM(REPLACE(REPLACE(o.particulars, '\\n', ''), '\\r', '')) USING ASCII), '?', '') AS particulars, " \
                 'd.balancecode, c.accountcode, REPLACE(REPLACE(c.description, "\'", ""), "//", "") AS description, d.debitamount, d.creditamount, IFNULL(b.code, "") AS bankacount ' \
                 "FROM ormain AS o " \
