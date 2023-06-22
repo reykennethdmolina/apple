@@ -119,8 +119,8 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:120px"><br>OR Num</th>
-                    <th style="text-align:left;width:120px"><br>OR Date</th>
+                    <th style="text-align:left;width:130px"><br>OR Num</th>
+                    <th style="text-align:left;width:110px"><br>OR Date</th>
                     <th style="text-align:center;width:70px;">Gov <br> Status</th>
                     <th style="text-align:center;width:290px;">Payee <br> Particulars</th>
                     <th style="text-align:center;width:60px;"><br>Type</th>
@@ -139,8 +139,8 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:120px;vertical-align:top;">{% if item.orsource == 'A'%}OR{% else %}CR{% endif %}{{ item.ornum|upper }}</td>
-            <td style="text-align:left;width:120px;vertical-align:top;">{{ item.ordate|date:'Y-m-d' }}</td>
+            <td style="text-align:left;width:130px;vertical-align:top;">{% if item.orsource == 'A'%}OR{% else %}CR{% endif %}{{ item.ornum|upper }}</td>
+            <td style="text-align:left;width:110px;vertical-align:top;">{{ item.ordate|date:'Y-m-d' }}</td>
             <td style="text-align:center;vertical-align:top;width:60px;">{{ item.government|default:"" }}</td>
             <td style="text-align:left;vertical-align:top;width:290px;">{{ item.payee_name }}</td>
             <td style="text-align:center;vertical-align:top;width:60px;">{{ item.ortype }}</td>

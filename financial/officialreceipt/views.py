@@ -2262,7 +2262,11 @@ class GenerateExcel(View):
             totalamount = 0
             amount = 0
             for data in list:
-                worksheet.write(row, col, data.ornum)
+                if data.orsource == 'A':
+                    worksheet.write(row, col, str('OR')+data.ornum)
+                else:
+                    worksheet.write(row, col, str('CR')+data.ornum)
+
                 worksheet.write(row, col + 1, data.ordate, formatdate)
                 if data.status == 'C':
                     worksheet.write(row, col + 2, 'C A N C E L L E D')
@@ -2304,7 +2308,10 @@ class GenerateExcel(View):
             totalinputcredit = 0
 
             for data in list:
-                worksheet.write(row, col, data.ornum)
+                if data.orsource == 'A':
+                    worksheet.write(row, col, str('OR') + data.ornum)
+                else:
+                    worksheet.write(row, col, str('CR') + data.ornum)
                 worksheet.write(row, col + 1, data.ordate, formatdate)
                 worksheet.write(row, col + 2, data.government)
                 worksheet.write(row, col + 3, data.payee_name)
@@ -2398,7 +2405,10 @@ class GenerateExcel(View):
             totalinputcredit = 0
 
             for data in list:
-                worksheet.write(row, col, data.ornum)
+                if data.orsource == 'A':
+                    worksheet.write(row, col, str('OR') + data.ornum)
+                else:
+                    worksheet.write(row, col, str('CR') + data.ornum)
                 worksheet.write(row, col + 1, data.ordate, formatdate)
                 worksheet.write(row, col + 2, data.government)
                 worksheet.write(row, col + 3, data.payee_name)
@@ -2894,7 +2904,7 @@ def query_orwithoutputvat(dfrom, dto, orlist, arr):
     if not orlist:
         orlist = '0'
 
-    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, ort.code AS ortype, m.government, " \
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, ort.code AS ortype, m.government, m.orsource, " \
             "IFNULL(arr.debitamount, 0) AS arrdebitamount, IFNULL(arr.creditamount, 0) AS arrcreditamount, " \
             "IFNULL(outputvat.debitamount, 0) AS outputvatdebitamount, IFNULL(outputvat.creditamount, 0) AS outputvatcreditamount, " \
             "ROUND((IFNULL(outputvat.debitamount, 0) - IFNULL(outputvat.creditamount, 0)) / (IFNULL(arr.debitamount, 0) - IFNULL(arr.creditamount, 0)) * 100) AS outputvatrate " \
@@ -2938,7 +2948,7 @@ def query_ornooutputvat(dfrom, dto, orlist, arr):
     if not orlist:
         orlist = '0'
 
-    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, ort.code AS ortype, m.government, " \
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, ort.code AS ortype, m.government, m.orsource, " \
             "IFNULL(arr.debitamount, 0) AS arrdebitamount, IFNULL(arr.creditamount, 0) AS arrcreditamount, " \
             "IFNULL(outputvat.debitamount, 0) AS outputvatdebitamount, IFNULL(outputvat.creditamount, 0) AS outputvatcreditamount, " \
             "ROUND((IFNULL(outputvat.debitamount, 0) - IFNULL(outputvat.creditamount, 0)) / (IFNULL(arr.debitamount, 0) - IFNULL(arr.creditamount, 0)) * 100) AS outputvatrate " \
@@ -3025,7 +3035,7 @@ def getORList(dfrom, dto):
 
     outputvat = 320 # 2146000000 OUTPUT VAT PAYABLE
 
-    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, " \
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, m.orsource, " \
             "d.balancecode, d.chartofaccount_id, d.ormain_id " \
             "FROM ormain AS m " \
             "LEFT OUTER JOIN ordetail AS d ON d.ormain_id = m.id " \
@@ -3036,7 +3046,8 @@ def getORList(dfrom, dto):
             "ORDER BY m.ornum"
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
-    # print query
+    print query
+    print 'hoy'
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
@@ -3054,7 +3065,7 @@ def getORNoOutputVatList(dfrom, dto):
 
     outputvat = 320 # 2146000000 OUTPUT VAT PAYABLE
 
-    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, " \
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, m.orsource, " \
             "d.balancecode, d.chartofaccount_id, d.ormain_id " \
             "FROM ormain AS m " \
             "LEFT OUTER JOIN ordetail AS d ON d.ormain_id = m.id " \
