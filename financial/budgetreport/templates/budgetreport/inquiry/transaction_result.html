@@ -27,7 +27,7 @@
                 <td class="text-left">{{ forloop.counter }}</td>
                 <td class="text-left">{{ item.tdate }}</td>
                 <td class="text-left">{{ item.tran }}</td>
-                <td class="text-left">{{ item.tnum }}</td>
+                <td class="text-left">{% if item.orsource == 'A'%}OR{% elif item.orsource == 'C' %}CR{% endif %}{{ item.tnum }}</td>
                 <td class="text-left">{{ item.deptcode }}</td>
                 <td class="text-left">{{ item.accountcode }}</td>
                 <td class="text-left">{{ item.chartofaccount }}</td>
