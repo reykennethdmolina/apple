@@ -395,11 +395,11 @@ def query_transaction(dto, dfrom, chart, bankaccount):
     query = "SELECT z.tran, z.item_counter, z.ap_num AS tnum, z.ap_date AS tdate, z.debitamount, z.creditamount, z.balancecode, z.apstatus AS transtatus, z.status AS status, bank.code AS bank, chart.accountcode, chart.description AS chartofaccount, cust.code AS custcode, cust.name AS customer, dept.code AS deptcode, dept.departmentname AS department, " \
             "emp.code AS empcode, CONCAT(IFNULL(emp.firstname, ''), ' ', IFNULL(emp.lastname, '')) AS employee, inpvat.code AS inpvatcode, inpvat.description AS inputvat, " \
             "outvat.code AS outvatcode, outvat.description AS outputvat, prod.code AS prodcode, prod.description AS product, " \
-            "supp.code AS suppcode, supp.name AS supplier, vat.code AS vatcode, vat.description AS vat, wtax.code AS wtaxcode, wtax.description AS wtax, z.payeecode AS payee_code, z.payeename AS payee_name, z.particulars " \
+            "supp.code AS suppcode, supp.name AS supplier, vat.code AS vatcode, vat.description AS vat, wtax.code AS wtaxcode, wtax.description AS wtax, z.payeecode AS payee_code, z.payeename AS payee_name, z.particulars, z.orsource " \
             "FROM ( " \
             "SELECT 'AP' AS tran, d.item_counter, d.ap_num, d.ap_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
-            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.apstatus, m.status, m.payeecode, m.payeename, m.particulars	 " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.apstatus, m.status, m.payeecode, m.payeename, m.particulars, '' as orsource	 " \
             "FROM apdetail AS d " \
             "LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
             "WHERE DATE(d.ap_date) >= '"+str(dfrom)+"' AND DATE(d.ap_date) <= '"+str(dto)+"' " \
@@ -407,7 +407,7 @@ def query_transaction(dto, dfrom, chart, bankaccount):
             "UNION " \
             "SELECT 'CV' AS tran, d.item_counter, d.cv_num, d.cv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
-            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.cvstatus, m.status, m.payee_code, m.payee_name, m.particulars	 " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.cvstatus, m.status, m.payee_code, m.payee_name, m.particulars, '' as orsource	 " \
             "FROM cvdetail AS d " \
             "LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
             "WHERE DATE(d.cv_date) >= '"+str(dfrom)+"' AND DATE(d.cv_date) <= '"+str(dto)+"' " \
@@ -415,7 +415,7 @@ def query_transaction(dto, dfrom, chart, bankaccount):
             "UNION " \
             "SELECT 'JV' AS tran, d.item_counter, d.jv_num, d.jv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
-            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.jvstatus, m.status, '' AS payeecode, '' AS payeename, m.particular	 " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.jvstatus, m.status, '' AS payeecode, '' AS payeename, m.particular, '' as orsource	 " \
             "FROM jvdetail AS d " \
             "LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
             "WHERE DATE(d.jv_date) >= '"+str(dfrom)+"' AND DATE(d.jv_date) <= '"+str(dto)+"' " \
@@ -423,7 +423,7 @@ def query_transaction(dto, dfrom, chart, bankaccount):
             "UNION " \
             "SELECT 'OR' AS tran, d.item_counter, m.ornum, m.ordate, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
-            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.orstatus, m.status, m.payee_code, m.payee_name, m.particulars	" \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.orstatus, m.status, m.payee_code, m.payee_name, m.particulars, m.orsource	" \
             "FROM ormain AS m " \
             "LEFT OUTER JOIN ordetail AS d ON m.id = d.ormain_id " \
             "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
@@ -586,8 +586,12 @@ class GenerateTransExcel(View):
 
         for data in result:
 
-            worksheet.write(row, col, data.tran, formatdate)
-            worksheet.write(row, col + 1, data.tnum, formatdate)
+            worksheet.write(row, col, data.tran)
+            if data.orsource == 'A':
+                worksheet.write(row, col + 1, str('OR') + '' + data.tnum)
+            else:
+                worksheet.write(row, col + 1, str('CR') + '' + data.tnum)
+            #worksheet.write(row, col + 1, data.tnum)
             worksheet.write(row, col + 2, data.tdate, formatdate)
             worksheet.write(row, col + 3, data.particulars)
             worksheet.write(row, col + 4, data.accountcode)
