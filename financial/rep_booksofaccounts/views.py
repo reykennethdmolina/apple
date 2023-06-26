@@ -1097,12 +1097,14 @@ class GenerateExcel(View):
                 df = pd.DataFrame(q)
                 for index, data in df.iterrows():
                     worksheet.write(row, col, data['transdate'], formatdate)
+                    worksheet.write(row, col + 1, data['transtype'])
                     if data['orsource'] == 'A':
-                        worksheet.write(row, col + 1, str('OR'))
+                        worksheet.write(row, col + 2, str('OR')+''+data['reference'])
+                    elif data['orsource'] == 'C':
+                        worksheet.write(row, col + 2, str('CR')+''+data['reference'])
+                        #worksheet.write(row, col + 1, data['transtype'])
                     else:
-                        worksheet.write(row, col + 1, str('CR'))
-                    #worksheet.write(row, col + 1, data['transtype'])
-                    worksheet.write(row, col + 2, data['reference'])
+                        worksheet.write(row, col + 2, data['reference'])
                     worksheet.write(row, col + 3, data['particulars'],)
                     worksheet.write(row, col + 4, data['accountcode'])
                     worksheet.write(row, col + 5, data['description'])
@@ -1344,9 +1346,10 @@ class GenerateExcel(View):
                     worksheet.write(row, col, data['transdate'], formatdate)
                     if data['orsource'] == 'A':
                         worksheet.write(row, col + 1, str('OR')+''+data['reference'])
-                    else:
+                    elif data['orsource'] == 'C':
                         worksheet.write(row, col + 1, str('CR')+''+data['reference'])
-                    #worksheet.write(row, col + 1, data['transtype']+''+data['reference'])
+                    else:
+                        worksheet.write(row, col + 1, data['transtype']+''+data['reference'])
                     worksheet.write(row, col + 2, data['particulars'],)
                     worksheet.write(row, col + 3, data['description'])
                     worksheet.write(row, col + 4, float(format(data['debit'], '.2f')))

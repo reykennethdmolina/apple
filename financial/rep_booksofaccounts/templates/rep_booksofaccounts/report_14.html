@@ -134,8 +134,8 @@
     {% for item in list %}
         <tr>
             <td style="text-align:left;width:120px;vertical-align:top">{{ item.transdate|date:'m/d/Y' }}</td>
-            <td style="text-align:left;width:90px;vertical-align:top">{% if item.orsource == 'A'%}OR{% else %}CR{% endif %}</td>
-            <td style="text-align:left;width:150px;vertical-align:top">{{ item.reference|upper }}</td>
+            <td style="text-align:left;width:90px;vertical-align:top">{{ item.transtype }}</td>
+            <td style="text-align:left;width:150px;vertical-align:top">{% if item.orsource == 'A'%}OR{% elif item.orsource == 'C' %}CR{% endif %}{{ item.reference|upper }}</td>
             <td style="text-align:left;width:250px;vertical-align:top">{{ item.particulars|upper }}</td>
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.accountcode }}</td>
             <td style="text-align:left;width:200px;vertical-align:top;">{{ item.description }}</td>
