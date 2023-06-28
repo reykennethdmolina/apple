@@ -1158,9 +1158,10 @@ class TransExcel(View):
             worksheet.write(row, col, data.tran)
             if data.orsource == 'A':
                 worksheet.write(row, col + 1, str('OR') + '' + data.tnum)
-            else:
+            elif data.orsource == 'C':
                 worksheet.write(row, col + 1, str('CR') + '' + data.tnum)
-            #worksheet.write(row, col + 1, data.tnum)
+            else:
+                worksheet.write(row, col + 1, data.tnum)
             worksheet.write(row, col + 2, data.tdate, formatdate)
             worksheet.write(row, col + 3, data.particulars)
             worksheet.write(row, col + 4, data.accountcode)
