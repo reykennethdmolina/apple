@@ -1000,7 +1000,17 @@ def proc_yearendadjustment(request):
                         print c['creditamount_sum']
                         print bankacount
 
-                        bankaccount_new_beg_amount = bankaccount_beg_amount + (c['debitamount_sum'] - c['creditamount_sum'])
+                        if bankaccount_beg_amount is None:
+                            bankaccount_beg_amount = 0
+
+                        dds = c['debitamount_sum']
+                        ccs = c['creditamount_sum']
+                        if c['debitamount_sum'] is None:
+                            dds = 0
+                        if c['creditamount_sum'] is None:
+                            ccs = 0
+
+                        bankaccount_new_beg_amount = bankaccount_beg_amount + (dds - ccs)
 
                         if bankaccount_new_beg_amount < 0:
                             bankaccount_beg_code = 'C'
@@ -1016,7 +1026,15 @@ def proc_yearendadjustment(request):
                             print 'ito na'
                             bankaccount_end_amount = 0
 
-                        bankaccount_end_amount = bankaccount_end_amount + (c['debitamount_sum'] - c['creditamount_sum'])
+                        ds = c['debitamount_sum']
+                        cs = c['creditamount_sum']
+                        if c['debitamount_sum'] is None:
+                            ds = 0
+                        if c['creditamount_sum'] is None:
+                            cs = 0
+
+
+                        bankaccount_end_amount = bankaccount_end_amount + (ds - cs)
 
                         if bankaccount_end_amount < 0:
                             bankaccount_end_code = 'C'
@@ -1032,19 +1050,31 @@ def proc_yearendadjustment(request):
                         bankacount.save()
 
                         #update Bank account summary
+                        print 'xx'
+                        print yearend_year.year
+                        print c['bankaccount_id']
+                        print c['debitamount_sum']
+                        print c['creditamount_sum']
+                        print 'xx'
                         bankaccountsum = Bankaccountsummary.objects.filter(bankaccount_id=c['bankaccount_id'], year=str(yearend_year.year)).first()
 
                         if bankaccountsum:
 
                             bankaccountsum_ytd_amount = 0
                             bankaccountsum_ytd_code = 'D'
+                            ds = float(c['debitamount_sum'])
+                            cs = float(c['creditamount_sum'])
 
                             if bankaccountsum.year_to_date_code == 'C':
                                 bankaccountsum_ytd_amount = bankaccountsum.year_to_date_amount * -1
                             else:
                                 bankaccountsum_ytd_amount = bankaccountsum.year_to_date_amount
-
-                                bankaccountsum_ytd_amount = bankaccountsum_ytd_amount + (c['debitamount_sum'] - c['creditamount_sum'])
+                                print bankaccountsum_ytd_amount
+                                print 'yawa ka'
+                                if bankaccountsum_ytd_amount is None:
+                                    bankaccountsum_ytd_amount = 0 + (ds - cs)
+                                else:
+                                    bankaccountsum_ytd_amount = float(bankaccountsum_ytd_amount) + (ds - cs)
 
                             if bankaccountsum_ytd_code < 0:
                                 bankaccountsum_ytd_code = 'C'
