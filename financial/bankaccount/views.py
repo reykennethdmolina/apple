@@ -589,7 +589,7 @@ class GenerateTransExcel(View):
             worksheet.write(row, col, data.tran)
             if data.orsource == 'A':
                 worksheet.write(row, col + 1, str('OR') + '' + data.tnum)
-            elif data.ousource == 'C':
+            elif data.orsource == 'C':
                 worksheet.write(row, col + 1, str('CR') + '' + data.tnum)
             else:
                 worksheet.write(row, col + 1, data.tnum)
