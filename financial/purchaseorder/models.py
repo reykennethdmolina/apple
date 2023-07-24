@@ -338,3 +338,26 @@ class Podata(models.Model):
 
     def __unicode__(self):
         return self.id
+
+
+class Poupload(models.Model):
+    pomain = models.ForeignKey('purchaseorder.Pomain', related_name='pomain_poupload_id', null=True, blank=True)
+    filename = models.CharField(max_length=250, null=True, blank=True)
+    filetype = models.CharField(max_length=250, null=True, blank=True)
+    enterby = models.ForeignKey(User, default=1, related_name='poupload_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='poupload_modify')
+    modifydate = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'poupload'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('ofupload:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.filename
+
+    def __unicode__(self):
+        return self.filename
