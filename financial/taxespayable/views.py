@@ -210,11 +210,12 @@ class TransExcel(View):
             worksheet.write('C1', 'Last Name')
             worksheet.write('D1', 'First Name')
             worksheet.write('E1', 'Middle Name')
-            worksheet.write('F1', 'Rate')
-            worksheet.write('G1', 'Tax')
-            worksheet.write('H1', 'Gross')
-            worksheet.write('I1', 'Address')
-            worksheet.write('J1', 'TIN')
+            worksheet.write('F1', 'ATC')
+            worksheet.write('G1', 'Rate')
+            worksheet.write('H1', 'Tax')
+            worksheet.write('I1', 'Gross')
+            worksheet.write('J1', 'Address')
+            worksheet.write('K1', 'TIN')
 
             row = 1
             col = 0
@@ -228,11 +229,12 @@ class TransExcel(View):
                 worksheet.write(row, col + 2, data.lname)
                 worksheet.write(row, col + 3, data.fname)
                 worksheet.write(row, col + 4, data.mname)
-                worksheet.write(row, col + 5, data.atcrate)
-                worksheet.write(row, col + 6, data.tax)
-                worksheet.write(row, col + 7, data.taxesable)
-                worksheet.write(row, col + 8, data.address)
-                worksheet.write(row, col + 9, data.tin)
+                worksheet.write(row, col + 5, data.atccode)
+                worksheet.write(row, col + 6, data.atcrate)
+                worksheet.write(row, col + 7, data.tax)
+                worksheet.write(row, col + 8, data.taxesable)
+                worksheet.write(row, col + 9, data.address)
+                worksheet.write(row, col + 10, data.tin)
 
                 row += 1
 
