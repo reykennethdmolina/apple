@@ -40,7 +40,7 @@ class IndexView(TemplateView):
 
 #@csrf_exempt
 
-@method_decorator(login_required, name='dispatch')
+@login_required
 def transgenerate(request):
     dto = request.GET["dto"]
     dfrom = request.GET["dfrom"]
