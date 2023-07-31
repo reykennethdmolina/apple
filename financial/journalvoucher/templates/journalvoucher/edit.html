@@ -138,8 +138,9 @@
                                 <select class="form-control input-sm" data-validation="required" id="id_jvtype" name="jvtype">
                                     {% for data in jvtype %}
                                         {% if data.id == 6 %}
+                                            <option value="{{ data.id }}" {% if form.jvtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
                                             {% if user.is_superuser %}
-                                                <option value="{{ data.id }}" {% if form.jvtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+
                                             {% endif %}
                                         {% else %}
                                         <option value="{{ data.id }}" {% if form.jvtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
@@ -405,8 +406,7 @@
 <div id="zero-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must not be zero.</div>
 <div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
 <div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
-test
-{{ pk }}
+
 {% include "journalvoucher/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}

@@ -51,8 +51,10 @@ class Logs_ormain(models.Model):
     batchkey = models.CharField(max_length=255, null=True, blank=True)
     importstatus = models.CharField(max_length=1, choices=IMPORT_STATUS_CHOICES, default='S')
     importremarks = models.CharField(max_length=255, null=True, blank=True)
+    orsource = models.CharField(max_length=10, null=True, blank=True)
     importdate = models.DateTimeField(auto_now_add=True)
     importby = models.ForeignKey(User, default=1, related_name='logs_ormain_by')
+
 
     class Meta:
         db_table = 'logs_ormain'

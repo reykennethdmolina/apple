@@ -115,14 +115,14 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:100px">OR Num</th>
+                    <th style="text-align:left;width:120px">OR Num</th>
                     <th style="text-align:left;width:100px">OR Date</th>
                     <th style="text-align:left;width:240px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Payee</th>
                     <th style="text-align:center;width:140px;">Total Amount</th>
                     <th style="text-align:center;width:140px;">Debit Amount</th>
                     <th style="text-align:center;width:140px;">Credit Amount</th>
                     <th style="text-align:center;width:140px;">Variance</th>
-                    <th style="text-align:center;width:140px;">Status</th>
+                    <th style="text-align:center;width:120px;">Status</th>
                 </tr>
             </thead>
         </table>
@@ -132,14 +132,14 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.ornum|upper }}</td>
+            <td style="text-align:left;width:120px;vertical-align:top;">{% if item.orsource == 'A'%}OR{% else %}CR{% endif %}{{ item.ornum|upper }}</td>
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.ordate|date:'Y-m-d' }}</td>
             <td style="text-align:left;vertical-align:top;width:240px">{{ item.payee_name }}</td>
             <td style="text-align:right;vertical-align:top;width:140px;">{{ item.amount|floatformat:2|intcomma }}</td>
             <td style="text-align:right;vertical-align:top;width:140px;">{{ item.debitamount|floatformat:2|intcomma }}</td>
             <td style="text-align:right;vertical-align:top;width:140px;">{{ item.creditamount|floatformat:2|intcomma }}</td>
             <td style="text-align:right;vertical-align:top;width:140px;">{{ item.totaldiff|floatformat:2|intcomma }}</td>
-            <td style="text-align:center;vertical-align:top;width:140px;">{{ item.status }}</td>
+            <td style="text-align:center;vertical-align:top;width:120px;">{{ item.status }}</td>
         </tr>
     {% endfor %}
     <tr>

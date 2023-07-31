@@ -18,6 +18,7 @@
                     <th>Middle Name</th>
                     <th>Debit</th>
                     <th>Credit</th>
+                    <th>ATC</th>
                     <th>Rate</th>
                     <th>Tax</th>
                     <th>Gross</th>
@@ -40,6 +41,7 @@
                 <td class="text-left">{{ item.mname }}</td>
                 <td class="text-left">{{ item.debit|floatformat:2 }}</td>
                 <td class="text-left">{{ item.credit|floatformat:2 }}</td>
+                <td class="text-left">{{ item.atccode|default:'' }}</td>
                 <td class="text-left">{{ item.atcrate|floatformat:2 }}</td>
                 <td class="text-right">{{ item.tax|floatformat:2|intcomma }}</td>
                 <td class="text-right">{{ item.taxesable|floatformat:2|intcomma }}</td>

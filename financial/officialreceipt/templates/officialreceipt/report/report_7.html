@@ -125,7 +125,7 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:150px;vertical-align:top;">{{ item.ornum|upper }}</td>
+            <td style="text-align:left;width:150px;vertical-align:top;">{% if item.orsource == 'A'%}OR{% else %}CR{% endif %}{{ item.ornum|upper }}</td>
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.ordate|date:'Y-m-d' }}</td>
             <td style="text-align:left;vertical-align:top;">{% if item.status == 'C' %} C A N C E L L E D {% else %} {{ item.payee_name }} {% endif %}</td>
             <td style="text-align:right;vertical-align:top;width:150px;">{% if item.status == 'C' %} {{ 0|floatformat:2|intcomma }} {% else %} {{ item.amount|floatformat:2|intcomma }} {% endif %}</td>
