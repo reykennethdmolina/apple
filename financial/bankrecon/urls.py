@@ -17,7 +17,5 @@ urlpatterns = [
     url(r'^savemanualentry/$', views.savemanualentry, name='savemanualentry'),
     url(r'^savebatchpostingbook/$', views.savebatchpostingbook, name='savebatchpostingbook'),
     url(r'^savebatchpostingbank/$', views.savebatchpostingbank, name='savebatchpostingbank'),
-    # url(r'^tag/update/$', views.TagUpdateView.as_view(), name='tagging'),
-    # url(r'^transexcel/$', views.TransExcel.as_view(), name='transexcel'),
-    # url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
+    url(r'^delete_upload/$', views.delete_upload, name='delete_upload'),
 ]

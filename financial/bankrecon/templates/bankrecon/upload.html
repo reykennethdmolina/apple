@@ -222,7 +222,7 @@
                                                         <span class="badge bg-orange-400" id="badge-unable-import"></span>Unable to Import <i>(For User Verification)</i>:
                                                         <p id="unable_import1" style="display: none;">
                                                             <em style="margin-left: 30px;"> - Credit and Debit columns must be numeric or just blank.</em><br>
-                                                            <em style="margin-left: 30px;"> - Check proper date format in import guide.</em>
+                                                            <em style="margin-left: 30px;"> - Check proper date format in <a href="{% url 'bankrecon:importguide' %}">import guide</a>.</em>
                                                         </p>
                                                     </li>
                                                     <li class="list-group-item">
@@ -237,16 +237,33 @@
                             </div>
                             <br>
                             <div class="price-footer">
-                                <button type="button" class="btn btn-info waves-effect waves-light" onClick="window.location.reload();return false;">
-                                    <i class="icon fa-refresh font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
-                                    Reload page and upload more
-                                </button>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-3">
+                                            <button type="button" class="btn btn-danger waves-effect waves-light" id="delete_upload">
+                                                <i class="icon fa-trash font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                                Delete Incorrect Upload
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" class="btn btn-info waves-effect waves-light" onClick="window.location.reload();return false;">
+                                                <i class="icon fa-refresh font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                                Reload Page and Upload More
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="clearfix"></div>
+            <!-- input ids for incorrect upload -->
+            <input type="hidden" name="list_ids" id="list_ids">
+
         </div>
     </div>
 </div>
@@ -266,6 +283,7 @@
 <div id="upload-form-required" class="custom-alert danger">All fields are required.</div>
 
 <div id="upload-file-error" class="custom-alert danger">File/Invalid error!</div>
+<div id="csv-file-error" class="custom-alert danger">An error occurred while uploading the CSV file</div>
 <div id="upload-file-large" class="custom-alert danger">File too large! (>3mb)</div>
 <div id="upload-unknown-bank" class="custom-alert danger">Unknown/Waitlisted Bank</div>
 {% endblock page-content %}
@@ -309,8 +327,8 @@
                         );
                     });
                 },
-                error: function (response) {
-                    console.log("err "+JSON.stringify(response))
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log("err ", xhr, textStatus, errorThrown);
                 },
                 cache: false,
                 contentType: false,
@@ -357,11 +375,12 @@
         });
 
 		$('form#data').submit(function(){
-	        if ($('#data_file').get(0).files.length === 0 && $('#bank_account').val() === "") {
+	        if ($('#data_file').get(0).files.length === 0 || $('#bank_account').val() === "" || $('#bank_id').val() === "") {
 	            customAlert($('#upload-form-required'));
                 showUploadForm();
 	        }
 	        else{
+                $('#list_ids').val('');
 	            var formData = new FormData(this);
 	            $.ajax({
 	                url: "{% url 'bankrecon:upload' %}",
@@ -369,6 +388,7 @@
 	                data: formData,
 	                async: false,
 	                success: function (data) {
+                        $('#list_ids').val(data['list_ids']);
                         switch(data['result']) {
                             case 1:
                                 customAlert($('#upload-success'));
@@ -396,6 +416,9 @@
                                 customAlert($('#upload-unknown-bank'));
                             case 8:
                                 customAlert($('#upload-file-error'));
+                                break;
+                            case 9:
+                                customAlert($('#csv-file-error'));
                                 break;
                             default:
                                 customAlert($('#upload-file-error'));
@@ -455,6 +478,42 @@
             $('html, body').delay(300).animate({scrollTop: $('#data_result').offset().top -80 }, 'slow');
             return true;
         }
+
+        $('#delete_upload').click(function(){
+            list_ids = $('#list_ids').val();
+
+            if(list_ids.length > 0){
+
+                if(confirm("Are you sure you want to proceed with the deletion?")){
+
+                    $.ajax({
+                        url: "{% url 'bankrecon:delete_upload' %}",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: {
+                            'list_ids': list_ids,
+                            'csrfmiddlewaretoken': "{{csrf_token}}",
+                        },
+                        success: function (response){
+                            if(response.result === true){
+                                if(confirm(response.message)){
+                                    window.location.reload();
+                                }
+                            } else {
+                                alert(response.message)
+                            }
+                            
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            alert('Delete operation could not perform. ' +textStatus);
+                        }
+                    });
+                }
+            } else {
+                alert('No applicable transactions have been uploaded for deletion.');
+            }
+            return false;
+        });
 	});
 </script>
 {% endblock extra_js %}
