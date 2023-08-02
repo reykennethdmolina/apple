@@ -77,7 +77,7 @@
         <br><br>
         <div class="row" id="result_panel" style="display: none;">
             <div class="panel panel-default">
-                <div class="panel-body" id="viewhtml">
+                <div class="panel-body" style="padding: 0;" id="viewhtml">
                    
                 </div>
                 <div class="clearfix"></div>
@@ -87,7 +87,7 @@
     
 </div>
 <br><br>
-<div id="fx-failed" class="custom-alert danger">Saving FX failed!</div>
+
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -98,8 +98,8 @@
 $(function(){
 
     $('#bankaccount').change(function(){
-        // 5-bd5
-        if(this.value === '5'){
+        // 4-bd4, 5-bd5
+        if(this.value === '4' || this.value === '5'){
             $('#us_dollar').show("highlight");
         } else {
             $('#us_dollar').hide("highlight");
@@ -125,7 +125,7 @@ $(function(){
 
         url = "{% url 'bankrecon:transgenerate' %}"+"?dfrom="+dfrom+"&dto="+dto+"&document_type="+document_type+"&bankaccount="+bankaccount;
 
-        if(bankaccount === '5'){
+        if(bankaccount === '4' || bankaccount === '5'){
             
             $.ajax({
                 url: url,
