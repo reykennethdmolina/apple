@@ -196,7 +196,10 @@ class TransExcel(View):
                 worksheet.write(row, col + 13, data.tax)
                 worksheet.write(row, col + 14, data.taxesable)
                 worksheet.write(row, col + 15, data.address)
-                worksheet.write(row, col + 16, data.tin)
+                if data.tin:
+                    worksheet.write(row, col + 16, data.tin.replace('-',''))
+                else:
+                    worksheet.write(row, col + 16, data.tin)
 
                 row += 1
 
@@ -234,7 +237,10 @@ class TransExcel(View):
                 worksheet.write(row, col + 7, data.tax)
                 worksheet.write(row, col + 8, data.taxesable)
                 worksheet.write(row, col + 9, data.address)
-                worksheet.write(row, col + 10, data.tin)
+                if data.tin:
+                    worksheet.write(row, col + 10, data.tin.replace('-',''))
+                else:
+                    worksheet.write(row, col + 10, data.tin)
 
                 row += 1
 
@@ -266,7 +272,11 @@ class TransExcel(View):
                 worksheet.write(row, col, 'D1')
                 worksheet.write(row, col + 1, '1601EQ')
                 worksheet.write(row, col + 2, counter)
-                worksheet.write(row, col + 3, data.tina)
+                if data.tin:
+                    worksheet.write(row, col + 3, data.tina.replace('-',''))
+                else:
+                    worksheet.write(row, col + 3, data.tina)
+                #worksheet.write(row, col + 3, data.tina)
                 worksheet.write(row, col + 4, data.tinb)
                 if data.suppliertype_id == 3:
                     worksheet.write(row, col + 5, data.supplier)
@@ -316,7 +326,11 @@ class TransExcel(View):
                 worksheet.write(row, col, 'D1')
                 worksheet.write(row, col + 1, '1601EQ')
                 worksheet.write(row, col + 2, counter)
-                worksheet.write(row, col + 3, data.tina)
+                if data.tin:
+                    worksheet.write(row, col + 3, data.tina.replace('-',''))
+                else:
+                    worksheet.write(row, col + 3, data.tina)
+                #worksheet.write(row, col + 3, data.tina)
                 worksheet.write(row, col + 4, data.tinb)
                 if data.suppliertype_id == 3:
                     worksheet.write(row, col + 5, data.supplier)
