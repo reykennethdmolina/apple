@@ -135,7 +135,7 @@
     {% for item in list %}
         <tr>
             <td style="text-align:left;width:110px;vertical-align:top">{{ item.ordate|date:'m/d/Y' }}</td>
-            <td style="text-align:left;width:120px;vertical-align:top">{{ item.ornum|upper }}</td>
+            <td style="text-align:left;width:120px;vertical-align:top">{% if item.orsource == 'A'%}OR{% else %}CR{% endif %}{{ item.ornum|upper }}</td>
             <td style="text-align:left;width:180px;vertical-align:top">{{ item.payee_name|upper }}</td>
             <td style="text-align:left;width:250px;vertical-align:top">{{ item.particulars|upper }}</td>
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.accountcode }}</td>

@@ -407,6 +407,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-md-12">
                 <div class="nav-tabs nav-tabs-animate border-profile">
                     <ul class="nav nav-tabs nav-profile">
@@ -452,7 +453,113 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
+      <div class="col-md-8">
+            <div class="right-box-profile">
+                <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Uploaded List</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body small">
+                                    <table class="table table-sm">
+                                      <thead>
+                                        <tr>
+                                          <th scope="col">Filename</th>
+                                          <th scope="col">Uploaded By</th>
+                                          <th scope="col">Uploaded Date</th>
+                                          <th scope="col">View</th>
+                                            {% if request.user.id !=  274 %}<th scope="col">Delete</th>{% endif %}
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {% for data in uploadlist %}
+                                        <tr>
+                                          <th scope="row">{{ data.filename }}</th>
+                                          <td>{{ data.enterby.username }}</td>
+                                          <td>{{ data.enterdate }}</td>
+                                          <td><a href="/media/poupload/{{ data.filename }}" target="_blank">View</a></td>
+                                            {% if request.user.id !=  274 %}<td><button type="button" class="deletefile" data-id="{{ data.id }}" style="color:red">Delete</button> </td>{% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                      </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="right-box-profile">
+                <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Upload Here</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body small">
+                                    <form action="{% url 'purchaseorder:upload' %}" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="file" name="myfile">
+                                    <input type="hidden" name="dataid" value="{{ object.pk }}">
+                                    <button type="submit">Upload</button>
+                                    </form>
+
+                                    {% if uploaded_file_url %}
+                                    <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+
+
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+
+            $(".deletefile").on('click', function() {
+                var con = confirm('Are you sure you want to delete this file?');
+
+                if (con) {
+                    var fileid = $(this).data('id');
+                    var id = {{ object.pk }};
+                     $.ajax({
+                        url: "{% url 'purchaseorder:filedelete' %}",
+                        type: "post",
+                        data: {'id': id, 'fileid': fileid},
+                        success: function(response) {
+                            location.reload();
+                        },
+                        error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+
+                }
+
+            });
+    });
+    </script>
+{% endblock extra_js %}

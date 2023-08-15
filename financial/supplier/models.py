@@ -37,6 +37,9 @@ class Supplier(models.Model):
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
 
+    triplec = models.IntegerField(default=0)
+    ccc = models.CharField(max_length=10) # COL, COR, CON
+
     # added/modified fields
     contactperson = models.CharField(max_length=250)
     creditterm = models.ForeignKey('creditterm.Creditterm',

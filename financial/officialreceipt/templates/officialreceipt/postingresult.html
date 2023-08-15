@@ -1,7 +1,7 @@
 {% for item in data %}
 <tr>
   <th><input type="checkbox" class="check" value={{ item.id }}></th>
-  <td>{{ item.ornum }}</td>
+  <td>{% if item.orsource == 'A'%}OR{% else %}CR{% endif %}{{ item.ornum }}</td>
   <td>{{ item.ordate|date:'Y-m-d' }}</td>
   <td>{{ item.enterby }}</td>
   <td>{{ item.actualapprover.first_name }}&nbsp;{{ item.actualapprover.last_name }}</td>

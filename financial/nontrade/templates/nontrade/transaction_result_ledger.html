@@ -25,7 +25,7 @@
             <tr {% if item.pcode == None %} class="text-danger" {% endif %}>
                 <td class="text-left">{{ item.document_date|date:'Y-m-d' }}</td>
                 <td class="text-left">{{ item.document_type }}</td>
-                <td class="text-left">{{ item.document_num }}</td>
+                <td class="text-left">{% if item.orsource == 'A'%}OR{% elif item.orsource == 'C' %}CR{% endif %}{{ item.document_num }}</td>
                 <td class="text-left" >{{ item.pcode|default:"N/A" }} - {{ item.pname|default:"NO CUSTOMER/SUPPLIER" }}</td>
                 <td class="text-left">{{ item.particulars }}</td>
                 <td class="text-right">{{ item.debitamount|floatformat:2|intcomma }}</td>

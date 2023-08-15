@@ -348,7 +348,11 @@ class GenerateExcel(View):
         col = 0
 
         for data in list:
-            worksheet.write(row, col, data.or_num)
+            if data.ormain.orsource == 'A':
+                worksheet.write(row, col, str('OR') + '' + data.or_num)
+            else:
+                worksheet.write(row, col, str('CR') + '' + data.or_num)
+            #worksheet.write(row, col, data.or_num)
             worksheet.write(row, col + 1, data.or_date, formatdate)
             worksheet.write(row, col + 2, data.ormain.particulars)
             worksheet.write(row, col + 3, float(format(data.debitamount, '.2f')))
