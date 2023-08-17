@@ -4,7 +4,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, F
-from .models import Pomain, Podetail, Podetailtemp, Podata, Prfpotransaction
+from .models import Pomain, Podetail, Podetailtemp, Podata, Prfpotransaction, Poupload
 from purchaserequisitionform.models import Prfmain, Prfdetail
 from companyparameter.models import Companyparameter
 from module.models import Activitylogs
@@ -35,6 +35,7 @@ from endless_pagination.views import AjaxListView
 from utils.mixins import ReportContentMixin
 from easy_pdf.views import PDFTemplateView
 from django.utils.dateformat import DateFormat
+from django.core.files.storage import FileSystemStorage
 
 # Create your views here.
 
@@ -91,8 +92,8 @@ class DetailView(DetailView):
             order_by('item_counter')
         context['podata'] = Podata.objects.filter(isdeleted=0, pomain=self.kwargs['pk'])
         context['aptrans'] = Poapvtransaction.objects.filter(pomain_id=self.object.pk)
+        context['uploadlist'] = Poupload.objects.filter(pomain_id=self.object.pk).order_by('enterdate')
         return context
-
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
@@ -1538,3 +1539,50 @@ def disapprove(request):
         data = { 'status': 'error' }
 
     return JsonResponse(data)
+
+
+def upload(request):
+    folder = 'media/poupload/'
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        id = request.POST['dataid']
+        fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
+        filename = fs.save(myfile.name, myfile)
+
+        upl = Poupload(pomain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
+        upl.save()
+
+        uploaded_file_url = fs.url(filename)
+        return HttpResponseRedirect('/purchaseorder/' + str(id) )
+    return HttpResponseRedirect('/purchaseorder/' + str(id) )
+
+def uploadhere(request):
+    folder = 'media/poupload/'
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        id = request.POST['dataid']
+        fs = FileSystemStorage(location=folder)  # defaults to   MEDIA_ROOT
+        filename = fs.save(myfile.name, myfile)
+
+        upl = Poupload(pomain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
+        upl.save()
+
+        uploaded_file_url = fs.url(filename)
+        return HttpResponseRedirect('/purchaseorder/' + str(id) +'/userupdate' )
+    return HttpResponseRedirect('/purchaseorder/' + str(id) +'/userupdate' )
+
+
+
+@csrf_exempt
+def filedelete(request):
+
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        fileid = request.POST['fileid']
+
+        Poupload.objects.filter(id=fileid).delete()
+
+        return HttpResponseRedirect('/purchaseorder/' + str(id) )
+
+    return HttpResponseRedirect('/purchaseorder/' + str(id) )

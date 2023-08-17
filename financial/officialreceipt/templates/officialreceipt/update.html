@@ -104,8 +104,8 @@
                     <div class="col-sm-12">
                         <div class="form-group col-sm-2">
                             <label class="control-label" for="id_ornum">OR Number</label>
-                            <input type="text" class="form-control input-sm" style="background: white;" id="id_ornum" name="ornum" data-validation="required" value="{{ ornum }}">
-                            <span class="help-block form-error">{{ form.ornum.errors.as_text }}</span>
+                            <input type="text" class="form-control input-sm" style="background: white;" id="id_ornum" name="ornum" value="{{ ornum }}">
+
                         </div>
                         <div class="form-group col-sm-2 {{ form.ordate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_ordate">OR Date</label>

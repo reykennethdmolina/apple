@@ -103,17 +103,16 @@ def tagging(request):
 
 
         if status == 1:
-            print 'Valid Transaction'
-            if sub.document_type != request.GET["reftype"]:
-                msg = 'Invalid Transaction Tagging Subledger Type: '+ sub.document_type + ' vs Ref Type: '+ request.GET["reftype"]
-                status = 0
-            else:
-                msg = 'Successfully tag'
-                sub.document_reftype = request.GET["reftype"]
-                sub.document_refnum = request.GET["refnum"]
-                sub.document_refdate = tdate
-                sub.save()
-                status = 1
+            # print 'Valid Transaction'
+            # if sub.document_type != request.GET["reftype"]:
+            #     msg = 'Invalid Transaction Tagging Subledger Type: '+ sub.document_type + ' vs Ref Type: '+ request.GET["reftype"]
+            #     status = 0
+            msg = 'Successfully tag'
+            sub.document_reftype = request.GET["reftype"]
+            sub.document_refnum = request.GET["refnum"]
+            sub.document_refdate = tdate
+            sub.save()
+            status = 1
 
             print sub.document_type
             print status
@@ -128,8 +127,10 @@ def tagging(request):
     return JsonResponse(data)
 
 #@csrf_exempt
-@method_decorator(login_required, name='dispatch')
+#@method_decorator(login_required, name='dispatch')
+@login_required
 def transgenerate(request):
+    print 'hoyoyoyo'
     dto = request.GET["dto"]
     dfrom = request.GET["dfrom"]
     transaction = request.GET["transaction"]
@@ -140,7 +141,7 @@ def transgenerate(request):
 
     viewhtml = ''
     context = {}
-
+    print 'hoy'
     if report == '1':
         print "subsidiary ledger"
 
@@ -460,7 +461,12 @@ class TransExcel(View):
             for data in result:
                 worksheet.write(row, col, data.document_date, formatdate)
                 worksheet.write(row, col + 1, data.document_type)
-                worksheet.write(row, col + 2, data.document_num)
+                if data.orsource == 'A':
+                    worksheet.write(row, col + 2, str('OR') + '' + data.document_num)
+                elif data.orsource == 'C':
+                    worksheet.write(row, col + 2, str('CR') + '' + data.document_num)
+                else:
+                    worksheet.write(row, col + 2, data.document_num)
                 if data.pcode:
                     worksheet.write(row, col + 3, data.pcode+'-'+data.pname)
                 else:
@@ -554,17 +560,21 @@ def queryLedger(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
             "b.accountcode, b.description, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier, " \
             "IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) AS pcode,  " \
             "IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) AS pname, " \
-            "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
+            "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin, om.orsource   " \
             "FROM subledger AS a " \
             "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
-            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
+            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.customer_id " \
             "LEFT OUTER JOIN customer AS scust ON scust.id =  b.setup_customer " \
             "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
             "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
+            "left outer join ordetail as od on (od.id = a.document_id and a.document_type = 'OR') " \
+            "left outer join ormain as om on om.id = od.ormain_id " \
             "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
             ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby)
 
+    ##"LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id "
     print query
+    print '****'
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
@@ -649,7 +659,7 @@ def queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename
             "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
             "FROM subledger AS a " \
             "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
-            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
+            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.customer_id " \
             "LEFT OUTER JOIN customer AS scust ON scust.id =  b.setup_customer " \
             "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
             "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
@@ -676,7 +686,7 @@ def queryScheduled(dto, dfrom, transaction, chartofaccount, payeecode, payeename
            "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
            "FROM subledger AS a " \
            "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
-           "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
+           "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.customer_id " \
            "LEFT OUTER JOIN customer AS scust ON scust.id = b.setup_customer " \
            "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
            "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
@@ -733,7 +743,7 @@ def querySOA(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
             "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
             "FROM subledger AS a " \
             "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
-            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
+            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.customer_id " \
             "LEFT OUTER JOIN customer AS scust ON scust.id =  b.setup_customer " \
             "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
             "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
@@ -779,7 +789,7 @@ def querySOATran(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
             "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin " \
             "FROM subledger AS a " \
             "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
-            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id " \
+            "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.customer_id " \
             "LEFT OUTER JOIN customer AS scust ON scust.id =  b.setup_customer " \
             "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
             "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \

@@ -136,7 +136,7 @@
         {% for item in group.list %}
         {% if forloop.counter == 1%}
         <tr style="padding:5px">
-            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.ormain.ornum|upper }}</td>
+            <td style="text-align:left;width:100px;vertical-align:top;">{% if item.orsource == 'A'%}OR{% else %}CR{% endif %}{{ item.ormain.ornum|upper }}</td>
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.ormain.ordate|date:'Y-m-d' }}</td>
             <td style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.ormain.payee_name }}</td>
             <td colspan="3" style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.ormain.particulars }}</td>
