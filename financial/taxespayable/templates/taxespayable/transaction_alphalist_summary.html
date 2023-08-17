@@ -32,7 +32,7 @@
                 <td class="text-left">{{ forloop.counter }}</td>
                 <td class="text-left">{{ item.tina }}</td>
                 <td class="text-left">{{ item.tinb }}</td>
-                {% if item.suppliertype_id == 3 %}
+                {% if item.suppliertype_id == 3 or item.suppliertype_id == 1 %}
                  <td class="text-left">{{ item.supplier }}</td>
                  <td class="text-left"></td>
                  <td class="text-left"></td>

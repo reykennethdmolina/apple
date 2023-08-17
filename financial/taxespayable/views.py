@@ -278,7 +278,7 @@ class TransExcel(View):
                     worksheet.write(row, col + 3, data.tina)
                 #worksheet.write(row, col + 3, data.tina)
                 worksheet.write(row, col + 4, data.tinb)
-                if data.suppliertype_id == 3:
+                if data.suppliertype_id == 3 or data.suppliertype_id == 1:
                     worksheet.write(row, col + 5, data.supplier)
                 else:
                     worksheet.write(row, col + 6, data.lname)
@@ -332,7 +332,7 @@ class TransExcel(View):
                     worksheet.write(row, col + 3, data.tina)
                 #worksheet.write(row, col + 3, data.tina)
                 worksheet.write(row, col + 4, data.tinb)
-                if data.suppliertype_id == 3:
+                if data.suppliertype_id == 3 or data.suppliertype_id == 1:
                     worksheet.write(row, col + 5, data.supplier)
                 else:
                     worksheet.write(row, col + 6, data.lname)
