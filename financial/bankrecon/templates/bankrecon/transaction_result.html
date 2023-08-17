@@ -262,7 +262,7 @@
                                 <td class="bg-blue-200"></td>
                             </tr>
                         {% else %}
-                            <tr class="row_{{ data.id }}" style="color:#444444; font-weight: 500">
+                            <tr class="row_{{ data.id }}" data-book-recon="0" style="color:#444444; font-weight: 500">
                                 <td class="text-left counter" style="padding: 0"></td>
                                 <td class="text-left pointer document-date" style="max-width: 50px;">{{ data.document_date|date:"m/d/Y" }}</td>
                                 <td class="text-left pointer document-type" style="max-width: 50px;">{{ data.document_type }}</td>
@@ -315,7 +315,7 @@
                                 <td class="bg-blue-200"></td>
                             </tr>
                         {% else %}
-                            <tr class="row_{{ posted.id }}" style="color:#444444; font-weight: 500">
+                            <tr class="row_{{ posted.id }}" data-book-recon="1" style="color:#444444; font-weight: 500">
                                 <td class="text-left counter"></td>
                                 <td class="text-left pointer document-date" style="max-width: 50px;">{{ posted.document_date|date:"m/d/Y" }}</td>
                                 <td class="text-left pointer document-type" style="max-width: 50px;">{{ posted.document_type }}</td>
@@ -390,7 +390,7 @@
                                     <td class="bg-blue-200"></td>
                                 </tr>
                             {% else %}
-                                <tr id="row_{{ forloop.counter }}" style="color:#444444; font-weight: 500">
+                                <tr id="row_{{ forloop.counter }}" data-bank-recon="0" style="color:#444444; font-weight: 500">
                                     <td class="text-left bank-row-count"></td>
                                     <td class="text-left pointer bank-transaction-date" style="max-width: 50px;">{{ data.transaction_date|date:"m/d/Y" }}</td>
                                     <td class="text-left pointer bank-document-type" style="max-width: 50px;"></td>
@@ -433,7 +433,7 @@
                                     <td class="bg-blue-200"></td>
                                 </tr>
                             {% else %}
-                                <tr class="row_{{ posted.id }}" style="color:#444444; font-weight: 500">
+                                <tr class="row_{{ posted.id }}" data-bank-recon="1" style="color:#444444; font-weight: 500">
                                     <td class="text-left bank-row-count"></td>
                                     <td class="text-left bank-transaction-date" style="max-width: 50px;">{{ posted.transaction_date|date:"m/d/Y" }}</td>
                                     <td></td>
@@ -1027,16 +1027,98 @@
             $('#bankcredit_total').text(bankcredit_sum.toLocaleString('en-US', {style: 'currency',currency: currency}));
         }
 
+        function moveRowToExistingSubtotalBook(row, nearestSubtotalRow) {
+            function getFormattedValue(cell) {
+                return parseFloat(cell.text().replace(/,/g, ''));
+            }
+
+            var row_debit = getFormattedValue(row.find("td").eq(5));
+            var row_credit = getFormattedValue(row.find("td").eq(6));
+            
+            var sub_debit = getFormattedValue(nearestSubtotalRow.find("td").eq(5));
+            var sub_credit = getFormattedValue(nearestSubtotalRow.find("td").eq(6));
+            
+            var new_debit = parseFloat(row_debit + sub_debit);
+            var new_credit = parseFloat(row_credit + sub_credit);
+            
+            nearestSubtotalRow.find("td").eq(5).text(new_debit.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,"));
+            nearestSubtotalRow.find("td").eq(6).text(new_credit.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,"));
+            
+            var row_count = parseInt(nearestSubtotalRow.find("td").eq(0).text()) + 1; 
+            nearestSubtotalRow.find("td").eq(0).text(row_count);
+
+            row.insertBefore(nearestSubtotalRow);
+        }
+
+        function moveRowToNewSubtotalBook(row){
+
+            var table = document.getElementById('pdi_table');
+            var rowCount = table.rows.length;
+
+            var row_debit = parseFloat(row.find("td").eq(5).text().replace(/,/g, ''));
+            var row_credit = parseFloat(row.find("td").eq(6).text().replace(/,/g, ''));
+
+            var newSubtotalRow = table.insertRow(rowCount);
+            newSubtotalRow.setAttribute("class", "subtotal");
+            newSubtotalRow.setAttribute("style", "background-color: papayawhip; color: darkred; font-style: italic; font-weight: 500;");
+            newSubtotalRow.insertCell(0).textContent = 1;
+            newSubtotalRow.insertCell(1).setAttribute("class", "bg-blue-200");
+            newSubtotalRow.insertCell(2).setAttribute("class", "bg-blue-200");
+            newSubtotalRow.insertCell(3).setAttribute("class", "bg-blue-200");
+            newSubtotalRow.insertCell(4).textContent = " s u b - t o t a l";
+
+            var debitCell = newSubtotalRow.insertCell(5);
+            debitCell.setAttribute("class", "text-right");
+            debitCell.textContent = row_debit.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+
+            var creditCell = newSubtotalRow.insertCell(6);
+            creditCell.setAttribute("class", "text-right");
+            creditCell.textContent = row_credit.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+
+            newSubtotalRow.insertCell(7).setAttribute("class", "bg-blue-200");
+            newSubtotalRow.insertCell(8).setAttribute("class", "bg-blue-200");
+
+            row.attr("data-book-recon", "1");
+            row.insertBefore(newSubtotalRow);
+        }
+
+        function reOrderBook(){
+            $('.book-refno-input').filter(function() {
+                return $(this).val().trim() !== "";
+            }).each(function(){
+
+                var currentValue = $(this).val();
+                var row = $(this).closest("tr");
+                
+                if (row.attr("data-book-recon") === "0") {
+                    
+                    var nearestSubtotalRow, foundInOtherRows = false;
+                    $("tr[data-book-recon='1']").each(function() {
+                        var otherInputValue = $(this).find(".book-refno-input").val();
+                        if (otherInputValue === currentValue) {
+                            foundInOtherRows = true;
+                            nearestSubtotalRow = $(this).nextAll(".subtotal:first");
+                            row.attr("data-book-recon", "1");
+
+                            // continue to next lines
+                            return false;
+                        }
+                    });
+
+                    if (foundInOtherRows) {
+                        // console.log(currentValue + " exists in other rows.");
+                        moveRowToExistingSubtotalBook(row, nearestSubtotalRow);
+                    } else {
+                        // console.log(currentValue + " does not exist in other rows.");
+                        moveRowToNewSubtotalBook(row);
+                    }
+
+                } 
+
+            });
+        }
+
         $('#find_book').click(function(){
-
-            $('#pdi_table tbody tr').removeClass("dead");
-            $('#pdi_table tbody tr').hide();
-
-            var count = 0,
-            subtotal_debit = 0.0,
-            subtotal_credit = 0.0,
-            debit = 0.0,
-            credit = 0.0;
 
             var book_filter = {
                 'book_date_from': $('#book_date_from').val(),
@@ -1046,43 +1128,26 @@
                 'book_checknumber': $('#book_checknumber').val().toLowerCase(),
                 'book_amount': $('#book_amount').val()
             }
-            if(book_filter.book_date_from != '' && book_filter.book_date_to != ''){
-                const date_from = new Date(book_filter.book_date_from);
-                const date_to = new Date(book_filter.book_date_to);
-
-                $('.document-date').each(function(){
-                    const this_date = new Date($(this).text());
-                    if(this_date >= date_from && this_date <= date_to){
-                        if(!$(this).closest('tr').hasClass('dead')){
-
-                            $(this).closest('tr').show();
-                            
-                        }
-                    } else {
-                        $(this).closest('tr').addClass('dead');
-                        $(this).closest('tr').hide();
-                    }
-                });
-
+            if(isEmptyObject(book_filter)){
+                reOrderBook();
             } else {
-                if(book_filter.book_date_from != ''){
-                    $('.document-date').each(function(){
-                        if($(this).text() === book_filter.book_date_from){
-                            if(!$(this).closest('tr').hasClass('dead')){
+                $('#pdi_table tbody tr').removeClass("dead");
+                $('#pdi_table tbody tr').hide();
 
-                                $(this).closest('tr').show();
-                                
-                            }
-                        } else {
-                            $(this).closest('tr').addClass('dead');
-                            $(this).closest('tr').hide();
-                        }
-                            
-                    });
-                }
-                if(book_filter.book_date_to != ''){
+                var count = 0,
+                subtotal_debit = 0.0,
+                subtotal_credit = 0.0,
+                debit = 0.0,
+                credit = 0.0;
+
+                
+                if(book_filter.book_date_from != '' && book_filter.book_date_to != ''){
+                    const date_from = new Date(book_filter.book_date_from);
+                    const date_to = new Date(book_filter.book_date_to);
+
                     $('.document-date').each(function(){
-                        if( $(this).text() === book_filter.book_date_to){
+                        const this_date = new Date($(this).text());
+                        if(this_date >= date_from && this_date <= date_to){
                             if(!$(this).closest('tr').hasClass('dead')){
 
                                 $(this).closest('tr').show();
@@ -1093,108 +1158,228 @@
                             $(this).closest('tr').hide();
                         }
                     });
+
+                } else {
+                    if(book_filter.book_date_from != ''){
+                        $('.document-date').each(function(){
+                            if($(this).text() === book_filter.book_date_from){
+                                if(!$(this).closest('tr').hasClass('dead')){
+
+                                    $(this).closest('tr').show();
+                                    
+                                }
+                            } else {
+                                $(this).closest('tr').addClass('dead');
+                                $(this).closest('tr').hide();
+                            }
+                                
+                        });
+                    }
+                    if(book_filter.book_date_to != ''){
+                        $('.document-date').each(function(){
+                            if( $(this).text() === book_filter.book_date_to){
+                                if(!$(this).closest('tr').hasClass('dead')){
+
+                                    $(this).closest('tr').show();
+                                    
+                                }
+                            } else {
+                                $(this).closest('tr').addClass('dead');
+                                $(this).closest('tr').hide();
+                            }
+                        });
+                    }
                 }
-            }
-            if(book_filter.book_type != ''){
-                $('.document-type').each(function(){
-                    if( $(this).text().toLowerCase() === book_filter.book_type){
-                        if(!$(this).closest('tr').hasClass('dead')){
+                if(book_filter.book_type != ''){
+                    $('.document-type').each(function(){
+                        if( $(this).text().toLowerCase() === book_filter.book_type){
+                            if(!$(this).closest('tr').hasClass('dead')){
 
-                            $(this).closest('tr').show();
-                            
-                        } 
-                    } else {
-                        $(this).closest('tr').addClass('dead');
-                        $(this).closest('tr').hide();
-                    }
-                });
-            }
-            
-            if(book_filter.book_refno != ''){
-                $('.book-refno-input').each(function(){
-                    if( $(this).val().toLowerCase() === book_filter.book_refno){
-                        if(!$(this).closest('tr').hasClass('dead')){
+                                $(this).closest('tr').show();
+                                
+                            } 
+                        } else {
+                            $(this).closest('tr').addClass('dead');
+                            $(this).closest('tr').hide();
+                        }
+                    });
+                }
+                
+                if(book_filter.book_refno != ''){
+                    $('.book-refno-input').each(function(){
+                        if( $(this).val().toLowerCase() === book_filter.book_refno){
+                            if(!$(this).closest('tr').hasClass('dead')){
 
-                            $(this).closest('tr').show();
-                            
-                        } 
-                    } else {
-                        $(this).closest('tr').addClass('dead');
-                        $(this).closest('tr').hide();
-                    }
-                });
-            }
-            
-            if(book_filter.book_checknumber != ''){
-                $('.document-checknum').each(function(){
-                    if( $(this).text().toLowerCase() === book_filter.book_checknumber){
-                        if(!$(this).closest('tr').hasClass('dead')){
+                                $(this).closest('tr').show();
+                                
+                            } 
+                        } else {
+                            $(this).closest('tr').addClass('dead');
+                            $(this).closest('tr').hide();
+                        }
+                    });
+                }
+                
+                if(book_filter.book_checknumber != ''){
+                    $('.document-checknum').each(function(){
+                        if( $(this).text().toLowerCase() === book_filter.book_checknumber){
+                            if(!$(this).closest('tr').hasClass('dead')){
 
-                            $(this).closest('tr').show();
-                            
-                        } 
-                    } else {
-                        $(this).closest('tr').addClass('dead');
-                        $(this).closest('tr').hide();
-                    }
-                });
-            }
+                                $(this).closest('tr').show();
+                                
+                            } 
+                        } else {
+                            $(this).closest('tr').addClass('dead');
+                            $(this).closest('tr').hide();
+                        }
+                    });
+                }
 
-            if (book_filter.book_amount !== '') {
-                $('.bookdebitamount, .bookcreditamount').each(function() {
-                    const row = $(this).closest('tr');
-                    const debitAmount = row.find('.bookdebitamount').text();
-                    const creditAmount = row.find('.bookcreditamount').text();
-                    if (debitAmount === book_filter.book_amount || creditAmount === book_filter.book_amount) {
-                        row.show().removeClass('dead');
-                    } else {
-                        row.hide().addClass('dead');
-                    }
-                });
-            }
+                if (book_filter.book_amount !== '') {
+                    $('.bookdebitamount, .bookcreditamount').each(function() {
+                        const row = $(this).closest('tr');
+                        const debitAmount = row.find('.bookdebitamount').text();
+                        const creditAmount = row.find('.bookcreditamount').text();
+                        if (debitAmount === book_filter.book_amount || creditAmount === book_filter.book_amount) {
+                            row.show().removeClass('dead');
+                        } else {
+                            row.hide().addClass('dead');
+                        }
+                    });
+                }
 
-            calc_total();
-            var table = document.getElementById('pdi_table');
-            var rowCount = table.rows.length;
-            
-            if($("#pdi_table tbody tr:visible").length < 1){
-                subtotal_debit = 0;
-                subtotal_credit = 0;
-                count = 0;
-            } else {
-                $('#pdi_table > tbody > tr').filter(':visible').each(function(){
-                    debit = $(this).closest('tr').find("td").eq(5).text().replace(/,/g, '');
-                    credit = $(this).closest('tr').find("td").eq(6).text().replace(/,/g, '');
-                    subtotal_debit += parseFloat(debit);
-                    subtotal_credit += parseFloat(credit);
-                    count++;
-                });
-            }
+                calc_total();
+                var table = document.getElementById('pdi_table');
+                var rowCount = table.rows.length;
+                
+                if($("#pdi_table tbody tr:visible").length < 1){
+                    subtotal_debit = 0;
+                    subtotal_credit = 0;
+                    count = 0;
+                } else {
+                    $('#pdi_table > tbody > tr').filter(':visible').each(function(){
+                        debit = $(this).closest('tr').find("td").eq(5).text().replace(/,/g, '');
+                        credit = $(this).closest('tr').find("td").eq(6).text().replace(/,/g, '');
+                        subtotal_debit += parseFloat(debit);
+                        subtotal_credit += parseFloat(credit);
+                        count++;
+                    });
+                }
 
-            var row = table.insertRow(rowCount);
-            row.setAttribute("class", "book-filtered-subtotal");
-            row.setAttribute("style", "background-color: papayawhip; color: darkred; font-style: italic; font-weight: 500;");
-            row.insertCell(0).textContent = count;
-            row.insertCell(1).setAttribute("class", "bg-blue-200");
-            row.insertCell(2).setAttribute("class", "bg-blue-200");
-            row.insertCell(3).setAttribute("class", "bg-blue-200");
-            row.insertCell(4).textContent = " s u b - t o t a l";
-            row.insertCell(5).textContent = subtotal_debit.toLocaleString('en-US', {style: 'currency',currency: 'PHP'});
-            row.insertCell(6).textContent = subtotal_credit.toLocaleString('en-US', {style: 'currency',currency: 'PHP'});
-            row.insertCell(7).setAttribute("class", "bg-blue-200");
-            row.insertCell(8).setAttribute("class", "bg-blue-200");
+                var row = table.insertRow(rowCount);
+                row.setAttribute("class", "book-filtered-subtotal");
+                row.setAttribute("style", "background-color: papayawhip; color: darkred; font-style: italic; font-weight: 500;");
+                row.insertCell(0).textContent = count;
+                row.insertCell(1).setAttribute("class", "bg-blue-200");
+                row.insertCell(2).setAttribute("class", "bg-blue-200");
+                row.insertCell(3).setAttribute("class", "bg-blue-200");
+                row.insertCell(4).textContent = " s u b - t o t a l";
+                row.insertCell(5).textContent = subtotal_debit.toLocaleString('en-US', {style: 'currency',currency: 'PHP'});
+                row.insertCell(6).textContent = subtotal_credit.toLocaleString('en-US', {style: 'currency',currency: 'PHP'});
+                row.insertCell(7).setAttribute("class", "bg-blue-200");
+                row.insertCell(8).setAttribute("class", "bg-blue-200");
+            }    
         });
 
+        function isEmptyObject(obj) {
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key) && obj[key] !== '') {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function moveRowToExistingSubtotalBank(row, nearestSubtotalRow) {
+            function getFormattedValue(cell) {
+                return parseFloat(cell.text().replace(/,/g, ''));
+            }
+
+            var row_debit = getFormattedValue(row.find("td").eq(5));
+            var row_credit = getFormattedValue(row.find("td").eq(6));
+            
+            var sub_debit = getFormattedValue(nearestSubtotalRow.find("td").eq(5));
+            var sub_credit = getFormattedValue(nearestSubtotalRow.find("td").eq(6));
+            
+            var new_debit = parseFloat(row_debit + sub_debit);
+            var new_credit = parseFloat(row_credit + sub_credit);
+            
+            nearestSubtotalRow.find("td").eq(5).text(new_debit.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,"));
+            nearestSubtotalRow.find("td").eq(6).text(new_credit.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,"));
+            
+            var row_count = parseInt(nearestSubtotalRow.find("td").eq(0).text()) + 1; 
+            nearestSubtotalRow.find("td").eq(0).text(row_count);
+
+            row.insertBefore(nearestSubtotalRow);
+        }
+
+        function moveRowToNewSubtotalBank(row){
+
+            var table = document.getElementById('bank_table');
+            var rowCount = table.rows.length;
+
+            var row_debit = parseFloat(row.find("td").eq(5).text().replace(/,/g, ''));
+            var row_credit = parseFloat(row.find("td").eq(6).text().replace(/,/g, ''));
+
+            var newSubtotalRow = table.insertRow(rowCount);
+            newSubtotalRow.setAttribute("class", "subtotal");
+            newSubtotalRow.setAttribute("style", "background-color: papayawhip; color: darkred; font-style: italic; font-weight: 500;");
+            newSubtotalRow.insertCell(0).textContent = 1;
+            newSubtotalRow.insertCell(1).setAttribute("class", "bg-blue-200");
+            newSubtotalRow.insertCell(2).setAttribute("class", "bg-blue-200");
+            newSubtotalRow.insertCell(3).setAttribute("class", "bg-blue-200");
+            newSubtotalRow.insertCell(4).textContent = " s u b - t o t a l";
+
+            var debitCell = newSubtotalRow.insertCell(5);
+            debitCell.setAttribute("class", "text-right");
+            debitCell.textContent = row_debit.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+
+            var creditCell = newSubtotalRow.insertCell(6);
+            creditCell.setAttribute("class", "text-right");
+            creditCell.textContent = row_credit.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+
+            newSubtotalRow.insertCell(7).setAttribute("class", "bg-blue-200");
+            newSubtotalRow.insertCell(8).setAttribute("class", "bg-blue-200");
+
+            row.attr("data-bank-recon", "1");
+            row.insertBefore(newSubtotalRow);
+        }
+
+        function reOrderBank(){
+            $('.bank-refno-input').filter(function() {
+                return $(this).val().trim() !== "";
+            }).each(function(){
+
+                var currentValue = $(this).val();
+                var row = $(this).closest("tr");
+                
+                if (row.attr("data-bank-recon") === "0") {
+                    
+                    var nearestSubtotalRow, foundInOtherRows = false;
+                    $("tr[data-bank-recon='1']").each(function() {
+                        var otherInputValue = $(this).find(".bank-refno-input").val();
+                        if (otherInputValue === currentValue) {
+                            foundInOtherRows = true;
+                            nearestSubtotalRow = $(this).nextAll(".subtotal:first");
+                            row.attr("data-bank-recon", "1");
+
+                            // continue to next lines
+                            return false;
+                        }
+                    });
+
+                    if (foundInOtherRows) {
+                        moveRowToExistingSubtotalBank(row, nearestSubtotalRow);
+                    } else {
+                        moveRowToNewSubtotalBank(row);
+                    }
+
+                } 
+
+            });
+        }
+        
         $('#find_bank').click(function(){
-
-            $('#bank_table tbody tr').removeClass("dead");
-            $('#bank_table tbody tr').hide();
-
-            var count = 0,
-            subtotal_debit = 0.0,
-            subtotal_credit = 0.0,
-            debit = 0.0,
-            credit = 0.0;
 
             var bank_filter = {
                 'bank_date_from': $('#bank_date_from').val(),
@@ -1204,28 +1389,26 @@
                 'bank_checknumber': $('#bank_checknumber').val().toLowerCase(),
                 'bank_amount': $('#bank_amount').val()
             }
-            if(bank_filter.bank_date_from != '' && bank_filter.bank_date_to != ''){
-                const date_from = new Date(bank_filter.bank_date_from);
-                const date_to = new Date(bank_filter.bank_date_to);
 
-                $('.bank-transaction-date').each(function(){
-                    const this_date = new Date($(this).text());
-                    if(this_date >= date_from && this_date <= date_to){
-                        if(!$(this).closest('tr').hasClass('dead')){
-
-                            $(this).closest('tr').show();
-
-                        }
-                    } else {
-                        $(this).closest('tr').addClass('dead');
-                        $(this).closest('tr').hide();
-                    }
-                });
-
+            if(isEmptyObject(bank_filter)){
+                reOrderBank();
             } else {
-                if(bank_filter.bank_date_from != ''){
+                $('#bank_table tbody tr').removeClass("dead");
+                $('#bank_table tbody tr').hide();
+
+                var count = 0,
+                subtotal_debit = 0.0,
+                subtotal_credit = 0.0,
+                debit = 0.0,
+                credit = 0.0;
+
+                if(bank_filter.bank_date_from != '' && bank_filter.bank_date_to != ''){
+                    const date_from = new Date(bank_filter.bank_date_from);
+                    const date_to = new Date(bank_filter.bank_date_to);
+
                     $('.bank-transaction-date').each(function(){
-                        if( $(this).text() ===  bank_filter.bank_date_from){
+                        const this_date = new Date($(this).text());
+                        if(this_date >= date_from && this_date <= date_to){
                             if(!$(this).closest('tr').hasClass('dead')){
 
                                 $(this).closest('tr').show();
@@ -1236,114 +1419,130 @@
                             $(this).closest('tr').hide();
                         }
                     });
+
+                } else {
+                    if(bank_filter.bank_date_from != ''){
+                        $('.bank-transaction-date').each(function(){
+                            if( $(this).text() ===  bank_filter.bank_date_from){
+                                if(!$(this).closest('tr').hasClass('dead')){
+
+                                    $(this).closest('tr').show();
+
+                                }
+                            } else {
+                                $(this).closest('tr').addClass('dead');
+                                $(this).closest('tr').hide();
+                            }
+                        });
+                    }
+                    if(bank_filter.bank_date_to != ''){
+                        $('.bank-transaction-date').each(function(){
+                            if( $(this).text() ===  bank_filter.bank_date_to){
+                                if(!$(this).closest('tr').hasClass('dead')){
+
+                                    $(this).closest('tr').show();
+                                    
+                                }
+                            } else {
+                                $(this).closest('tr').addClass('dead');
+                                $(this).closest('tr').hide();
+                            }
+                        });
+                    }
                 }
-                if(bank_filter.bank_date_to != ''){
-                    $('.bank-transaction-date').each(function(){
-                        if( $(this).text() ===  bank_filter.bank_date_to){
+
+                if (bank_filter.bank_type) {
+                    const bank_type = bank_filter.bank_type.toLowerCase();
+                    
+                    $('.bank-document-type').each(function() {
+                        const row = $(this).closest('tr');
+                        const debit_amount = row.find('.bankdebitamount').text();
+                        const credit_amount = row.find('.bankcreditamount').text();
+
+                        if (!row.hasClass('dead') && 
+                            ((bank_type === 'cv' && debit_amount !== '0.00') ||
+                            (bank_type === 'or' && credit_amount !== '0.00'))) {
+                            row.show();
+                        } else {
+                            row.addClass('dead').hide();
+                        }
+                    });
+                }
+                
+                if(bank_filter.bank_refno != ''){
+                    $('.bank-refno-input').each(function(){
+                        if( $(this).val().toLowerCase() === bank_filter.bank_refno){
                             if(!$(this).closest('tr').hasClass('dead')){
 
                                 $(this).closest('tr').show();
                                 
-                            }
+                            } 
                         } else {
                             $(this).closest('tr').addClass('dead');
                             $(this).closest('tr').hide();
                         }
                     });
                 }
-            }
-
-            if (bank_filter.bank_type) {
-                const bank_type = bank_filter.bank_type.toLowerCase();
                 
-                $('.bank-document-type').each(function() {
-                    const row = $(this).closest('tr');
-                    const debit_amount = row.find('.bankdebitamount').text();
-                    const credit_amount = row.find('.bankcreditamount').text();
+                if(bank_filter.bank_checknumber != ''){
+                    $('.bank-checknumber').each(function(){
+                        if( $(this).text().toLowerCase() === bank_filter.bank_checknumber){
+                            if(!$(this).closest('tr').hasClass('dead')){
 
-                    if (!row.hasClass('dead') && 
-                        ((bank_type === 'cv' && debit_amount !== '0.00') ||
-                        (bank_type === 'or' && credit_amount !== '0.00'))) {
-                        row.show();
-                    } else {
-                        row.addClass('dead').hide();
-                    }
-                });
+                                $(this).closest('tr').show();
+                                
+                            } 
+                        } else {
+                            $(this).closest('tr').addClass('dead');
+                            $(this).closest('tr').hide();
+                        }
+                    });
+                }
+
+                if (bank_filter.bank_amount !== '') {
+                    $('.bankdebitamount, .bankcreditamount').each(function() {
+                        const row = $(this).closest('tr');
+                        const debitAmount = row.find('.bankdebitamount').text();
+                        const creditAmount = row.find('.bankcreditamount').text();
+                        if (debitAmount === bank_filter.bank_amount || creditAmount === bank_filter.bank_amount) {
+                            row.show().removeClass('dead');
+                        } else {
+                            row.hide().addClass('dead');
+                        }
+                    });
+                }
+
+                calc_total();
+                var table = document.getElementById('bank_table');
+                var rowCount = table.rows.length;
+
+                if($("#bank_table tbody tr:visible").length < 1){
+                    subtotal_debit = 0;
+                    subtotal_credit = 0;
+                    count = 0;
+                } else {
+                    $('#bank_table > tbody > tr').filter(':visible').each(function(){
+                        debit = $(this).closest('tr').find("td").eq(5).text().replace(/,/g, '');
+                        credit = $(this).closest('tr').find("td").eq(6).text().replace(/,/g, '');
+                        subtotal_debit += parseFloat(debit);
+                        subtotal_credit += parseFloat(credit);
+                        count++;
+                    });
+                }
+                
+                var row = table.insertRow(rowCount);
+                row.setAttribute("class", "bank-filtered-subtotal");
+                row.setAttribute("style", "background-color: papayawhip; color: darkred; font-style: italic; font-weight: 500;");
+                row.insertCell(0).textContent = count;
+                row.insertCell(1).setAttribute("class", "bg-blue-200");
+                row.insertCell(2).setAttribute("class", "bg-blue-200");
+                row.insertCell(3).setAttribute("class", "bg-blue-200");
+                row.insertCell(4).textContent = " s u b - t o t a l";
+                row.insertCell(5).textContent = subtotal_debit.toLocaleString('en-US', {style: 'currency',currency: 'PHP'});
+                row.insertCell(6).textContent = subtotal_credit.toLocaleString('en-US', {style: 'currency',currency: 'PHP'});
+                row.insertCell(7).setAttribute("class", "bg-blue-200");
+                row.insertCell(8).setAttribute("class", "bg-blue-200");
             }
-            
-            if(bank_filter.bank_refno != ''){
-                $('.bank-refno-input').each(function(){
-                    if( $(this).val().toLowerCase() === bank_filter.bank_refno){
-                        if(!$(this).closest('tr').hasClass('dead')){
-
-                            $(this).closest('tr').show();
-                            
-                        } 
-                    } else {
-                        $(this).closest('tr').addClass('dead');
-                        $(this).closest('tr').hide();
-                    }
-                });
-            }
-            
-            if(bank_filter.bank_checknumber != ''){
-                $('.bank-checknumber').each(function(){
-                    if( $(this).text().toLowerCase() === bank_filter.bank_checknumber){
-                        if(!$(this).closest('tr').hasClass('dead')){
-
-                            $(this).closest('tr').show();
-                            
-                        } 
-                    } else {
-                        $(this).closest('tr').addClass('dead');
-                        $(this).closest('tr').hide();
-                    }
-                });
-            }
-
-            if (bank_filter.bank_amount !== '') {
-                $('.bankdebitamount, .bankcreditamount').each(function() {
-                    const row = $(this).closest('tr');
-                    const debitAmount = row.find('.bankdebitamount').text();
-                    const creditAmount = row.find('.bankcreditamount').text();
-                    if (debitAmount === bank_filter.bank_amount || creditAmount === bank_filter.bank_amount) {
-                        row.show().removeClass('dead');
-                    } else {
-                        row.hide().addClass('dead');
-                    }
-                });
-            }
-
-            calc_total();
-            var table = document.getElementById('bank_table');
-            var rowCount = table.rows.length;
-
-            if($("#bank_table tbody tr:visible").length < 1){
-                subtotal_debit = 0;
-                subtotal_credit = 0;
-                count = 0;
-            } else {
-                $('#bank_table > tbody > tr').filter(':visible').each(function(){
-                    debit = $(this).closest('tr').find("td").eq(5).text().replace(/,/g, '');
-                    credit = $(this).closest('tr').find("td").eq(6).text().replace(/,/g, '');
-                    subtotal_debit += parseFloat(debit);
-                    subtotal_credit += parseFloat(credit);
-                    count++;
-                });
-            }
-            
-            var row = table.insertRow(rowCount);
-            row.setAttribute("class", "bank-filtered-subtotal");
-            row.setAttribute("style", "background-color: papayawhip; color: darkred; font-style: italic; font-weight: 500;");
-            row.insertCell(0).textContent = count;
-            row.insertCell(1).setAttribute("class", "bg-blue-200");
-            row.insertCell(2).setAttribute("class", "bg-blue-200");
-            row.insertCell(3).setAttribute("class", "bg-blue-200");
-            row.insertCell(4).textContent = " s u b - t o t a l";
-            row.insertCell(5).textContent = subtotal_debit.toLocaleString('en-US', {style: 'currency',currency: 'PHP'});
-            row.insertCell(6).textContent = subtotal_credit.toLocaleString('en-US', {style: 'currency',currency: 'PHP'});
-            row.insertCell(7).setAttribute("class", "bg-blue-200");
-            row.insertCell(8).setAttribute("class", "bg-blue-200");
         });
 
         $('#reset_book').click(function(){
@@ -1673,6 +1872,10 @@
                                         id: id,
                                         refno: refno
                                     });
+                                } 
+                                
+                                if(!refno) {
+                                    $(this).attr('data-bank-recon', '0');
                                 }
                             }
                         });
@@ -1704,13 +1907,13 @@
                                 if (response.success_count > 0 && response.failed_count === 0){
                                     $('#alert-success').text('Saved successfully.');
                                     customAlert($('#alert-success'));
-                                } else if(response.failed_count === 1){
+                                } else if(response.failed_count === 1) {
                                     $('#alert-danger').text('A Ref. No. was not saved.');
                                     customAlert($('#alert-danger'));
-                                } else if(response.failed_count > 1){
+                                } else if(response.failed_count > 1) {
                                     $('#alert-danger').text('The number of Ref. No. that were not saved: '+ response.failed_count);
                                     customAlert($('#alert-danger'));
-                                }else if(response.success_count < 1 && response.failed_count < 1){
+                                } else if(response.success_count < 1 && response.failed_count < 1) {
                                     $('#alert-warning').text('There is no new entered Ref. No.');
                                     customAlert($('#alert-warning'));
                                 } else {
@@ -1739,6 +1942,7 @@
                 if(result){
                     $('#pdi_table > tbody > tr').filter(':visible').each(function(){
                         $(this).find('input[name=book_refno_input]').val('');
+                        $(this).attr('data-book-recon', '0');
                     });
                 }
             });
@@ -1751,6 +1955,7 @@
                 if(result){
                     $('#bank_table > tbody > tr').filter(':visible').each(function(){
                         $(this).find('input[name=bank_refno_input]').val('');
+                        $(this).attr('data-bank-recon', '0');
                     });
                 }
             });
@@ -1967,6 +2172,16 @@
                 customAlert($('#alert-warning'));
             }
             
+        });
+
+        $('input[name=book_refno_input]').change(function(){
+            var row = $(this).closest("tr");
+            row.attr('data-book-recon', '0');
+        });
+
+        $('input[name=bank_refno_input]').change(function(){
+            var row = $(this).closest("tr");
+            row.attr('data-bank-recon', '0');
         });
 
         $('#get_xls').click(function(){

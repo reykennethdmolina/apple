@@ -1,4 +1,5 @@
 ''' Bankrecon Utility '''
+from collections import defaultdict
 import datetime
 import hashlib
 import itertools
@@ -1184,7 +1185,7 @@ def transgenerate(request):
     bank_data = Bankrecon.objects.filter(\
         bankaccount_id=bankaccount_id, \
         transaction_date__range=[dfrom, dto]\
-    ).values('id', 'reference_number', 'transaction_date', 'debit_amount', 'credit_amount', 'branch', 'checknumber', 'particulars', 'transactioncode').order_by('transaction_date')
+    ).values('id', 'reference_number', 'transaction_date', 'debit_amount', 'credit_amount', 'branch', 'checknumber', 'particulars', 'transactioncode').order_by('id')
 
     bankdebit_total = 0
     bankcredit_total = 0
@@ -1403,14 +1404,16 @@ def transgenerate(request):
             # sorted_pdi_data = pdi_data
             with_refno = sorted(with_refno)
             with_refno.sort(key=takeRefNo)
+
+            reconciled_items = sort_reconciled_items(with_refno, 'document_date', 'reference_number')
             
             iterator = 0
             increment = 0
-            length = len(with_refno)
+            length = len(reconciled_items)
             advance_check = 0
             posted_debit = 0
             posted_credit = 0
-            for i,data in enumerate(with_refno):
+            for i,data in enumerate(reconciled_items):
                 iterator += 1
                 increment += 1
                 
@@ -1456,13 +1459,16 @@ def transgenerate(request):
             bank_with_refno = sorted(bank_with_refno)
             bank_with_refno.sort(key=takeRefNo)
 
+            # sort by transaction_date and grouped by reference_number
+            bank_reconciled_items = sort_reconciled_items(bank_with_refno, 'transaction_date', 'reference_number')
+
             iterator = 0
             increment = 0
-            length = len(bank_with_refno)
+            length = len(bank_reconciled_items)
             advance_check = 0
             posted_debit = 0
             posted_credit = 0
-            for i,bank_refno in enumerate(bank_with_refno):
+            for i,bank_refno in enumerate(bank_reconciled_items):
                 iterator += 1
                 increment += 1
 
@@ -1519,6 +1525,7 @@ def transgenerate(request):
 def takeRefNo(elem):
     return elem['reference_number']
 
+
 def sum_daily_amount(date, pdi_data):
     debit_amount = 0.00
     credit_amount = 0.00
@@ -1538,6 +1545,7 @@ def sum_daily_amount(date, pdi_data):
         'date': date
     }
 
+
 def bank_sum_daily_amount(date, bank_data):
     debit_amount = 0.00
     credit_amount = 0.00
@@ -1554,6 +1562,25 @@ def bank_sum_daily_amount(date, bank_data):
         'credit_amount': credit_amount,
         'date': date
     }
+
+
+# sort by transaction_date and grouped by reference_number
+def sort_reconciled_items(items, date_key, reference_key):
+    reference_dict = defaultdict(list)
+    for entry in items:
+        reference_number = entry[reference_key]
+        reference_dict[reference_number].append(entry)
+
+    sorted_reference_numbers = sorted(reference_dict.keys())
+
+    sorted_data = []
+
+    for reference_number in sorted_reference_numbers:
+        entries = reference_dict[reference_number]
+        sorted_entries = sorted(entries, key=lambda x: x[date_key])
+        sorted_data.extend(sorted_entries)
+
+    return sorted_data
 
 
 # @csrf_exempt
