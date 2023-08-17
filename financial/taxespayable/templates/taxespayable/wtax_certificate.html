@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+<style type="text/css">
+    #sidebar{position:absolute;top:0;left:0;bottom:0;width:250px;padding:0;margin:0;overflow:auto}#page-container{position:relative;top:0;left:0;margin:0;padding:0;border:0}@media screen{#sidebar.opened+#page-container{left:250px}#page-container{bottom:0;right:0;overflow:auto}}
+    @media print{@page{margin:0}html{margin:0}body{margin:0;-webkit-print-color-adjust:exact}#sidebar{display:none}#page-container{width:auto;height:auto;overflow:visible;background-color:transparent}.d{display:none}}
+    .pf{position:relative;background-color:white;overflow:hidden;margin:0;border:0}.pc{position:absolute;border:0;padding:0;margin:0;top:0;left:0;width:100%;height:100%;overflow:hidden;display:block;transform-origin:0 0;-ms-transform-origin:0 0;-webkit-transform-origin:0 0}.pc.opened{display:block}.bf{position:absolute;border:0;margin:0;top:0;bottom:0;width:100%;height:100%;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none}.bi{position:absolute;border:0;margin:0;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none}@media print{.pf{margin:0;box-shadow:none;page-break-after:always;page-break-inside:avoid}@-moz-document url-prefix(){.pf{overflow:visible;border:1px solid #fff}.pc{overflow:visible}}}.c{position:absolute;border:0;padding:0;margin:0;overflow:hidden;display:block}.t{position:absolute;white-space:pre;font-size:1px;transform-origin:0 100%;-ms-transform-origin:0 100%;-webkit-transform-origin:0 100%;unicode-bidi:bidi-override;-moz-font-feature-settings:"liga" 0}.t:after{content:''}.t:before{content:'';display:inline-block}.t span{position:relative;unicode-bidi:bidi-override}._{display:inline-block;color:transparent;z-index:-1}::selection{background:rgba(127,255,255,0.4)}::-moz-selection{background:rgba(127,255,255,0.4)}.pi{display:none}.d{position:absolute;transform-origin:0 100%;-ms-transform-origin:0 100%;-webkit-transform-origin:0 100%}.it{border:0;background-color:rgba(255,255,255,0.0)}.ir:hover{cursor:pointer}
+    
+    @media screen{#sidebar{background-color:#2f3236;background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjNDAzYzNmIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDBMNCA0Wk00IDBMMCA0WiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2U9IiMxZTI5MmQiPjwvcGF0aD4KPC9zdmc+")}#outline{font-family:Georgia,Times,"Times New Roman",serif;font-size:13px;margin:2em 1em}#outline ul{padding:0}#outline li{list-style-type:none;margin:1em 0}#outline li>ul{margin-left:1em}#outline a,#outline a:visited,#outline a:hover,#outline a:active{line-height:1.2;color:#e8e8e8;text-overflow:ellipsis;white-space:nowrap;text-decoration:none;display:block;overflow:hidden;outline:0}#outline a:hover{color:#0cf}#page-container{background-color:#9e9e9e;background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjOWU5ZTllIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiM4ODgiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=");-webkit-transition:left 500ms;transition:left 500ms}.pf{margin:13px auto;box-shadow:1px 1px 3px 1px #333;border-collapse:separate}.pc.opened{-webkit-animation:fadein 100ms;animation:fadein 100ms}}
+    .ff0{font-family:sans-serif;visibility:hidden;}
+    
+    .ff3{font-family:ff3;line-height:1.354000;font-style:normal;font-weight:normal;visibility:visible;}
+    .m1{transform:matrix(0.249303,0.000000,0.000000,0.250000,0,0);-ms-transform:matrix(0.249303,0.000000,0.000000,0.250000,0,0);-webkit-transform:matrix(0.249303,0.000000,0.000000,0.250000,0,0);}
+    .m3{transform:matrix(0.249311,0.000000,0.000000,0.250000,0,0);-ms-transform:matrix(0.249311,0.000000,0.000000,0.250000,0,0);-webkit-transform:matrix(0.249311,0.000000,0.000000,0.250000,0,0);}
+    .m2{transform:matrix(0.249315,0.000000,0.000000,0.250000,0,0);-ms-transform:matrix(0.249315,0.000000,0.000000,0.250000,0,0);-webkit-transform:matrix(0.249315,0.000000,0.000000,0.250000,0,0);}
+    .m0{transform:matrix(0.249317,0.000000,0.000000,0.250000,0,0);-ms-transform:matrix(0.249317,0.000000,0.000000,0.250000,0,0);-webkit-transform:matrix(0.249317,0.000000,0.000000,0.250000,0,0);}
+    .m4{transform:matrix(0.249318,0.000000,0.000000,0.250000,0,0);-ms-transform:matrix(0.249318,0.000000,0.000000,0.250000,0,0);-webkit-transform:matrix(0.249318,0.000000,0.000000,0.250000,0,0);}
+    .v0{vertical-align:0.000000px;}
+    .ls0{letter-spacing:0.000000px;}
+    .sc_{text-shadow:none;}
+    .sc0{text-shadow:-0.015em 0 transparent,0 0.015em transparent,0.015em 0 transparent,0 -0.015em  transparent;}
+    @media screen and (-webkit-min-device-pixel-ratio:0){
+        .sc_{-webkit-text-stroke:0px transparent;}
+        .sc0{-webkit-text-stroke:0.015em transparent;text-shadow:none;}
+    }
+    .ws0{word-spacing:0.000000px;}
+    ._1{margin-left:-1.142465px;}
+    ._0{width:1.156417px;}
+    ._2{width:33.081226px;}
+    ._3{width:50.408840px;}
+    ._4{width:183.683043px;}
+    ._6{width:185.377748px;}
+    ._5{width:481.383282px;}
+    .fc1{color:transparent;}
+    .fc0{color:rgb(0,0,0);}
+    .fs2{font-size:25.920021px;}
+    .fs1{font-size:26.880022px;}
+    .fs0{font-size:28.800023px;}
+    .fs3{font-size:58.560047px;}
+    .fs4{font-size:95.040076px;}
+    .y4b{bottom:-20.640029px;}
+    .y47{bottom:-2.159977px;}
+    .y4e{bottom:-0.719986px;}
+    .y0{bottom:-0.500000px;}
+    .y12{bottom:0.479995px;}
+    .yf{bottom:1.199815px;}
+    .yc{bottom:1.199833px;}
+    .y9{bottom:1.199878px;}
+    .y6{bottom:1.199897px;}
+    .y3{bottom:1.199918px;}
+    .y10{bottom:1.439815px;}
+    .yd{bottom:1.439833px;}
+    .ya{bottom:1.439879px;}
+    .y7{bottom:1.439897px;}
+    .y4{bottom:1.439918px;}
+    .y17{bottom:1.439992px;}
+    .y15{bottom:1.439999px;}
+    .y22{bottom:1.440455px;}
+    .y20{bottom:1.440463px;}
+    .y35{bottom:1.679775px;}
+    .y45{bottom:1.680031px;}
+    .y11{bottom:13.040616px;}
+    .y1c{bottom:22.400618px;}
+    .y1a{bottom:22.640618px;}
+    .y19{bottom:31.280625px;}
+    .y1b{bottom:31.760625px;}
+    .y18{bottom:32.000626px;}
+    .y16{bottom:38.960640px;}
+    .y14{bottom:47.840640px;}
+    .y13{bottom:87.920670px;}
+    .y28{bottom:99.680680px;}
+    .y25{bottom:99.920680px;}
+    .y27{bottom:101.361081px;}
+    .y24{bottom:108.561087px;}
+    .y26{bottom:110.721089px;}
+    .y23{bottom:110.961089px;}
+    .y21{bottom:117.920640px;}
+    .y1f{bottom:126.800640px;}
+    .y1e{bottom:138.801111px;}
+    .y1d{bottom:148.161119px;}
+    .y2b{bottom:174.081139px;}
+    .y2a{bottom:183.441147px;}
+    .y29{bottom:192.801154px;}
+    .y2c{bottom:207.201166px;}
+    .y2e{bottom:316.881254px;}
+    .y2d{bottom:326.241261px;}
+    .y2f{bottom:344.961276px;}
+    .y37{bottom:455.601364px;}
+    .y31{bottom:459.921368px;}
+    .y38{bottom:460.161368px;}
+    .y32{bottom:464.721372px;}
+    .y36{bottom:464.961372px;}
+    .y34{bottom:467.601600px;}
+    .y30{bottom:469.281375px;}
+    .y33{bottom:482.481386px;}
+    .y3b{bottom:491.361393px;}
+    .ye{bottom:517.281600px;}
+    .yb{bottom:540.321600px;}
+    .y3a{bottom:557.601446px;}
+    .y39{bottom:574.881460px;}
+    .y8{bottom:596.721600px;}
+    .y5{bottom:619.761600px;}
+    .y2{bottom:646.161600px;}
+    .y3d{bottom:663.441531px;}
+    .y3c{bottom:680.721545px;}
+    .y3e{bottom:694.401556px;}
+    .y1{bottom:718.161570px;}
+    .y4f{bottom:727.281582px;}
+    .y4c{bottom:731.121585px;}
+    .y43{bottom:733.761587px;}
+    .y4a{bottom:734.001600px;}
+    .y49{bottom:741.921594px;}
+    .y42{bottom:752.001602px;}
+    .y4d{bottom:767.601600px;}
+    .y41{bottom:780.561624px;}
+    .y46{bottom:781.041600px;}
+    .y44{bottom:786.561600px;}
+    .y48{bottom:788.241631px;}
+    .y40{bottom:790.401632px;}
+    .y3f{bottom:800.001640px;}
+    .hd{height:1.200000px;}
+    .hb{height:4.560000px;}
+    .he{height:6.000000px;}
+    .h6{height:6.240000px;}
+    .h3{height:7.920000px;}
+    .h5{height:8.160000px;}
+    .h9{height:8.400000px;}
+    .h8{height:27.734422px;}
+    .h7{height:28.896023px;}
+    .h4{height:30.816025px;}
+    .h2{height:30.960025px;}
+    .ha{height:62.659250px;}
+    .hc{height:101.692881px;}
+    .h0{height:842.000000px;}
+    .h1{height:842.500000px;}
+    .w2{width:4.080000px;}
+    .w12{width:4.800000px;}
+    .w6{width:6.720000px;}
+    .w11{width:16.560000px;}
+    .w13{width:26.400000px;}
+    .w10{width:26.640000px;}
+    .w7{width:29.760000px;}
+    .w9{width:40.560000px;}
+    .w14{width:45.120000px;}
+    .wa{width:46.560000px;}
+    .w3{width:48.000000px;}
+    .w8{width:56.160000px;}
+    .w5{width:62.640000px;}
+    .wf{width:69.360000px;}
+    .wd{width:115.440000px;}
+    .wb{width:222.720000px;}
+    .we{width:267.360000px;}
+    .wc{width:270.240000px;}
+    .w4{width:298.800000px;}
+    .w0{width:595.000000px;}
+    .w1{width:595.500000px;}
+    .x0{left:0.000000px;}
+    .x1{left:23.520019px;}
+    .x2a{left:27.840022px;}
+    .x2{left:29.280000px;}
+    .xf{left:32.400026px;}
+    .x14{left:34.559075px;}
+    .x29{left:36.000029px;}
+    .xc{left:38.160031px;}
+    .x3{left:41.520000px;}
+    .x15{left:43.679089px;}
+    .x28{left:59.760048px;}
+    .x16{left:80.159046px;}
+    .x8{left:88.080000px;}
+    .x4{left:89.520000px;}
+    .x7{left:97.680000px;}
+    .xa{left:161.520000px;}
+    .x13{left:162.960000px;}
+    .x23{left:184.800083px;}
+    .x12{left:191.520130px;}
+    .x17{left:200.879310px;}
+    .x26{left:209.280167px;}
+    .x27{left:210.960169px;}
+    .x1b{left:228.479914px;}
+    .x11{left:229.680184px;}
+    .xb{left:238.320000px;}
+    .x1c{left:243.119905px;}
+    .x24{left:250.800563px;}
+    .x22{left:252.240418px;}
+    .x25{left:257.760574px;}
+    .xd{left:266.880214px;}
+    .x9{left:274.320219px;}
+    .x1d{left:299.519987px;}
+    .x18{left:303.119204px;}
+    .x1e{left:315.120047px;}
+    .x1f{left:372.240156px;}
+    .x20{left:387.120190px;}
+    .x10{left:405.600324px;}
+    .xe{left:406.800325px;}
+    .x21{left:457.440235px;}
+    .x2b{left:489.600392px;}
+    .x19{left:500.400000px;}
+    .x5{left:508.800000px;}
+    .x6{left:517.440000px;}
+    .x1a{left:521.760417px;}
+
+    @media print{
+        .v0{vertical-align:0.000000pt;}
+        .ls0{letter-spacing:0.000000pt;}
+        .ws0{word-spacing:0.000000pt;}
+        ._1{margin-left:-1.523287pt;}
+        ._0{width:1.541889pt;}
+        ._2{width:44.108302pt;}
+        ._3{width:67.211787pt;}
+        ._4{width:244.910725pt;}
+        ._6{width:247.170331pt;}
+        ._5{width:641.844375pt;}
+        .fs2{font-size:34.560028pt;}
+        .fs1{font-size:35.840029pt;}
+        .fs0{font-size:38.400031pt;}
+        .fs3{font-size:78.080062pt;}
+        .fs4{font-size:126.720101pt;}
+        .y4b{bottom:-27.520039pt;}
+        .y47{bottom:-2.879969pt;}
+        .y4e{bottom:-0.959982pt;}
+        .y0{bottom:-0.666667pt;}
+        .y12{bottom:0.639993pt;}
+        .yf{bottom:1.599753pt;}
+        .yc{bottom:1.599778pt;}
+        .y9{bottom:1.599838pt;}
+        .y6{bottom:1.599862pt;}
+        .y3{bottom:1.599891pt;}
+        .y10{bottom:1.919753pt;}
+        .yd{bottom:1.919778pt;}
+        .ya{bottom:1.919838pt;}
+        .y7{bottom:1.919863pt;}
+        .y4{bottom:1.919891pt;}
+        .y17{bottom:1.919990pt;}
+        .y15{bottom:1.919999pt;}
+        .y22{bottom:1.920607pt;}
+        .y20{bottom:1.920617pt;}
+        .y35{bottom:2.239701pt;}
+        .y45{bottom:2.240041pt;}
+        .y11{bottom:17.387488pt;}
+        .y1c{bottom:29.867491pt;}
+        .y1a{bottom:30.187491pt;}
+        .y19{bottom:41.707500pt;}
+        .y1b{bottom:42.347501pt;}
+        .y18{bottom:42.667501pt;}
+        .y16{bottom:51.947520pt;}
+        .y14{bottom:63.787520pt;}
+        .y13{bottom:117.227560pt;}
+        .y28{bottom:132.907573pt;}
+        .y25{bottom:133.227573pt;}
+        .y27{bottom:135.148108pt;}
+        .y24{bottom:144.748116pt;}
+        .y26{bottom:147.628118pt;}
+        .y23{bottom:147.948118pt;}
+        .y21{bottom:157.227520pt;}
+        .y1f{bottom:169.067520pt;}
+        .y1e{bottom:185.068148pt;}
+        .y1d{bottom:197.548158pt;}
+        .y2b{bottom:232.108186pt;}
+        .y2a{bottom:244.588196pt;}
+        .y29{bottom:257.068206pt;}
+        .y2c{bottom:276.268221pt;}
+        .y2e{bottom:422.508338pt;}
+        .y2d{bottom:434.988348pt;}
+        .y2f{bottom:459.948368pt;}
+        .y37{bottom:607.468486pt;}
+        .y31{bottom:613.228491pt;}
+        .y38{bottom:613.548491pt;}
+        .y32{bottom:619.628496pt;}
+        .y36{bottom:619.948496pt;}
+        .y34{bottom:623.468800pt;}
+        .y30{bottom:625.708501pt;}
+        .y33{bottom:643.308515pt;}
+        .y3b{bottom:655.148524pt;}
+        .ye{bottom:689.708800pt;}
+        .yb{bottom:720.428800pt;}
+        .y3a{bottom:743.468595pt;}
+        .y39{bottom:766.508613pt;}
+        .y8{bottom:795.628800pt;}
+        .y5{bottom:826.348800pt;}
+        .y2{bottom:861.548800pt;}
+        .y3d{bottom:884.588708pt;}
+        .y3c{bottom:907.628726pt;}
+        .y3e{bottom:925.868741pt;}
+        .y1{bottom:958.548760pt;}
+        .y4f{bottom:969.708776pt;}
+        .y4c{bottom:974.828780pt;}
+        .y43{bottom:978.348783pt;}
+        .y4a{bottom:978.668800pt;}
+        .y49{bottom:989.228791pt;}
+        .y42{bottom:1002.668802pt;}
+        .y4d{bottom:1023.468800pt;}
+        .y41{bottom:1040.748833pt;}
+        .y46{bottom:1041.388800pt;}
+        .y44{bottom:1048.748800pt;}
+        .y48{bottom:1050.988841pt;}
+        .y40{bottom:1053.868843pt;}
+        .y3f{bottom:1066.668853pt;}
+        .hd{height:1.600000pt;}
+        .hb{height:6.080000pt;}
+        .he{height:8.000000pt;}
+        .h6{height:8.320000pt;}
+        .h3{height:10.560000pt;}
+        .h5{height:10.880000pt;}
+        .h9{height:11.200000pt;}
+        .h8{height:36.979230pt;}
+        .h7{height:38.528031pt;}
+        .h4{height:41.088033pt;}
+        .h2{height:41.280033pt;}
+        .ha{height:83.545667pt;}
+        .hc{height:135.590508pt;}
+        .h0{height:1122.666667pt;}
+        .h1{height:1123.333333pt;}
+        .w2{width:5.440000pt;}
+        .w12{width:6.400000pt;}
+        .w6{width:8.960000pt;}
+        .w11{width:22.080000pt;}
+        .w13{width:35.200000pt;}
+        .w10{width:35.520000pt;}
+        .w7{width:39.680000pt;}
+        .w9{width:54.080000pt;}
+        .w14{width:60.160000pt;}
+        .wa{width:62.080000pt;}
+        .w3{width:64.000000pt;}
+        .w8{width:74.880000pt;}
+        .w5{width:83.520000pt;}
+        .wf{width:92.480000pt;}
+        .wd{width:153.920000pt;}
+        .wb{width:296.960000pt;}
+        .we{width:356.480000pt;}
+        .wc{width:360.320000pt;}
+        .w4{width:398.400000pt;}
+        .w0{width:793.333333pt;}
+        .w1{width:794.000000pt;}
+        .x0{left:0.000000pt;}
+        .x1{left:31.360025pt;}
+        .x2a{left:37.120030pt;}
+        .x2{left:39.040000pt;}
+        .xf{left:43.200035pt;}
+        .x14{left:46.078767pt;}
+        .x29{left:48.000038pt;}
+        .xc{left:50.880041pt;}
+        .x3{left:55.360000pt;}
+        .x15{left:58.238786pt;}
+        .x28{left:79.680064pt;}
+        .x16{left:106.878727pt;}
+        .x8{left:117.440000pt;}
+        .x4{left:119.360000pt;}
+        .x7{left:130.240000pt;}
+        .xa{left:215.360000pt;}
+        .x13{left:217.280000pt;}
+        .x23{left:246.400111pt;}
+        .x12{left:255.360174pt;}
+        .x17{left:267.839080pt;}
+        .x26{left:279.040223pt;}
+        .x27{left:281.280226pt;}
+        .x1b{left:304.639886pt;}
+        .x11{left:306.240245pt;}
+        .xb{left:317.760000pt;}
+        .x1c{left:324.159874pt;}
+        .x24{left:334.400750pt;}
+        .x22{left:336.320557pt;}
+        .x25{left:343.680766pt;}
+        .xd{left:355.840285pt;}
+        .x9{left:365.760293pt;}
+        .x1d{left:399.359982pt;}
+        .x18{left:404.158939pt;}
+        .x1e{left:420.160063pt;}
+        .x1f{left:496.320208pt;}
+        .x20{left:516.160253pt;}
+        .x10{left:540.800433pt;}
+        .xe{left:542.400434pt;}
+        .x21{left:609.920313pt;}
+        .x2b{left:652.800522pt;}
+        .x19{left:667.200000pt;}
+        .x5{left:678.400000pt;}
+        .x6{left:689.920000pt;}
+        .x1a{left:695.680557pt;}
+
+        body, #page-container, #page-container * {
+            visibility: visible !important;
+        }
+
+        table{
+            position: fixed;
+            border-collapse: collapse;
+            width: 975px;
+            table-layout: fixed;
+            margin: 0 40px;
+        }
+
+        .table-1 {
+            top: 245px;
+        }
+        .table-1 td {
+            border: 1px solid transparent;
+            padding: 11px;
+            position: relative;
+        }
+
+        .table-2 {
+            top: 305px;
+        }
+        .table-2 td {
+            border: 1px solid transparent;
+            padding: 11px;
+            position: relative;
+        }
+
+        .table-3 {
+            top: 347px;
+        }
+        .table-3 td {
+            border: 1px solid transparent;
+            padding: 11px;
+            position: relative;
+        }
+
+        .table-4 {
+            top: 492px;
+        }
+        .table-4 td {
+            border: 1px solid transparent;
+            padding: 11px;
+            position: relative;
+        }
+
+        .table-5 {
+            top: 534px;
+        }
+        .table-5 td {
+            border: 1px solid transparent;
+            padding: 11px;
+            position: relative;
+        }
+        
+        .ewt-table {
+            bottom: 605px;
+        }
+        .ewt-table td {
+            border: 1px solid transparent;
+            padding: 11px;
+            position: relative;
+        }
+
+        .wbt-table {
+            bottom: 360px;
+        }
+        .wbt-table td {
+            border: 1px solid transparent;
+            padding: 11px;
+            position: relative;
+        }
+
+        .table-6 {
+            bottom: 174px;
+        }
+        .table-6 td {
+            border: 1px solid transparent;
+            padding: 11px;
+            position: relative;
+        }
+
+        .table-7 {
+            bottom: 40px;
+        }
+        .table-7 td {
+            border: 1px solid transparent;
+            padding: 11px;
+            position: relative;
+        }
+
+        .overlay-text {
+            display: block;
+            position: static;
+            background-color: transparent;
+            color: #000;
+            padding: 0;
+            border-radius: 0;
+            line-height: 1;
+        }
+        td div.overlay-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            align-items: center;
+            display: flex;
+            font-size: 13px;
+            font-weight: bolder;
+            pointer-events: none;
+        }
+
+        .small-font{
+            font-size: 12px !important;
+        }
+
+        .smaller-font{
+            font-size: 11px !important;
+            line-height: 10px;
+        }
+
+        .smallest-font{
+            font-size: 10px !important;
+            line-height: 8px;
+        }
+
+        .amount-right{
+            text-align: right;
+            justify-content: right;
+        }
+
+        .text-center{
+            text-align: center;
+            justify-content: center;
+        }
+
+        .table-1-column-1 { width: 118px; }
+        .table-1-column-2 { width: 90px; }
+        .table-1-column-3 { width: 100px; }
+        .table-1-column-4 { width: 100px; }
+        .table-1-column-5 { width: 52px; }
+
+        .table-2-column-1 { width: 190px; }
+        .table-2-column-2 { width: 140px; }
+        .table-2-column-3 { width: 200px; }
+
+        .table-3-column-1 { width: 1px; }
+        .table-3-column-2 { width: 440px; }
+        .table-3-column-3 { width: 10px; }
+        .table-3-column-4 { width: 5px; }
+
+        .table-4-column-1 { width: 190px; }
+        .table-4-column-2 { width: 140px; }
+        .table-4-column-3 { width: 200px; }
+
+        .table-5-column-1 { width: 1px; }
+        .table-5-column-2 { width: 440px; }
+        .table-5-column-3 { width: 10px; }
+        .table-5-column-4 { width: 5px; }
+
+        .ewt-table-column-1 { width: 276px; }
+        .ewt-table-column-2 { width: 25px; }
+        .ewt-table-column-3 { width: 90px; }
+        .ewt-table-column-4 { width: 112px; }
+        .ewt-table-column-5 { width: 91px; }
+        .ewt-table-column-6 { width: 92px; }
+        .ewt-table-column-7 { width: 103px; }
+
+        .wbt-table-column-1 { width: 276px; }
+        .wbt-table-column-2 { width: 25px; }
+        .wbt-table-column-3 { width: 90px; }
+        .wbt-table-column-4 { width: 112px; }
+        .wbt-table-column-5 { width: 91px; }
+        .wbt-table-column-6 { width: 92px; }
+        .wbt-table-column-7 { width: 103px; }
+
+        .table-6-column-1 { width: 180px; }
+        .table-6-column-2 { width: 195px; }
+        .table-6-column-3 { width: 65px; }
+        .table-6-column-4 { width: 55px; }
+        .table-6-column-5 { width: 132px; }
+        .table-6-column-6 { width: 45px; }
+        .table-6-column-7 { width: 115px; }
+
+        .table-7-column-1 { width: 188px; }
+        .table-7-column-2 { width: 190px; }
+        .table-7-column-3 { width: 70px; }
+        .table-7-column-4 { width: 50px; }
+        .table-7-column-5 { width: 140px; }
+        .table-7-column-6 { width: 52px; }
+        .table-7-column-7 { width: 115px; }
+    }
+
+    @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+    body * {
+        visibility: hidden !important;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* .overlay-text {
+        position: absolute;
+        background-color: #fff;
+        color: #2f3236;
+        padding: 2px;
+        font-size: 12px;
+        border-radius: 3px;
+    } */
+
+</style>
+
+<title></title>
+</head>
+<body>
+    <div id="sidebar">
+        <div id="outline"></div>
+    </div>
+    <div id="page-container">
+        <div id="pf1" class="pf w0 h0" data-page-no="1">
+            <div class="pc pc1 w0 h0">
+                <div class="collapse-me" data="image">
+                    <img class="bi x0 y0 w1 h1" alt="" src="data:image/png;base64,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"/>
+                </div>
+            </div>
+            <div class="collapse-me">
+                <div class="t m0 h2 y1 ff1 fs0 fc0 sc0 ls0 ws0">
+                    Fill in all applicable spaces. Mark all appropriate boxes with an &quot;X&quot;.
+                </div>
+                <div class="c x2 y2 w2 h3">
+                    <div class="t m0 x0 h4 y3 ff2 fs0 fc0 sc0 ls0 ws0">3</div>
+                </div>
+                <div class="c x3 y2 w3 h5">
+                    <div class="t m0 x0 h2 y4 ff1 fs0 fc0 sc0 ls0 ws0">Payee’s Name </div>
+                </div>
+                <div class="c x4 y2 w4 h5">
+                    <div class="t m0 x0 h4 y4 ff3 fs0 fc0 sc0 ls0 ws0">(Last Name, First Name, Middle Name for Individual OR Registered Name for Non-Individual)</div>
+                </div>
+                <div class="c x2 y5 w2 h3">
+                    <div class="t m0 x0 h4 y6 ff2 fs0 fc0 sc0 ls0 ws0">4</div>
+                </div>
+                <div class="c x3 y5 w5 h5">
+                    <div class="t m0 x0 h2 y7 ff1 fs0 fc0 sc0 ls0 ws0">Registered Address</div>
+                </div>
+                <div class="c x5 y5 w6 h5">
+                    <div class="t m0 x0 h4 y7 ff2 fs0 fc0 sc0 ls0 ws0">4A</div>
+                </div>
+                <div class="c x6 y5 w7 h5">
+                    <div class="t m0 x0 h2 y7 ff1 fs0 fc0 sc0 ls0 ws0">ZIP Code</div>
+                </div>
+                <div class="c x2 y8 w2 h3">
+                    <div class="t m0 x0 h4 y9 ff2 fs0 fc0 sc0 ls0 ws0">5</div>
+                </div>
+                <div class="c x3 y8 w8 h5">
+                    <div class="t m0 x0 h2 ya ff1 fs0 fc0 sc0 ls0 ws0">Foreign Address, </div>
+                </div>
+                <div class="c x7 y8 w9 h5">
+                    <div class="t m0 x0 h4 ya ff3 fs0 fc0 sc0 ls0 ws0">if applicable </div>
+                </div>
+                <div class="c x2 yb w2 h3">
+                    <div class="t m0 x0 h4 yc ff2 fs0 fc0 sc0 ls0 ws0">7</div>
+                </div>
+                <div class="c x3 yb wa h5">
+                    <div class="t m0 x0 h2 yd ff1 fs0 fc0 sc0 ls0 ws0">Payor’s Name </div>
+                </div>
+                <div class="c x8 yb w4 h5">
+                    <div class="t m0 x0 h4 yd ff3 fs0 fc0 sc0 ls0 ws0">(Last Name, First Name, Middle Name for Individual OR Registered Name for Non-Individual)</div>
+                </div>
+                <div class="c x2 ye w2 h3">
+                    <div class="t m0 x0 h4 yf ff2 fs0 fc0 sc0 ls0 ws0">8</div>
+                </div>
+                <div class="c x3 ye w5 h5">
+                    <div class="t m0 x0 h2 y10 ff1 fs0 fc0 sc0 ls0 ws0">Registered Address</div>
+                </div>
+                <div class="c x5 ye w6 h5">
+                    <div class="t m0 x0 h4 y10 ff2 fs0 fc0 sc0 ls0 ws0">8A</div>
+                </div>
+                <div class="c x6 ye w7 h5">
+                    <div class="t m0 x0 h2 y10 ff1 fs0 fc0 sc0 ls0 ws0">ZIP Code</div>
+                </div>
+                <div class="c x1 y11 wb h6">
+                    <div class="t m0 x0 h2 y12 ff1 fs0 fc0 sc0 ls0 ws0"> *NOTE: The BIR Data Privacy is in the BIR website (www.bir.gov.ph)  </div>
+                </div>
+                <div class="t m0 x9 h4 y13 ff2 fs0 fc0 sc0 ls0 ws0">CONFORME:</div>
+                <div class="c xa y14 wc h5">
+                    <div class="t m0 x0 h2 y15 ff1 fs0 fc0 sc0 ls0 ws0">Signature over Printed Name of Payee/Payee’s Authorized Representative/Tax Agent </div>
+                </div>
+                <div class="c xb y16 wd h5">
+                    <div class="t m0 x0 h4 y17 ff3 fs0 fc0 sc0 ls0 ws0"> (Indicate Title/Designation and TIN)</div>
+                </div>
+                <div class="t m1 xc h7 y18 ff1 fs1 fc0 sc0 ls0 ws0">Tax Agent Accreditation No./</div>
+                <div class="t m0 xd h2 y19 ff1 fs0 fc0 sc0 ls0 ws0">Date of Issue</div>
+                <div class="t m2 xd h8 y1a ff3 fs2 fc0 sc0 ls0 ws0">(MM/DD/YYYY)</div>
+                <div class="t m0 xe h2 y1b ff1 fs0 fc0 sc0 ls0 ws0">Date of Expiry</div>
+                <div class="t m1 xf h7 y1c ff1 fs1 fc0 sc0 ls0 ws0">Attorney’s Roll No. (if applicable)</div>
+                <div class="t m2 x10 h8 y1c ff3 fs2 fc0 sc0 ls0 ws0">(MM/DD/YYYY)</div>
+                <div class="t m0 x11 h4 y1d ff2 fs0 fc0 sc0 ls0 ws0">                        PATRICIA KAE S.  LUZON</div>
+                <div class="t m0 x12 h4 y1e ff2 fs0 fc0 sc0 ls0 ws0">        (TIN:232 - 196 - 579 DESIGNATION: FINANCE MANAGER)</div>
+                <div class="c x13 y1f we h5">
+                    <div class="t m0 x0 h2 y20 ff1 fs0 fc0 sc0 ls0 ws0">Signature over Printed Name of Payor/Payor’s Authorized Representative/Tax Agent </div>
+                </div>
+                <div class="c xb y21 wd h5">
+                    <div class="t m0 x0 h4 y22 ff3 fs0 fc0 sc0 ls0 ws0"> (Indicate Title/Designation and TIN)</div>
+                </div>
+                <div class="t m1 xc h7 y23 ff1 fs1 fc0 sc0 ls0 ws0">Tax Agent Accreditation No./</div>
+                <div class="t m0 xd h2 y24 ff1 fs0 fc0 sc0 ls0 ws0">Date of Issue</div>
+                <div class="t m2 xd h8 y25 ff3 fs2 fc0 sc0 ls0 ws0">(MM/DD/YYYY)</div>
+                <div class="t m0 xe h2 y26 ff1 fs0 fc0 sc0 ls0 ws0">Date of Expiry</div>
+                <div class="t m1 xf h7 y27 ff1 fs1 fc0 sc0 ls0 ws0">Attorney’s Roll No. (if applicable)</div>
+                <div class="t m2 x10 h8 y28 ff3 fs2 fc0 sc0 ls0 ws0">(MM/DD/YYYY)</div>
+                <div class="t m0 x1 h2 y29 ff1 fs0 fc0 sc0 ls0 ws0">       We declare under the penalties of perjury that this certificate has been made in good faith, verified by us, and to the best of our knowledge and belief, is true and correct, </div>
+                <div class="t m0 x1 h2 y2a ff1 fs0 fc0 sc0 ls0 ws0">pursuant to the provisions of the National Internal Revenue Code, as amended, and the regulations issued under authority thereof. Further, we give our consent to the </div>
+                <div class="t m0 x1 h2 y2b ff1 fs0 fc0 sc0 ls0 ws0">processing of our information as contemplated under the *Data Privacy Act of 2012 (R.A. No. 10173) for legitimate and lawful purposes.</div>
+                <div class="t m0 x1 h4 y2c ff2 fs0 fc0 sc0 ls0 ws0">Total</div>
+                <div class="t m0 x14 h4 y2d ff2 fs0 fc0 sc0 ls0 ws0">Money Payments Subject to Withholding of </div>
+                <div class="t m0 x15 h4 y2e ff2 fs0 fc0 sc0 ls0 ws0">Business Tax (Government &amp; Private)</div>
+                <div class="t m0 x1 h4 y2f ff2 fs0 fc0 sc0 ls0 ws0">Total</div>
+                <div class="t m0 x3 h4 y30 ff2 fs0 fc0 sc0 ls0 ws0">Income Payments Subject to Expanded </div>
+                <div class="t m0 x16 h4 y31 ff2 fs0 fc0 sc0 ls0 ws0">Withholding Tax</div>
+                <div class="t m0 x17 h4 y32 ff2 fs0 fc0 sc0 ls0 ws0">ATC</div>
+                <div class="t m0 x18 h4 y33 ff2 fs0 fc0 sc0 ls0 ws0">AMOUNT OF INCOME PAYMENTS</div>
+                <div class="c x19 y34 wf h9">
+                    <div class="t m0 x0 h4 y35 ff2 fs0 fc0 sc0 ls0 ws0">Tax Withheld for the </div>
+                </div>
+                <div class="t m0 x1a h4 y31 ff2 fs0 fc0 sc0 ls0 ws0">Quarter</div>
+                <div class="t m0 x1b h4 y36 ff2 fs0 fc0 sc0 ls0 ws0">1st Month of the </div>
+                <div class="t m0 x1c h4 y37 ff2 fs0 fc0 sc0 ls0 ws0">Quarter</div>
+                <div class="t m0 x1d h4 y36 ff2 fs0 fc0 sc0 ls0 ws0">2nd Month of the </div>
+                <div class="t m0 x1e h4 y37 ff2 fs0 fc0 sc0 ls0 ws0">Quarter</div>
+                <div class="t m0 x1f h4 y36 ff2 fs0 fc0 sc0 ls0 ws0">3rd Month of the </div>
+                <div class="t m0 x20 h4 y37 ff2 fs0 fc0 sc0 ls0 ws0">Quarter</div>
+                <div class="t m0 x21 h4 y38 ff2 fs0 fc0 sc0 ls0 ws0">Total</div>
+                <div class="t m0 x22 h4 y39 ff2 fs0 fc0 sc0 ls0 ws0">Part II – Payor Information</div>
+                <div class="t m0 x2 h2 y3a ff2 fs0 fc0 sc0 ls0 ws0">6<span class="_ _2"> </span><span class="ff1">Taxpayer Identification Number <span class="ff3">(TIN)</span></span></div>
+                <div class="t m0 x23 h4 y3b ff2 fs0 fc0 sc0 ls0 ws0">Part III – Details of Monthly Income Payments and Taxes Withheld</div>
+                <div class="t m0 x22 h4 y3c ff2 fs0 fc0 sc0 ls0 ws0">Part I – Payee Information</div>
+                <div class="t m0 x2 h2 y3d ff2 fs0 fc0 sc0 ls0 ws0">2<span class="_ _2"> </span><span class="ff1">Taxpayer Identification Number <span class="ff3">(TIN)</span></span></div>
+                <div class="t m0 x2 h2 y3e ff2 fs0 fc0 sc0 ls0 ws0">1<span class="_ _3"> </span><span class="ff1">For the Period<span class="_ _4"> </span> From<span class="_ _5">6/1/2022 </span><span class="ff3">(MM/DD/YYYY)<span class="_ _6"> </span></span>To<span class="_ _5"> 6/30/2022</span><span class="ff3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(MM/DD/YYYY)</span></span></div>
+                <div class="t m0 x24 h4 y3f ff2 fs0 fc0 sc0 ls0 ws0">Republic of the Philippines</div>
+                <div class="t m0 x25 h4 y40 ff2 fs0 fc0 sc0 ls0 ws0">Department of Finance</div>
+                <div class="t m0 x24 h4 y41 ff2 fs0 fc0 sc0 ls0 ws0">Bureau of Internal Revenue</div>
+                <div class="t m3 x26 ha y42 ff2 fs3 fc0 sc0 ls0 ws0"><b>Certificate of Creditable Tax</b></div>
+                <div class="t m3 x27 ha y43 ff2 fs3 fc0 sc0 ls0 ws0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Withheld at Source</b></div>
+                
+                
+                <div class="t m0 x2a h2 y4c ff1 fs0 fc0 sc0 ls0 ws0">January 2018 (ENCS)</div>
+                <div class="c x14 y4d w14 he">
+                    <div class="t m0 x0 h2 y4e ff1 fs0 fc0 sc0 ls0 ws0"> BIR Form No.</div>
+                </div>
+                <div class="t m0 x2b h2 y4f ff1 fs0 fc0 sc0 ls0 ws0">2307 01/18ENCS</div>
+            </div>
+
+            <!-- shoot data -->
+
+            <!-- Applicable spaces -->
+            <div class="head-table-container">
+                <table class="table-1">
+                    <tr data-row="1">
+                        <td class="table-1-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-1-column-2">
+                            <div class="text-center overlay-text"> 06/01/2022</div>
+                        </td>
+                        <td class="table-1-column-3">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-1-column-4">
+                            <div class="text-center overlay-text"> 06/30/2022</div>
+                        </td>
+                        <td class="table-1-column-5">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="table-2">
+                    <tr data-row="1">
+                        <td class="table-2-column-1" colspan="2">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-2-column-2">
+                            <div class="text-center overlay-text"> 213-167-323-000 </div>
+                        </td>
+                        <td class="table-2-column-3" colspan="2">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="table-3">
+                    <tr data-row="1">
+                        <td class="table-3-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-2">
+                            <div class="align-bottom overlay-text"> YNZAL, MARKETING CORPORATION</div>
+                        </td>
+                        <td class="table-3-column-3">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-4">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                    <tr data-row="2">
+                        <td class="table-3-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-2">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-3">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-4">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                    <tr data-row="3">
+                        <td class="table-3-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-2">
+                            <div class="align-middle overlay-text"> UNIT 1-F MARVI CENTER, NO. 23 PANAY AVE. QUEZON CITY, PHILIPPINES </div>
+                        </td>
+                        <td class="table-3-column-3">
+                            <div class="text-center overlay-text"> 6517</div>
+                        </td>
+                        <td class="table-3-column-4">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                    <tr data-row="4">
+                        <td class="table-3-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-2">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-3">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-4">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                    <tr data-row="5">
+                        <td class="table-3-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-2" colspan="2">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-3-column-4">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="table-4">
+                    <tr data-row="1">
+                        <td class="table-4-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-4-column-2">
+                            <div class="text-center overlay-text"> 000-803-607-0000</div>
+                        </td>
+                        <td class="table-4-column-3">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="table-5">
+                    <tr data-row="1">
+                        <td class="table-5-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-5-column-2">
+                            <div class="overlay-text">THE PHILIPPINE DAILY INQUIRER, INC. </div>
+                        </td>
+                        <td class="table-5-column-3">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-5-column-4">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                    <tr data-row="2">
+                        <td class="table-5-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-5-column-2">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-5-column-3">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-5-column-4">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                    <tr data-row="3">
+                        <td class="table-5-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-5-column-2">
+                            <div class="overlay-text">CHINO ROCES AVE. COR. MASCARDO AND YAGUE STS. MAKATI CITY </div>
+                        </td>
+                        <td class="table-5-column-3">
+                            <div class="text-center overlay-text">1204 </div>
+                        </td>
+                        <td class="table-5-column-4">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- Applicable spaces end -->
+
+            <!-- ewt table -->
+            <div class="table-container">
+                <table class="ewt-table">
+                    <tr data-row="1">
+                        <td class="ewt-table-column-1">
+                            <div class="overlay-text watch-character-limit">This is a 50-character string for testing purposes only.</div>
+                        </td>
+                        <td class="ewt-table-column-2">
+                            <div class="overlay-text">WC158</div>
+                        </td>
+                        <td class="ewt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-5">
+                            <div class="overlay-text amount-right">1,241,518.00 &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-6">
+                            <div class="overlay-text amount-right">1,241,518.00 &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-7">
+                            <div class="overlay-text amount-right">12,4150.18 &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="2">
+                        <td class="ewt-table-column-1">
+                            <div class="overlay-text watch-character-limit">Short string for testing.</div>
+                        </td>
+                        <td class="ewt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="ewt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="3">
+                        <td class="ewt-table-column-1">
+                            <div class="overlay-text watch-character-limit">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</div>
+                        </td>
+                        <td class="ewt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="ewt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="4">
+                        <td class="ewt-table-column-1">
+                            <div class="overlay-text watch-character-limit">Above 30 characters for testing.</div>
+                        </td>
+                        <td class="ewt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="ewt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="5">
+                        <td class="ewt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="ewt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="ewt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="6">
+                        <td class="ewt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="ewt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="ewt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="7">
+                        <td class="ewt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="ewt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="ewt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="8">
+                        <td class="ewt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="ewt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="ewt-table-column-3">
+                            <div class="overlay-text amount-right">- &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-4">
+                            <div class="overlay-text amount-right">- &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-5">
+                            <div class="overlay-text amount-right">1,241,518.00 &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-6">
+                            <div class="overlay-text amount-right">1,241,518.00 &nbsp;</div>
+                        </td>
+                        <td class="ewt-table-column-7">
+                            <div class="overlay-text amount-right">12,415.18 &nbsp;</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- ewt table end -->
+
+            <!-- wbt table -->
+            <div class="table-container">
+                <table class="wbt-table">
+                    <tr data-row="1">
+                        <td class="wbt-table-column-1">
+                            <div class="overlay-text watch-character-limit">WBT INCOME PYMT MADE BY TOP 20 CORP(2022)</div>
+                        </td>
+                        <td class="wbt-table-column-2">
+                            <div class="overlay-text">WC158</div>
+                        </td>
+                        <td class="wbt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-5">
+                            <div class="overlay-text amount-right">1,241,518.00 &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-6">
+                            <div class="overlay-text amount-right">1,241,518.00 &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-7">
+                            <div class="overlay-text amount-right">12,4150.18 &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="2">
+                        <td class="wbt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="wbt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="wbt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="3">
+                        <td class="wbt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="wbt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="wbt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="4">
+                        <td class="wbt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="wbt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="wbt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="5">
+                        <td class="wbt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="wbt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="wbt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="6">
+                        <td class="wbt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="wbt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="wbt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="7">
+                        <td class="wbt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="wbt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="wbt-table-column-3">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-4">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-5">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-6">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-7">
+                            <div class="overlay-text amount-right"> &nbsp;</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row="8">
+                        <td class="wbt-table-column-1">
+                            <div class="overlay-text watch-character-limit"></div>
+                        </td>
+                        <td class="wbt-table-column-2">
+                            <div class="overlay-text"></div>
+                        </td>
+                        <td class="wbt-table-column-3">
+                            <div class="overlay-text amount-right">- &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-4">
+                            <div class="overlay-text amount-right">- &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-5">
+                            <div class="overlay-text amount-right">1,241,518.00 &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-6">
+                            <div class="overlay-text amount-right">1,241,518.00 &nbsp;</div>
+                        </td>
+                        <td class="wbt-table-column-7">
+                            <div class="overlay-text amount-right">12,415.18 &nbsp;</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- wbt table end -->
+
+            <!-- conforme bottom -->
+            <div class="foot-table-container">
+                <table class="table-6">
+                    <tr data-row="1">
+                        <td class="table-6-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-6-column-2">
+                            <div class="text-center overlay-text"> 1234567</div>
+                        </td>
+                        <td class="table-6-column-3">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-6-column-4">
+                            <div class="text-center overlay-text"> 07/01/2022 </div>
+                        </td>
+                        <td class="table-6-column-5">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-6-column-6">
+                            <div class="text-center overlay-text">07/01/2022 </div>
+                        </td>
+                        <td class="table-6-column-7">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="table-7">
+                    <tr data-row="1">
+                        <td class="table-7-column-1">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-7-column-2">
+                            <div class="text-center overlay-text"> 1234567 </div>
+                        </td>
+                        <td class="table-7-column-3">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-7-column-4">
+                            <div class="text-center overlay-text">07/01/2022 </div>
+                        </td>
+                        <td class="table-7-column-5">
+                            <div class="overlay-text"> </div>
+                        </td>
+                        <td class="table-7-column-6">
+                            <div class="text-center overlay-text">07/01/2022 </div>
+                        </td>
+                        <td class="table-7-column-7">
+                            <div class="overlay-text"> </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- conforme bottom end -->
+        </div>
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+    window.onafterprint = window.close;
+    window.onload = print();
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const cells = document.querySelectorAll(".watch-character-limit");
+
+        cells.forEach(cell => {
+            const contentLength = cell.textContent.length;
+
+            if (contentLength >= 100) {
+                cell.classList.add("smallest-font");
+            } else if (contentLength >= 50) {
+                cell.classList.add("smaller-font");
+            }
+            else if (contentLength >= 30) {
+                cell.classList.add("small-font");
+            }
+
+        });
+    });
+    
+</script>
