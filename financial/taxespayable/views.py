@@ -125,6 +125,16 @@ def transgenerate(request):
     }
     return JsonResponse(data)
 
+
+@method_decorator(login_required, name='dispatch')
+class WtaxPrint(TemplateView):
+    template_name = 'taxespayable/wtax_certificate.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+
+        return context
+
 @method_decorator(login_required, name='dispatch')
 class TransExcel(View):
     def get(self, request):
@@ -147,7 +157,7 @@ class TransExcel(View):
 
         # variables
         bold = workbook.add_format({'bold': 1})
-        formatdate = workbook.add_format({'num_format': 'MM-DD/YYYY'})
+        formatdate = workbook.add_format({'num_format': 'MM-DD-YYYY'})
         centertext = workbook.add_format({'bold': 1, 'align': 'center'})
 
         if report == '1':
@@ -285,8 +295,11 @@ class TransExcel(View):
                     worksheet.write(row, col + 7, data.mname)
                     worksheet.write(row, col + 8, data.fname)
 
-                worksheet.write(row, col + 9, float(format(data.taxesable, '.2f')))
-                worksheet.write(row, col + 10, float(format(data.tax, '.2f')))
+                worksheet.write(row, col + 9, data.document_date,formatdate)
+                worksheet.write(row, col + 10, float(format(data.atcrate, '.2f')))
+                worksheet.write(row, col + 11, float(format(data.tax, '.2f')))
+                worksheet.write(row, col + 12, float(format(data.taxesable, '.2f')))
+                worksheet.write(row, col + 13, float(format(data.tax, '.2f')))
 
                 row += 1
                 counter += 1
@@ -339,8 +352,11 @@ class TransExcel(View):
                     worksheet.write(row, col + 7, data.mname)
                     worksheet.write(row, col + 8, data.fname)
 
-                worksheet.write(row, col + 9, float(format(data.taxesable, '.2f')))
-                worksheet.write(row, col + 10, float(format(data.tax, '.2f')))
+                worksheet.write(row, col + 9, data.document_date, formatdate)
+                worksheet.write(row, col + 10, float(format(data.atcrate, '.2f')))
+                worksheet.write(row, col + 11, float(format(data.tax, '.2f')))
+                worksheet.write(row, col + 12, float(format(data.taxesable, '.2f')))
+                worksheet.write(row, col + 13, float(format(data.tax, '.2f')))
 
                 row += 1
                 counter += 1
