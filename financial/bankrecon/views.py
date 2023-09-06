@@ -83,8 +83,8 @@ def upload(request):
                         # 15-rs1
                     elif request.POST['bank_account'] in ['15']:
                         return RobinsonSavingsBank(request, columnlength=13)
-                        # 19-sb7, 22-sb9
-                    elif request.POST['bank_account'] in ['19', '22']:
+                        # 19-sb7, 22-sb9, 18-Ssb6
+                    elif request.POST['bank_account'] in ['19', '22', '18']:
                         return SecurityBank(request, columnlength=6)
                         # 23-ub2
                     elif request.POST['bank_account'] in ['23']:

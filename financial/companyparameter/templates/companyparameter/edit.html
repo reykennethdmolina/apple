@@ -496,6 +496,18 @@
                                     <span class="help-block form-error">{{ form.coa_ewtax.errors.as_text }}</span>
                                 </div>
                             </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_wtax.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_wtax" class="col-sm-3 control-label">Withholding Tax</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_wtax" class="form-control select2" id="id_coa_wtax">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_wtax %}
+                                            <option value="{{ data.id }}" {% if form.coa_wtax.value == data.id %}selected="selected"{% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_wtax.errors.as_text }}</span>
+                                </div>
+                            </div>
                             <div class="form-group form-group-0 col-md-6 {{ form.coa_unsubscribe.errors|yesno:'has-error,' }}">
                                 <label for="id_coa_unsubscribe" class="col-sm-3 control-label">Unearned Subscription</label>
                                 <div class="col-sm-9">
@@ -536,10 +548,35 @@
                         <div id="defaults" class="tabcontent">
                             <div class="form-group form-group-0 col-md-6 {{ form.pcv_meal_budget_limit.errors|yesno:'has-error,' }}">
                                 <label for="id_pcv_meal_budget_limit" class="col-sm-3 control-label">PCV Meal Expense Budget Limit</label>
-                                <div class="col-sm-7">
+                                <div class="col-sm-6">
                                     <input type="text" class="form-control amount text-right" id="id_pcv_meal_budget_limit" maxlength="19" placeholder="0.00" name="pcv_meal_budget_limit"
                                            value="{{ form.pcv_meal_budget_limit.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.pcv_meal_budget_limit.errors.as_text }}</span>
+                                </div>
+                            </div>
+                           
+                            <div class="form-group form-group-0 col-md-6 {{ form.officer_percentage_tax.errors|yesno:'has-error,' }}">
+                                <label for="id_officer_percentage_tax" class="col-sm-3 control-label">Officer Percentage Tax</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control text-right" id="id_officer_percentage_tax" maxlength="19" placeholder="0" name="officer_percentage_tax"
+                                           value="{{ form.officer_percentage_tax.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.officer_percentage_tax.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.ranknfile_percentage_tax.errors|yesno:'has-error,' }}">
+                                <label for="id_ranknfile_percentage_tax" class="col-sm-3 control-label">Rank & File Percentage Tax</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control text-right" id="id_ranknfile_percentage_tax" maxlength="19" placeholder="0" name="ranknfile_percentage_tax"
+                                           value="{{ form.ranknfile_percentage_tax.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.ranknfile_percentage_tax.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.base_url_201.errors|yesno:'has-error,' }}">
+                                <label for="id_base_url_201" class="col-sm-3 control-label">201 Base URL</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="id_base_url_201" maxlength="250" placeholder="https://201-base-url" name="base_url_201"
+                                           value="{{ form.base_url_201.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.base_url_201.errors.as_text }}</span>
                                 </div>
                             </div>
                         </div>

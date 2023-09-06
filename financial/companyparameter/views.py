@@ -117,12 +117,13 @@ class UpdateView(UpdateView):
               'pcv_meal_budget_limit', 'pcv_meal_expenses',
               'coa_retainedearnings', 'coa_currentearnings', 'coa_incometaxespayable', 'coa_provisionincometax',
               'coa_cashinbank', 'coa_aptrade',
-              'coa_inputvat', 'coa_deferredinputvat', 'coa_outputvat', 'coa_ewtax',
+              'coa_inputvat', 'coa_deferredinputvat', 'coa_outputvat', 'coa_ewtax', 'coa_wtax',
               'coa_unsubscribe', 'coa_subsrev',
               'def_bankaccount',
               'last_closed_date', 'income_tax_rate',
               'budgetapprover', 'pcv_initial_approver', 'pcv_final_approver',
-              'rfv_initial_approver', 'rfv_final_approver']
+              'rfv_initial_approver', 'rfv_final_approver',
+              'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('companyparameter.change_companyparameter'):
@@ -146,6 +147,7 @@ class UpdateView(UpdateView):
         context['coa_deferredinputvat'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
         context['coa_outputvat'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
         context['coa_ewtax'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['coa_wtax'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
         context['coa_unsubscribe'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
         context['coa_subsrev'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
         context['def_bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
@@ -180,12 +182,13 @@ class UpdateView(UpdateView):
                                         'report_footer13', 'report_footer14',
                                         'coa_retainedearnings', 'coa_currentearnings', 'coa_incometaxespayable', 'coa_provisionincometax',
                                         'coa_cashinbank', 'coa_aptrade',
-                                        'coa_inputvat', 'coa_deferredinputvat', 'coa_outputvat', 'coa_ewtax',
+                                        'coa_inputvat', 'coa_deferredinputvat', 'coa_outputvat', 'coa_ewtax', 'coa_wtax',
                                         'coa_unsubscribe', 'coa_subsrev',
                                         'def_bankaccount',
                                         'last_closed_date', 'income_tax_rate',
                                         'budgetapprover', 'pcv_initial_approver', 'pcv_final_approver',
-                                        'rfv_initial_approver', 'rfv_final_approver'])
+                                        'rfv_initial_approver', 'rfv_final_approver',
+                                        'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201'])
         return HttpResponseRedirect('/companyparameter')
 
 
