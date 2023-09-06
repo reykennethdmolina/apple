@@ -110,6 +110,11 @@ class Companyparameter(models.Model):
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
 
+    coa_wtax_id = models.IntegerField(default=11)
+    ranknfile_percentage_tax = models.IntegerField(default=11)
+    officer_percentage_tax = models.IntegerField(default=11)
+    base_url_201 = models.CharField(max_length=115, blank=True, null=True)
+
     class Meta:
         db_table = 'companyparameter'
         ordering = ['-pk']
