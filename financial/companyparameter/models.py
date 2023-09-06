@@ -48,6 +48,8 @@ class Companyparameter(models.Model):
                                       blank=True, null=True)
     coa_ewtax = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_ewtax', blank=True,
                                   null=True)
+    coa_wtax = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_wtax', blank=True,
+                                  null=True)
     coa_aptrade = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_aptrade', blank=True,
                                     null=True)
     coa_subsrev = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_subsrev', blank=True,
@@ -69,6 +71,13 @@ class Companyparameter(models.Model):
                                           null=True, blank=True)
     pcv_meal_budget_limit = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     # petty cash meal expenses defaults
+
+    # defaults triple c auto ap wtax entries
+    ranknfile_percentage_tax = models.IntegerField(blank=True, null=True, default=0)
+    officer_percentage_tax = models.IntegerField(blank=True, null=True, default=0)
+
+    # defaults iES 201 base_url
+    base_url_201 = models.CharField(max_length=250, blank=True, null=True)
 
     # report footers
     report_footer1 = models.CharField(max_length=250, blank=True, null=True)

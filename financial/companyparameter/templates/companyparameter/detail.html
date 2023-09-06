@@ -379,6 +379,12 @@
                             </div>
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">Withholding Tax&nbsp;: </span>
+                                    <span class="detail-profile">[{{ object.coa_wtax.accountcode }}] - {{ object.coa_wtax.description }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
                                     <span class="text-name-profile text-info">Unearned Subscription&nbsp;: </span>
                                     <span class="detail-profile">[{{ object.coa_unsubscribe.accountcode }}] - {{ object.coa_unsubscribe.description }}</span>
                                 </div>
@@ -408,6 +414,24 @@
                                 <div class="first-name-profile">
                                     <span class="text-name-profile text-info">PCV Meal Expense Budget Limit&nbsp;: </span>
                                     <span class="detail-profile"><strong>P <code>{{ object.pcv_meal_budget_limit|intcomma }}</code></strong></span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">Officer Percentage Tax&nbsp;: </span>
+                                    <span class="detail-profile"><strong><code>{{ object.officer_percentage_tax }}%</code></strong></span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">Rank & File Percentage Tax&nbsp;: </span>
+                                    <span class="detail-profile"><strong><code>{{ object.ranknfile_percentage_tax }}%</code></strong></span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">201 Base URL&nbsp;: </span>
+                                    <span class="detail-profile"><strong>{{ object.base_url_201 }}</strong></span>
                                 </div>
                             </div>
                         </div>
