@@ -1,0 +1,68 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Triple C Quota {% endblock page-title %}
+{% block extra_css %}
+    {% include "accountspayable/createcss.html" %}
+{% endblock extra_css %}
+{% block page-content %}
+
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-right">
+
+                    <!-- pagination and search start -->
+                    <form method="GET" action="{% url 'triplec:quota' %}">
+                        <div id="search-container" class="row col-md-3 col-sm-4 col-xs-3">
+                            <div class="input-group">
+                                {% csrf_token %}
+                                <input type="text" name="query" id="searchFilter" class="form-control" placeholder="Search..." value="{{ query }}">
+                                <span class="input-group-btn">
+                                    <button type="submit" id="searchBtn" class="btn btn-info">
+                                        <span class="icon_search" aria-hidden="true"></span>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- pagination and search start -->
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <br>
+                    {% block content %}
+                        <div class="endless_page_template">
+                        {% include page_template %}</div>
+                    {% endblock %}
+                </div>
+            </div>
+            <!-- pagination and search end -->
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% load staticfiles %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script>
+$(function () {
+    // ajax search and pagination
+    $('#searchBtn').on('click', function(){
+        $('.shade').fadeIn();
+        // setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
+        $('#dummy').trigger('click');
+    });
+    $('body').on('keyup', function(e){
+        var search_code = e.keyCode || e.which;
+        if(search_code == 13 && $(':focus').attr('id') == "searchFilter"){
+            $('#searchBtn').trigger('click');
+        }
+    });
+});
+</script>
+{% endblock extra_js %}

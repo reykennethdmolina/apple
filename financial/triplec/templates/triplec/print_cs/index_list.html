@@ -1,0 +1,82 @@
+{% load humanize %}
+{% block extra_css %}
+    <style>
+        .pointer {
+            cursor: pointer;
+        }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    
+        input[type=number], 
+        .amount-right{
+            text-align: right;
+        }
+    </style>
+{% endblock extra_css %}
+<a href="" id="trigger_print" target="_blank" style="display: none;">Print all</a>
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="table-responsive">
+        {% if cs_data %}
+            <table class="table table-striped table-bordered" id="cs_table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" class="pointer" name="chb_all" id="chb_all" title="Tick to include all." checked="Tick" /></th>
+                        <th><span>CS Number</span></th>
+                        <th><span>Issue Date</span></th>
+                        <th><span>Classification</span></th>
+                        <th><span>Supplier Name</span></th>
+                        <th><span>Total Size</span></th>
+                        <th><span>No of Items</span></th>
+                        <th><span>Amount</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in cs_data %}
+                        
+                        <tr id="{{ data.confirmation }}">
+                            <!-- checkbox -->
+                            <td><input type="checkbox" class="cs-checkbox pointer" title="Tick to include CS {{ data.confirmation }}" checked /></td>
+                            <td>{{ data.confirmation }}</td>
+                            <td>{{ data.issue_date|date:'Y-m-d' }}</td>
+                            <td>{{ data.type }}</td>
+                            <td>{{ data.author_name }}</td>
+                            <td>{{ data.total_size|default:"" }}</td>
+                            <td>{{ data.total_no_of_items|default:"" }}</td>
+                            <td class="text-right"> {{ data.amount|default:"0.00" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+
+            <div class="text-center">
+                <span><b>No results found.</b></span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    $(function () {
+        $(document).on('change', 'input[name="chb_all"]', function() {
+            $('.cs-checkbox').prop("checked", this.checked);
+        });
+
+        $('#print').click(function(){
+            
+            var count = 0;
+            var cs_nums = [];
+            $('#cs_table').find('tbody tr').each(function () {
+                if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                    count++;
+                    cs_nums.push($(this).attr('id'));
+                }
+            });
+            setCookie('csbatchprint_triplec', encodeURIComponent(JSON.stringify(cs_nums)));
+            $("#trigger_print").attr("href", "{% url 'triplec:startprint' %}" );
+            $('#trigger_print')[0].click();
+        });
+    });
+</script>

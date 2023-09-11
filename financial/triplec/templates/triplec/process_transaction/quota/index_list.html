@@ -1,0 +1,120 @@
+{% load endless %}
+{% load humanize %}
+{% paginate data_list %}
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th><span>ID</span></th>
+                <th><span>CS No.</span></th>
+                <th><span>Supplier</span></th>
+                <th><span>Classification</span></th>
+                <th><span>Type</span></th>
+                <th><span>Transportation Amount</span></th>
+                <th><span>Transportation (Photo) Amount</span></th>
+                <th><span>Cellcard/Internet Subsidy Amount</span></th>
+                <th class="text-center"><span>Action</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            {% for data in data_list %}
+                
+                {% if data.quota.type != 'A,P' %}
+                    <tr>
+                        <td>{{ data.quota.id }}</td>
+                        <td>{{ data.quota.confirmation }} </td>
+                        <td>{{ data.detail.author_name }} </td>
+                        <td>{{ data.detail.type }} </td>
+                        <td>{{ data.quota.type }} </td>
+                        <td class="text-right">{{ data.quota.transportation_amount|intcomma|default:"0.00" }} </td>
+                        <td class="text-right">{{ data.quota.transportation2_amount|intcomma|default:"0.00" }} </td>
+                        <td class="text-right">{{ data.quota.cellcard_amount|intcomma|default:"0.00" }} </td>
+                        <td>
+                            <div class="iconlist-wrap auto-0">
+                                <div class="iconlist">
+                                    <a href="{% url 'triplec:quota_detail' data.quota.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                        <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                                    </a>
+                                    
+                                    <a href="{% url 'triplec:quota_update' data.quota.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                        <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                    </a>
+                                    
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <!-- for Article -->
+                    <tr>
+                        <td>{{ data.quota.id }}</td>
+                        <td>{{ data.quota.confirmation }} </td>
+                        <td>{{ data.detail.author_name }} </td>
+                        <td>{{ data.detail.type }} </td>
+                        <td>A</td>
+                        <td class="text-right">{{ data.quota.transportation_amount|intcomma|default:"0.00" }} </td>
+                        <!-- no transpo (photos) -->
+                        <td class="text-right">0.00</td>
+                        <td class="text-right">{{ data.quota.cellcard_amount|intcomma|default:"0.00" }} </td>
+                        <td>
+                            <div class="iconlist-wrap auto-0">
+                                <div class="iconlist">
+                                    <a href="{% url 'triplec:quota_detail' data.quota.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                        <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                                    </a>
+                                    
+                                    <a href="{% url 'triplec:quota_update' data.quota.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                        <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                    </a>
+                                    
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- for Photo -->
+                    <tr>
+                        <td>{{ data.quota.id }}</td>
+                        <td>{{ data.quota.confirmation }} </td>
+                        <td>{{ data.detail.author_name }} </td>
+                        <td>{{ data.detail.type }} </td>
+                        <td>P</td>
+                        <td class="text-right">0.00</td>
+                        <td class="text-right">{{ data.quota.transportation2_amount|intcomma|default:"0.00" }} </td>
+                        <td class="text-right">{{ data.quota.cellcard_amount|intcomma|default:"0.00" }} </td>
+                        <td>
+                            <div class="iconlist-wrap auto-0">
+                                <div class="iconlist">
+                                    <a href="{% url 'triplec:quota_detail' data.quota.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                        <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                                    </a>
+                                    
+                                    <a href="{% url 'triplec:quota_update' data.quota.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                        <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                    </a>
+                                   
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            
+        </tbody>
+    </table>
+    <div class="pagination pull-right">{% show_pages %}</div>
+</div>
+<!-- required -->
+<a href="/{{ request.resolver_match.app_name }}/?page=1" rel="page" class="endless_page_link" id="dummy" style="display: none;">1</a>
+<script>
+    $(function () {
+        $('.shade').remove();
+        $('.panel').prepend('<div class="shade"><div class="loader two-color"></div></div>');
+        
+        $('.endless_page_link').on('click', function () {
+            $('.shade').fadeIn();
+        });
+        
+    });
+</script>

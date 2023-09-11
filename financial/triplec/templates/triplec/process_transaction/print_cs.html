@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% load humanize %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triple C Confirmation Sheet Printing</title>
+    <style>
+       @page {
+            size: Letter portrait;
+            margin: 2;
+            
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .page-body{
+            font-size: 13px;
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 165px;
+            border-bottom: 1px solid black;
+            padding-bottom: -3px;
+            margin-bottom: -1px;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+        @media print {
+            #section-to-print, #section-to-print * {
+                visibility: visible;
+            }
+        }
+        #section-to-print {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    {% for key,value in parameter.items %}
+        <div id="section-to-print" style="position: relative; width: 8.5in; height: 11in;">
+            <div id="header_content">
+                <table class="page-body">
+                    <tr>
+                        <td><img id="logo" src="{{ info.logo }}"/><br></td>
+                        <td width="500px">
+                            <p class="title center"><br>CONFIRMATION SHEET</p>
+                        </td>
+                        <td>
+                            <p class="number right">CS No. {{ value.main.confirmation }}</p>
+                        </td>
+                    </tr>
+                </table>
+                <br>
+            </div>
+            
+            <table class="page-body">
+                <tr><td colspan="3"></td></tr>
+                <tr>
+                    <td colspan="3" style="line-height: 15px;">
+                        <span class="title">{{ info.parameter.description|upper }}</span><br>
+                        {{ info.parameter.address1 }}<br>
+                        {{ info.parameter.address2 }}<br>
+                        Tel: {{ info.parameter.telno1 }}, {{ info.parameter.telno2 }}<br>
+                        VAT REG TIN: {{ info.parameter.tinnum }}
+                    </td>
+                </tr>
+                <tr><td colspan="3"></td></tr>
+                <tr>
+                    <td colspan="3">
+                        <br>
+                        <table>
+                            <tr>
+                                <td width="5%" style="vertical-align: top"><b>To</b></td>
+                                <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                <td width="70%" style="vertical-align: top;">ACCOUNTING DEPARTMENT</td>
+                            </tr>
+                            <tr>
+                                <td width="5%" style="vertical-align: top"><b>From</b></td>
+                                <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                <td width="70%" style="vertical-align: top;">PAYMENT REQUEST</td>
+                            </tr>
+                            <tr>
+                                <td width="15%" style="vertical-align: top"><b>Processing Date</b></td>
+                                <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                                <td width="70%" style="vertical-align: top;">{{ value.main.date_posted|date:"m/d/Y" }}</td>
+                            </tr>
+                            <tr>
+                                <td ></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <h4>
+                                        This is to auhorize the payment to &nbsp;&nbsp;&nbsp; {{ value.main.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ value.main.author_name }}
+                                        <br>
+                                        <br>
+                                        for the following ARTICLES / ILLUSTRATIONS / PHOTOS / EDITORIAL CARTOONS / COMICS STRIPS / EDITING FEE
+                                    </h4>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            
+            <table style="border-collapse: collapse; padding-left: 5px;" class="page-body">
+                <tr class="left" style="border: 2px solid black;">
+                    <td style="width: 12%; border-left: 2px solid black; padding: 10px 0px 10px 10px;"><b>Issue Date</b></td>
+                    <td style="width: 15%; padding-top: 10px;"><b>Type</b></td>
+                    <td style="width: 45%; padding-top: 10px;"><b>Title</b></td>
+                    <td style="width: 5%; padding-top: 10px;"><b>Page</b></td>
+                    <td style="width: 15%; padding-top: 10px;"><b>Size</b></td>
+                    <td style="width: 9%; padding-top: 10px;"><b>Code</b></td>
+                    <td style="width: 11%; padding-top: 10px;" align="right"><b>Amount</b>&nbsp;&nbsp;&nbsp;</td>
+                </tr>
+                {% for v in value.details.items %}
+                    {% for i in v %}
+                    <tr style="padding-top: 15px; padding-left: 20px;">
+                        <td style="width: 12%; vertical-align: top; padding-top: 10px;">{{ i.issue_date|date:"m/d/Y" }}</td>
+                        <td style="width: 15%; vertical-align: top; padding-top: 10px;">{{ i.subtype.code }}</td>
+                        <td style="width: 45%; vertical-align: top; padding-top: 10px;">{{ i.article_title }}</td>
+                        <td style="width: 8%; vertical-align: top; padding-top: 10px;">{{ i.page }}</td>
+                        <td align="center" style="width: 10%; vertical-align: top; padding-top: 10px;">{{ i.total_size|floatformat:"0" }}</td>
+                        <td style="width: 10%; vertical-align: top; padding-top: 10px;">{{ i.rate_code }}</td>
+                        <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{{ i.amount|floatformat:2|intcomma }}
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+                
+                {% if value.with_additional %}
+                    <tr style="padding-top: 5px;">
+                        <td style="padding-top: 10px;"><b>TOTALS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                        <td colspan="3"></td>
+                        <td colspan="1" align="center" style="border-top: 2px solid #000; padding-top: 10px;">{{ value.size.total_size|default:"0" }}</td>
+                        <td colspan="1"></td>
+                        <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 10px;">{{ value.subtotal|floatformat:2|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 10px;"><b>ADDITIONAL:</b></td>
+                        {% if value.transportation_amount %}
+                            <td style="padding-top: 10px; text-align: left;"><b>TRANSPORTATION</b></td>
+                            <td colspan="3"></td>
+                            <td style="padding-top: 10px; text-align: right;"><b>+</b></td>
+                            <td style="padding-top: 10px; text-align: right;">{{ value.transportation_amount|floatformat:2|intcomma }}</td>
+                        {% endif %}
+                    </tr>
+                    {% if value.transportation2_amount %}
+                        <tr>
+                            <td style="padding-top: 10px;"></td>
+                            <td colspan="2" style="padding-top: 10px; text-align: left;"><b>TRANSPO (Photos)</b></td>
+                            <td colspan="2"></td>
+                            <td style="padding-top: 10px; text-align: right;"><b>+</b></td>
+                            <td style="padding-top: 10px; text-align: right;">{{ value.transportation2_amount|floatformat:2|intcomma }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if value.cellcard_amount %}
+                        <tr>
+                            <td style="padding-top: 10px;"></td>
+                            <td colspan="2" style="padding-top: 10px; text-align: left;"><b>CELL CARD/INTERNET SUBSIDY</b></td>
+                            <td colspan="2"></td>
+                            <td style="padding-top: 10px; text-align: right;"><b>+</b></td>
+                            <td style="padding-top: 10px; text-align: right;">{{ value.cellcard_amount|floatformat:2|intcomma }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr style="padding-top: 5px;">
+                        <td colspan="2" style="padding-top: 10px;"><b>TOTAL AMOUNT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                        <td colspan="3"></td>
+                        <td colspan="1"></td>
+                        <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 10px;">{{ value.total|floatformat:2|intcomma }}</td>
+                    </tr>
+                {% else %}
+                    <!-- <tr style="padding-top: 5px;">
+                        <td style="padding-top: 10px;"></td>
+                        <td colspan="4"></td>
+                        <td colspan="1"></td>
+                        <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 10px;">{{ value.total|floatformat:2|intcomma }}</td>
+                    </tr> -->
+                    <tr style="padding-top: 5px;">
+                        <td style="padding-top: 10px;"><b>TOTALS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                        <td colspan="3"></td>
+                        <td colspan="1" align="center" style="border-top: 2px solid #000; padding-top: 10px;">{{ value.size.total_size|default:'0' }}</td>
+                        <td colspan="1"></td>
+                        <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 10px;">{{ value.subtotal|floatformat:2|intcomma }}</td>
+                    </tr>
+                {% endif %}
+
+                {% if value.is_ewt and value.ataxrate %}
+                    <tr>
+                        <td colspan="3" style="padding-top: 10px;"><b>LESS {{ value.ataxrate }}% EXPANDED WITHHOLDING TAX</b></td>
+                        <td colspan="3" style="padding-top: 10px; text-align: right;"><b>-</b></td>
+                        <td style="padding-top: 10px; text-align: right;">{{ value.ewt|floatformat:2|intcomma }}</td>
+                    </tr>
+                {% elif not value.is_ewt and value.wtax_rate %}
+                    <tr>
+                        <td colspan="3" style="padding-top: 10px;"><b>LESS {{ value.wtax_rate }}% WITHHOLDING TAX</b></td>
+                        <td colspan="3" style="padding-top: 10px; text-align: right;"><b>-</b></td>
+                        <td style="padding-top: 10px; text-align: right;">{{ value.wtax|floatformat:2|intcomma }}</td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td style="padding-top: 10px;"><b>NET</b></td>
+                    <td colspan="5"></td>
+                    <td style="border-top: 2px solid #000; border-bottom: 6px double #000; padding-top: 10px; text-align: right;">{{ value.net|floatformat:2|intcomma }}</td>
+                </tr>
+            </table>
+
+            <div id="footer_content" style="position: absolute; bottom: 10px;">
+                <table style="border-collapse: collapse; border: 2px solid #000;">
+                    <tr>
+                        <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Prepared by</b></td>
+                        <td width="1%" style="padding: 40px 0px 20px 0px; text-align: right;"><b>:</b></td>
+                        <td align="center" style="padding: 35px 0px 20px 0px;">
+                            <div class="sign_here">
+                                {{ request.user.first_name|upper }}&nbsp;{{ request.user.last_name|upper }}
+                            </div>
+                            <i>Signature over printed name</i>
+                        </td>
+                        <td width="1%"></td>
+                        <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Approved by</b></td>
+                        <td width="1%" style="padding: 40px 0px 20px 0px; text-align: right;"><b>:</b></td>
+                        <td align="center" style="padding: 35px 0px 20px 0px;">
+                            <div class="sign_here">
+                                &nbsp;
+                            </div>
+                            <i>Signature over printed name</i>
+                        </td>
+                        <td width="1%"></td>
+                        <td width="12%" style="padding: 40px 0px 20px 10px;"><b>Checked by</b></td>
+                        <td width="1%" style="padding: 40px 0px 20px 0px; text-align: right;"><b>:</b></td>
+                        <td align="center" style="padding: 35px 10px 20px 0px;">
+                            <div class="sign_here">
+                                &nbsp;
+                            </div>
+                            <i>Signature over printed name</i>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Date prepared</b></td>
+                        <td style="padding: 0; text-align: right;"><b>:</b></td>
+                        <td align="center" style="padding: 20px 0px 10px 0; padding-top: 0;">
+                            <div class="sign_here">{% now "m/d/Y" %}</div>
+                        </td>
+                        <td width="2%"></td>
+                        <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Date approved</b></td>
+                        <td style="padding: 0; text-align: right;"><b>:</b></td>
+                        <td align="center" style="padding: 20px 0 10px 0; padding-top: 0;">
+                            <div class="sign_here">
+                                &nbsp;
+                            </div>
+                        </td>
+                        <td width="2%"></td>
+                        <td style="padding: 20px 0px 0px 10px; padding-top: 0;"><b>Date checked</b></td>
+                        <td style="padding: 0; text-align: right;"><b>:</b></td>
+                        <td align="center" style="padding: 20px 10px 10px 0; padding-top: 0;">
+                            <div class="sign_here">
+                                &nbsp;
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <table class="arial" style="font-size: 9px; margin-top: 10px;">
+                    <tr>
+                        <td width="30%">
+                            {{ info.parameter.report_footer1 }}<br>
+                            {{ info.parameter.report_footer2 }}<br>
+                            {{ info.parameter.report_footer3 }}<br>
+                            {{ info.parameter.report_footer4 }}<br>
+                            <b>{{ info.parameter.report_footer5 }}</b><br>
+                            <b>{{ info.parameter.report_footer6 }}</b><br>
+                            {{ info.parameter.report_footer7 }} {{ request.user }} on {% now 'Y-m-d' %}
+                        </td>
+                        <td width="20%" style="margin-left: 90px;">
+                            {{ info.parameter.report_footer8 }}<br>
+                            {{ info.parameter.report_footer9 }}<br>
+                            {{ info.parameter.report_footer10 }}<br>
+                            {{ info.parameter.report_footer11 }}<br>
+                            {{ info.parameter.report_footer12 }}<br>
+                            {{ info.parameter.report_footer13 }}<br>
+                            {{ info.parameter.report_footer14 }}
+                        </td>
+                    </tr>
+                </table>
+                
+                <!-- <div style="text-align: right; font-size: 8px;">
+                    Page {{ value.pagenum }} of {{ info.pagenum }}
+                </div> -->
+            </div>
+        </div>
+    
+    {% endfor %}
+</body>
+
+</html>
+<script type="text/javascript">
+    window.onafterprint = window.close;
+    window.onload = print();
+</script>

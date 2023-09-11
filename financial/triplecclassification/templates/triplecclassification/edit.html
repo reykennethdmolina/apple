@@ -1,0 +1,90 @@
+{% extends 'base-form.html' %}
+{% block extra_css %}
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+{% endblock extra_css %}
+{% block page-title %} Triple C Classification  {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">EDIT</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="form-group {{ form.code.errors|yesno:'has-error,' }}">
+                            <label for="id_code" class="control-label">Code</label>
+                            <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" readonly="readonly" data-validation="required" value="{{ form.code.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
+                            <div>
+                                <textarea id="id_description" class="form-control text-area" name="description" rows="5" data-validation="required">{{ form.description.value|default:"" }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group {{ form.various_account.errors|yesno:'has-error,' }}">
+                            <label for="id_various_account" class="control-label">Account 1</label>
+                            <select name="various_account" class="form-control select2" id="id_various_account">
+                                <option value="">-- Select --</option>
+                                {% for data in various_account %}
+                                    <option value="{{ data.id }}" {% if form.various_account.value == data.id %}selected="selected"{% endif %}>[{{ data.code }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.various_account.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.various_account2.errors|yesno:'has-error,' }}">
+                            <label for="id_various_account2" class="control-label">Account 2</label>
+                            <select name="various_account2" class="form-control select2" id="id_various_account2">
+                                <option value="">-- Select --</option>
+                                {% for data in various_account %}
+                                    <option value="{{ data.id }}" {% if form.various_account2.value == data.id %}selected="selected"{% endif %}>[{{ data.code }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.various_account2.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.various_account3.errors|yesno:'has-error,' }}">
+                            <label for="id_various_account3" class="control-label">Account 3</label>
+                            <select name="various_account3" class="form-control select2" id="id_various_account3">
+                                <option value="">-- Select --</option>
+                                {% for data in various_account %}
+                                    <option value="{{ data.id }}" {% if form.various_account3.value == data.id %}selected="selected"{% endif %}>[{{ data.code }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.various_account3.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.various_account4.errors|yesno:'has-error,' }}">
+                            <label for="id_various_account4" class="control-label">Account 4</label>
+                            <select name="various_account4" class="form-control select2" id="id_various_account4">
+                                <option value="">-- Select --</option>
+                                {% for data in various_account %}
+                                    <option value="{{ data.id }}" {% if form.various_account4.value == data.id %}selected="selected"{% endif %}>[{{ data.code }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.various_account4.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function(){
+            $('.select2').select2({});
+        });
+    </script>
+{% endblock extra_js %}

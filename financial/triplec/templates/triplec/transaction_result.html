@@ -1,0 +1,1941 @@
+{% load humanize %}
+{% load mathfilters %}
+{% load custom %}
+{% load staticfiles %}
+{% load custom_tags %}
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" /> 
+<br>
+<link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+{% block extra_css %}
+    <style>
+
+        td {
+            font-weight: bold;
+        }
+
+        /* Pending */
+        tr.D{
+            border-left: 3px solid royalblue;
+        }
+
+        /* No Payment */
+        tr.Y{
+            border-left: 3px solid purple;
+        }
+        
+        .fixed-size-table {
+            width: 100%;
+            table-layout: fixed; /* Forces table to use the specified column widths */
+        }
+        .fixed-size-table tr td{
+            word-wrap: break-word;
+        }
+        .thead-number{
+            width: 22px;
+        }
+        .thead-checkbox{
+            width: 10px;
+        }
+        .thead-issue-date {
+            width: 40px;
+        }
+        .thead-publication{
+            width: 50px;
+        }
+        .thead-bureau{
+            width: 30px;
+        }
+        .thead-section{
+            width: 30px;
+        }
+        .thead-page{
+            width: 30px;
+        }
+        .thead-article-title {
+            width: 100px;
+        }
+        .thead-byline {
+            width: 80px;
+        }
+        .thead-code {
+            width: 75px;
+        }
+        .thead-author-name {
+            width: 100px;
+        }
+        .thead-classification {
+            width: 75px;
+        }
+        .thead-type {
+            width: 50px;
+        }
+        .thead-created-by {
+            width: 40px;
+        }
+        .thead-number-words{
+            width: 30px;
+        }
+        .thead-number-characters{
+            width: 30px;
+        }
+        .thead-cs-no{
+            width: 60px;
+        }
+        .thead-status{
+            width: 40px;
+        }
+        .thead-action{
+            width: 40px;
+        }
+    </style>
+{% endblock extra_css %}
+
+<div class="col-sm-12 col-xs-12" id="triplec_result">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6"></div>
+            <div class="col-md-6">
+                <div class="col-sm-3"></div>
+                <div class="col-sm-3">
+                    
+                </div>
+                <div class="col-sm-3"></div>
+                <div class="col-sm-3 text-right" title="Full screen">
+                    <i class="fa fa-arrows-alt pointer" aria-hidden="true" id="full_screen"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if triplec_data %}
+    <div class="page-wrap">
+        <div class="row" style="padding: 30px 30px;">
+            <div class="col-md-12">
+                <h3>{{ parameter.description }}</h3>
+                <h4>TRIPLE-C TRANSACTION LISTING </h4>
+                <h4 style="text-transform:uppercase">AS OF {{ dfrom }} to {{ dto }}</h4>
+            </div>
+        </div>
+        <div class="row" style="padding: 0 30px;">
+            
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <button class="btn btn-primary waves-effect waves-dark" id="batch_tagging" disabled title="Batch tagging of Class and Author to all displayed transactions." data-toggle="modal" data-target="#batchTagging">
+                            <i class="fa fa-user" aria-hidden="true"></i>&nbsp;&nbsp;Batch Tagging
+                        </button>
+                        <button class="btn btn-primary waves-effect waves-dark" id="batch_save" disabled title="Selected rows with Tagged Class and Author Name will be saved.">
+                            <i class="fa fa-save" aria-hidden="true"></i>&nbsp;&nbsp;Batch Save
+                        </button>
+                        <button class="btn btn-primary waves-effect waves-dark" id="batch_print" disabled title="Selected and posted transactions will be included for batch printing.">
+                            <i class="fa fa-print" aria-hidden="true"></i>&nbsp;&nbsp;Batch Print
+                        </button>
+                        <button class="btn btn-primary waves-effect waves-dark" id="post_ap" disabled title="Selected and posted transactions will be included for AP posting." data-toggle="modal" data-target="#postAP">
+                            <i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Post to AP
+                        </button>
+                        
+                    </div>
+                    <div class="col-sm-2 text-left">
+                        <a style="display: none;" href="" id="trigger_cs" target="_blank">CS</a>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 15px;">
+                    <div class="col-md-8">
+                        <button class="btn btn-secondary bg-gray waves-effect waves-dark" id="tag_as_pending" disabled title="Tag as Pending transaction">
+                            <i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;&nbsp;Tag as Pending
+                        </button>
+                        <button class="btn btn-secondary bg-gray waves-effect waves-dark" id="tag_as_no_payment" disabled title="Tag transaction as No Payment">
+                            <i class="fa fa-ban" aria-hidden="true"></i>&nbsp;&nbsp;Tag as No Payment
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="text-right text-info"><b><span id="rows_count"></span> Transactions found</b></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-12" style="min-height: 500px; max-height: 900px; overflow: auto;">
+                <table class="table table-striped table-hover fixed-size-table" id="triplec_table">
+                    <thead style="position: sticky; top: 0; z-index: 1; background: ghostwhite; border: none;">
+                        <tr class="border-0" id="triplec_table_header">
+                            <th class="thead-number pointer sortable" title="Data sort ascending | descending" style="color:#424242">#</th>
+                            <th class="thead-checkbox" style="color:#424242"><input type="checkbox" class="pointer" name="chb_all" id="chb_all" /></th>
+                            <th class="thead-issue-date pointer sortable" title="Data sort ascending | descending" style="color:#424242">Issue Date</th>
+                            <th class="thead-publication" style="color:#424242">Publication</th>
+                            <th class="thead-bureau pointer sortable" title="Data sort ascending | descending" style="color:#424242">Bureau</th>
+                            <th class="thead-section pointer sortable" title="Data sort ascending | descending" style="color:#424242">Section</th>
+                            <th class="thead-page pointer sortable" title="Data sort ascending | descending" style="color:#424242">Page</th>
+                            <th class="thead-article-title" style="color:#424242;">Article Title</th>
+                            <th class="thead-byline" style="color:#424242">Byline</th>
+                            <th class="thead-code" style="color:#424242">Code</th>
+                            <th class="thead-author-name" style="color:#424242">Author Name</th>
+                            <th class="thead-classification" style="color:#424242">Classification</th>
+                            <th class="thead-type" style="color:#424242">Type</th>
+                            <th class="thead-created-by" style="color:#424242">Created by</th>
+                            <th class="thead-number-words" style="color:#424242">Words</th>
+                            <th class="thead-number-characters" style="color:#424242">Chars</th>
+                            <th class="thead-cs-no" style="color:#424242">CS No.</th>
+                            <th class="thead-status" style="color:#424242">Status</th>
+                            <th class="thead-action" style="color:#424242">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% autoescape off %}
+
+                        {% classifications_to_options_html classifications as classifications_options_html %}
+                        {% author_codes_to_options_html authors as author_codes_options_html %}
+                        {% author_names_to_options_html authors as author_names_options_html %}
+
+                        {% for data in triplec_data %}
+                            <tr class="{{ data.status }}">
+                                <td class="c0"></td>
+                                <td class="c1">
+                                    <input type="hidden" name="data_id" value="{{ data.id }}" />
+                                    <input type="hidden" name="data_subtype_id" value="{{ data.subtype_id|default:'' }}" />
+                                    <input type="hidden" name="data_bureau_id" value="{{ data.bureau_id|default:'' }}" />
+                                    <input type="hidden" name="data_section_id" value="{{ data.section_id|default:'' }}" />
+                                    <input type="hidden" name="data_status" value="{{ data.status }}" />
+                                    <input type="hidden" name="data_status_txt" value="{{ data.get_status_display }}" />
+                                    <input type="hidden" name="data_rate_code" value="{{ data.rate_code|default:'' }}" />
+                                    <input type="hidden" name="data_amount" value="{{ data.amount }}" />
+                                    <input type="hidden" name="data_no_of_ccc" value="{{ data.no_of_ccc }}" />
+                                    <input type="hidden" name="data_no_of_items" value="{{ data.no_items|default:'' }}" />
+                                    <input type="hidden" name="data_length1" value="{{ data.length1 }}" />
+                                    <input type="hidden" name="data_length2" value="{{ data.length2 }}" />
+                                    <input type="hidden" name="data_length3" value="{{ data.length3 }}" />
+                                    <input type="hidden" name="data_length4" value="{{ data.length4 }}" />
+                                    <input type="hidden" name="data_width1" value="{{ data.width1 }}" />
+                                    <input type="hidden" name="data_width2" value="{{ data.width2 }}" />
+                                    <input type="hidden" name="data_width3" value="{{ data.width3 }}" />
+                                    <input type="hidden" name="data_width4" value="{{ data.width4 }}" />
+                                    <input type="hidden" name="data_total_size" value="{{ data.total_size }}" />
+                                    <input type="hidden" name="data_remarks" value="{{ data.remarks }}" />
+                                    <input type="hidden" name="data_cms_section" value="{{ data.cms_section }}" />
+                                    <input type="hidden" name="data_confirmation" value="{{ data.confirmation }}" />
+                                    <input type="hidden" name="data_date_posted" value="{{ data.date_posted }}" />
+                                    <input type="hidden" name="data_apv_no" value="{{ data.apv_no }}" />
+                                    <input type="hidden" name="data_apv_date" value="{{ data.date_apv }}" />
+                                    <input type="checkbox" class="triplec-checkbox pointer" name="chb_{{ data.id }}" id="chb_{{ data.id }}" />
+                                </td>
+
+                                <!-- ready for posting and posted entries -->
+                                {% if data.status in 'EO' %}
+
+                                    <td class="c2">{{ data.issue_date|date:'Y-m-d' }}</td>
+                                    <td class="c3">{{ data.cms_publication }}</td>
+                                    <td class="c14">{{ data.bureau.code|default:"" }}</td>
+                                    <td class="c4">{{ data.section.code }}</td>
+                                    <td class="c5">{{ data.page }}</td>
+                                    <td class="c6">{{ data.article_title }}</td>
+                                    <td class="c7">{{ data.byline|default:"" }}</td>
+                                    <td class="c8">
+                                        <select class="form-control input-sm select2" style="width: 110px;" name="code">
+                                            {% if data.code %}
+                                                {% author_codes_to_html authors data.code as author_codes_html %}
+                                                <option value="">-- Select --</option>
+                                                {{ author_codes_html }}
+                                            {% else %}
+                                                {{ author_codes_options_html }}
+                                            {% endif %}
+                                        </select>
+                                    </td>
+                                    <td class="c9">
+                                        <select class="form-control input-sm select2" style="width: 145px;" name="author_name">
+                                            {% if data.author_name %}
+                                                {% author_names_to_html authors data.author_name as author_names_html %}
+                                                <option value="">-- Select --</option>
+                                                {{ author_names_html }}
+                                            {% else %}
+                                                {{ author_names_options_html }}
+                                            {% endif %}
+                                        </select>
+                                    </td>
+                                    <td class="c10">
+                                        
+                                        <select class="form-control input-sm" style="width: 110px;" name="type">
+                                            {% if data.type %}
+                                                {% classifications_to_html classifications data.type as classifications_html %}
+                                                <option value="">-- Select --</option>
+                                                {{ classifications_html }}
+                                            {% else %}
+                                                {{ classifications_options_html }}
+                                            {% endif %}
+                                        </select>
+                                    </td>
+                                    <td class="c15">{{ data.subtype.description|default:"" }}</td>
+                                    <td class="c11">{{ data.cms_created_by }}</td>
+                                    <td class="c12">{{ data.no_of_words }}</td>
+                                    <td class="c13">{{ data.no_of_characters }}</td>
+                                    <td class="c17">{{ data.confirmation|default:"" }}</td>
+                                    <td class="c16">{{ data.get_status_display }}</td>
+                                    <td>
+                                        <div style="display:flex; flex-direction: row; justify-content: center; align-items: center; font-size: 24px;">
+                                            <div class="row nowrap">
+                                                <a class="pointer edit-transaction-entry" title="View or Edit Transaction" data-toggle="modal" data-target="#transactionEntryModal">
+                                                    <i class="icon fa-file-text" aria-hidden="true">&nbsp;&nbsp;</i>
+                                                </a>
+                                                {% if data.status == 'O' %}
+                                                    {% if not data.apv_no or data.apv_no == '' %}
+                                                        <a class="pointer revert-transaction-entry" title="Revert transaction status as Ready for Posting (Editable format).">
+                                                            <i class="icon md-refresh" aria-hidden="true">&nbsp;&nbsp;</i>
+                                                        </a>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                <!-- active entries -->
+                                {% else %}
+                                    
+                                    <td class="c2">{{ data.cms_issue_date|date:'Y-m-d' }}</td>
+                                    <td class="c3">{{ data.cms_publication }}</td>
+                                    <td class="c14">{{ data.bureau.description|default:"" }}</td>
+                                    <td class="c4">{{ data.section.description|default:"" }}</td>
+                                    <td class="c5">{{ data.cms_page }}</td>
+                                    <td class="c6">{{ data.cms_article_title|default:"" }}</td>
+                                    <td class="c7">{{ data.cms_byline|default:"" }}</td>
+                                    <td class="c8">
+                                        <select class="form-control input-sm select2" style="width: 110px;" name="code">
+                                            {% if data.code %}
+                                                {% author_codes_to_html authors data.code as author_codes_html %}
+                                                <option value="">-- Select --</option>
+                                                {{ author_codes_html }}
+                                            {% else %}
+                                                {{ author_codes_options_html }}
+                                            {% endif %}
+                                        </select>
+                                    </td>
+                                    <td class="c9">
+                                        <select class="form-control input-sm select2" style="width: 145px;" name="author_name">
+                                            {% if data.author_name %}
+                                                {% author_names_to_html authors data.author_name as author_names_html %}
+                                                <option value="">-- Select --</option>
+                                                {{ author_names_html }}
+                                            {% else %}
+                                                {{ author_names_options_html }}
+                                            {% endif %}
+                                        </select>
+                                        
+                                    </td>
+                                    <td class="c10">
+
+                                        {% classifications_to_html classifications data.type as classifications_html %}
+                                        <select class="form-control input-sm" style="width: 110px;" name="type">
+                                            <option value="">-- Select --</option>
+                                            {{ classifications_html }}
+                                        </select>
+                                    </td>
+                                    <td class="c15">{{ data.subtype.description|default:"" }}</td>
+                                    <td class="c11">{{ data.cms_created_by|default:"" }}</td>
+                                    <td class="c12">{{ data.cms_no_of_words|default:"" }}</td>
+                                    <td class="c13">{{ data.cms_no_of_characters|default:"" }}</td>
+                                    <td class="c17">{{ data.confirmation|default:"" }}</td>
+                                    <td class="c16">{{ data.get_status_display }}</td>
+                                    <td>
+                                        <div class="iconlist-wrap auto-0">
+                                            <div class="iconlist" style="text-align: center">
+                                                
+                                                {% if not data.author_name or data.author_name == '' or data.author_name == 'None' and not data.code %}
+                                                    <a class="hidden pointer edit-transaction-entry" title="View or Edit Transaction" data-toggle="modal" data-target="#transactionEntryModal">
+                                                        <i class="icon fa-file-text" aria-hidden="true">&nbsp;&nbsp;</i>
+                                                    </a>
+                                                {% else %}
+                                                    <a class="pointer edit-transaction-entry" title="View or Edit Transaction" data-toggle="modal" data-target="#transactionEntryModal">
+                                                        <i class="icon fa-file-text" aria-hidden="true">&nbsp;&nbsp;</i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        {% endautoescape %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br>
+        <br>
+       
+    </div>
+    {% else %}
+    <br>
+    <br>
+    <br>
+        <div class="row text-center">
+            <div class="col-md-12">
+                <span><b>No results found. </b></span>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="clearfix"></div>
+
+
+    <div id="batchTagging" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 450px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Batch Tagging [Author]</h4>
+                </div>
+                <div class="modal-body" style="overflow:hidden;">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-4">
+                                    <label class="control-label" for="batch_input_code">Code:</label>
+                                </div>
+                                <div class="form-group col-md-8">
+                                    <select class="form-control input-sm select2" id="batch_input_code" style="width: 230px;">
+                                        <option value="">-- Select --</option>
+                                        {% for author in authors %}
+                                            <option value="{{ author.code }}">{{ author.code }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-4">
+                                    <label class="control-label" for="batch_input_author">Author:</label>
+                                </div>
+                                <div class="form-group col-md-8">
+                                    <select class="form-control input-sm select2" id="batch_input_author" style="width: 230px;">
+                                        <option value="">-- Select --</option>
+                                        {% for author in authors  %}
+                                            <option value="{{ author.name }}">{{ author.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-4">
+                                    <label class="control-label" for="batch_input_type">Class:</label>
+                                </div>
+                                <div class="form-group col-md-8">
+                                    <select class="form-control input-sm" id="batch_input_type">
+                                        <option value="">-- Select --</option>
+                                        {% for classification in classifications  %}
+                                            <option value="{{ classification.code }}">{{ classification.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div align="center">
+                        <button type="button" class="btn btn-sm btn-info" id="batch_tagging_confirm">Confirm</button>
+                        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="postAP" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 450px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Post Triple C Transactions to AP</h4>
+                </div>
+                <div class="modal-body" style="overflow:hidden;">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-4">
+                                    <label class="control-label" for="batch_input_code">AP Date:</label>
+                                </div>
+                                <div class="form-group col-md-8">
+                                    <input type="text" class="form-control datepickerto" id="apdate" style="width:150px;" placeholder="AP Date">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div class="well well-sm pre-scrollable" style="margin-bottom: 0px;min-height:400px;">
+                        <table class="table table-sm" id="postingresult">
+                            <thead>
+                                <tr>
+                                <!-- <th scope="row"><input type="checkbox" id="checkAll"></th> -->
+                                <!-- <td scope="row"><b>Qty.</b></td> -->
+                                <td scope="row"><b>CS No.</b></td>
+                                <td scope="row"><b>Issue Date</b></td>
+                                <td scope="row"><b>Class</b></td>
+                                <td scope="row"><b>Author Name</b></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div align="center">
+                        <button type="button" class="btn btn-sm btn-info" id="post_ap_confirm">Go</button>
+                        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="transactionEntryModal" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 990px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Transaction Entry #<span id="label_transaction_entry_number"></span>&nbsp;&nbsp;&nbsp;<span class="badge badge-info" id="label_cms_section" style="font-size: 14px;"></span></h4>
+                </div>
+                <div class="modal-body" style="overflow:auto;">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="input_issue_date">Issue Date<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <!-- pk -->
+                                    <input type="hidden" id="modal_pk" />
+                                    <input type="hidden" id="modal_supplier_pk" />
+                                    <input type="hidden" id="modal_status" />
+                                    <input class="form-control input-sm required-field" id="input_issue_date" readonly />
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="select_code">Code<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <select class="form-control input-sm select2 required-field" style="width: auto;" id="select_code">
+                                        {% if authors %}
+                                            <option value="">-- Select --</option>
+                                            {% for author in authors  %}
+                                                <option value="{{ author.code }}">{{ author.code }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="select_author_name">Author Name<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <select class="form-control input-sm select2 required-field" style="width: auto;" id="select_author_name">
+                                        <option value="">-- Select --</option>
+                                        {% if authors %}
+                                            {% for author in authors  %}
+                                                <option value="{{ author.name }}" data-code="{{ author.code }}">{{ author.name }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group col-md-12 extra-field" style="margin-top: 40px;">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="select_type">Classification<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <select class="form-control input-sm select2 required-field" style="width: auto;" id="select_type">
+                                        <option value="">-- Select --</option>
+                                        {% for classification in classifications %}
+                                            <option value="{{ classification.code }}">{{ classification.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="select_subtype">Type<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <select class="form-control input-sm select2 required-field" style="width: auto;" id="select_subtype">
+                                        <option value="">-- Select --</option>
+                                        {% for subtype in subtypes  %}
+                                            <option value="{{ subtype.id }}" data-code="{{ subtype.code }}">{{ subtype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="select_bureau">Bureau<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <select class="form-control input-sm select2" style="width: auto;" id="select_bureau">
+                                        <option value="">-- Select --</option>
+                                        {% for bureau in bureaus  %}
+                                            <option value="{{ bureau.id }}" data-code="{{ bureau.code }}">{{ bureau.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="select_section">Section<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <select class="form-control input-sm select2 required-field" style="width: auto;" id="select_section">
+                                        <option value="">-- Select --</option>
+                                        {% for section in sections %}
+                                            <option value="{{ section.id }}" data-code="{{ section.code }}">{{ section.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="input_article_title">Article Title<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-10">
+                                    <input type="text" class="form-control input-sm required-field" id="input_article_title" />
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="input_page">Page No.<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control input-md required-field input-page" id="input_page"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_no_of_ccc">No. of CCC</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control text-center input-sm" id="input_no_of_ccc">
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_no_of_items">No. of Items</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control text-center input-sm" id="input_no_of_items">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_no_of_words">No. of Words</label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="number" class="form-control number-right input-sm" id="input_no_of_words">
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_no_of_characters">No. of Characters</label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="number" class="form-control number-right input-sm" id="input_no_of_characters">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group col-md-12 extra-field" style="margin-top: 40px;">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_length1">Length1</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control input-sm size-field" id="input_length1">
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_width1">Width1</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control input-sm size-field" id="input_width1">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_length2">Length2</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control input-sm size-field" id="input_length2">
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_width2">Width2</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control input-sm size-field" id="input_width2">
+                                </div>
+                            </div>
+
+                            <br><br>
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_length3">Length3</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control input-sm size-field" id="input_length3">
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_width3">Width3</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control input-sm size-field" id="input_width3">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_length4">Length4</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control input-sm size-field" id="input_length4">
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_width4">Width4</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="number" class="form-control input-sm size-field" id="input_width4">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_total_size">Total Size</label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="number" class="form-control number-right input-sm" id="input_total_size" readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="select_rate_code">Rate<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <select class="form-control input-sm select2 required-field" style="width: auto;" id="select_rate_code">
+                                        <option value="">-- Select --</option>
+                                        <option value="customizable" data-amount="">Customizable</option>
+                                        {% for rate in rates %}
+                                            <option value="{{ rate.code }}" data-amount="{{ rate.amount }}">{{ rate.code }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ rate.amount }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label text-info" for="input_amount">Amount<span class="text-danger">*</span></label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="number" class="form-control input-sm amount-right required-field" id="input_amount">
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_no_of_words">Byline</label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <textarea class="form-control" maxlength="200" id="textarea_byline" rows="1"></textarea>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_no_of_characters">Remarks</label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <textarea class="form-control" maxlength="200" id="textarea_remarks" rows="1"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="row">
+                        <div class="form-group col-md-12">
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_confirmation">Confirmation:</label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="text" class="form-control input-sm" id="input_confirmation" readonly>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_date_printed">Date Printed:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control input-sm" id="input_date_printed" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label">Status:</label>
+                                </div>
+                                <div class="col-md-4">
+                                    <span id="status_txt"></span>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_date_posted">Date Posted:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control input-sm" id="input_date_posted" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="row">
+                        <div class="form-group col-md-12">
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_check_no">Check No.:</label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="text" class="form-control input-sm" id="input_check_no" readonly>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_date_check">Date Check:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control input-sm" id="input_date_check" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_apv_no">APV No.:</label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control input-sm" id="input_apv_no" readonly>
+                                        </div>
+                                        <div class="col-sm-4" id="apv_view_area">
+                                            <a href="" id="view_apv" target="_blank" style="display: none;">View</a>
+                                            <a href="#" id="trigger_view_apv" title="View APV">View</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <label class="control-label" for="input_date_apv">Date APV:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control input-sm" id="input_date_apv" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div align="center">
+                        <button type="button" class="btn btn-info" id="btn_save_transaction_entry" disabled="disabled">Save</button>
+                        &nbsp;&nbsp;
+                        <button type="button" class="btn btn-default close-modal-btn" id="btn_cancel_transaction_entry" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+{% block extra_js %}
+    <script type="text/javascript">
+    $(function(){
+        // $('.select2').select2({
+        //     dropdownParent: $('#triplec_result')
+        // });
+        
+        $("[id^='select_']").select2({
+            dropdownParent: $('#triplec_result')
+        });
+        
+        $('#apdate').datepicker('setDate', 'now');
+        // row numbering
+        if($('#triplec_table > tbody > tr').length > 0){
+            var t = 0;
+            $('#triplec_table > tbody > tr').filter(':visible').each(function(){
+                if(!$(this).hasClass('subtotal')){
+                    t++;
+                    $(this).find("td:nth-child(1)").text(t);
+                }
+            });
+            $('#rows_count').text(t);
+        }
+
+        $('#full_screen').click(function(){
+            
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                $('#triplec_result').get(0).requestFullscreen();
+                $('#triplec_result').css({
+                    background: '#fff'
+                });
+            }
+        });
+
+        // main checkbox change
+        $(document).on('change', 'input[name="chb_all"]', function() {
+            $('.triplec-checkbox').prop("checked", this.checked);
+
+            if($('.triplec-checkbox:checked').length > 0){
+                $('#batch_tagging').removeAttr('disabled');
+                $('#batch_save').removeAttr('disabled');
+                $('#batch_print').removeAttr('disabled');
+                $('#batch_transaction_entry').removeAttr('disabled');
+                $('#post_ap').removeAttr('disabled');
+                $('#tag_as_no_payment').removeAttr('disabled');
+                $('#tag_as_pending').removeAttr('disabled');
+            } else {
+                $("#batch_tagging").prop("disabled", true);
+                $("#batch_save").prop("disabled", true);
+                $("#batch_print").prop("disabled", true);
+                $("#batch_transaction_entry").prop("disabled", true);
+                $("#post_ap").prop("disabled", true);
+                $("#tag_as_no_payment").prop("disabled", true);
+                $("#tag_as_pending").prop("disabled", true);
+            }
+        });
+
+        // single checkbox change
+        $(document).on('change', '.triplec-checkbox', function() {
+            if($('.triplec-checkbox:checked').length > 0){
+                $('#batch_tagging').removeAttr('disabled');
+                $('#batch_save').removeAttr('disabled');
+                $('#batch_print').removeAttr('disabled');
+                $('#batch_transaction_entry').removeAttr('disabled');
+                $('#post_ap').removeAttr('disabled');
+                $('#tag_as_no_payment').removeAttr('disabled');
+                $('#tag_as_pending').removeAttr('disabled');
+            } else {
+                $("#batch_tagging").prop("disabled", true);
+                $("#batch_save").prop("disabled", true);
+                $("#batch_print").prop("disabled", true);
+                $("#batch_transaction_entry").prop("disabled", true);
+                $("#post_ap").prop("disabled", true);
+                $("#tag_as_no_payment").prop("disabled", true);
+                $("#tag_as_pending").prop("disabled", true);
+            }
+
+            if($('.triplec-checkbox').length === $('.triplec-checkbox:checked').length){
+                $('input[name="chb_all"]').prop("checked", true);
+            } else if (this.checked == false) {
+                $('input[name="chb_all"]').prop("checked", false);
+            }
+        });
+
+        // sortable column
+        $('th.sortable').click(function() {
+            var table = $(this).parents('table').eq(0);
+            var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+            this.asc = !this.asc;
+            if (!this.asc) {
+                rows = rows.reverse();
+            }
+            for (var i = 0; i < rows.length; i++) {
+                table.append(rows[i]);
+            }
+        });
+
+        function comparer(index) {
+            return function(a, b) {
+                var valA = getCellValue(a, index);
+                var valB = getCellValue(b, index);
+                return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB);
+            };
+        }
+
+        function getCellValue(row, index) {
+            return $(row).children('td').eq(index).text();
+        }
+
+        // in batch tagging modal - code
+        $('#batch_input_code').change(function(){
+
+            const row = $(this).closest('tr');
+            const code = $(this).val();
+            
+            if(code != ''){
+                $.ajax({
+                    url: "{% url 'triplec:get_supplier_by_code' %}"+"?code="+code,
+                    type: "get",
+                    data: {
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                    },
+                    success: function(response) {
+                        if (response.result === true){
+
+                            $('#batch_input_author').val(response.supplier[0].name).change();
+                            $('#batch_input_type').val(response.supplier[0].ccc).change();
+                            
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function(response) {
+                        alert('Connection error.');
+                    }
+                });
+            } else {
+                row.find('.edit-transaction-entry').toggleClass('hidden');
+                row.find("select[name=author_name]").val('').change();
+                row.find("select[name=type]").val('').change();
+            }
+
+        });
+
+        // batch tagging
+        $('#batch_tagging_confirm').click(function(){
+            const code = $('#batch_input_code').val();
+            const author = $('#batch_input_author').val();
+            const type = $('#batch_input_type').val();
+            if(code != ''){
+                if(confirm('Confirm batch tagging?')){
+                    $('#triplec_table > tbody > tr').filter(':visible').each(function(){
+                        if($(this).find(".triplec-checkbox").is(":checked")){
+
+                            $(this).find('.edit-transaction-entry').removeClass('hidden');
+                            $(this).find("select[name=code]").val(code).change();
+                            $(this).find("select[name=author_name]").val(author).change();
+                            $(this).find("select[name=type]").val(type).change();
+                            
+                        }
+                    });
+                }
+            } else {
+                alert('Please select Code');
+            }
+            $('#batchTagging').modal('toggle');
+        });
+
+        // batch saving
+        $('#batch_save').click(function(){
+            if(confirm('Confirm saving the selected rows? Note: unselected rows will not be saved.')){
+                for_saving = [];
+                $('#triplec_table > tbody > tr').filter(':visible').each(function(){
+                    if($(this).find(".triplec-checkbox").is(":checked")){
+
+                        var id = $(this).find("input[name=data_id]").val();
+                        var code = $(this).find("select[name=code]").val();
+                        var author = $(this).find("select[name=author_name]").val();
+                        var type = $(this).find("select[name=type]").val();
+
+                        if(id != '' && type != '' && author != '') {
+                            for_saving.push({
+                                id: id,
+                                code: code,
+                                author: author,
+                                type: type
+                            });
+                        }
+                    }
+                });
+                if($.isEmptyObject(for_saving)){
+                    alert("There's no data to save!");
+                } else {
+                    
+                    $.ajax({
+                        url: "{% url 'triplec:save_batch_tagging' %}",
+                        type: "post",
+                        data: {
+                            'csrfmiddlewaretoken': "{{ csrf_token }}",
+                            'data': JSON.stringify(for_saving)
+                        },
+                        success: function(response) {
+                            if(response.result == 'success'){
+                                alert("Save successful");
+                            } else {
+                                alert("Error saving data");
+                            }
+                        },
+                        error: function(response) {
+                            alert("Error saving data");
+                        }
+                    });
+                }
+            }
+        });
+
+        // batch print
+        $('#batch_print').click(function(){
+            for_printing = [];
+            $('#triplec_table > tbody > tr').filter(':visible').each(function(){
+                if($(this).find(".triplec-checkbox").is(":checked")){
+
+                    var confirmation = $(this).find("input[name=data_confirmation]").val();
+                    var status = $(this).find("input[name=data_status]").val();
+                    
+                    if(confirmation != '' && status == 'O') {
+                        for_printing.push(confirmation);
+                    }
+
+                }
+            });
+            if($.isEmptyObject(for_printing)){
+                alert("There's no posted transaction to print");
+            } else {
+                var unique_cs_list = [...new Set(for_printing)];
+                $("#trigger_cs").attr("href", "{% url 'triplec:print_cs' %}" + "?batch=1&q=" + encodeURIComponent(JSON.stringify(unique_cs_list)));
+                $('#trigger_cs')[0].click();
+                
+            }
+        });
+
+        $("#tag_as_pending").click(function(){
+            
+            var count = $('.triplec-checkbox:checked').length;
+            if(!confirm("Are you sure to Tag as Pending "+count+" transaction(s)?")){
+                return false;
+            }
+
+            for_pending = [];
+            $('.triplec-checkbox:checked').each(function() {
+                var $row = $(this).closest('tr');
+
+                var id = $row.find("input[name=data_id]").val();
+                var status = $row.find("input[name=data_status]").val();
+                
+                if(id != '' && status == 'A') {
+                    for_pending.push(id);
+
+                    $row.removeAttr('class').addClass('D');
+                }
+            });
+            if($.isEmptyObject(for_pending)){
+                alert("There are no active transactions to Tag as Pending.");
+            } else {
+                $.ajax({
+                    url: "{% url 'triplec:tag_as_pending' %}",
+                    type: "post",
+                    data: {
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                        'data': JSON.stringify(for_pending)
+                    },
+                    success: function(response) {
+                        if(response.result == 'success'){
+                            custom_success_alert("Status update successful!");
+                        } else {
+                            custom_failed_alert("Error updating data");
+                        }
+                    },
+                    error: function(response) {
+                        custom_failed_alert("Error updating data");
+                    }
+                });
+            }
+        });
+
+        $("#tag_as_no_payment").click(function(){
+            var count = $('.triplec-checkbox:checked').length;
+            if(!confirm("Are you sure to Tag as No Payment "+count+" transaction(s)?")){
+                return false;
+            }
+
+            for_no_payment = [];
+            $('.triplec-checkbox:checked').each(function() {
+                var $row = $(this).closest('tr');
+
+                var id = $row.find("input[name=data_id]").val();
+                var status = $row.find("input[name=data_status]").val();
+                
+                if(id != '' && status == 'A') {
+                    for_no_payment.push(id);
+
+                    $row.removeAttr('class').addClass('Y');
+                }
+            });
+            if($.isEmptyObject(for_no_payment)){
+                alert("There are no active transactions to Tag as Pending.");
+            } else {
+                $.ajax({
+                    url: "{% url 'triplec:tag_as_no_payment' %}",
+                    type: "post",
+                    data: {
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                        'data': JSON.stringify(for_no_payment)
+                    },
+                    success: function(response) {
+                        if(response.result == 'success'){
+                            custom_success_alert("Status update successful!");
+                        } else {
+                            custom_failed_alert("Error updating data");
+                        }
+                    },
+                    error: function(response) {
+                        custom_failed_alert("Error updating data");
+                    }
+                });
+            }
+        });
+
+        // Transaction entry modal
+        $('.edit-transaction-entry').click(function(){
+
+            resetTransactionEntryModal();
+
+            const row = $(this).closest('tr');
+            
+            var pk = row.find("input[name=data_id]").val();
+            var cms_section = row.find("input[name=data_cms_section]").val();
+            var status = row.find("input[name=data_status]").val();
+            var status_txt = row.find("input[name=data_status_txt]").val();
+            var row_num = row.find('.c0').text();
+            var issue_date = row.find('.c2').text();
+            var section = row.find('.c4').text().toUpperCase();
+            var page_no = row.find('.c5').text();
+            var article_title = row.find('.c6').text();
+            var byline = row.find('.c7').text();
+            var no_of_words = row.find('.c12').text();
+            var no_of_characters = row.find('.c13').text();
+            var bureau = row.find('.c14').text();
+            var subtype = row.find('.c15').text();
+            var subtype_id = row.find("input[name=data_subtype_id]").val();
+            var bureau_id = row.find("input[name=data_bureau_id]").val();
+            var section_id = row.find("input[name=data_section_id]").val();
+
+            var rate_code = row.find("input[name=data_rate_code]").val();
+            var amount = row.find("input[name=data_amount]").val();
+            var no_of_ccc = row.find("input[name=data_no_of_ccc]").val();
+            var no_of_items = row.find("input[name=data_no_of_items]").val();
+            var length1 = row.find("input[name=data_length1]").val();
+            var length2 = row.find("input[name=data_length2]").val();
+            var length3 = row.find("input[name=data_length3]").val();
+            var length4 = row.find("input[name=data_length4]").val();
+            var width1 = row.find("input[name=data_width1]").val();
+            var width2 = row.find("input[name=data_width2]").val();
+            var width3 = row.find("input[name=data_width3]").val();
+            var width4 = row.find("input[name=data_width4]").val();
+            var total_size = row.find("input[name=data_total_size]").val();
+            var remarks = row.find("input[name=data_remarks]").val();
+            var confirmation = row.find("input[name=data_confirmation]").val();
+            var date_posted = row.find("input[name=data_date_posted]").val();
+            var apv_no = row.find("input[name=data_apv_no]").val();
+            var apv_date = row.find("input[name=data_apv_date]").val();
+            var type = row.find("select[name=type]").val();
+            var author_name = row.find("select[name=author_name]").val();
+
+            $('#label_transaction_entry_number').text(row_num);
+            if(cms_section !== 'None'){
+                $('#label_cms_section').text(cms_section);
+            }
+            $('#input_issue_date').val(issue_date);
+            
+            $('#input_article_title').val(article_title);
+            $('#input_page').val(page_no);
+            $('#input_no_of_words').val(no_of_words);
+            $('#input_no_of_characters').val(no_of_characters);
+            $('#select_rate_code').val(rate_code).change();
+            $('#input_amount').val(amount);
+            $('#input_no_of_ccc').val(no_of_ccc);
+            $('#input_no_of_items').val(no_of_items);
+            $('#input_length1').val(length1);
+            $('#input_length2').val(length2);
+            $('#input_length3').val(length3);
+            $('#input_length4').val(length4);
+            $('#input_width1').val(width1);
+            $('#input_width2').val(width2);
+            $('#input_width3').val(width3);
+            $('#input_width4').val(width4);
+            $('#input_total_size').val(total_size);
+            
+            $('#textarea_byline').val(byline);
+            if (remarks !== 'None' && remarks !== '') $('#textarea_remarks').val(remarks);
+
+            $('#status_txt').text(status_txt);
+            $('#modal_status').val(status);
+
+            $('#modal_pk').val(pk);
+            $('#apv_view_area').hide();
+            
+            if(confirmation !== 'None' && confirmation !== ''){
+                // posted
+                $('#input_confirmation').val(confirmation);
+                $('#input_date_posted').val(date_posted);
+                $('#select_author_name, #select_code').select2({
+                    disabled: true
+                });
+
+                if(apv_no !== 'None'  && apv_no !== ''){
+                    $('#apv_view_area').show();
+                    $('#input_apv_no').val(apv_no);
+                    $('#input_date_apv').val(apv_date);
+                } else {
+                    $('#apv_view_area').hide();
+                }
+
+            } else {
+                // active, ready for posting
+                $('#select_author_name, #select_code').select2({
+                    disabled: false
+                });
+            }
+
+            if(type != ''){
+                $('#select_type').val(type).change();
+
+                var is_required = type === 'COR' ? true : false;
+                size_fields(is_required);
+            }
+
+            $('#select_subtype').val(subtype_id).change();
+            $('#select_bureau').val(bureau_id).change();
+            $('#select_section').val(section_id).change();
+
+            $('#select_author_name').val(author_name).change();
+            if(author_name != ''){
+                var code = $('#select_author_name option:selected').attr('data-code');
+                if(code !== $('#select_code').val()){
+                    $('#select_code').val(code).change();
+                }
+            }
+
+        });
+
+        function supplier_suggestion(code){
+            $.ajax({
+                url: "{% url 'triplec:supplier_suggestion' %}"+"?code="+code,
+                type: "get",
+                data: {
+                    'csrfmiddlewaretoken': "{{ csrf_token }}",
+                },
+                success: function(response) {
+                    if (response.result === true){
+                        $('#select_bureau').val(response.triplecsupplier[0].bureau).change();
+                        $('#select_section').val(response.triplecsupplier[0].section).change();
+                        $('#select_rate_code').val(response.rate_code).change();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(response) {
+                    alert('Connection error.');
+                }
+            });
+            
+        }
+
+        // revert transaction status as Ready for Posting
+        $('.revert-transaction-entry').click(function(){
+            var id = $(this).closest('tr').find("input[name=data_id]").val();
+            var csno = $(this).closest('tr').find("input[name=data_confirmation]").val();
+            
+            if(csno != '' && id != ''){
+                $.ajax({
+                    url: "{% url 'triplec:having_quota' %}",
+                    type: "post",
+                    data: {
+                        'csno': csno,
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                    },
+                    success: function(response) {
+                        if (response.result === true){
+
+                            var having_quota = response.having_quota;
+                            var csno_count = response.csno_count;
+                            var confirm_message = '';
+
+                            if (having_quota){
+                                confirm_message = "Caution: This transaction's CS No. has QUOTA associated with "+ csno_count +" transaction(s) and will be included in the revert process. Are you sure to proceed?";
+                            } else {
+                                confirm_message = 'Are you sure to revert the status of this transaction?';
+                            }
+
+                            if(confirm(confirm_message)){
+                                
+                                revert_transaction(id);
+                            } 
+                        } else {
+                            custom_failed_alert(response.message);
+                        }
+                    },
+                    error: function(response) {
+                        alert('Connection error.');
+                    }
+                });
+            } else {
+                alert('Request is empty.');
+            }
+            
+            return false;
+        });
+
+        $('#trigger_view_apv').click(function(){
+            var apnum = $('#input_apv_no').val();
+
+            if(apnum != ''){
+                $.ajax({
+                    url: "{% url 'triplec:get_ap_id' %}",
+                    type: "post",
+                    data:{
+                        'apnum': apnum,
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                    },
+                    success: function(response) {
+                        if (response.result === true && response.ap_id){
+                            var detailUrl = "{% url 'accountspayable:detail' 0 %}".replace('0', response.ap_id);
+                            $("#view_apv").attr("href", detailUrl);
+                            $('#view_apv')[0].click();
+                        } else {
+                            custom_failed_alert("APV unavailable.");
+                        }
+                    },
+                    error: function(response) {
+                        alert('Connection error.');
+                    }
+                });
+            }
+        });
+
+        function revert_transaction(id){
+            if(id != ''){
+                $.ajax({
+                    url: "{% url 'triplec:revert_transaction' %}",
+                    type: "post",
+                    data: {
+                        'id': id,
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                    },
+                    success: function(response) {
+                        if (response.result === true){
+                            custom_success_alert(response.message);
+                            $('#retrieve').trigger('click');
+                        } else {
+                            custom_failed_alert(response.message);
+                        }
+                    },
+                    error: function(response) {
+                        alert('Connection error.');
+                    }
+                });
+            } else {
+                alert('Request id is empty.');
+            }
+        }
+
+        function bureau_required(is_required){
+            var bureau_label = $('label[for="select_bureau"]');
+            var span = bureau_label.find('span');
+            
+            if(is_required) {
+                $("#select_bureau").addClass("required-field");
+                
+                if (span.length > 1) {
+                    span.slice(1).remove();
+                }
+                if (span.length === 0) {
+                    bureau_label.append('<span class="text-danger">*</span>');
+                }
+
+            } else {
+                $("#select_bureau").removeClass("required-field");
+                span.remove();
+            } 
+        }
+
+        $('#select_type').change(function(){
+            var type = $(this).val();
+            $("#select_type option[value='"+ type +"']").attr("selected");
+            
+            var is_required = type === 'COR' ? true : false;
+            bureau_required(is_required);
+            size_fields(is_required);
+        });
+
+        function size_fields(is_required){
+            if(is_required){
+                $('.size-field').removeAttr('disabled');
+            } else {
+                $('.size-field').attr('disabled', 'disabled');
+            }
+        }
+
+        // In modal - rate code 
+        $('#select_rate_code').change(function(){
+            var rate = $('#select_rate_code option:selected').attr('data-amount');
+            if(rate == ''){
+                $('#input_amount').val('').focus();
+            } else {
+                if($('#input_total_size').val() > 1 || $('#input_no_of_ccc') > 1){
+                    size_and_amount_computation();
+                } else {
+                    $('#input_amount').val(rate);
+                }
+            }
+
+        });
+
+        // in transaction entry modal
+        $('#select_code').change(function(){
+
+            const code = $(this).val();
+            if(code != ''){
+                
+                $.ajax({
+                    url: "{% url 'triplec:get_supplier_by_code' %}"+"?code="+code,
+                    type: "get",
+                    data: {
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                    },
+                    success: function(response) {
+                        if (response.result === true){
+                            $("#select_author_name").val(response.supplier[0].name).change();
+                            $("#select_type option[value='"+ response.supplier[0].ccc +"']").attr("selected");
+                            $('#modal_supplier_pk').val(response.supplier[0].id);
+                            
+                            var status = $('#status_txt').text() || '';
+                            if (status === 'Active' && $("#select_bureau").val() === '' && $("#select_section").val() === '' && $("#select_rate_code").val() === '') {
+                                
+                                supplier_suggestion(code);
+                            } 
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function(response) {
+                        alert('Connection error.');
+                    }
+                });
+            } else {
+                $("#select_author_name").val('').change();
+                $("#select_type").val('').change();
+            }
+
+        });
+
+        // in table row - code
+        $('select[name=code]').change(function(){
+
+            const row = $(this).closest('tr');
+            const code = $(this).val();
+            
+            if(code != ''){
+                $.ajax({
+                    url: "{% url 'triplec:get_supplier_by_code' %}"+"?code="+code,
+                    type: "get",
+                    data: {
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                    },
+                    success: function(response) {
+                        if (response.result === true){
+                            row.find('.edit-transaction-entry').removeClass('hidden');
+                            row.find("select[name=author_name]").val(response.supplier[0].name).change();
+                            row.find("select[name=type]").val(response.supplier[0].ccc).change();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function(response) {
+                        alert('Connection error.');
+                    }
+                });
+            } else {
+                row.find('.edit-transaction-entry').toggleClass('hidden');
+                row.find("select[name=author_name]").val('').change();
+                row.find("select[name=type]").val('').change();
+            }
+           
+        });
+
+        // cancel modal
+        $('#btn_cancel_transaction_entry').click(function(){
+            resetTransactionEntryModal();
+        });
+
+        // reset modal fields
+        function resetTransactionEntryModal(){
+            
+            $('#label_transaction_entry_number').text('');
+            $('#label_cms_section').text('');
+            $('#input_issue_date').val('');
+            $('#select_section').val('').change();
+            $('#input_article_title').val('');
+            $('#input_page').val('');
+            $('#input_no_of_words').val('');
+            $('#input_no_of_characters').val('');
+            $('#select_rate_code').val('').change();
+            $('#input_amount').val('');
+            $('#select_type').val('').change();
+            $('#select_code').val('').change();
+            $('#select_author_name').val('').change();
+            $('#select_subtype').val('').change();
+            $('#select_bureau').val('').change();
+            $('#input_confirmation').val('');
+            $('#input_date_posted').val('');
+            $('#input_no_of_ccc').val('');
+            $('#input_no_of_items').val('');
+            $('#input_length1').val('');
+            $('#input_length2').val('');
+            $('#input_length3').val('');
+            $('#input_length4').val('');
+            $('#input_width1').val('');
+            $('#input_width2').val('');
+            $('#input_width3').val('');
+            $('#input_width4').val('');
+            $('#input_total_size').val('');
+            $('#textarea_byline').val('');
+            $('#textarea_remarks').val('');
+            $('#status_txt').text('');
+
+            return true;
+        }
+
+        // Save Transction Entry
+        $('#btn_save_transaction_entry').click(function(){
+            
+            var fields_arr = [];
+            fields_arr['pk'] = [$('#modal_pk').val()];
+            fields_arr['supplier_pk'] = [$('#modal_supplier_pk').val()];
+            fields_arr['status'] = [$('#modal_status').val()];
+            fields_arr['issue_date'] = [$('#input_issue_date').val(), 'Issue Date'];
+            fields_arr['code'] = [$('#select_code').val(), 'Code'];
+            fields_arr['author_name'] = [$('#select_author_name').val(), 'Author Name'];
+            fields_arr['type'] = [$('#select_type').val(), 'Classification'];
+            fields_arr['subtype'] = [$('#select_subtype').val(), 'Type'];
+            fields_arr['bureau'] = [$('#select_bureau').val()];
+            fields_arr['section'] = [$('#select_section').val(), 'Section'];
+            fields_arr['article_title'] = [$('#input_article_title').val(), 'Article Title'];
+            fields_arr['no_of_ccc'] = [$('#input_no_of_ccc').val()];
+            fields_arr['no_of_items'] = [$('#input_no_of_items').val()];
+            fields_arr['page_no'] = [$('#input_page').val()];
+            fields_arr['no_of_words'] = [$('#input_no_of_words').val()];
+            fields_arr['no_of_characters'] = [$('#input_no_of_characters').val()];
+            fields_arr['length1'] = [$('#input_length1').val()];
+            fields_arr['length2'] = [$('#input_length2').val()];
+            fields_arr['length3'] = [$('#input_length3').val()];
+            fields_arr['length4'] = [$('#input_length4').val()];
+            fields_arr['width1'] = [$('#input_width1').val()];
+            fields_arr['width2'] = [$('#input_width2').val()];
+            fields_arr['width3'] = [$('#input_width3').val()];
+            fields_arr['width4'] = [$('#input_width4').val()];
+            fields_arr['total_size'] = [$('#input_total_size').val()];
+            fields_arr['byline'] = [$('#textarea_byline').val()];
+            fields_arr['remarks'] = [$('#textarea_remarks').val()];
+            fields_arr['rate_code'] = [$('#select_rate_code').val(), 'Rate'];
+            fields_arr['amount'] = [$('#input_amount').val(), 'Amount'];
+            
+            is_success = true;
+            for (var field in fields_arr){
+
+                const field_name = fields_arr[field][0];
+                const field_desc = fields_arr[field][1];
+                
+                if(field_desc != undefined && field_name == ''){
+                    alert(field_desc + " field is required.");
+                    is_success = false;
+                }
+            }
+
+            if(!is_success){
+                return false; // terminate
+
+            } else {
+                proceed = true;
+
+                if((fields_arr['status'][0] == 'O') && (!confirm('This is already a posted transaction. Are you sure to override data?'))){
+                    proceed = false;
+                }
+                if(proceed){
+                    $.ajax({
+                        url: "{% url 'triplec:save_transaction_entry' %}",
+                        type: "post",
+                        data: {
+                            'csrfmiddlewaretoken': "{{csrf_token}}",
+                            'id': fields_arr['pk'][0],
+                            'supplier_id': fields_arr['supplier_pk'][0],
+                            'issue_date': fields_arr['issue_date'][0],
+                            'code': fields_arr['code'][0],
+                            'author_name': fields_arr['author_name'][0],
+                            'type': fields_arr['type'][0],
+                            'subtype': fields_arr['subtype'][0],
+                            'bureau': fields_arr['bureau'][0],
+                            'section': fields_arr['section'][0],
+                            'article_title': fields_arr['article_title'][0],
+                            'no_of_ccc': fields_arr['no_of_ccc'][0] || 0,
+                            'no_of_items': fields_arr['no_of_items'][0] || 0,
+                            'page_no': fields_arr['page_no'][0],
+                            'no_of_words': fields_arr['no_of_words'][0] || 0,
+                            'no_of_characters': fields_arr['no_of_characters'][0] || 0,
+                            'length1': fields_arr['length1'][0] || 0,
+                            'length2': fields_arr['length2'][0] || 0,
+                            'length3': fields_arr['length3'][0] || 0,
+                            'length4': fields_arr['length4'][0] || 0,
+                            'width1': fields_arr['width1'][0] || 0,
+                            'width2': fields_arr['width2'][0] || 0,
+                            'width3': fields_arr['width3'][0] || 0,
+                            'width4': fields_arr['width4'][0] || 0,
+                            'total_size': fields_arr['total_size'][0] || 0,
+                            'rate_code': fields_arr['rate_code'][0],
+                            'byline': fields_arr['byline'][0],
+                            'remarks': fields_arr['remarks'][0],
+                            'amount': fields_arr['amount'][0],
+                        },
+                        success: function(response) {
+
+                        if (response.result === true){
+
+                            alert('Transaction saved successfully');
+                            $('.close-modal-btn').trigger('click');
+                            $('#retrieve').trigger('click');
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').remove();
+                        } else {
+                            alert(response.message);
+                        }
+                            
+                        },
+                        error: function(response) {
+                            alert('Connection error.');
+                            $('.close-modal-btn').trigger('click');
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').remove();
+                        }
+                    });
+                }
+                return false;
+            }
+        });
+
+        // Disable save button if inputs are empty
+        $(document).on('input change propertychange', '.required-field', function() {
+            var allFieldsFilled = true;
+
+            $('.required-field').each(function() {
+                if ($(this).val().trim() === '') {
+                    allFieldsFilled = false;
+                    return false; // Exit the loop
+                }
+            });
+
+            if (allFieldsFilled) {
+                $('#btn_save_transaction_entry').prop('disabled', false);
+            } else {
+                $('#btn_save_transaction_entry').prop('disabled', true);
+            }
+        });
+
+        // Post to AP (first)
+        $('#post_ap').click(function(){
+            $("#postingresult > tbody").html("");
+            var for_posting = [];
+            $('#triplec_table > tbody > tr').filter(':visible').each(function(){
+                if($(this).find(".triplec-checkbox").is(":checked")){
+
+                    var id = $(this).find("input[name=data_id]").val();
+                    var status = $(this).find("input[name=data_status]").val();
+                    var cs = $(this).find("input[name=data_confirmation]").val();
+                    var issue_date = $(this).find(".c2").text();
+                    var author = $(this).find("select[name=author_name]").val();
+                    var type = $(this).find("select[name=type]").val();
+
+                    if(id != '' && status == 'O') {
+                        if (for_posting.length === 0 || for_posting.find(e => e.cs != cs)) {
+
+                            var newRowContent = "<tr>\
+                                    <td>"+cs+"</td>\
+                                    <td>"+issue_date+"</td>\
+                                    <td>"+type+"</td>\
+                                    <td>"+author+"</td>\
+                                </tr>";
+                            $("#postingresult > tbody").append(newRowContent);
+                            
+                            for_posting.push({
+                                cs: cs, 
+                                issue_date: issue_date, 
+                                author: author, 
+                                type: type
+                            });
+                        }
+                    }
+                }
+            });
+            
+            // console.log(for_posting);
+        });
+
+        // AP posting
+        $('#post_ap_confirm').click(function(){
+            
+            var for_posting = [];
+            $('#triplec_table > tbody > tr').filter(':visible').each(function(){
+                if($(this).find(".triplec-checkbox").is(":checked")){
+
+                    var id = $(this).find("input[name=data_id]").val();
+                    var status = $(this).find("input[name=data_status]").val();
+                    
+                    if(id != '' && status == 'O') {
+                        for_posting.push(id);
+                    }
+                }
+            });
+            var post_length = for_posting.length;
+            var postdate = $('#apdate').val();
+            if(post_length === 0 || postdate === ''){
+                alert("There's no posted transaction to post");
+                return false;
+
+            } else {
+                var transaction_text = post_length > 1 ? 'transactions' : 'transaction';
+                if(confirm('Are you sure to post '+post_length+' '+transaction_text+ ' to AP?')){
+
+                    $.ajax({
+                        url: "{% url 'triplec:goposttriplec' %}",
+                        type: "post",
+                        data: {
+                            'csrfmiddlewaretoken': "{{ csrf_token }}",
+                            'ids': for_posting,
+                            'postdate': postdate,
+                        },
+                        success: function(response){
+                            if(response.status === 'success'){
+                                alert('Posting to AP of '+post_length+' '+transaction_text+' has been successful!');
+                            } else {
+                                if(response.status === 'validation_error'){
+                                    var errors = JSON.parse(response.error_json);
+                                    var errorMessage = '';
+
+                                    for (var i = 0; i < errors.length; i++) {
+                                        var error = errors[i];
+
+                                        if (error.errors_list && Array.isArray(error.errors_list)) {
+                                            var csno = error.csno;
+                                            var errorsList = error.errors_list.join('\n');
+
+                                            errorMessage += 'Errors for CS ' + csno + ':\n' + errorsList + '\n\n';
+                                        } 
+                                    }
+
+                                    if (errorMessage) {
+                                        alert(response.message+'\n\n'+errorMessage);
+                                    } else {
+                                        alert(response.message);
+                                    }
+                                    
+                                } else {
+                                    alert(response.message);
+                                }
+                            }
+                        }, error: function(response) {
+                            alert('Posting to AP of '+post_length+' '+transaction_text+' failed.');
+                            console.debug(response);
+                        }
+                    });
+                }
+            }
+        });
+
+        $("#input_no_of_ccc, #input_length1, #input_width1, #input_length2, #input_width2, #input_length3, #input_width3, #input_length4, #input_width4").on('change paste keyup input', function(){
+            size_and_amount_computation();
+        });
+
+        function size_and_amount_computation(){
+
+            const total_size1 = size1() || 0;
+            const total_size2 = size2() || 0;
+            const total_size3 = size3() || 0;
+            const total_size4 = size4() || 0;
+            const no_of_ccc = ccc_num() || 0;
+
+            const new_total_size = total_size1 + total_size2 + total_size3 + total_size4;
+            
+            const rate = parseFloat($('#select_rate_code option:selected').attr('data-amount')) || 0;
+            if (rate > 0){
+
+                var new_amount = 0;
+                if(new_total_size > 0){
+                    new_amount = new_total_size * rate;
+                } else {
+                    new_amount = rate;
+                }
+
+                if(no_of_ccc > 1){
+                    const divided_amount = new_amount / no_of_ccc;
+                    $('#input_amount').val(divided_amount.toFixed(2));
+                } else {
+                    $('#input_amount').val(new_amount.toFixed(2));
+                }
+            }
+            $('#input_total_size').val(new_total_size.toFixed(2));
+        }
+
+        function size1(){
+            var size = 0;
+            var length = parseFloat($('#input_length1').val()) || 0;
+            var width = parseFloat($('#input_width1').val()) || 0;
+
+            if(length > 0 && width > 0){
+                size = length * width;
+            } 
+            return size;
+        }
+
+        function size2(){
+            var size2 = 0;
+            var length2 = parseFloat($('#input_length2').val()) || 0;
+            var width2 = parseFloat($('#input_width2').val()) || 0;
+
+            if(length2 > 0 && width2 > 0){
+                size2 = length2 * width2;
+            } 
+            return size2;
+        }
+
+        function size3(){
+            var size = 0;
+            var length = parseFloat($('#input_length3').val()) || 0;
+            var width = parseFloat($('#input_width3').val()) || 0;
+
+            if(length > 0 && width > 0){
+                size = length * width;
+            } 
+            return size;
+        }
+
+        function size4(){
+            var size = 0;
+            var length = parseFloat($('#input_length4').val()) || 0;
+            var width = parseFloat($('#input_width4').val()) || 0;
+
+            if(length > 0 && width > 0){
+                size = length * width;
+            } 
+            return size;
+        }
+
+        function ccc_num(){
+            var num = parseInt($('#input_no_of_ccc').val()) || 0;
+
+            return num;
+        }
+
+        // custom alert messages
+        function custom_success_alert(message){
+            $('#custom-success-alert').text(message);
+            customAlert($('#custom-success-alert'));
+        }
+
+        function custom_failed_alert(message){
+            $('#custom-failed-alert').text(message);
+            customAlert($('#custom-failed-alert'));
+        }
+    });
+
+</script>
+{% endblock extra_js %}

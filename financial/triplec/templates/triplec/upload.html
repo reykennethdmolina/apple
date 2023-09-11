@@ -1,0 +1,281 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Triple C - Uploading {% endblock page-title %}
+{% block extra_css %}
+	{% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+	<style>
+		#table_container > div{
+            height: 250px;
+            overflow: scroll;
+            padding: 0px;
+        }
+        #data_result{
+            display: none;
+        }
+        .select2-results__options{
+            font-size: 12px;
+        }
+        .price-list{
+            background-color: white;            
+        }
+        .price-list .price-price{
+            font-size: 14px !important;
+            text-align: left;
+            color: #76838f !important;
+        }
+        .price-title.bg-teal-a400:before {
+            background: #00bfa5;
+        }
+        .price-list .price-title{
+            padding-top: 5px;
+            letter-spacing: 1px;
+        }
+        .price-title:before {
+            position: relative;
+            display: block;
+            width: 14px;
+            height: 14px;
+            content: '';
+            top: 42px;
+            transform: rotate(45deg);
+            text-align: center;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .price-footer{
+            margin-top: 40px;
+        }
+        .fa-spin {
+          -webkit-animation: fa-spin 2s infinite linear;
+          animation: fa-spin 2s infinite linear;
+        }
+        @-webkit-keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+        @keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+	</style>
+{% endblock extra_css %}
+{% block page-content %}
+<div id="data_verify">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <form method="post" id="data" enctype="multipart/form-data" style="height:10px">
+                        <div class="col-md-12">
+                            <div class="price-list margin-sm-0">
+                                <div class="price-header">
+                                    <div class="price-title bg-teal-a400">FILE UPLOAD</div>
+                                    <div class="price-price teal-a400" id="formupload">
+                                        <div class="form-group col-sm-5">
+                                            <label class="control-label small">Data File</label>
+                                            <input type="file" id="data_file" class="form-control input-sm" name="data_file" required>
+                                        </div>
+                                        <div style="margin-top: 20px;">
+                                            <button type="button" id="upload_button" class="btn btn-info waves-effect waves-light">
+                                                <i class="icon fa-database font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                                Verify and Upload
+                                            </button>
+                                            <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="data_upload_loading">
+                                                <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                                UPLOADING ...
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="price-footer">
+                                    <div style="align-items: center;">
+                                        <button type="button" id="upload_button" class="btn btn-info waves-effect waves-light">
+                                            <i class="icon fa-database font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                            Verify and Import
+                                        </button>
+                                        <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="data_upload_loading">
+                                            <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                            VERIFYING ...
+                                        </button>
+                                    </div>
+                                    <div style="float: right;">
+                                        <a href="{% url 'bankrecon:manualentry' %}" target="_blank" title="Go to manual entry of bank statements"><span class="icon fa-file-text"></span>&nbsp; Manual Entry</a>
+                                        &nbsp;&nbsp;&nbsp;
+                                        <a href="{% url 'bankrecon:importguide' %}" target="_blank" title="Go to Import Guide"><span class="icon fa-question-circle"></span>&nbsp;Help</a>
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+                        <!-- <div class="col-md-3">
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading"><p class="panel-title" style="padding: 16px; font-size: inherit">Information</p></div>
+                                <div class="panel-body">
+                                    <br>
+                                    <p><span class="text-info">Bank Account Code: &nbsp;&nbsp;</span><strong id="bank-account-code"></strong></p>
+                                    <p><span class="text-info">Bank Account Number: &nbsp;&nbsp;</span><span id="bank-account-number"></span></p>
+                                    <p><span class="text-info">Bank Branch: &nbsp;&nbsp;</span><span id="bank-branch"></span></p>
+                                    <p><span class="text-info">Bank Account Type: &nbsp;&nbsp;</span><span id="bank-account-type"></span></p>
+                                    <p><span class="text-info">Currency: &nbsp;&nbsp;</span><span id="currency"></span></p>
+                                </div>
+                            </div>
+                        </div> -->
+                    </form>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<br><br>
+<div id="data_result">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <div class="col-md-12">
+                        <div class="price-list margin-sm-0">
+                            <div class="price-header">
+                                <div class="price-title bg-teal-a400">IMPORT SUMMARY</div>
+                                <div class="price-price teal-a400" id="formupload">
+                                    <br>
+                                    <div class="col-md-12" id="table_container">
+                                        <div class="col-md-6">
+                                            <!-- <div style="color:#76838f">&nbsp;&nbsp;<span id="upload_success"></span> Passed</div> -->
+                                            <table class="table table-condensed" id="success_table">
+                                                <thead class="bg-light-green-500" style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr>
+                                                        <th style="color:white"><small><b>Date</b><div class="pull-right"></div></small></th>
+                                                        <th style="color:white">Branch</th>
+                                                        <th style="color:white">Particulars</th>
+                                                        <th style="color:white">Debit</th>
+                                                        <th style="color:white">Credit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                           
+                                        </div>
+                                        <div class="col-md-6">
+                                            <!-- <div style="color:#76838f">&nbsp;&nbsp;<span id="upload_failed"></span> Failed</div> -->
+                                            <table class="table table-condensed" id="failed_table">
+                                                <thead class="bg-red-400" style="position: sticky; top: 0; z-index: 1;">
+                                                    <tr >
+                                                        <th style="color:white"><small><b>Date</b><div class="pull-right"></div></small></th>
+                                                        <th style="color:white">Branch</th>
+                                                        <th style="color:white">Particulars</th>
+                                                        <th style="color:white">Debit</th>
+                                                        <th style="color:white">Credit</th>
+                                                        <th style="color:white">Findings</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <br>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <i class="small">** Total of <b id="upload_total"></b> items processed. **</i>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <ul class="list-group">
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <li class="list-group-item">
+                                                                <span class="badge bg-light-green-500" id="badge-upload-passed"></span>Passed:
+                                                            </li>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <li class="list-group-item">
+                                                                <span class="badge bg-red-400" id="badge-upload-failed"></span>Failed:
+                                                            </li>
+                                                        </div>
+                                                    </div>
+                                                    <br>
+                                                    <li class="list-group-item">
+                                                        <span class="badge bg-blue-400" id="badge-data-exists"></span>Data Exists <i>(For User Verification)</i>:
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <span class="badge bg-yellow-700" id="badge-columns-exceed"></span>Column Exceeded <i>(Remove Comma or Adjust Overlapped Data in Column)</i>:
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <span class="badge bg-orange-400" id="badge-unable-import"></span>Unable to Import <i>(For User Verification)</i>:
+                                                        <p id="unable_import1" style="display: none;">
+                                                            <em style="margin-left: 30px;"> - Credit and Debit columns must be numeric or just blank.</em><br>
+                                                            <em style="margin-left: 30px;"> - Check proper date format in import guide.</em>
+                                                        </p>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <span class="badge bg-grey-600" id="badge-header-footer"></span>Header or Footer <i>(Excluded in Process - For User Verification)</i>:
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="price-footer">
+                                <button type="button" class="btn btn-info waves-effect waves-light" onClick="window.location.reload();return false;">
+                                    <i class="icon fa-refresh font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                    Reload page and upload more
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<br><br>
+<div id="upload-success" class="custom-alert success">Upload successful.</div>
+
+<!-- File has been uploaded already -->
+<div id="upload-file-exist" class="custom-alert danger">File uploaded already exist.</div>
+
+<!-- File has comma -->
+<div id="upload-comma-detected" class="custom-alert danger">Comma ( , ) detected.</div>
+
+<!-- DB error -->
+<div id="upload-db-error" class="custom-alert danger">Unable to import.</div>
+
+<!-- Form error -->
+<div id="upload-form-required" class="custom-alert danger">All fields are required.</div>
+
+<div id="upload-file-error" class="custom-alert danger">File/Invalid error!</div>
+<div id="upload-file-large" class="custom-alert danger">File too large! (>3mb)</div>
+<div id="upload-unknown-bank" class="custom-alert danger">Unknown/Waitlisted Bank</div>
+{% endblock page-content %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script>
+	$(function(){
+        $('.select2').select2({});
+		$(document).on('click', '#upload_button', function(e){
+            $('#upload_button').fadeOut(300);
+            // $('#data_result').fadeOut(300);
+            $('#data_upload_loading').delay(300).fadeIn(300, function() {
+                // $("form#data").submit();                
+            });
+        });
+    });
+</script>
+{% endblock extra_js %}

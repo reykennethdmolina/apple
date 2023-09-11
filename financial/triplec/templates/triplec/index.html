@@ -1,0 +1,1049 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Triple C - Columnist / Contributor / Correspondent {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .select2-results__options{
+            font-size: 12px;
+        }
+
+        .pointer {
+            cursor: pointer;
+        }
+
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    
+        .amount-right,
+        .size-field,
+        .number-right {
+            text-align: right;
+        }
+
+        .input-page{
+            text-transform: uppercase;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group col-sm-4">
+                        <label class="control-label small">Issue Date <span class="text-danger">*</span></label><br>
+                        <div class="input-daterange datarange">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control datepickerfrom" autocomplete="off" id="dfrom" style="height: 35px;" required />
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon">to</span>
+                                <input type="text" class="form-control datepickerto" autocomplete="off" id="dto" style="height: 35px;" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label class="control-label small" for="type">Classification</label>
+                        <select class="form-control input-sm select2" id="type">
+                            <option value="">-- All --</option>
+                            {% for classification in classifications %}
+                                <option value="{{ classification.code}} ">{{ classification.description }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-2" >
+                        <label class="control-label small" for="author_name">Author:</label>
+                        <select class="form-control input-sm select2" id="author_name">
+                            {% if authors %}
+                                <option value="">-- All --</option>
+                                {% for author in authors  %}
+                                    <option value="{{ author.name }}" data-ccc-type="{{ author.ccc }}">{{ author.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ author.name }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-2" >
+                        <label class="control-label small" for="bureau">Bureau:</label>
+                        <select class="form-control input-sm select2" id="bureau">
+                            <option value="">-- All --</option>
+                            {% for bureau in bureaus  %}
+                                <option value="{{ bureau.id }}" data-bureau-code="{{ bureau.code }}">{{ bureau.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ bureau.description }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-2" >
+                        <label class="control-label small" for="section">Section:</label>
+                        <select class="form-control input-sm select2" id="section">
+                            <option value="">-- All --</option>
+                            {% for section in sections  %}
+                                <option value="{{ section.id }}" data-section-code="{{ section.code }}">{{ section.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ section.description }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    
+                    <div class="form-group col-sm-1" >
+                        <label class="control-label small" for="page">Page:</label>
+                        <input class="form-control input-md input-page" id="page" style="height: 35px; margin-top: 1px;" />
+                    </div>
+                    <div class="form-group col-sm-2" >
+                        <label class="control-label small" for="status">Status:</label>
+                        <select class="form-control input-sm select2" id="status">
+                            <option value="">-- All --</option>
+                            <optgroup label="Transactions">
+                                <option value="A">Active</option>
+                                <option value="E">Ready for Posting (All)</option>
+                                <option value="M">Ready for Posting (Manually entered only)</option>
+                                <option value="O">Posted (CS)</option>
+                                <option value="O_APV">Posted (APV)</option>
+                            </optgroup>
+                            <optgroup label="Others">
+                                <option value="Reverted">Reverted</option>
+                                <option value="Y">No Payment</option>
+                                <option value="D">Pending</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-1">
+                        <a class="btn btn-info waves-effect waves-dark" id="retrieve" title="Retrieve transaction list" style="margin-top: 27px;">
+                            <i class="icon fa-database" aria-hidden="true"></i>&nbsp;&nbsp;Retrieve
+                        </a>
+                    </div>
+                    <div class="form-group col-sm-8 text-center" >
+                        
+                        <a href="{% url 'triplec:batchprint_cs' %}" target="_blank" class="btn btn-primary waves-effect waves-dark" id="print_cs" title="Go to CS printing" style="margin-top: 27px;">
+                            <i class="icon fa-print" aria-hidden="true"></i>&nbsp;&nbsp;CS Batch Printing
+                        </a>
+                        <a class="btn btn-primary waves-effect waves-dark" href="{% url 'triplec:report' %}" target="_blank" id="report" title="Go to report" style="margin-top: 27px;">
+                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;Reports
+                        </a>
+                        <a href="{% url 'triplec:process_transaction' %}" target="_blank" class="btn btn-primary waves-effect waves-dark" id="process_transaction" title="Go to process transaction. (Note: Transactions with Ready for Posting status only are applicable)" style="margin-top: 27px;">
+                            <i class="icon fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Process Transaction
+                        </a>
+                    
+                        <a class="btn btn-info waves-effect waves-dark" id="btn_upload" data-toggle="modal" data-target="#uploadModal" style="margin-top: 27px;">
+                            <i class="icon fa-upload" aria-hidden="true"></i>&nbsp;&nbsp;Data Upload (.xls)
+                        </a>
+                        <a class="btn btn-info waves-effect waves-dark" data-toggle="modal" data-target="#manualEntryModal" style="margin-top: 27px;">
+                            <i class="icon fa-file-text" aria-hidden="true"></i>&nbsp;&nbsp;Manual Entry
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+        <div class="shade" id="loader" style="display:none; z-index: 99; background-color: transparent; margin-top: 100px;">
+            <div class="loader two-color">
+            </div>
+        </div>
+        <br><br>
+        
+        <div class="row" id="result_panel" style="display: none;">
+            <div class="panel panel-default">
+                <div class="panel-body" id="viewhtml" style="padding: 0;">
+                   
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- manual entry modal -->
+    <div id="manualEntryModal" class="modal fade" role="dialog">
+        <form method="post" id="data" enctype="multipart/form-data">
+            <div class="modal-dialog" style="width: 990px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" id="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Manual Data Entry</h4>
+                    </div>
+                    <div class="modal-body" style="overflow:auto;">
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_input_issue_date">Issue Date: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input class="form-control input-sm datepicker manual-required-field" id="manual_input_issue_date" />
+                                    </div>
+                                </div>
+    
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_select_code">Code: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <select class="form-control input-sm select2 manual-required-field" style="width: auto;" id="manual_select_code">
+                                            {% if authors %}
+                                                <option value="">-- Select --</option>
+                                                {% for author in authors  %}
+                                                    <option value="{{ author.code }}">{{ author.code }}</option>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </select>
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_select_author_name">Author Name: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <select class="form-control input-sm select2 manual-required-field" style="width: auto" id="manual_select_author_name">
+                                            <option value="">-- Select --</option>
+                                            {% if authors %}
+                                                {% for author in authors  %}
+                                                    <option value="{{ author.name }}" data-code="{{ author.code }}" data-supplier-id="{{ author.id }}">{{ author.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ author.name }}</option>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group col-md-12 extra-field" style="margin-top: 40px;">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_select_type">Classification: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <select class="form-control input-sm select2 manual-required-field" style="width: auto;" id="manual_select_type">
+                                            <option value="">-- Select --</option>
+                                            {% for classification in classifications %}
+                                                <option value="{{ classification.code }}">{{ classification.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_select_subtype">Type: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <select class="form-control input-sm select2 manual-required-field" style="width: auto;" id="manual_select_subtype">
+                                            <option value="">-- Select --</option>
+                                            {% for subtype in subtypes  %}
+                                                <option value="{{ subtype.id }}" data-code="{{ subtype.code }}">{{ subtype.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ subtype.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+    
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_select_bureau">Bureau: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <select class="form-control select2 input-sm" style="width: auto;" id="manual_select_bureau">
+                                            <option value="">-- Select --</option>
+                                            {% for bureau in bureaus  %}
+                                                <option value="{{ bureau.id }}" data-code="{{ bureau.code }}">{{ bureau.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ bureau.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_select_section">Section: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <select class="form-control input-sm select2 manual-required-field" style="width: auto;" id="manual_select_section">
+                                            <option value="">-- Select --</option>
+                                            {% for section in sections %}
+                                                <option value="{{ section.id }}" data-code="{{ section.code }}">{{ section.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ section.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+    
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_input_article_title">Article Title: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-10">
+                                        <input type="text" class="form-control input-sm manual-required-field" id="manual_input_article_title" />
+                                    </div>
+                                </div>
+    
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_no_of_ccc">No. of CCC: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm" id="manual_input_no_of_ccc">
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_no_of_items">No. of Items: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm" id="manual_input_no_of_items">
+                                    </div>
+                                </div>
+    
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_input_page">Page No.: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input class="form-control input-md input-page" id="manual_input_page" />
+                                    </div>
+                                </div>
+    
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_no_of_words">No. of Words: </label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <input type="number" class="form-control number-right input-sm" id="manual_input_no_of_words">
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_no_of_characters">No. of Characters: </label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <input type="number" class="form-control number-right input-sm" id="manual_input_no_of_characters">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group col-md-12 extra-field" style="margin-top: 40px;">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_length1">Length1: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm size-field" id="manual_input_length1">
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_width1">Width1: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm size-field" id="manual_input_width1">
+                                    </div>
+                                </div>
+    
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_length2">Length2: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm size-field" id="manual_input_length2">
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_width2">Width2: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm size-field" id="manual_input_width2">
+                                    </div>
+                                </div>
+    
+                                <br><br>
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_length3">Length3: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm size-field" id="manual_input_length3">
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_width3">Width3: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm size-field" id="manual_input_width3">
+                                    </div>
+                                </div>
+    
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_length4">Length4: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm size-field" id="manual_input_length4">
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_width4">Width4: </label>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <input type="number" class="form-control input-sm size-field" id="manual_input_width4">
+                                    </div>
+                                </div>
+    
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="manual_input_total_size">Total Size: </label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <input type="number" class="form-control number-right input-sm" id="manual_input_total_size" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_select_rate_code">Rate: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <select class="form-control input-sm select2 manual-required-field"  style="width: auto;" id="manual_select_rate_code">
+                                            <option value="">-- Select --</option>
+                                            <option value="customizable" data-amount="">Customizable</option>
+                                            {% for rate in rates %}
+                                                <option value="{{ rate.code }}" data-amount="{{ rate.amount }}">{{ rate.code }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ rate.amount }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label text-info" for="manual_input_amount">Amount: <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <input type="number" class="form-control input-sm amount-right manual-required-field" id="manual_input_amount">
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-md-12 extra-field">
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="input_no_of_words">Byline: </label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <textarea class="form-control" maxlength="200" id="manual_textarea_byline" rows="1"></textarea>
+                                    </div>
+    
+                                    <div class="form-group col-md-2">
+                                        <label class="control-label" for="input_no_of_characters">Remarks: </label>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <textarea class="form-control" maxlength="200" id="manual_textarea_remarks" rows="1"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-info" id="manual_btn_save_transaction_entry" disabled="disabled">Confirm and Save</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <button type="reset" id="btn_manual_reset" class="btn btn-default">Reset Form</button>
+                        <button type="button" id="btn_manual_close" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- file upload modal -->
+    <div id="uploadModal" class="modal fade" role="dialog">
+        <form method="post" id="data" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" id="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Data Upload</h4>
+                    </div>
+                    <div class="modal-body" style="overflow:hidden;">
+                        <div class="row" id="fileUploadInput">
+                            <div class="form-group col-md-12">
+                                <label for="data_file" class="control-label">XLS File</label>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <input type="file" name="data_file" id="data_file" class="form-control input-sm" required>
+                                <br>
+                                <br>
+                                <div style="border: 1px solid #e0e0e0; padding: 4px;">
+                                    Tips:
+                                    <ul>
+                                        <li>File uploading usually takes less than a minute. When it exceeds the specified time, kindly reload the page and try again.</li>
+                                        <li>The recommended date range of data to upload is 1-15 days only.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row" id="data_summary" style="display: none; max-height: 500px; overflow-y: scroll;">
+                            <br>
+                            <div class="col-md-12">
+                                <span>
+                                    RESULT: A total of <b id="success_count" class="text-success"></b> successfully processed data &#8212; and a total of 
+                                    <b id="failed_count" class="text-warning"></b> failed/unable to process data are as follows:
+                                </span>
+                                <br><br>
+                                <table class="table table-condensed" id="failed_table">
+                                    <thead class="bg-red-400" style="position: sticky; top: 0; z-index: 1;">
+                                        <tr>
+                                            <th></th>
+                                            <th style="color:white"><small><b>Issue Date</b><div class="pull-right"></div></small></th>
+                                            <th style="color:white">Article ID</th>
+                                            <th style="color:white">Article Title</th>
+                                            <th style="color:white">Number of Words</th>
+                                            <th style="color:white">Number of Characters</th>
+                                            <th style="color:white">Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-info" id="fileUploadSubmit">Upload</button>
+                        <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="fileUploadProcessing">
+                            <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                            PROCESSING ...
+                        </button>
+                        <button type="button" class="btn btn-info" style="display: none;" id="fileReloadPage" onClick="window.location.reload();return false;">Reload page and upload more</button>
+                        <button type="button" class="btn btn-default" id="fileUploadClose" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- end file upload modal -->
+</div>
+<br><br>
+<div id="upload-success" class="custom-alert success">Upload successful.</div>
+<div id="upload-failed" class="custom-alert danger">Upload failed.</div>
+<div id="upload-file-exist" class="custom-alert danger">Uploaded file already exist.</div>
+<div id="upload-form-required" class="custom-alert danger">File is required.</div>
+<div id="upload-file-error" class="custom-alert danger">An error occured.</div>
+
+<div id="custom-success-alert" class="custom-alert success"></div>
+<div id="custom-failed-alert" class="custom-alert danger"></div>
+
+{% endblock page-content %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script>
+	$(function(){
+        $('.select2').select2({});
+		$(document).on('click', '#fileUploadSubmit', function(e){
+            $('#fileUploadSubmit').fadeOut(300);
+            $('#fileUploadProcessing').delay(300).fadeIn(300, function() {
+                if ($('#data_file').get(0).files.length === 0) {
+                    $('#fileUploadProcessing').fadeOut(300);
+                    $('#fileUploadInput').fadeIn();
+                    $('#fileUploadSubmit').delay(300).fadeIn(300);
+                    customAlert($('#upload-form-required'));
+                    return false;
+                } else{
+                    $("form#data").submit();                
+                }
+            });
+        });
+
+        $('#btn_upload').click(function(){
+            form_refresh();
+        });
+
+        $('form#data').submit(function(e){
+            e.preventDefault();
+	        
+            var formData = new FormData();
+            formData.append('data_file', $('#data_file')[0].files[0]); // Append the selected file
+            $.ajax({
+                url: "{% url 'triplec:upload' %}",
+                type: 'POST',
+                data: formData,
+                async: false,
+                success: function (data) {
+                    $('#fileUploadInput').fadeOut(300);
+                    $('#fileUploadProcessing').fadeOut(300);
+                    $('#fileUploadSubmit').fadeOut(300);
+                    $('form#data').trigger('reset');
+                    switch(data['result']) {
+                        case 1:
+                            customAlert($('#upload-success'));
+                            $('#uploadModal').modal('toggle');
+                            break;
+                        case 2:
+                            if(data['records_count'] == data['failed_data'].length){
+                                $('#uploadModal').modal('toggle');
+                                customAlert($('#upload-file-exist'));
+                            } else {
+                                $('#data_summary').fadeIn();
+                                $('#fileReloadPage').fadeIn();
+                                datasummary(data);
+                            }
+                            break;
+                        case 3:
+                            customAlert($('#upload-failed'));
+                            $('#uploadModal').modal('toggle');
+                            break;
+                        default:
+                            customAlert($('#upload-file-error'));
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+	        
+			return false;
+	    });
+
+        function datasummary(data){
+
+            $('#success_count').text(data['success_count']);
+            $('#failed_count').text(data['failed_data'].length);
+            
+            $('#failed_table tbody').html('');
+
+            var article_title = ''
+            var count = 1;
+            for (var i = 0; i < data['failed_data'].length; i++) {
+
+                if (data['failed_data'][i][2] != null){
+                    article_title = data['failed_data'][i][2];
+                } else {
+                    article_title = '';
+                }
+
+                $('#failed_table tbody').append("<tr> \
+                    <td><small>" + count++ + "</small></td> \
+                    <td><small>" + data['failed_data'][i][0] + "</small></td> \
+                    <td><small>" + data['failed_data'][i][1] + "</small></td> \
+                    <td><small>" + article_title + "</small></td> \
+                    <td><small>" + data['failed_data'][i][3] + "</small></td> \
+                    <td><small>" + data['failed_data'][i][4] + "</small></td> \
+                    <td class='"+data['failed_data'][i][6]+"'><small>" + data['failed_data'][i][5] + "</small></td> \
+                </tr>");
+            }
+        }
+        
+        function form_refresh(){
+            $('#fileUploadInput').fadeIn();
+            $('#fileUploadProcessing').fadeOut();
+            $('#fileReloadPage').fadeOut();
+            $('#data_summary').fadeOut();
+            $('#fileUploadSubmit').fadeIn();
+        }
+
+        $('#retrieve').click(function(){
+
+            $('#loader').show();
+            $('#result_panel').hide();
+            $('#triplec_result').hide();
+            $('#viewhtml').css('min-height', '700px');
+
+            const dfrom = $('#dfrom').val() || '';
+            const dto = $('#dto').val() || '';
+            const type = $('#type').val() || '';
+            const status = $('#status').val() || '';
+            const author_name = $('#author_name').val() || '';
+            const bureau = $('#bureau').val() || '';
+            // const publication = $('#publication').val() || '';
+            const section = $('#section').val() || '';
+            const page = $('#page').val() || '';
+            
+            if (dfrom == '' || dto == '') {
+                alert('Issue Date is required');
+                $('#loader').hide();
+                return false;
+            }
+
+            url = "{% url 'triplec:generic_retrieve' %}"+"?dfrom="+dfrom+"&dto="+dto+"&type="+type+"&author_name="+author_name+"&status="+status+"&bureau="+bureau+"&section="+section+"&page="+page;
+            
+            $.ajax({
+                url: url,
+                type: "GET",
+                data: {
+                    'csrfmiddlewaretoken': " {{ csrf_token}} "
+                },
+                success: function(response) {
+                    
+                    $('#loader').hide();
+                    $('#result_panel').show();
+                    $('#triplec_result').show();
+                    $("#viewhtml").html(response);
+                },
+                error: function(response) {
+                    $('#loader').hide();
+                    $('#result_panel').show();
+                    $('#triplec_result').show();
+                    console.log(response);
+                    alert('Server error occured');
+                    return false;
+                }
+            });
+        });
+
+
+        $('#manual_select_code').change(function(){
+
+            const code = $(this).val();
+
+            if(code != ''){
+                $.ajax({
+                    url: "{% url 'triplec:get_supplier_by_code' %}"+"?code="+code,
+                    type: "get",
+                    data: {
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                    },
+                    success: function(response) {
+                        if (response.result === true){
+
+                            $("#manual_select_author_name").val(response.supplier[0].name).change();
+                            $("#manual_select_type").val(response.supplier[0].ccc).change();
+                            supplier_suggestion(code);
+
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function(response) {
+                        alert('Connection error.');
+                    }
+                });
+            } else {
+                $("#manual_select_author_name").val('').change();
+                $("#manual_select_type").val('').change();
+            }
+
+        });
+
+        function supplier_suggestion(code){
+            $.ajax({
+                url: "{% url 'triplec:supplier_suggestion' %}"+"?code="+code,
+                type: "get",
+                data: {
+                    'csrfmiddlewaretoken': "{{ csrf_token }}",
+                },
+                success: function(response) {
+                    if (response.result === true){
+                        $('#manual_select_bureau').val(response.triplecsupplier[0].bureau).change();
+                        $('#manual_select_section').val(response.triplecsupplier[0].section).change();
+                        $('#manual_select_rate_code').val(response.rate_code).change();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(response) {
+                    alert('Connection error.');
+                }
+            });
+            
+        }
+
+        function bureau_required(is_required){
+            var bureau_label = $('label[for="manual_select_bureau"]');
+            var span = bureau_label.find('span');
+            
+            if(is_required) {
+                $("#manual_select_bureau").addClass("manual-required-field");
+                
+                if (span.length > 1) {
+                    span.slice(1).remove();
+                }
+                if (span.length === 0) {
+                    bureau_label.append('<span class="text-danger">*</span>');
+                }
+
+            } else {
+                $("#manual_select_bureau").removeClass("manual-required-field");
+                span.remove();
+            } 
+        }
+
+        $('#manual_select_type').change(function(){
+        
+            var type = $(this).val();
+            var is_required = type === "COR" ? true : false;
+
+            bureau_required(is_required);
+            size_fields(is_required);
+        });
+
+        function size_fields(is_disabled){
+            if(is_disabled){
+                $('.size-field').removeAttr('disabled');
+            } else {
+                $('.size-field').attr('disabled', 'disabled');
+            }
+        }
+
+        // In modal - rate code 
+        $('#manual_select_rate_code').change(function(){
+            var rate = $('#manual_select_rate_code option:selected').attr('data-amount');
+            if(rate == ''){
+                $('#manual_input_amount').val('').focus();
+            } else {
+                if($('#manual_input_total_size').val() > 1 || $('#manual_input_no_of_ccc') > 1){
+                    size_and_amount_computation();
+                } else {
+                    $('#manual_input_amount').val(rate);
+                }
+            }
+
+        });
+
+        // Disable save button if inputs are empty
+        $('.manual-required-field').on('input change propertychange', function() {
+            
+            var empty = false;
+            $('.manual-required-field').each(function() {
+                if ($(this).val().length == 0) {
+                    empty = true;
+                    return false;
+                }
+            });
+
+            if (empty) {
+                $('#manual_btn_save_transaction_entry').attr('disabled', 'disabled');
+            } else {
+                $('#manual_btn_save_transaction_entry').removeAttr('disabled');
+            }
+        });
+
+        // reset modal fields
+        function resetTransactionEntryModal(){
+            
+            $('#manual_input_issue_date').val('');
+            $('#manual_select_section').val('').change();
+            $('#manual_input_article_title').val('');
+            $('#manual_input_page').val('');
+            $('#manual_input_no_of_words').val('');
+            $('#manual_input_no_of_characters').val('');
+            $('#manual_select_rate_code').val('').change();
+            $('#manual_input_amount').val('');
+            $('#manual_select_type').val('').change();
+            $('#manual_select_code').val('').change();
+            $('#manual_select_author_name').val('').change();
+            $('#manual_select_subtype').val('').change();
+            $('#manual_select_bureau').val('').change();
+            $('#manual_input_confirmation').val('');
+            $('#manual_input_no_of_ccc').val('');
+            $('#manual_input_no_of_items').val('');
+            $('#manual_input_length1').val('');
+            $('#manual_input_length2').val('');
+            $('#manual_input_length3').val('');
+            $('#manual_input_length4').val('');
+            $('#manual_input_width1').val('');
+            $('#manual_input_width2').val('');
+            $('#manual_input_width3').val('');
+            $('#manual_input_width4').val('');
+            $('#manual_input_total_size').val('');
+            $('#manual_textarea_byline').val('');
+            $('#manual_textarea_remarks').val('');
+
+            return true;
+        }
+
+        // Save Transction Entry
+        $('#manual_btn_save_transaction_entry').click(function(){
+
+            var fields_arr = [];
+            fields_arr['issue_date'] = [$('#manual_input_issue_date').val(), 'Issue Date'];
+            fields_arr['code'] = [$('#manual_select_code').val(), 'Code'];
+            fields_arr['author_name'] = [$('#manual_select_author_name').val(), 'Author Name'];
+            fields_arr['supplier'] = [$('#manual_select_author_name option:selected').attr('data-supplier-id')];
+            fields_arr['type'] = [$('#manual_select_type').val(), 'Classification'];
+            fields_arr['subtype'] = [$('#manual_select_subtype').val(), 'Type'];
+            fields_arr['bureau'] = [$('#manual_select_bureau').val()];
+            fields_arr['section'] = [$('#manual_select_section').val(), 'Section'];
+            fields_arr['article_title'] = [$('#manual_input_article_title').val(), 'Article Title'];
+            fields_arr['no_of_ccc'] = [$('#manual_input_no_of_ccc').val()];
+            fields_arr['no_of_items'] = [$('#manual_input_no_of_items').val()];
+            fields_arr['page_no'] = [$('#manual_input_page').val()];
+            fields_arr['no_of_words'] = [$('#manual_input_no_of_words').val()];
+            fields_arr['no_of_characters'] = [$('#manual_input_no_of_characters').val()];
+            fields_arr['length1'] = [$('#manual_input_length1').val()];
+            fields_arr['length2'] = [$('#manual_input_length2').val()];
+            fields_arr['length3'] = [$('#manual_input_length3').val()];
+            fields_arr['length4'] = [$('#manual_input_length4').val()];
+            fields_arr['width1'] = [$('#manual_input_width1').val()];
+            fields_arr['width2'] = [$('#manual_input_width2').val()];
+            fields_arr['width3'] = [$('#manual_input_width3').val()];
+            fields_arr['width4'] = [$('#manual_input_width4').val()];
+            fields_arr['total_size'] = [$('#manual_input_total_size').val()];
+            fields_arr['rate_code'] = [$('#manual_select_rate_code').val(), 'Rate'];
+            fields_arr['amount'] = [$('#manual_input_amount').val(), 'Amount'];
+            fields_arr['byline'] = [$('#manual_textarea_byline').val()];
+            fields_arr['remarks'] = [$('#manual_textarea_remarks').val()];
+            
+            is_success = true;
+            for (var field in fields_arr){
+
+                const field_name = fields_arr[field][0];
+                const field_desc = fields_arr[field][1];
+                
+                if(field_desc != undefined && field_name == ''){
+                    alert(field_desc + " field is required.");
+                    is_success = false;
+                }
+            }
+
+            if(!is_success){
+                return false; // terminate
+
+            } else {
+                
+                $.ajax({
+                    url: "{% url 'triplec:manual_save_transaction_entry' %}",
+                    type: "post",
+                    data: {
+                        'csrfmiddlewaretoken': "{{csrf_token}}",
+                        'issue_date': fields_arr['issue_date'][0],
+                        'code': fields_arr['code'][0],
+                        'author_name': fields_arr['author_name'][0],
+                        'supplier': fields_arr['supplier'][0],
+                        'type': fields_arr['type'][0],
+                        'subtype': fields_arr['subtype'][0],
+                        'bureau': fields_arr['bureau'][0],
+                        'section': fields_arr['section'][0],
+                        'article_title': fields_arr['article_title'][0],
+                        'no_ccc': fields_arr['no_of_ccc'][0] || 0,
+                        'no_items': fields_arr['no_of_items'][0] || 0,
+                        'page': fields_arr['page_no'][0],
+                        'no_of_words': fields_arr['no_of_words'][0],
+                        'no_of_characters': fields_arr['no_of_characters'][0],
+                        'length1': fields_arr['length1'][0] || 0,
+                        'length2': fields_arr['length2'][0] || 0,
+                        'length3': fields_arr['length3'][0] || 0,
+                        'length4': fields_arr['length4'][0] || 0,
+                        'width1': fields_arr['width1'][0] || 0,
+                        'width2': fields_arr['width2'][0] || 0,
+                        'width3': fields_arr['width3'][0] || 0,
+                        'width4': fields_arr['width4'][0] || 0,
+                        'total_size': fields_arr['total_size'][0] || 0,
+                        'rate_code': fields_arr['rate_code'][0],
+                        'amount': fields_arr['amount'][0],
+                        'byline': fields_arr['byline'][0],
+                        'remarks': fields_arr['remarks'][0],
+                    },
+                    success: function(response) {
+
+                        if (response.result === true){
+                            custom_success_alert('Transaction saved successfully');
+                           $("#btn_manual_reset").click();
+                           $("#btn_manual_close").click();
+                        } else {
+                            custom_failed_alert(response.message);
+                        }
+                        
+                    },
+                    error: function(response) {
+                        custom_failed_alert('Connection error.');
+                        
+                    }
+                });
+                resetTransactionEntryModal();
+                return false;
+            }
+        });
+
+        $("#btn_manual_reset").click(function(){
+            $('form#data').find('select').each(function() {
+                $(this).val(null).trigger('change');
+            });
+        });
+
+        $("#manual_input_no_of_ccc, #manual_input_length1, #manual_input_width1, #manual_input_length2, #manual_input_width2, #manual_input_length3, #manual_input_width3, #manual_input_length4, #manual_input_width4").on('change paste keyup input blur', function(){
+            size_and_amount_computation();
+        });
+
+        function size_and_amount_computation(){
+
+            const total_size1 = size1() || 0;
+            const total_size2 = size2() || 0;
+            const total_size3 = size3() || 0;
+            const total_size4 = size4() || 0;
+            const no_of_ccc = ccc_num() || 0;
+
+            const new_total_size = total_size1 + total_size2 + total_size3 + total_size4;
+
+            const rate = parseFloat($('#manual_select_rate_code option:selected').attr('data-amount')) || 0;
+            if (rate > 0){
+
+                var new_amount = 0;
+                if(new_total_size > 0){
+                    new_amount = new_total_size * rate;
+                } else {
+                    new_amount = rate;
+                }
+
+                if(no_of_ccc > 1){
+                    const divided_amount = new_amount / no_of_ccc;
+                    $('#manual_input_amount').val(divided_amount.toFixed(2));
+                } else {
+                    $('#manual_input_amount').val(new_amount.toFixed(2));
+                }
+            }
+            $('#manual_input_total_size').val(new_total_size.toFixed(2));
+        }
+
+        function size1(){
+            var size = 0;
+            var length = parseFloat($('#manual_input_length1').val()) || 0;
+            var width = parseFloat($('#manual_input_width1').val()) || 0;
+
+            if(length > 0 && width > 0){
+                size = length * width;
+            } 
+            return size;
+        }
+
+        function size2(){
+            var size2 = 0;
+            var length2 = parseFloat($('#manual_input_length2').val()) || 0;
+            var width2 = parseFloat($('#manual_input_width2').val()) || 0;
+
+            if(length2 > 0 && width2 > 0){
+                size2 = length2 * width2;
+            } 
+            return size2;
+        }
+
+        function size3(){
+            var size = 0;
+            var length = parseFloat($('#manual_input_length3').val()) || 0;
+            var width = parseFloat($('#manual_input_width3').val()) || 0;
+
+            if(length > 0 && width > 0){
+                size = length * width;
+            } 
+            return size;
+        }
+
+        function size4(){
+            var size = 0;
+            var length = parseFloat($('#manual_input_length4').val()) || 0;
+            var width = parseFloat($('#manual_input_width4').val()) || 0;
+
+            if(length > 0 && width > 0){
+                size = length * width;
+            } 
+            return size;
+        }
+
+        function ccc_num(){
+            var num = parseInt($('#manual_input_no_of_ccc').val()) || 0;
+
+            return num;
+        }
+
+        // custom alert messages
+        function custom_success_alert(message){
+            $('#custom-success-alert').text(message);
+            customAlert($('#custom-success-alert'));
+        }
+
+        function custom_failed_alert(message){
+            $('#custom-failed-alert').text(message);
+            customAlert($('#custom-failed-alert'));
+        }
+    });
+</script>
+{% endblock extra_js %}

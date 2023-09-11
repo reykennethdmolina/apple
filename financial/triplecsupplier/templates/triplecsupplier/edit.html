@@ -1,0 +1,197 @@
+{% extends 'base-form.html' %}
+{% load humanize %}
+{% block page-title %} Triple C Supplier  {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">EDIT</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <!-- <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group {{ form.supplier.errors|yesno:'has-error,' }}">
+                                        <label for="id_author" class="control-label">Author</label>
+                                        <input class="form-control input-sm" value="{{ author|default:'' }}" data-validation="required" id="id_author" name="author" readonly/>
+                                        <select class="form-control input-sm select2" data-validation="required" id="id_author" name="author">
+                                            <option value="">-- Select --</option>
+                                            {% for data in authors %}
+                                                {% if form.supplier.value == data.id %}
+                                                    <option value="{{ data.id }}" selected="selected">{{ data.name }}</option>
+                                                {% else %}
+                                                    <option value="{{ data.id }}">{{ data.name }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group {{ form.classification.errors|yesno:'has-error,' }}">
+                                        <label for="id_classification" class="control-label">Classification</label>
+                                        <input class="form-control input-sm" value="{{ classification|default:'' }}" data-validation="required" id="id_classification" name="classification" readonly/>
+                                        <select class="form-control input-sm select2" data-validation="required" id="id_classification" name="classification">
+                                            <option value="">-- Select --</option>
+                                            {% for data in classifications %}
+                                                {% if form.classification.value == data.id %}
+                                                    <option value="{{ data.id }}" selected="selected">{{ data.description }}</option>
+                                                {% else %}
+                                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.classification.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <div class="form-group form-group-0 col-md-6 form-material {{ form.supplier.errors|yesno:'has-error,' }}">
+                            <label for="id_supplier" class="col-sm-3 control-label">Author</label>
+                            <div class="col-sm-7">
+                                <input class="form-control input-sm" value="[{{ code|default:'' }}]&nbsp;&nbsp;&nbsp;{{ author|default:'' }}" data-validation="required" id="id_supplier" name="supplier" readonly/>
+                                <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="form-group form-group-0 col-md-6
+                         {{ form.bureau.errors|yesno:'has-error,' }}">
+                            <label for="id_bureau" class="col-sm-3 control-label">Bureau</label>
+                            <div class="col-sm-7">
+                                <select class="form-control input-sm select2" id="id_bureau" name="bureau">
+                                    <option value="">-- Select --</option>
+                                    {% for data in bureaus %}
+                                        {% if form.bureau.value == data.id %}
+                                            <option value="{{ data.id }}" selected="selected">{{ data.description }}</option>
+                                        {% else %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.bureau.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-0 col-md-6">
+                            <label for="id_classification" class="col-sm-3 control-label">Classification</label>
+                            <div class="col-sm-7">
+                                <input class="form-control input-sm" value="{{ classification }}" id="id_code" name="code" readonly/>
+                                
+                            </div>
+                        </div>
+                        <div class="form-group form-group-0 col-md-6 {{ form.section.errors|yesno:'has-error,' }}">
+                            <label for="id_section" class="col-sm-3 control-label">Section</label>
+                            <div class="col-sm-7">
+                                <select class="form-control input-sm select2" id="id_section" name="section">
+                                    <option value="">-- Select --</option>
+                                    {% for data in sections %}
+                                        {% if form.section.value == data.id %}
+                                            <option value="{{ data.id }}" selected="selected">{{ data.description }}</option>
+                                        {% else %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.section.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-0 col-md-6 {{ form.department.errors|yesno:'has-error,' }}">
+                            <label for="id_department" class="col-sm-3 control-label">Department</label>
+                            <div class="col-sm-7">
+                                <select class="form-control input-sm select2" id="id_department" name="department">
+                                    <option value="">-- Select --</option>
+                                    {% for data in departments %}
+                                        {% if form.department.value == data.id %}
+                                            <option value="{{ data.id }}" selected="selected">{{ data.code }} - {{ data.departmentname }}</option>
+                                        {% else %}
+                                            <option value="{{ data.id }}">{{ data.code }} - {{ data.departmentname }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group form-group-0 col-md-6 {{ form.rate.errors|yesno:'has-error,' }}">
+                            <label for="id_rate" class="col-sm-3 control-label">Rate</label>
+                            <div class="col-sm-7">
+                                <select class="form-control input-sm select2" id="id_rate" name="rate">
+                                    <option value="">-- Select --</option>
+                                    {% for data in rates %}
+                                        {% if form.rate.value == data.id %}
+                                            <option value="{{ data.id }}" selected="selected">{{ data.code }} - {{ data.description }}</option>
+                                        {% else %}
+                                            <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}  [{{ data.amount|floatformat:2|intcomma }}]</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.rate.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-0 col-md-6 {{ form.various_account.errors|yesno:'has-error,' }}">
+                            <label for="id_various_account" class="col-sm-3 control-label">Account</label>
+                            <div class="col-sm-7">
+                                <select class="form-control input-sm select2" id="id_various_account" name="various_account">
+                                    <option value="">-- Select --</option>
+                                    {% for data in various_account %}
+                                        {% if form.various_account.value == data.id %}
+                                            <option value="{{ data.id }}" selected="selected">{{ data.code }} - {{ data.description }}</option>
+                                        {% else %}
+                                            <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.various_account.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <!-- <div class="form-group form-group-0 col-md-6
+                         {{ form.bankaccount.errors|yesno:'has-error,' }}">
+                            <label for="id_bankaccount" class="col-sm-3 control-label">Bank Account</label>
+                            <div class="col-sm-7">
+                                <select class="form-control input-sm select2" data-validation="required" id="id_bankaccount" name="bankaccount">
+                                    <option value="">-- Select --</option>
+                                    {% for data in bankaccounts %}
+                                        {% if form.bankaccount.value == data.id %}
+                                            <option value="{{ data.id }}" selected="selected">{{ data.description }}</option>
+                                        {% else %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
+                            </div>
+                        </div> -->
+
+                        <div class="form-group margin-bottom-0 col-md-12">
+                            <div class="col-sm-3">
+                                <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script>
+	$(function(){
+        $('.select2').select2({});
+    });
+</script>
+{% endblock extra_js %}

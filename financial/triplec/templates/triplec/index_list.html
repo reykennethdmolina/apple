@@ -1,0 +1,59 @@
+{% load humanize %}
+{% block extra_css %}
+    <style>
+        .pointer {
+            cursor: pointer;
+        }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    
+        input[type=number], 
+        .amount-right{
+            text-align: right;
+        }
+    </style>
+{% endblock extra_css %}
+
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="table-responsive">
+        {% if data %}
+            
+        {% else %}
+
+            <div class="text-center">
+                <span><b>No results found.</b></span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    $(function () {
+        $(document).on('change', 'input[name="chb_all"]', function() {
+            $('.ap-checkbox').prop("checked", this.checked);
+        });
+
+        $('#copy-apnum').click(function(){
+            $(this).val()
+        });
+
+        $('#print').click(function(){
+            
+            var count = 0;
+            var ap_ids = [];
+            $('#ap_table').find('tbody tr').each(function () {
+                if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                    count++;
+                    ap_ids.push($(this).attr('id'));
+                }
+            });
+            
+            $("#trigger_print").attr("href", "{% url 'batchprinting_accountspayable:start' %}" + "?s=" + encodeURIComponent(JSON.stringify(ap_ids)));
+            $('#trigger_print')[0].click();
+        });
+    });
+
+    
+</script>
