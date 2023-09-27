@@ -223,7 +223,7 @@
                                             <option value="0">--Select--</option>
                                             <option value="1" {% if form.of_approver.value == 1 %} selected{% endif %}>OIC</option>
                                             <option value="2" {% if form.of_approver.value == 2 %} selected{% endif %}>AVP/VP</option>
-                                            <option value="3" {% if form.of_approver.value == 3 %} selected{% endif %}>COO</option>
+                                            <option value="3" {% if form.of_approver.value == 3 %} selected{% endif %}>Executive</option>
                                             <option value="4" {% if form.of_approver.value == 4 %} selected{% endif %}>HR (Eyeglass/Antibiotic) L1</option>
                                             <option value="5" {% if form.of_approver.value == 5 %} selected{% endif %}>HR (Eyeglass/Antibiotic) L2</option>
                                             <option value="6" {% if form.of_approver.value == 6 %} selected{% endif %}>HR (Eyeglass/Antibiotic) L3</option>
@@ -237,8 +237,9 @@
                                         <div class="col-sm-5">
                                             <select id="id_group" name="group" class="form-control">
                                             <option value="0">--Select--</option>
-                                            <option value="B" {% if form.group.value == 'B' %} selected{% endif %}>Business - CEO</option>
+                                            <option value="B" {% if form.group.value == 'B' %} selected{% endif %}>Business - COO</option>
                                             <option value="C" {% if form.group.value == 'C' %} selected{% endif %}>Business - CFO</option>
+                                            <option value="C" {% if form.group.value == 'F' %} selected{% endif %}>Business - Admin</option>
                                             <option value="E" {% if form.group.value == 'E' %} selected{% endif %}>Editorial 1</option>
                                             <option value="D" {% if form.group.value == 'D' %} selected{% endif %}>Editorial 2</option>
                                         </select>
