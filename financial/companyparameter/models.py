@@ -118,8 +118,9 @@ class Companyparameter(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='companyparameter_modify')
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
+    closing = models.IntegerField(default=0)
 
-    coa_wtax_id = models.IntegerField(default=11)
+    #coa_wtax_id = models.IntegerField(default=11)
     ranknfile_percentage_tax = models.IntegerField(default=11)
     officer_percentage_tax = models.IntegerField(default=11)
     base_url_201 = models.CharField(max_length=115, blank=True, null=True)

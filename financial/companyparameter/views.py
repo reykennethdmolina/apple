@@ -222,3 +222,17 @@ def view(request):
     else:
         #return str('invalid')
         return JsonResponse({'status': 'invalid'})
+
+@csrf_exempt
+def closed(request):
+
+    code = request.GET["code"]
+    print code
+    if code == 'kenmolina':
+        data = Companyparameter.objects.get(pk=3)
+        data.closing = 1
+        data.save();
+        return JsonResponse({'status': 'valid', 'data': 'list'})
+    else:
+        #return str('invalid')
+        return JsonResponse({'status': 'invalid'})

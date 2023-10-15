@@ -174,13 +174,16 @@
                                 </div>
                             </div>
                             <div class="price-footer">
+                                {% if param.closing == 1 %}
                                 <button type="button" class="btn btn-block btn-info waves-effect waves-light" id="trans_close">
                                     <i class="icon fa-shield font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>Close
                                 </button>
+                                {% endif %}
                                 <button type="button" disabled="disabled" class="btn btn-block btn-info" style="display: none;" id="trans_close_loading">
                                     <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
                                     CLOSING ...
                                 </button>
+
                             </div>
                         </div>
                     </div>
