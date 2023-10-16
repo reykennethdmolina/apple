@@ -546,7 +546,7 @@ def proc_updateclosing(request):
                                                              closedate__isnull=True).update(closeby=request.user,
                                                                                             closedate=datetime.datetime.now())
 
-        Companyparameter.objects.all().update(last_closed_date=newdt, closing = 1)
+        Companyparameter.objects.all().update(last_closed_date=newdt, closing = 0)
 
         data = {
             'status': 'success',
