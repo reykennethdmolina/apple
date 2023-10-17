@@ -1569,6 +1569,27 @@ def approve(request):
                         of_for_approval.ofstatus = 'D'
                     else:
                         of_for_approval.status = 'A'
+
+                        requestordata = Employee.objects.filter(pk=of_for_approval.requestor_id).first()
+                        #requestordata = Employee.objects.filter(pk=10000).first()
+
+                        if requestordata:
+
+                            ''' Send Email Notifacation to User Requestor '''
+                            print requestordata.email
+                            'send email notification'
+                            subject = 'OPERATIONAL FUND APPROVAL'
+                            message = 'Hi Sir/Madam, \n\n ' \
+                                      '' + str(
+                                of_for_approval.requestor_name) + ' your Operational Fund Request was approved. \n\n' \
+                                                                  'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+                            email_from = 'inq-noreply@inquirer.com.ph'
+                            recipient_list = [requestordata.email]
+                            #recipient_list = ['acorales@inquirer.com.ph']
+                            send_mail(subject, message, email_from, recipient_list)
+
+                            print 'email sent'
+
                     of_for_approval.approverresponse = request.POST['response']
                     of_for_approval.responsedate = datetime.datetime.now()
                     of_for_approval.actualapprover = get_object_or_None(Employee, user=request.user)
