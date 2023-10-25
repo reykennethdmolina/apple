@@ -1551,9 +1551,10 @@ def approve(request):
                         ''' Send Email Notifacation OIC Approved '''
                         print 'send email notification'
                         subject = 'OPERATIONAL FUND APPROVER NOTIFICATION - OIC'
-                        message = 'Hi Sir, \n\n' \
-                                  'Requestor ' + str(of_for_approval.requestor_name) + ' has filed Operational Fund Request for your approval. \n\n' \
-                                                          'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+                        message = 'Hi ' + str(of_for_approval.requestor_name) + ', \n\n' \
+                                  'Your OPERATIONAL FUND REQUEST has been approve. \n\n' \
+                                   'Click link here: https://fin101bss.inquirer.com.ph/operationalfund \n\n' \
+                                    'Thank You'
                         email_from = 'inq-noreply@inquirer.com.ph'
                         recipient_list = [capprover.email]
                         #recipient_list = ['reykennethdmolina@gmail.com']
@@ -1578,14 +1579,19 @@ def approve(request):
                             ''' Send Email Notifacation to User Requestor '''
                             print requestordata.email
                             'send email notification'
-                            subject = 'OPERATIONAL FUND APPROVAL'
-                            message = 'Hi Sir/Madam, \n\n ' \
-                                      '' + str(
-                                of_for_approval.requestor_name) + ' your Operational Fund Request was approved. \n\n' \
-                                                                  'Click link here: https://fin101bss.inquirer.com.ph/operationalfund'
+                            subject = 'OPERATIONAL FUND APPROVAL - '+ str((of_for_approval.oftype.description).upper())
+                            message = 'Hi ' + str(of_for_approval.requestor_name) + ', \n\n\n' \
+                                      'Your OPERATIONAL FUND - ' + str((of_for_approval.oftype.description).upper()) + ' has been approved by your supervisor. Details are as follows: \n\n' \
+                                      'Number : ' + str(of_for_approval.ofnum) +'\n\n' \
+                                      'Date : ' + str((of_for_approval.ofdate).strftime("%b %d, %Y")) +'\n\n' \
+                                      'OF Type : ' + str(of_for_approval.oftype.description) +'\n\n' \
+                                      'Amount : Php ' + str(of_for_approval.amount).format(1000000) +'\n\n' \
+                                      'Particulars : ' + str(of_for_approval.particulars) +'\n\n' \
+                                      'Click link here : https://fin101bss.inquirer.com.ph/operationalfund \n\nThank you, \n\n iES Financial \n\n This is a system generated message. Please do not reply.'
                             email_from = 'inq-noreply@inquirer.com.ph'
                             recipient_list = [requestordata.email]
-                            #recipient_list = ['acorales@inquirer.com.ph']
+                            #recipient_list = ['acorales@inquirer.com.ph','reykennethdmolina@gmail.com']
+                            #recipient_list = ['reykennethdmolina@gmail.com']
                             send_mail(subject, message, email_from, recipient_list)
 
                             print 'email sent'
