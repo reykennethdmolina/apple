@@ -59,6 +59,7 @@ import xlsxwriter
 import pandas as pd
 from django.core.mail import send_mail
 from django.core.files.storage import FileSystemStorage
+import os
 
 
 @method_decorator(login_required, name='dispatch')
@@ -3456,6 +3457,11 @@ def upload(request):
         filename = fs.save(myfile.name, myfile)
 
         upl = Ofupload(ofmain_id=id, filename=filename, enterby=request.user, modifyby=request.user)
+
+        image_path = folder + str(filename)
+        mode = 0o777  # In octal notation where 7 represents full permission
+        os.chmod(image_path, mode)
+
         upl.save()
 
         uploaded_file_url = fs.url(filename)
