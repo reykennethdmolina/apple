@@ -296,10 +296,11 @@ class TransExcel(View):
                     worksheet.write(row, col + 8, data.fname)
 
                 worksheet.write(row, col + 9, data.document_date,formatdate)
-                worksheet.write(row, col + 10, float(format(data.atcrate, '.2f')))
-                worksheet.write(row, col + 11, float(format(data.tax, '.2f')))
-                worksheet.write(row, col + 12, float(format(data.taxesable, '.2f')))
-                worksheet.write(row, col + 13, float(format(data.tax, '.2f')))
+                worksheet.write(row, col + 10, data.atccode)
+                worksheet.write(row, col + 11, float(format(data.atcrate, '.2f')))
+                worksheet.write(row, col + 12, float(format(data.tax, '.2f')))
+                worksheet.write(row, col + 13, float(format(data.taxesable, '.2f')))
+                worksheet.write(row, col + 14, float(format(data.tax, '.2f')))
 
                 row += 1
                 counter += 1
