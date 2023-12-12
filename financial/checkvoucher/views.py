@@ -628,7 +628,7 @@ class Voucher(PDFTemplateView):
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
         #context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
-        context['logo'] = "http://128.1.44.21/static/images/pdi.jpg"
+        context['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
 
         printedcv = Cvmain.objects.get(pk=self.kwargs['pk'])
         printedcv.print_ctr += 1

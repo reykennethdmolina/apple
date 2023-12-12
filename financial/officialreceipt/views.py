@@ -1430,7 +1430,7 @@ class Pdf(PDFTemplateView):
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
         #context['logo'] = "https://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
-        context['logo'] = "http://128.1.44.21/static/images/pdi.jpg"
+        context['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
 
         printedor = Ormain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
         printedor.print_ctr += 1

@@ -1260,7 +1260,7 @@ class UserPdf(PDFTemplateView):
         #context['logo'] = "https://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
         #context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
         #context['logo'] = "http://127.0.0.1:8000/static/images/pdi.jpg"
-        context['logo'] = "http://128.1.44.21/static/images/pdi.jpg"
+        context['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
         print context['logo']
         printedof = Ofmain.objects.get(Q(pk=self.kwargs['pk']), Q(isdeleted=0), (Q(status='A') | Q(status='C')))
         printedof.print_ctr1 += 1
@@ -1295,7 +1295,7 @@ class CashierPdf(PDFTemplateView):
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
         #context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
-        context['logo'] = "http://128.1.44.21/static/images/pdi.jpg"
+        context['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
 
         printedof = Ofmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         printedof.print_ctr2 += 1
