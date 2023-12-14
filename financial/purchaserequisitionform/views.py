@@ -128,7 +128,9 @@ class CreateView(CreateView):
         context['currency'] = Currency.objects.filter(isdeleted=0, status='A').order_by('id')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         managers = Employee.objects.filter(managementlevel=6).values_list('user_id', flat=True)
+        print managers
         context['designatedapprover'] = User.objects.filter(id__in=managers, is_active=1).exclude(username='admin').order_by('first_name')
+        print context['designatedapprover']
         context['totalremainingquantity'] = 0
 
         closetransaction = Companyparameter.objects.all().first().last_closed_date
