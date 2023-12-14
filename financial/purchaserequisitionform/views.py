@@ -880,6 +880,7 @@ class ReportView(ListView):
 
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
+        context['rc_logo'] = "https://128.1.44.21/static/images/pdi.jpg"
 
         return context
 
