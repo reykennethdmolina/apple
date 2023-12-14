@@ -906,6 +906,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         # @change default title
         context['rc_headtitle'] = "PURCHASE REQUISITION FORM"
         context['rc_title'] = "PURCHASE REQUISITION FORM"
+        context['rc_logo'] = "https://128.1.44.21/static/images/pdi.jpg"
 
         return context
 
