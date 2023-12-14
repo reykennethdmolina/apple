@@ -511,6 +511,7 @@ class ReportView(ListView):
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
+        context['rc_logo'] = "https://128.1.44.21/static/images/pdi.jpg"
 
         return context
 
@@ -536,6 +537,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         # @change default title
         context['rc_headtitle'] = "REQUISITION FORM"
         context['rc_title'] = "REQUISITION FORM"
+        context['rc_logo'] = "https://128.1.44.21/static/images/pdi.jpg"
 
         return context
 
