@@ -532,7 +532,8 @@ class Pdf(PDFTemplateView):
 
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
-        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+        #context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+        context['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
 
         printedprf = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         printedprf.print_ctr += 1
