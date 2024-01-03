@@ -28,6 +28,8 @@ from processing_transaction.models import Poapvtransaction
 from dateutil.relativedelta import relativedelta
 import datetime
 from annoying.functions import get_object_or_None
+from django.db import connection
+from collections import namedtuple
 
 # pagination and search
 from endless_pagination.views import AjaxListView
@@ -142,24 +144,40 @@ class CreateView(CreateView):
             self.object = form.save(commit=False)
 
             year = str(form.cleaned_data['podate'].year)
-            yearQS = Pomain.objects.filter(ponum__startswith=year)
+            # yearqs = Apmain.objects.filter(apdate__gte='2022-01-01')
+            # apnumlast = Apmain.objects.aggregate(Max('apnum')).order_by('pk') #yearqs.aggregate(Max('apnum'))
+            ponumlast = lastNumber('true')
 
-            if yearQS:
-                ponumlast = yearQS.latest('ponum')
-                latestponum = str(ponumlast)
-                print "latest: " + latestponum
+            ## SELECT RIGHT(MAX(LPAD(apnum, 10, 0)) , 6)  FROM apmain;
+            latestponum = str(ponumlast[0])
+            ponum = year
+            # print str(int(latestapnum[4:]))
+            last = str(int(latestponum) + 1)
+            print last
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                ponum += '0'
+            ponum += last
 
-                ponum = year
-                last = str(int(latestponum[4:]) + 1)
-                zero_addon = 6 - len(last)
-                for x in range(0, zero_addon):
-                    ponum += '0'
-                ponum += last
-
-            else:
-                ponum = year + '000001'
-
-            print 'ponum: ' + ponum
+            # year = str(form.cleaned_data['podate'].year)
+            # yearQS = Pomain.objects.filter(ponum__startswith=year)
+            #
+            # if yearQS:
+            #     ponumlast = yearQS.latest('ponum')
+            #     latestponum = str(ponumlast)
+            #     print "latest: " + latestponum
+            #
+            #     ponum = year
+            #     last = str(int(latestponum[4:]) + 1)
+            #     zero_addon = 6 - len(last)
+            #     for x in range(0, zero_addon):
+            #         ponum += '0'
+            #     ponum += last
+            #
+            # else:
+            #     ponum = year + '000001'
+            #
+            # print 'ponum: ' + ponum
 
             self.object.ponum = ponum
             self.object.supplier_code = Supplier.objects.get(pk=self.request.POST['supplier']).code
@@ -1588,3 +1606,23 @@ def filedelete(request):
         return HttpResponseRedirect('/purchaseorder/' + str(id) )
 
     return HttpResponseRedirect('/purchaseorder/' + str(id) )
+
+
+def lastNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  SUBSTRING(ponum, 5) AS num FROM pomain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
