@@ -1,0 +1,62 @@
+{% load endless %}
+{% load humanize %}
+{% paginate data_list %}
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th><span>Id</span></th>
+                <th><span>Author</span></th>
+                <th><span>Code</span></th>
+                <th><span>Bureau</span></th>
+                <th><span>Section</span></th>
+                <th><span>Department</span></th>
+                <th class="text-center"><span>Action</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>{{ data.supplier.name }}</td>
+                <td>{{ data.supplier.code }}</td>
+                <td>{{ data.bureau.description }}</td>
+                <td>{{ data.section.description }}</td>
+                <td>{{ data.department.departmentname }}</td>
+                <td class="text-center">
+                    <div class="iconlist-wrap auto-0">
+                        <div class="iconlist">
+                        <a href="{% url 'triplecsupplier:detail' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% if perms.triplecsupplier.change_triplecsupplier %}
+                        <a href="{% url 'triplecsupplier:update' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% endif %}
+                        {% if perms.triplecsupplier.delete_triplecsupplier %}
+                        <a href="{% url 'triplecsupplier:delete' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% endif %}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination pull-right">{% show_pages %}</div>
+</div>
+<!-- required -->
+<a href="/{{ request.resolver_match.app_name }}/?page=1" rel="page" class="endless_page_link" id="dummy" style="display: none;">1</a>
+<script>
+    $(function () {
+        $('.shade').remove();
+        $('.panel').prepend('<div class="shade"><div class="loader two-color"></div></div>');
+        $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
+        $('.endless_page_link').on('click', function () {
+            $('.shade').fadeIn();
+        });
+    });
+</script>

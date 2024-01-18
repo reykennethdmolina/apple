@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% load static %}
+        {% load pdf_filters %}
+        {% load humanize %}
+        {% load mathfilters %}
+        {% load custom %}
+        <meta charset="UTF-8">
+        <title>{{ title }}</title>
+        <style>
+            body{
+                font-size: 12px;
+                font-family: 'Times New Roman';
+            }
+            .title{
+                font-size: 130%;
+                font-weight: bold;
+                font-family: 'Times New Roman';
+            }
+            .table {
+                width: 100%;
+                max-width: 100%;
+                margin-bottom: 5px;
+                background-color: #fff;
+            }
+            .table th {
+                vertical-align: top;
+                border-bottom: 2px solid #000;
+                text-align: center;
+                margin-bottom: 15px;
+                font-size:15px;
+            }
+            .table td {
+                padding: 1px;
+                vertical-align: top;
+                text-align: center;
+            }
+            .table thead th {
+                vertical-align: bottom;
+                border-bottom: 2px solid #000;
+            }
+            .table tbody + tbody {
+                border-top: 2px solid #000;
+            }
+            .table .table {
+                background-color: #fff;
+            }
+            .list-group {
+                display: block;
+                width: 100%;
+                list-style: none;
+                margin-top: 15px;
+                margin-bottom: 15px;
+            }
+            .list-group p {
+                width: 100%;
+                height: 20px;
+                line-height: 20px;
+                list-style: none;
+                font-size: 1.1em;
+            }
+            .center {
+                text-align: center;
+            }
+            @page {
+                size: LETTER PORTRAIT;
+                @frame header_frame {
+                    -pdf-frame-content: header_content;
+                    left: 1cm;
+                    right: 1cm;
+                    top: 1cm;
+                    height: 7.5cm;
+                }
+                @frame footer_frame {
+                    -pdf-frame-content: footer_content;
+                    left: 1cm; 
+                    right: 1cm; 
+                    bottom: -3cm; 
+                    height: 4cm;
+                }
+                @frame content_frame {
+                    top: 8.2cm; 
+                    left: 1cm; 
+                    width: 19.5cm;
+                    height: 18cm;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header_content">
+            <div class="card">
+                
+                <table>
+                    <tr>
+                        <td width="50%"><img id="logo" src="{{ heading.logo }}"/><br></td>
+                        <td width="50%">
+                            <p class="center">{{ today|date:'M d, Y h:i:s A'}}
+                                <br>
+                                page: <pdf:pagenumber /> of <pdf:pagecount />
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
+                        <td width="25%"><p class="center"></p></td>
+                    </tr>
+                    <tr>
+                        <td width="50%"><p>{{ company.address1 }}</p></td>
+                    </tr>
+                    <tr>
+                        <td width="50%"><p>{{ company.address2 }}</p></td>
+                    </tr>
+                    <tr>
+                        <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+                    </tr>
+                    <tr><td width="75%"></td></tr>
+                    {% if heading.report_title %}
+                        <tr>
+                            <td width="50%"><p class="title">{{ heading.report_title|upper }}</p></td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td width="75%"><p class="title">{{ heading.dates|upper }}</p></td>
+                    </tr>
+                </table>
+                {% if report_type == "R" %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;width:180px">Code</th>
+                                <th style="text-align:left;width:450px">Name</th>
+                                <th style="text-align:left;width:150px">No. of Articles</th>
+                                <th style="text-align:left;width:150px">No. of Photos</th>
+                                <th style="text-align:right;width:180px">Amount</th>
+                            </tr>
+                        </thead>
+                    </table>
+                {% elif report_type == "Y" %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;width:450px">Name</th>
+                                <th style="text-align:left;width:150px">Issue Date</th>
+                                <th style="text-align:left;width:150px">Section</th>
+                                <th style="text-align:left;width:450px">Title</th>
+                                <th style="text-align:right;width:180px">Amount</th>
+                            </tr>
+                        </thead>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+        
+        <table id="content-data">
+            {% if report_type == "R" %}
+                <tbody>
+                    {% for item in data_list %}
+                        <tr>
+                            <td style="text-align:left;width:180px">{{ item.code|upper }}</td>
+                            <td style="text-align:left;width:450px">{{ item.author_name|upper }}</td>
+                            <td style="text-align:center;width:150px">{{ item.totalarticles|intcomma }}</td>
+                            <td style="text-align:center;width:150px">{{ item.totalitems|intcomma }}</td>
+                            <td style="text-align:right;width:180px">{{ item.totalamount|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            {% elif report_type == "Y" %}
+                <tbody>
+                    {% for item in data_list.values %}
+                        <tr>
+                            <td colspan="5">{{ item.author_name }}</td>
+                        </tr>
+                        {% for transaction in item.transactions %}
+                            <tr>
+                                <td style="text-align:left;width:450px"></td>
+                                <td style="text-align:center;width:150px">{{ transaction.issue_date }}</td>
+                                <td style="text-align:center;width:150px">{{ transaction.section__description }}</td>
+                                <td style="text-align:center;width:450px">{{ transaction.article_title|truncatechars:45 }}</td>
+                                <td style="text-align:right;width:180px">{{ transaction.amount|intcomma }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="4"><b><i>Subtotal</i></b></td>
+                            <td style="border-top: 2px solid #000; text-align:right; padding-top: 5px;"><b>{{ item.subtotal|intcomma }}</b></td>
+                        </tr>
+                        <tr></tr>
+                    {% endfor %}
+                    
+                </tbody>
+            {% endif %}
+            {% if grand_total %}
+                <tfoot>
+                    <tr>
+                        <td colspan="5"></td>    
+                    </tr>
+                    <tr>
+                        <td colspan="4"><b>Total</b></td>
+                        <td style="border-top: 2px solid #000; border-bottom: 4px double #000; padding-top: 10px; text-align: right;">{{ grand_total|intcomma }}</td>
+                    </tr>
+                </tfoot>
+            {% endif %}
+        </table>
+        <div id="footer_content" style="text-align:right">
+            <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
+        </div>
+    </body>
+</html>

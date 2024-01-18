@@ -1,0 +1,143 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Report - Triple C {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label small">Issue Date <span class="text-danger">*</span></label><br>
+                            <div class="input-daterange datarange">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control datepickerfrom" id="dfrom" required />
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon">to</span>
+                                    <input type="text" class="form-control datepickerto" id="dto" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4" >
+                            <label class="control-label small" for="author">Author:</label>
+                            <select class="form-control select2" id="author">
+                                {% if authors %}
+                                    <option value="">-- All --</option>
+                                    {% for author in authors  %}
+                                        <option value="{{ author.code }}">{{ author.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ author.name }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small" for="type">Classification</label>
+                            <select class="form-control select2" id="type">
+                                <option value="">-- All --</option>
+                                <option value="COL">Columnist</option>
+                                <option value="CON">Contributor</option>
+                                <option value="COR">Correspondent</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <a class="btn btn-info waves-effect waves-dark" id="generate" style="margin-top: 22px;">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;Generate
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-2" >
+                            <label class="control-label small" for="section">Section</label>
+                            <select class="form-control select2" id="section">
+                                <option value="">-- All --</option>
+                                {% for section in sections  %}
+                                    <option value="{{ section.id }}" data-section-code="{{ section.code }}">{{ section.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ section.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2" >
+                            <label class="control-label small" for="bureau">Bureau</label>
+                            <select class="form-control select2" id="bureau">
+                                <option value="">-- All --</option>
+                                {% for bureau in bureaus  %}
+                                    <option value="{{ bureau.id }}" data-bureau-code="{{ bureau.code }}">{{ bureau.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ bureau.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2" >
+                            <label class="control-label small" for="status">Status</label>
+                            <select class="form-control select2" id="status">
+                                <option value="O" selected>Posted</option>
+                                <option value="A">Active</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2" >
+                            <label class="control-label small" for="report_type">Report Type</label>
+                            <select class="form-control select2" id="report_type">
+                                <option value="R" selected>Summary</option>
+                                <option value="Y">Detailed</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-4" >
+                            <label class="control-label small" for="report_title">Report Title</label>
+                            <input type="text" class="form-control" value="Triple C Summary Report" id="report_title">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="col-md-12" style="min-height: 800px">
+                <iframe src="{% url 'triplec:pdf' %}?from=&to=&type=&bureau=&section&blank=1" id="result" height="800px" width="100%"></iframe>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script type="text/javascript">
+$(function(){
+    $('.select2').select2({});
+
+    $('#generate').click(function(){
+        var date_from = $('#dfrom').val() || '';
+        var date_to = $('#dto').val() || '';
+
+        if((date_from === '' && date_to === '')){
+            alert('Issue date or CS# is required');
+            return false;
+        }
+
+        var author = $('#author').val() || '';
+        var bureau = $('#bureau').val() || '';
+        var section = $('#section').val() || '';
+        var type = $('#type').val() || '';
+        var status = $('#status').val() || '';
+        var report_type = $('#report_type').val() || '';
+        var report_title = $('#report_title').val() || '';
+        url = "{% url 'triplec:pdf' %}"+"?from="+date_from+"&to="+date_to+"&author="+author+"&bureau="+bureau+"&section="+section+"&type="+type+"&status="+status+"&report_type="+report_type+"&report_title="+report_title+"&blank=0";
+        $('#result').prop('src', url);
+
+    });
+});
+</script>
+{% endblock extra_js %}

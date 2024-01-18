@@ -1,0 +1,116 @@
+{% extends 'base-form.html' %}
+{% load humanize %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+{% endblock extra_css %}
+
+{% block page-title %} Triple C Supplier {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">CREATE</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group {{ form.supplier.errors|yesno:'has-error,' }}">
+                                    <label for="supplier" class="control-label">Supplier</label>
+                                    <!-- <input type="text" class="form-control" id="id_supplier" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}"> -->
+                                    <select class="form-control input-sm select2" id="supplier" name="supplier">
+                                        <option value="">-- Select --</option>
+                                        {% for author in authors %}
+                                            <option value="{{ author.id }}">{{ author.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ author.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group {{ form.bureau.errors|yesno:'has-error,' }}">
+                                    <label for="bureau" class="control-label">Bureau</label>
+                                    <select class="form-control input-sm select2" id="bureau" name="bureau">
+                                        <option value="">-- Select --</option>
+                                        {% for bureau in bureaus %}
+                                            <option value="{{ bureau.id }}">{{ bureau.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.bureau.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group {{ form.section.errors|yesno:'has-error,' }}">
+                                    <label for="section" class="control-label">Section</label>
+                                    <select class="form-control input-sm select2" id="section" name="section">
+                                        <option value="">-- Select --</option>
+                                        {% for section in sections %}
+                                            <option value="{{ section.id }}">{{ section.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.section.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group {{ form.department.errors|yesno:'has-error,' }}">
+                                    <label for="section" class="control-label">Department</label>
+                                    <select class="form-control input-sm select2" id="department" name="department">
+                                        <option value="">-- Select --</option>
+                                        {% for department in departments %}
+                                            <option value="{{ department.id }}">{{department.code}} - {{ department.departmentname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group {{ form.rate.errors|yesno:'has-error,' }}">
+                                    <label for="section" class="control-label">Rate</label>
+                                    <select class="form-control input-sm select2" id="rate" name="rate">
+                                        <option value="">-- Select --</option>
+                                        {% for rate in rates %}
+                                            <option value="{{ rate.id }}">{{ rate.code }} - {{ rate.description }} [{{ rate.amount|floatformat:2|intcomma }}]</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.rate.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <!-- <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group {{ form.bankaccount.errors|yesno:'has-error,' }}">
+                                    <label for="section" class="control-label">Bank Account</label>
+                                    <select class="form-control input-sm select2" id="bankaccount" name="bankaccount">
+                                        <option value="">-- Select --</option>
+                                        {% for bankaccount in bankaccounts %}
+                                            <option value="{{ bankaccount.id }}">{{ bankaccount.code }} - {{ bankaccount.accountnumber }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
+                                </div>
+                            </div> -->
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script>
+	$(function(){
+        $('.select2').select2({});
+    });
+</script>
+{% endblock extra_js %}

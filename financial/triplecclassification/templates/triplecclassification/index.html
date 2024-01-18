@@ -1,0 +1,76 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Triple C Classification {% endblock page-title %}
+
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                {% if perms.triplecclassification.add_triplecclassification %}
+                <div class="text-right">
+                    <a href="{% url 'triplecclassification:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Data</button></a>
+                    <a href="{% url 'triplecclassification:pdf' %}" target="_blank"><button type="button" class="btn btn-danger btn-sm waves-effect waves-light"><i class="icon fa-file-pdf-o" aria-hidden="true"></i> Report</button></a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <!-- Start Basic Table Section -->
+                    <h4><p>Data List</p></h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th><span>Id</span></th>
+                                    <th><span>Code</span></th>
+                                    <th><span>Description</span></th>
+                                    <th><span>Account 1</span></th>
+                                    <th><span>Account 2</span></th>
+                                    <th><span>Account 3</span></th>
+                                    <th><span>Account 4</span></th>
+                                    <th class="text-center"><span>Action</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in data_list %}
+                                <tr>
+                                    <td>{{ data.id }}</td>
+                                    <td>{{ data.code }}</td>
+                                    <td>{{ data.description }}</td>
+                                    <td>{{ data.various_account.description }}</td>
+                                    <td>{{ data.various_account2.description }}</td>
+                                    <td>{{ data.various_account3.description }}</td>
+                                    <td>{{ data.various_account4.description }}</td>
+                                    <td class="text-center">
+                                        <div class="iconlist-wrap auto-0">
+                                            <div class="iconlist">
+                                            <a href="{% url 'triplecclassification:detail' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% if perms.triplecclassification.change_triplecclassification %}
+                                            <a href="{% url 'triplecclassification:update' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% endif %}
+                                            {% if perms.triplecclassification.delete_triplecclassification %}
+                                            <a href="{% url 'triplecclassification:delete' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- End Basic Table Section -->
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+

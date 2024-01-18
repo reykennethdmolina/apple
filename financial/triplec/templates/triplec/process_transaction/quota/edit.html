@@ -1,0 +1,46 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Triple C Quota  {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">EDIT</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="form-group {{ form.confirmation.errors|yesno:'has-error,' }}">
+                            <label for="id_confirmation" class="control-label">CS No.</label>
+                            <input type="text" class="form-control" id="id_confirmation" maxlength="10" placeholder="Confirmation" name="confirmation" readonly="readonly" value="{{ form.confirmation.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.confirmation.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.transportation_amount.errors|yesno:'has-error,' }}">
+                            <label for="id_transportation_amount" class="control-label">Transpo</label>
+                            <input type="number" class="form-control" id="id_transportation_amount" maxlength="10" placeholder="Transportation" name="transportation_amount" data-validation="required" value="{{ form.transportation_amount.value }}">
+                            <span class="help-block form-error">{{ form.transportation_amount.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.transportation2_amount.errors|yesno:'has-error,' }}">
+                            <label for="id_transportation2_amount" class="control-label">Transpo 2 (Photos)</label>
+                            <input type="number" class="form-control" id="id_transportation2_amount" maxlength="10" placeholder="Transportation 2 (Photos)" name="transportation2_amount" data-validation="required" value="{{ form.transportation2_amount.value }}">
+                            <span class="help-block form-error">{{ form.transportation2_amount.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.cellcard_amount.errors|yesno:'has-error,' }}">
+                            <label for="id_cellcard_amount" class="control-label">Cellcard/Internet</label>
+                            <input type="number" class="form-control" id="id_cellcard_amount" maxlength="10" placeholder="Cellcard/Internet" name="cellcard_amount" data-validation="required" value="{{ form.cellcard_amount.value }}">
+                            <span class="help-block form-error">{{ form.cellcard_amount.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

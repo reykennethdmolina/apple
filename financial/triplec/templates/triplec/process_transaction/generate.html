@@ -1,0 +1,183 @@
+
+{% load static %}
+{% load humanize %}
+{% load pdf_filters %}
+{% block extra_css %}
+    <style>
+        .pointer {
+            cursor: pointer;
+        }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    
+        input[type=number], 
+        .amount-right{
+            text-align: right;
+        }
+    </style>
+{% endblock extra_css %}
+{% if triplec_data %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6"></div>
+            <div class="col-md-6 text-right">
+                <a class="btn btn-info waves-effect waves-dark" id="post_transaction" style="margin-top: 22px;" title="Selected transactions will be posted">
+                    <i class="icon fa-check-circle-o" aria-hidden="true"></i>&nbsp;&nbsp;Post to CS
+                </a>
+                <a style="display: none;" href="" id="trigger_cs" target="_blank">CS</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="page-wrap" style="padding: 10px">
+                <table id="transaction_table">
+                    <tr>
+                        <td>
+                            <h4>The following is the list of transactions ready for posting.</h4>
+                            <h4>Upon posting, the selected transaction(s) will have a <i>Confirmation Sheet No.</i> by corresponding author and classification.</h4>
+                        </td>
+                    </tr>
+                </table>
+                <br>
+                <table class="table table-borderless" style="overflow-x: auto;">
+                    <thead>
+                        <tr style="border-top: 1px solid #ccc; background-color: #f8f8ff;">
+                            <th><input type="checkbox" class="pointer" name="chb_all" id="chb_all" title="Select to process all." checked="Tick" /></th>
+                            <th style="text-align:left;min-width:50px">Issue Date</th>
+                            <th style="text-align:left;min-width:50px">Classification</th>
+                            <th style="text-align:left;min-width:350px">Article Title</th>
+                            <th style="text-align:left;min-width:30px">Page</th>
+                            <th style="text-align:left;min-width:50px">Type</th>
+                            <th style="text-align:right;min-width:30px">Size</th>
+                            <th style="text-align:right;min-width:30px">No. of Items</th>
+                            <th style="text-align:left;min-width:30px">Rate</th>
+                            <th style="text-align:right;min-width:100px">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key,data in triplec_data.items %}
+                            {% ifchanged data.0.code %}
+                            <tr >
+                                {% if not forloop.first %}
+                                    <td colspan="10" style="padding: 0;">
+                                        <div style="border-top: 3px solid #ccc;">
+                                            
+                                        </div>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% endifchanged %}
+                            <tr>
+                                <!-- <td></td> -->
+                                <td ><small></small>[{{ data|length }}]</td>
+                                <td colspan="9" style="font-weight: 400; font-size: 15px;">
+                                        &nbsp;&nbsp;&nbsp;Author&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <b>{{ data.0.code }}</b>  &nbsp;-&nbsp;  {{ data.0.author_name }} &nbsp;-&nbsp; {{ data.0.get_type_display }}
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </td>
+                            </tr>
+                            
+                            {% for item in data %}
+                                <tr class="transaction_row" style="background:#fcf8e3; height: 40px; color: #757575; font-weight: 500; font-size: 15px;" data-code="{{ item.code }}" id="{{ item.id }}" data-type="{{ item.type }}" data-issue-date="{{ item.issue_date|date:'Y-m-d' }}">
+                                    <td><input type="checkbox" class="transaction-checkbox pointer" name="chb_{{ item.id }}" id="chb_{{ item.id }}" title="Select to include transaction" checked /></td>
+                                    <td style="text-align:left; min-width:100px; vertical-align:top;">{{ item.issue_date|default:"" }}</td>
+                                    <td style="text-align:left; min-width:100px; vertical-align:top;">{{ item.get_type_display|default:"" }}</td>
+                                    <td style="text-align:left; min-width:250px; vertical-align:top;">{{ item.article_title|default:"" }}</td>
+                                    <td style="text-align:left; min-width:50px; vertical-align:top;">{{ item.page|default:"" }}</td>
+                                    <td style="text-align:left; min-width:50px; vertical-align:top;">{{ item.subtype.code|default:"" }}</td>
+                                    <td style="text-align:right; min-width:50px; vertical-align:top;">{{ item.total_size|default:"" }}</td>
+                                    <td style="text-align:right; min-width:50px; vertical-align:top;">{{ item.no_items|default:"" }}</td>
+                                    <td style="text-align:left; min-width:50px; vertical-align:top;">{{ item.rate_code|default:"" }}</td>
+                                    <td style="text-align:right; min-width:100px; vertical-align:top;">{{ item.amount|default:""|floatformat:2|intcomma }}</td>
+                                </tr>
+                            {% endfor %}
+                            
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="row text-center" style="padding: 50px;">
+        <b id="empty-message">No transactions ready for posting found using the filters above. Tip: To get transactions ready for posting, upload then fill in the details of the active entries.</b>
+    </div>
+{% endif %}
+
+{% block extra_js %}
+<script>
+    $(document).on('change', 'input[name="chb_all"]', function() {
+        $('.transaction-checkbox').prop("checked", this.checked);
+    });
+
+    $(document).on('change', '.transaction-checkbox', function() {
+        if($('.transaction-checkbox').length === $('.transaction-checkbox:checked').length){
+            $('input[name="chb_all"]').prop("checked", true);
+        } else if (this.checked == false) {
+            $('input[name="chb_all"]').prop("checked", false);
+        }
+    });
+    
+    $('#post_transaction').click(function(e){
+        e.preventDefault();
+
+        var transaction_ids = [];
+        
+        $('tr.transaction_row').each(function () {
+            if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                var pk = $(this).attr('id');
+                var issue_date = $(this).attr('data-issue-date');
+                var code = $(this).attr('data-code');
+                var type = $(this).attr('data-type');
+                transaction_ids.push({
+                    "pk" : pk, 
+                    "issue_date" : issue_date,
+                    "code" : code,
+                    "type" : type
+                });
+            }
+        });
+        console.log('transaction_ids', transaction_ids);
+        if(transaction_ids.length){
+            if (confirm("Confirm posting the selected transactions?")) {
+
+                $.ajax({
+                    url: "{% url 'triplec:transaction_posting' %}",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: {
+                        'csrfmiddlewaretoken': "{{csrf_token}}",
+                        'data': JSON.stringify(transaction_ids),
+                    },
+                    success: function(response) {
+                        if(response.result == true){
+                            $('#generate').trigger('click');
+                            confirmation_numbers = response.confirmation_numbers;
+                            if(confirm("Transaction posting has been processed successfully. Would you like to view the Confirmation Sheets?")){
+                                $("#trigger_cs").attr("href", "{% url 'triplec:print_cs' %}" + "?batch=1&q=" + encodeURIComponent(JSON.stringify(confirmation_numbers)));
+                                $('#trigger_cs')[0].click();
+                            }
+                        } else if(response.result == false){
+                            alert(response.message);
+                        } else {
+                            console.log(response.existing);
+                            alert(response.message);
+                        }
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        console.log(xhr, textStatus, errorThrown);
+                        alert("An error occured"+ textStatus);
+                    }
+                });
+            }
+        } else {
+            alert('No transaction selected');
+        } 
+    });
+    
+</script>
+{% endblock extra_js %}
