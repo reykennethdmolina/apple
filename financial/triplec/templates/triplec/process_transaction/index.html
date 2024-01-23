@@ -25,13 +25,22 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small" for="classification">Classification</label>
+                            <select class="form-control input-sm select2" id="classification">
+                                <option value="">-- Select --</option>
+                                {% for classification in classifications %}
+                                    <option value="{{ classification.code }} ">{{ classification.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                         <div class="form-group col-sm-4">
-                            <label class="control-label small" for="author">Author: </label>
+                            <label class="control-label small" for="author_name">Author: </label>
                             <select class="form-control input-sm select2" id="author_name">
                                 {% if authors %}
                                     <option value="">-- Select --</option>
                                     {% for author in authors  %}
-                                        <option value="{{ author.name }}" data-ccc-code="{{ author.code }}" data-ccc-classification="{{ author.ccc }}">{{ author.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ author.name }}</option>
+                                        <option value="{{ author.name }}">{{ author.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ author.name }}</option>
                                     {% endfor %}
                                 {% endif %}
                             </select>
@@ -67,19 +76,18 @@
 <script type="text/javascript">
 $(function(){
     $('#generate').click(function(){
-
+        $(this).text('Loading transactions...');
         var date_from = $('#dfrom').val();
         var date_to = $('#dto').val();
         var author_name = $('select#author_name').val();
-        var code = $('#author_name option:selected').attr('data-ccc-code');
-        var classification = $('#author_name option:selected').attr('data-ccc-classification');
+        var classification = $('select#classification').val();
 
         if (date_from == '' && date_to == '') {
             alert('Transaction Date is required.');
             return false;
         }
 
-        url = "{% url 'triplec:generate_process_transaction' %}"+"?author_name="+author_name+"&dfrom="+date_from+"&dto="+date_to+"&code="+code+"&classification="+classification;
+        url = "{% url 'triplec:generate_process_transaction' %}"+"?author_name="+author_name+"&dfrom="+date_from+"&dto="+date_to+"&classification="+classification;
         $.ajax({
             url: url,
             type: "get",
@@ -90,9 +98,11 @@ $(function(){
                 } else {
                     alert(response.message);
                 }
+                $('#generate').text('Generate');
             },
             error: function(response) {
                 console.log(response);
+                alert('An internal error occured.');
             }
         });
     });
