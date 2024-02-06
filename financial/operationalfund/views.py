@@ -16,7 +16,6 @@ from ofsubtype.models import Ofsubtype
 from supplier.models import Supplier
 from vat.models import Vat
 from wtax.models import Wtax
-from employee.models import Employee
 from department.models import Department
 from inputvat.models import Inputvat
 from . models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp, Ofitem, Ofitemtemp, Ofupload
@@ -500,7 +499,8 @@ class CreateViewUser(CreateView):
                         remarks='Create OF Transaction #' + str(Oftype.objects.get(pk=int(self.request.POST['oftype'])).code) + '-' +self.object.ofnum
                     )
 
-                    return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate/')
+                    #return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate/')
+                    return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/')
                 else:
                     return HttpResponseRedirect('/operationalfund/usercreate/')
             else:
@@ -4147,3 +4147,22 @@ def namedtuplefetchall(cursor):
     desc = cursor.description
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
+
+
+@csrf_exempt
+def resetEyeglass(request):
+
+    if request.method == 'POST':
+
+        #id = 1
+
+        print 'reset'
+        # fileid = request.POST['fileid']
+        #
+        Employee.objects.filter(isdeleted=0).update(eyeglass_amount=0,eyeglass_date=datetime.datetime.now())
+
+        #return HttpResponseRedirect('/operationalfund/' + str(id) )
+
+        return HttpResponseRedirect('/operationalfund/')
+    #print 'asda'
+    return HttpResponseRedirect('/operationalfund')
