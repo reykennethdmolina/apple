@@ -167,53 +167,51 @@ def fileprocess(request):
 @csrf_exempt
 def upload(request):
     if request.method == 'POST':
-        if request.FILES['data_file'] \
-                and request.FILES['data_file'].name.endswith('.xls') \
-                    or request.FILES['data_file'].name.endswith('.xlsx'):
-            if request.FILES['data_file']._size < float(upload_size) * 1024 * 1024:
+        doc = request.FILES
+        if doc['data_file'].name.endswith('.xls'):
+            if doc['data_file']._size < float(upload_size) * 1024 * 1024:
+                records = fileprocess(request)
+                records_count = len(records)
                 
-                try:
-                    records = fileprocess(request)
-                    records_count = len(records)
+                successcount = 0
+                existscount = 0
+                failedcount = 0
+                faileddata = []
+                successrecords = []
+                
+                for record in records:
+                    issue_date = pandas.to_datetime(record['Issue Date'], unit='ms')
                     
-                    successcount = 0
-                    existscount = 0
-                    failedcount = 0
-                    faileddata = []
-                    successrecords = []
-                    
-                    for record in records:
-                        issue_date = pandas.to_datetime(record['Issue Date'], unit='ms')
-                        
-                        save = savedata(record,issue_date)
-                        if save:
-                            successrecords.append([record])
-                            successcount += 1
-                        else:
-                            failedcount += 1
-                            faileddata.append([issue_date, record['Article ID'], record['Article Title'], record['Number Of words'], record['NumberofCharacters'], errorsavingdata, textwarning])
-                    
-                    if successcount == records_count:
-                        result = 1 
-                    elif records_count == existscount:
-                        result = 2
-                    elif records_count == failedcount:
-                        result = 3
+                    save = savedata(record,issue_date)
+                    if save:
+                        successrecords.append([record])
+                        successcount += 1
                     else:
-                        result = 4
-                    
-                    return JsonResponse({
-                        'result': result,
-                        'success_count': successcount,
-                        'records_count': records_count,
-                        'failed_data': faileddata,
-                        'successrecords': successrecords
-                    })
+                        failedcount += 1
+                        faileddata.append([issue_date, record['Article ID'], record['Article Title'], record['Number Of words'], record['NumberofCharacters'], errorsavingdata, textwarning])
                 
-                except:
-                    return JsonResponse({
-                        'result': 3
-                    })
+                if successcount == records_count:
+                    result = 1 
+                elif successcount > 0:
+                    result = 2
+                elif records_count == failedcount:
+                    result = 3
+                else:
+                    result = 'default'
+                
+                return JsonResponse({
+                    'result': result,
+                    'success_count': successcount,
+                    'records_count': records_count,
+                    'failed_data': faileddata,
+                    'successrecords': successrecords
+                })
+            return JsonResponse({
+                'result': 5
+            })   
+        return JsonResponse({
+            'result': 4
+        })
     else:
         context = {}
         return render(request, 'triplec/upload.html', context)
@@ -249,7 +247,8 @@ def savedata(record,issue_date):
             cms_no_of_characters=int(record['NumberofCharacters'])
         )
         return True
-    except:
+    except Exception as e:
+        print 'error: ' + str(e)
         return False
 
 
@@ -833,7 +832,7 @@ def process_quota(request, confirmation_numbers):
                     num_photos=0
                     num_articles=0
                     num_type_breaking_news=0
-                    num_section_breaking_news=0
+                    num_rate_code_breaking_news=0
                     num_breaking_news=0
 
                     num_items = sum(transaction.no_items for transaction in transactions) # PHOTOS
@@ -848,9 +847,10 @@ def process_quota(request, confirmation_numbers):
                     # A - Article
                     num_articles = transactions.filter(subtype=10).count()
 
+                    # count breaking news
                     num_type_breaking_news = transactions.filter(subtype__code__icontains='INSNB').count()
-                    num_section_breaking_news = transactions.filter(section__code__icontains='INSNB').count()
-                    num_breaking_news = max(num_type_breaking_news, num_section_breaking_news)
+                    num_rate_code_breaking_news = transactions.filter(rate_code='INSNB').count()
+                    num_breaking_news = max(num_type_breaking_news, num_rate_code_breaking_news)
 
                     # used to create new quota
                     kwargs = {
@@ -904,7 +904,7 @@ def process_quota(request, confirmation_numbers):
                             Triplecquota.objects.create(**kwargs)
 
                     # Article
-                    elif num_articles > 0 and total_size >= 50:
+                    elif num_articles > 0 and num_breaking_news == 0 and total_size >= 50:
                         transpo = additional.get(code='TRANSPO').amount
                         cellcard = additional.get(code='TEL').amount
 
@@ -924,13 +924,13 @@ def process_quota(request, confirmation_numbers):
                         else:
                             kwargs.update(article_quota)
                             Triplecquota.objects.create(**kwargs)
-                    
+
                     # BREAKING NEWS
                     # total_size = number of peices
                     elif num_breaking_news > 0 and total_size >= 50:
                         transpo3 = additional.get(code='TRANSPO3').amount
                         cellcard = additional.get(code='TEL').amount
-
+                        
                         # used to update existing quota
                         breaking_news_quota = {
                             'type': 'INSNB',
@@ -2116,7 +2116,6 @@ def startprint(request):
 
             xno += 1
         
-        #info['logo'] = request.build_absolute_uri('/static/images/pdi.jpg')
         info['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
         info['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         
