@@ -1077,7 +1077,7 @@ def print_cs(request):
 
         xnum += 1
     
-    info['logo'] = request.build_absolute_uri('/static/images/pdi.jpg')
+    info['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
     info['parameter'] = companyparameter
     
     return render(request, 'triplec/process_transaction/print_cs.html', {'info': info, 'parameter': parameter})
@@ -1237,7 +1237,7 @@ class GeneratePDF(View):
                 "heading": {
                     'dates': dates,
                     'report_title': report_title,
-                    'logo': request.build_absolute_uri('/static/images/pdi.jpg'),
+                    'logo': "https://128.1.44.21/static/images/pdi.jpg",
                 }
             }
         else:
@@ -1246,7 +1246,7 @@ class GeneratePDF(View):
                 "company": company,
                 "username": request.user,
                 "heading": {
-                    'logo': request.build_absolute_uri('/static/images/pdi.jpg'),
+                    'logo': "https://128.1.44.21/static/images/pdi.jpg",
                 }
             }
              
@@ -2116,7 +2116,7 @@ def startprint(request):
 
             xno += 1
         
-        info['logo'] = request.build_absolute_uri('/static/images/pdi.jpg')
+        info['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
         info['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         
         return render(request, 'triplec/print_cs/print_cs.html', {'info': info, 'parameter': parameter})
