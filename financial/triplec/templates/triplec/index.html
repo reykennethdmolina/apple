@@ -516,6 +516,8 @@
 <div id="upload-failed" class="custom-alert danger">Upload failed.</div>
 <div id="upload-file-exist" class="custom-alert danger">Uploaded file already exist.</div>
 <div id="upload-form-required" class="custom-alert danger">File is required.</div>
+<div id="upload-file-incorrect" class="custom-alert danger">File must be XLS or XLSX.</div>
+<div id="upload-file-size" class="custom-alert danger">File size is too large.</div>
 <div id="upload-file-error" class="custom-alert danger">An error occured.</div>
 
 <div id="custom-success-alert" class="custom-alert success"></div>
@@ -558,6 +560,9 @@
                 type: 'POST',
                 data: formData,
                 async: false,
+                cache: false,
+                contentType: false,
+                processData: false,
                 success: function (data) {
                     $('#fileUploadInput').fadeOut(300);
                     $('#fileUploadProcessing').fadeOut(300);
@@ -582,13 +587,18 @@
                             customAlert($('#upload-failed'));
                             $('#uploadModal').modal('toggle');
                             break;
+                        case 4:
+                            customAlert($('#upload-file-incorrect'));
+                            $('#uploadModal').modal('toggle');
+                            break;
+                        case 5:
+                            customAlert($('#upload-file-size'));
+                            $('#uploadModal').modal('toggle');
+                            break;
                         default:
                             customAlert($('#upload-file-error'));
                     }
-                },
-                cache: false,
-                contentType: false,
-                processData: false
+                }
             });
 	        
 			return false;
