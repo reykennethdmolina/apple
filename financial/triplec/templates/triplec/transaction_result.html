@@ -1,3 +1,4 @@
+
 {% load humanize %}
 {% load mathfilters %}
 {% load custom %}
@@ -199,7 +200,7 @@
                                     <input type="hidden" name="data_status_txt" value="{{ data.get_status_display }}" />
                                     <input type="hidden" name="data_rate_code" value="{{ data.rate_code|default:'' }}" />
                                     <input type="hidden" name="data_amount" value="{{ data.amount }}" />
-                                    <input type="hidden" name="data_no_of_ccc" value="{{ data.no_of_ccc }}" />
+                                    <input type="hidden" name="data_no_of_ccc" value="{{ data.no_ccc }}" />
                                     <input type="hidden" name="data_no_of_items" value="{{ data.no_items|default:'' }}" />
                                     <input type="hidden" name="data_length1" value="{{ data.length1 }}" />
                                     <input type="hidden" name="data_length2" value="{{ data.length2 }}" />
@@ -1874,7 +1875,14 @@
                     $('#input_amount').val(new_amount.toFixed(2));
                 }
             }
-            $('#input_total_size').val(new_total_size.toFixed(2));
+
+            if(no_of_ccc > 1){
+                const divided_size = new_total_size / no_of_ccc;
+                $('#input_total_size').val(divided_size.toFixed(2));
+            } else {
+                $('#input_total_size').val(new_total_size.toFixed(2));
+            }
+            
         }
 
         function size1(){
@@ -1961,3 +1969,6 @@
 
 </script>
 {% endblock extra_js %}
+apps-fileview.texmex_20240201.01_p0
+transaction_result.html
+Displaying transaction_result.html.
