@@ -732,17 +732,16 @@ def transaction_posting(request):
             newitem = ''
             existing = []
             confirmation_numbers = []
-
             for item in transactions:
 
                 newitem = item['code']+'sep'+item['type']
 
-                year = dt.strptime(item['issue_date'], "%Y-%m-%d").year
-                csno = get_confirmation(year)
+                # year = dt.strptime(item['issue_date'], "%Y-%m-%d").year
+                current_year = dt.now().year
+                csno = get_confirmation(current_year)
                 
                 try:
                     triplec = TripleC.objects.filter(pk=item['pk'])
-                    
                     if triplec[0].status != 'O':
 
                         kwargs = {
@@ -1755,7 +1754,7 @@ def goposttriplec(request):
                     exception = str(e)
                     
             if exception:
-                response = {'status': 'error', 'message': 'An exception occured: ('+ exception+') - Note: other transaction(s) may have been successfully saved ('+successful_trans+').'}
+                response = {'status': 'error', 'message': 'An exception occured: ('+ exception+') - Note: other transaction(s) may have been successfully saved ('+str(successful_trans)+').'}
             elif already_posted > 0 and successful_trans > 0:
                 if already_posted == 1 and successful_trans == 1:
                     response = {'status': 'error', 'message': 'Successfully posted '+str(successful_trans)+' transaction. However, there is '+ str(already_posted)+ ' transaction have been already posted.'}
