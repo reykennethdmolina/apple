@@ -988,7 +988,13 @@
                     $('#manual_input_amount').val(new_amount.toFixed(2));
                 }
             }
-            $('#manual_input_total_size').val(new_total_size.toFixed(2));
+
+            if(no_of_ccc > 1){
+                const divided_size = new_total_size / no_of_ccc;
+                $('#manual_input_total_size').val(divided_size.toFixed(2));
+            } else {
+                $('#manual_input_total_size').val(new_total_size.toFixed(2));
+            }
         }
 
         function size1(){
@@ -1039,6 +1045,25 @@
             var num = parseInt($('#manual_input_no_of_ccc').val()) || 0;
 
             return num;
+        }
+
+        $("#manual_input_no_of_items, #manual_select_rate_code").on('change paste keyup input', function(){
+            if($('#manual_select_subtype').val() === '11'){
+                photo_amount_computation();
+            }
+        });
+
+        function photo_amount_computation(){
+            const type = $('#manual_select_subtype').val() || '';
+            const items = parseInt($('#manual_input_no_of_items').val() || 0);
+            const rate = parseFloat($('#manual_select_rate_code option:selected').attr('data-amount')) || 0;
+            
+            if(items == 0 || rate === 0 || type === ''){
+                return false;
+            }
+
+            const multiplied_amount = rate * items;
+            $('#input_amount').val(multiplied_amount.toFixed(2));
         }
 
         // custom alert messages
