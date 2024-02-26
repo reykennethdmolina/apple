@@ -1557,7 +1557,7 @@ def approve(request):
                         print 'send email notification'
                         subject = 'OPERATIONAL FUND APPROVER NOTIFICATION - OIC'
                         message = 'Hi ' + str(of_for_approval.requestor_name) + ', \n\n' \
-                                  'Your OPERATIONAL FUND REQUEST has been approve. \n\n' \
+                                  'Your OPERATIONAL FUND REQUEST has been approved. \n\n' \
                                    'Click link here: https://fin101bss.inquirer.com.ph/operationalfund \n\n' \
                                     'Thank You'
                         email_from = 'inq-noreply@inquirer.com.ph'
