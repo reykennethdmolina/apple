@@ -276,6 +276,12 @@
                                             <a href="{% url 'checkvoucher:detail' data.cvmain.id %}" target="_blank">CV#{{ data.cvmain.cvnum }}</a>
                                         {% endfor %}
                                     </div>
+                                    Triple C
+                                    <div class="master-degree small">
+                                        {% if object.apsubtype_id == 16 and object.refno %}
+                                            <a href='{% url "triplec:print_cs" %}?batch=1&q=%5B"{{ object.refno|urlencode }}"%5D' target="_blank">CS#{{ object.refno }}</a>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
