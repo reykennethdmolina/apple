@@ -756,7 +756,7 @@ class Pdf(PDFTemplateView):
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
         #context['logo'] = "https://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
-        context['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
+        context['logo'] = Companyparameter.objects.get(code='PDI').get_logo()
 
         taxable_entries = context['detail'].filter(balancecode='D', debitamount__gt=0.00).exclude(
             chartofaccount=Companyparameter.objects.get(code='PDI').coa_inputvat).order_by('item_counter')

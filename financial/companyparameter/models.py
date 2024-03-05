@@ -125,6 +125,8 @@ class Companyparameter(models.Model):
     officer_percentage_tax = models.IntegerField(default=11)
     base_url_201 = models.CharField(max_length=115, blank=True, null=True)
 
+    logo_path = models.CharField(max_length=250, blank=True, null=True)
+
     class Meta:
         db_table = 'companyparameter'
         ordering = ['-pk']
@@ -141,4 +143,7 @@ class Companyparameter(models.Model):
 
     def status_verbose(self):
         return dict(Companyparameter.STATUS_CHOICES)[self.status]
+    
+    def get_logo(self):
+        return self.logo_path
 
