@@ -533,7 +533,7 @@ class Pdf(PDFTemplateView):
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
         #context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
-        context['logo'] = "https://128.1.44.21/static/images/pdi.jpg"
+        context['logo'] = Companyparameter.objects.get(code='PDI').get_logo()
 
         printedprf = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         printedprf.print_ctr += 1
@@ -880,7 +880,7 @@ class ReportView(ListView):
 
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
-        context['rc_logo'] = "https://128.1.44.21/static/images/pdi.jpg"
+        context['rc_logo'] = Companyparameter.objects.get(code='PDI').get_logo()
 
         return context
 
@@ -906,7 +906,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         # @change default title
         context['rc_headtitle'] = "PURCHASE REQUISITION FORM"
         context['rc_title'] = "PURCHASE REQUISITION FORM"
-        context['rc_logo'] = "https://128.1.44.21/static/images/pdi.jpg"
+        context['rc_logo'] = Companyparameter.objects.get(code='PDI').get_logo()
 
         return context
 
