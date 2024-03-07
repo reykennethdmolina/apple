@@ -9,7 +9,7 @@ class ReportContentMixin(ContextMixin):
         context = super(ReportContentMixin, self).get_context_data(**kwargs)
 
         # required contents
-        context['rc_logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+        context['rc_logo'] = Companyparameter.objects.get(code='PDI').logo_path
         context['rc_param'] = Companyparameter.objects.first()
         # context['rc_user'] = request.user
 
