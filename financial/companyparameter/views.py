@@ -123,7 +123,8 @@ class UpdateView(UpdateView):
               'last_closed_date', 'income_tax_rate',
               'budgetapprover', 'pcv_initial_approver', 'pcv_final_approver',
               'rfv_initial_approver', 'rfv_final_approver',
-              'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201']
+              'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201',
+              'logo_path']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('companyparameter.change_companyparameter'):
@@ -188,7 +189,8 @@ class UpdateView(UpdateView):
                                         'last_closed_date', 'income_tax_rate',
                                         'budgetapprover', 'pcv_initial_approver', 'pcv_final_approver',
                                         'rfv_initial_approver', 'rfv_final_approver',
-                                        'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201'])
+                                        'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201',
+                                        'logo_path'])
         return HttpResponseRedirect('/companyparameter')
 
 

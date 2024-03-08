@@ -579,6 +579,14 @@
                                     <span class="help-block form-error">{{ form.base_url_201.errors.as_text }}</span>
                                 </div>
                             </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.logo_path.errors|yesno:'has-error,' }}">
+                                <label for="id_logo_path" class="col-sm-3 control-label">Logo Link</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="id_logo_path" maxlength="250" placeholder="Logo" name="logo_path"
+                                           value="{{ form.logo_path.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.logo_path.errors.as_text }}</span>
+                                </div>
+                            </div>
                         </div>
                         <div id="lastnumbersused" class="tabcontent">
                             <div class="form-group form-group-0 col-md-6 {{ form.last_closed_date.errors|yesno:'has-error,' }}">
