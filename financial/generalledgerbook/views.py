@@ -1017,7 +1017,7 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
         query = "SELECT z.*, " \
                 "IF(z.current_code <>  z.main_balancecode, current_amount, ABS(current_amount)) AS current_amount_abs, " \
                 "IF(z.prev_code <>  z.main_balancecode, prev_amount, ABS(prev_amount)) AS prev_amount_abs " \
-                "FROM ( SELECT thisgroup.code AS this_code, thisgroup.description AS this_desc, grouping.code AS group_code, grouping.description AS group_desc, " \
+                "FROM ( SELECT thisgroup.code AS this_code, thisgroup.description AS this_desc, groupingx.code AS group_code, groupingx.description AS group_desc, " \
                 "       maingroup.balancecode AS main_balancecode, " \
                 "       maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
                 "       subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
@@ -1033,8 +1033,8 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
                 "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
                 "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
                 "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
-                "LEFT OUTER JOIN chartofaccountmaingroup AS grouping ON grouping.id = maingroup.group_id " \
-                "LEFT OUTER JOIN chartofaccountmaingroup AS thisgroup ON thisgroup.id = grouping.group_id " \
+                "LEFT OUTER JOIN chartofaccountmaingroup AS groupingxx ON groupingxx.id = maingroup.group_id " \
+                "LEFT OUTER JOIN chartofaccountmaingroup AS thisgroup ON thisgroup.id = groupingxx.group_id " \
                 "LEFT OUTER JOIN ( " \
                 "   SELECT chart_d.id AS debit_id, SUM(chart_d.end_amount) AS debit_end_amount, chart_d.end_code AS debit_end_code, " \
                 "           subgroup_d.id AS debit_subgroup, subgroup_d.code AS debit_subgroupcode " \
@@ -1112,7 +1112,7 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
         query = "SELECT z.*, " \
                 "IF(z.current_code <>  z.main_balancecode, current_amount, ABS(current_amount)) AS current_amount_abs, " \
                 "IF(z.prev_code <>  z.main_balancecode, prev_amount, ABS(prev_amount)) AS prev_amount_abs " \
-                "FROM ( SELECT thisgroup.code AS this_code, thisgroup.description AS this_desc, grouping.code AS group_code, grouping.description AS group_desc, " \
+                "FROM ( SELECT thisgroup.code AS this_code, thisgroup.description AS this_desc, groupingxx.code AS group_code, groupingxx.description AS group_desc, " \
                 "       maingroup.balancecode AS main_balancecode, " \
                 "       maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
                 "       subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
@@ -1128,8 +1128,8 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
                 "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
                 "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
                 "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
-                "LEFT OUTER JOIN chartofaccountmaingroup AS grouping ON grouping.id = maingroup.group_id " \
-                "LEFT OUTER JOIN chartofaccountmaingroup AS thisgroup ON thisgroup.id = grouping.group_id " \
+                "LEFT OUTER JOIN chartofaccountmaingroup AS groupingxx ON groupingxx.id = maingroup.group_id " \
+                "LEFT OUTER JOIN chartofaccountmaingroup AS thisgroup ON thisgroup.id = groupingxx.group_id " \
                 "LEFT OUTER JOIN ( " \
                 "   SELECT chart_d.id AS debit_id, SUM(summary.end_amount) AS debit_end_amount, summary.end_code AS debit_end_code, " \
                 "           subgroup_d.id AS debit_subgroup, subgroup_d.code AS debit_subgroupcode " \
@@ -1207,7 +1207,7 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
                 "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
                 "GROUP BY subgroup.id " \
                 "ORDER BY maingroup.code, subgroup.code) AS z"
-
+    #print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
@@ -1218,7 +1218,7 @@ def query_income_statement(type, retained_earnings, current_earnings, year, mont
     ''' Create query '''
     cursor = connection.cursor()
     if type == 'P':
-        query = "SELECT grouping.code AS group_code, grouping.description AS group_desc, grouping.title AS group_title, maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
+        query = "SELECT groupingxx.code AS group_code, groupingxx.description AS group_desc, groupingxx.title AS group_title, maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
                 "maingroup.title AS maingroup_title, subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
                 "SUM(z.current_amount) AS current_amount, SUM(z.prev_amount) AS prev_amount, SUM(z.todate_amount) AS todate_amount " \
                 "FROM ( " \
@@ -1282,11 +1282,11 @@ def query_income_statement(type, retained_earnings, current_earnings, year, mont
                 "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = z.subgroup_id " \
                 "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
                 "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
-                "LEFT OUTER JOIN chartofaccountmaingroup AS grouping ON grouping.id = maingroup.group_id " \
+                "LEFT OUTER JOIN chartofaccountmaingroup AS groupingxx ON groupingxx.id = maingroup.group_id " \
                 "GROUP BY maingroup.code, subgroup.code " \
                 "ORDER BY maingroup.code, subgroup.code"
     else:
-        query = "SELECT grouping.code AS group_code, grouping.description AS group_desc, grouping.title AS group_title, maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
+        query = "SELECT groupingx.code AS group_code, groupingx.description AS group_desc, groupingx.title AS group_title, maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
                 "maingroup.title AS maingroup_title, subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
                 "SUM(z.current_amount) AS current_amount, SUM(z.prev_amount) AS prev_amount, SUM(z.todate_amount) AS todate_amount " \
                 "FROM ( " \
@@ -1354,7 +1354,7 @@ def query_income_statement(type, retained_earnings, current_earnings, year, mont
                 "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = z.subgroup_id " \
                 "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
                 "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
-                "LEFT OUTER JOIN chartofaccountmaingroup AS grouping ON grouping.id = maingroup.group_id " \
+                "LEFT OUTER JOIN chartofaccountmaingroup AS groupingx ON groupingx.id = maingroup.group_id " \
                 "GROUP BY maingroup.code, subgroup.code " \
                 "ORDER BY maingroup.code, subgroup.code"
 
