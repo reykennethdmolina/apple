@@ -605,14 +605,25 @@ def having_quota(request):
     return JsonResponse(data)
 
 
+def lastCsNumber():
+    ''' Query get latest 6 digit CS number series '''
+    cursor = connection.cursor()
+
+    query = "SELECT DISTINCT SUBSTRING(confirmation, 5) AS num FROM triplec WHERE confirmation IS NOT NULL AND confirmation <> '' ORDER BY num DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+    cursor.close()
+    return result[0].num
+
+
 def get_confirmation(year):
+
     try:
-        record = TripleC.objects.exclude(confirmation__isnull=True).exclude(confirmation__exact='').order_by('-confirmation')[:1]
-        if record.exists():
-            last_cs = str(record[0].confirmation)
-            # Get the maximum last six digits from the filtered record
-            series = last_cs[-6:]
-            confirmation_number = str(year) + str(series)
+        last_cs = lastCsNumber()
+        if last_cs:
+            # last_cs = record.aggregate(max_last_six=Max('confirmation'))['max_last_six'][-6:]
+            confirmation_number = str(year) + str(last_cs)
         else:
             # first cs
             confirmation_number = str(year) + '000001'
@@ -727,19 +738,23 @@ def transaction_posting(request):
     if request.method == 'POST':
         try:
             transactions = json.loads(request.POST.getlist('data')[0])
+            transaction_date = request.POST['transaction_date']
             
             olditem = ''
             newitem = ''
             existing = []
             confirmation_numbers = []
+
+            # Combine the date from the input with the current time
+            transaction_date = dt.strptime(transaction_date, "%Y-%m-%d")
+            current_time = timezone.now()
+            transaction_datetime = dt.combine(transaction_date.date(), current_time.time())
+
             for item in transactions:
 
                 newitem = item['code']+'sep'+item['type']
+                csno = get_confirmation(transaction_date.year)
 
-                # year = dt.strptime(item['issue_date'], "%Y-%m-%d").year
-                current_year = dt.now().year
-                csno = get_confirmation(current_year)
-                
                 try:
                     triplec = TripleC.objects.filter(pk=item['pk'])
                     if triplec[0].status != 'O':
@@ -749,11 +764,11 @@ def transaction_posting(request):
                             'status': 'O', 
                             'modifyby_id': request.user.id,
                             'modifydate': datetime.datetime.now(),
+                            'transaction_date': transaction_datetime
                         }
 
                         if triplec[0].confirmation:
                             confirmation_numbers.append(triplec[0].confirmation)
-
                         elif newitem != olditem:
                             new_csno = int(csno) + 1
                             kwargs.update(
@@ -761,12 +776,10 @@ def transaction_posting(request):
                             )
                             olditem = newitem
                             confirmation_numbers.append(new_csno)
-
                         else:
                             kwargs.update(
                                 confirmation=csno, 
                             )
-
                         triplec.update(**kwargs)
 
                     else:
@@ -1076,7 +1089,7 @@ def print_cs(request):
 
         xnum += 1
     
-    info['logo'] = Companyparameter.objects.get(code='PDI').get_logo()
+    info['logo'] = Companyparameter.objects.get(code='PDI').logo_path
     info['parameter'] = companyparameter
     
     return render(request, 'triplec/process_transaction/print_cs.html', {'info': info, 'parameter': parameter})
@@ -1236,7 +1249,7 @@ class GeneratePDF(View):
                 "heading": {
                     'dates': dates,
                     'report_title': report_title,
-                    'logo': Companyparameter.objects.get(code='PDI').get_logo(),
+                    'logo': Companyparameter.objects.get(code='PDI').logo_path,
                 }
             }
         else:
@@ -1245,7 +1258,7 @@ class GeneratePDF(View):
                 "company": company,
                 "username": request.user,
                 "heading": {
-                    'logo': Companyparameter.objects.get(code='PDI').get_logo(),
+                    'logo': Companyparameter.objects.get(code='PDI').logo_path,
                 }
             }
              
@@ -1859,7 +1872,7 @@ def lastAPNumber(param):
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
-
+    cursor.close()
     return result[0]
 
 
@@ -2115,7 +2128,7 @@ def startprint(request):
 
             xno += 1
         
-        info['logo'] = Companyparameter.objects.get(code='PDI').get_logo()
+        info['logo'] = Companyparameter.objects.get(code='PDI').logo_path
         info['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         
         return render(request, 'triplec/print_cs/print_cs.html', {'info': info, 'parameter': parameter})
