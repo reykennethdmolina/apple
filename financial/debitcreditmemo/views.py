@@ -474,7 +474,7 @@ class Pdf(PDFTemplateView):
 
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
-        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+        context['logo'] = Companyparameter.objects.get(code='PDI').logo_path
 
         printeddc = Dcmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
         printeddc.print_ctr += 1
