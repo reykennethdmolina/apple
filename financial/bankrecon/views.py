@@ -440,7 +440,7 @@ def MetroBank(request, columnlength):
 
         increment += 1
         #validation
-        transactiondate = fields[0] if fields[0] != '' else ''
+        # transactiondate = fields[0] if fields[0] != '' else ''
         postingdate = fields[1] if fields[1] != '' else ''
         time = fields[2] if fields[2] != '' else ''
         checknumber = fields[3] if fields[3] != '' else ''
@@ -457,7 +457,7 @@ def MetroBank(request, columnlength):
             if len(fields) == columnlength:
                 # Hash: transdate,particulars,debit,credit,balance
                 unique_description = str(transactiondescription) + '-seprtr-' + str(increment)
-                generatedkey = generate_hash_key(transactiondate,unique_description,debitamount,creditamount,balance)
+                generatedkey = generate_hash_key(postingdate,unique_description,debitamount,creditamount,balance)
 
                 if Bankrecon.objects.filter(generatedkey=generatedkey, bankaccount_id=request.POST['bank_account'], bank_id=request.POST['bank_id']).exists():
                     faileddata.append([postingdate, branchorchannel, transactiondescription, debitamount, creditamount, dataexists, bgblue])
@@ -465,14 +465,14 @@ def MetroBank(request, columnlength):
                     existscount += 1
                 else:
                     try:
-                        transactiondate = datetime.datetime.strptime(str(transactiondate), '%m/%d/%Y').strftime('%Y-%m-%d')
+                        # transactiondate = datetime.datetime.strptime(str(transactiondate), '%m/%d/%Y').strftime('%Y-%m-%d')
                         postingdate = datetime.datetime.strptime(str(postingdate), '%m/%d/%Y').strftime('%Y-%m-%d')
                         
                         new_object = Bankrecon.objects.create(
                             bank_id=request.POST['bank_id'],
                             bankaccount_id=request.POST['bank_account'],
                             generatedkey=generatedkey,
-                            transaction_date=transactiondate,
+                            transaction_date=postingdate,
                             posting_date=postingdate,
                             transaction_time=str(time),
                             checknumber=str(checknumber),

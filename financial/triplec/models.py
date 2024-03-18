@@ -88,6 +88,7 @@ class TripleC(models.Model):
     modifydate = models.DateField(auto_now_add=True)
     manual = models.IntegerField(default=0)
     isdeleted = models.IntegerField(default=0)
+    transaction_date = models.DateTimeField()
 
     class Meta:
         db_table = 'triplec'

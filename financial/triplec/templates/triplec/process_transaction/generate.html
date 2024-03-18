@@ -23,11 +23,22 @@
     <div class="row">
         <div class="col-md-12">
             <div class="col-md-6"></div>
-            <div class="col-md-6 text-right">
-                <a class="btn btn-info waves-effect waves-dark" id="post_transaction" style="margin-top: 22px;" title="Selected transactions will be posted">
-                    <i class="icon fa-check-circle-o" aria-hidden="true"></i>&nbsp;&nbsp;Post to CS
-                </a>
-                <a style="display: none;" href="" id="trigger_cs" target="_blank">CS</a>
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-6"></div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label class="control-label small" for="transaction_date">Transaction Date <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="transaction_date" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <a class="btn btn-info waves-effect waves-dark" id="post_transaction" style="margin-top: 26px;" title="Selected transactions will be posted">
+                            <i class="icon fa-check-circle-o" aria-hidden="true"></i>&nbsp;&nbsp;Post to CS
+                        </a>
+                        <a style="display: none;" href="" id="trigger_cs" target="_blank">CS</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -110,6 +121,14 @@
 
 {% block extra_js %}
 <script>
+    
+    var issuedate_dto = new Date($('#dto').val());
+    var issuedate_month = issuedate_dto.getMonth();
+    var issuedate_year = issuedate_dto.getFullYear();
+
+    var lastDate = new Date(issuedate_year, issuedate_month + 1, 0);
+    $("#transaction_date").datepicker({ format: 'yyyy-mm-dd' }).val($.datepicker.formatDate('yy-mm-dd', lastDate));
+
     $(document).on('change', 'input[name="chb_all"]', function() {
         $('.transaction-checkbox').prop("checked", this.checked);
     });
@@ -121,12 +140,23 @@
             $('input[name="chb_all"]').prop("checked", false);
         }
     });
+
+    function isInvalidDate(date) {
+        // validate if date does not follow format yyyy-mm-dd
+        var regEx = /^\d{4}-\d{2}-\d{2}$/;
+        return date.match(regEx) == null;
+    }
     
     $('#post_transaction').click(function(e){
         e.preventDefault();
 
+        const transaction_date = $('#transaction_date').val();
+        if(isInvalidDate(transaction_date)){
+            alert('Invalid transaction date');
+            return false;
+        } 
+
         var transaction_ids = [];
-        
         $('tr.transaction_row').each(function () {
             if ($(this).find('input[type="checkbox"]').is(':checked')) {
                 var pk = $(this).attr('id');
@@ -152,6 +182,7 @@
                     data: {
                         'csrfmiddlewaretoken': "{{csrf_token}}",
                         'data': JSON.stringify(transaction_ids),
+                        'transaction_date': transaction_date
                     },
                     success: function(response) {
                         if(response.result == true){
@@ -170,7 +201,7 @@
                     },
                     error: function(xhr, textStatus, errorThrown) {
                         console.log(xhr, textStatus, errorThrown);
-                        alert("An error occured"+ textStatus);
+                        alert("An error occured "+ textStatus);
                     }
                 });
             }
