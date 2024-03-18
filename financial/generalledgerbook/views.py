@@ -1648,6 +1648,7 @@ def excel_balance_sheet(request, result, report, type, year, month, current_mont
     gtotal_previous = 0
     gtotal_variance = 0
     gtotal_previous_percentage = 0
+    gtotal_current_percentage = 0
     gtotal_var = 0
     prev_liab_equity_percentage = 0
 
