@@ -440,7 +440,7 @@ def MetroBank(request, columnlength):
 
         increment += 1
         #validation
-        # transactiondate = fields[0] if fields[0] != '' else ''
+        transactiondate = fields[0] if fields[0] != '' else ''
         postingdate = fields[1] if fields[1] != '' else ''
         time = fields[2] if fields[2] != '' else ''
         checknumber = fields[3] if fields[3] != '' else ''
@@ -457,7 +457,7 @@ def MetroBank(request, columnlength):
             if len(fields) == columnlength:
                 # Hash: transdate,particulars,debit,credit,balance
                 unique_description = str(transactiondescription) + '-seprtr-' + str(increment)
-                generatedkey = generate_hash_key(postingdate,unique_description,debitamount,creditamount,balance)
+                generatedkey = generate_hash_key(transactiondate,unique_description,debitamount,creditamount,balance)
 
                 if Bankrecon.objects.filter(generatedkey=generatedkey, bankaccount_id=request.POST['bank_account'], bank_id=request.POST['bank_id']).exists():
                     faileddata.append([postingdate, branchorchannel, transactiondescription, debitamount, creditamount, dataexists, bgblue])
@@ -465,14 +465,14 @@ def MetroBank(request, columnlength):
                     existscount += 1
                 else:
                     try:
-                        # transactiondate = datetime.datetime.strptime(str(transactiondate), '%m/%d/%Y').strftime('%Y-%m-%d')
+                        transactiondate = datetime.datetime.strptime(str(transactiondate), '%m/%d/%Y').strftime('%Y-%m-%d')
                         postingdate = datetime.datetime.strptime(str(postingdate), '%m/%d/%Y').strftime('%Y-%m-%d')
                         
                         new_object = Bankrecon.objects.create(
                             bank_id=request.POST['bank_id'],
                             bankaccount_id=request.POST['bank_account'],
                             generatedkey=generatedkey,
-                            transaction_date=postingdate,
+                            transaction_date=transactiondate,
                             posting_date=postingdate,
                             transaction_time=str(time),
                             checknumber=str(checknumber),
@@ -1182,11 +1182,20 @@ def transgenerate(request):
     if document_type != '':
         pdi_data = pdi_data.filter(document_type=document_type)
 
-    bank_data = Bankrecon.objects.filter(\
-        bankaccount_id=bankaccount_id, \
-        transaction_date__range=[dfrom, dto]\
-    ).values('id', 'reference_number', 'transaction_date', 'debit_amount', 'credit_amount', 'branch', 'checknumber', 'particulars', 'transactioncode').order_by('id')
-
+    date_type = str()
+    if str(bankaccount_id) == '10':
+        date_type = 'posting_date'
+        bank_data = Bankrecon.objects.filter(\
+            bankaccount_id=bankaccount_id, \
+            posting_date__range=[dfrom, dto]\
+        ).values('id', 'reference_number', date_type, 'debit_amount', 'credit_amount', 'branch', 'checknumber', 'particulars', 'transactioncode').order_by('id')
+    else:
+        date_type = 'transaction_date'
+        bank_data = Bankrecon.objects.filter(\
+            bankaccount_id=bankaccount_id, \
+            transaction_date__range=[dfrom, dto]\
+        ).values('id', 'reference_number', date_type, 'debit_amount', 'credit_amount', 'branch', 'checknumber', 'particulars', 'transactioncode').order_by('id')
+    print 'bank_data', date_type, bankaccount_id, bank_data
     bankdebit_total = 0
     bankcredit_total = 0
     pdidebit_total = 0
@@ -1240,9 +1249,9 @@ def transgenerate(request):
         for date in dates:
             sorted_book_dailysum.append(sum_daily_amount(date, pdi_data))
 
-        bank_dates = list(set([transdate['transaction_date'] for transdate in bank_data]))
+        bank_dates = list(set([transdate[date_type] for transdate in bank_data]))
         for bank_date in bank_dates:
-            sorted_bank_dailysum.append(bank_sum_daily_amount(bank_date, bank_data))
+            sorted_bank_dailysum.append(bank_sum_daily_amount(bank_date, date_type, bank_data))
         
         # AP, CV, JV, OR
         if document_type != '':
@@ -1334,7 +1343,7 @@ def transgenerate(request):
                     bank_iterator += 1
                     sorted_bank_data.append(b)
                     for bank_dailysum in sorted_bank_dailysum:
-                        if b['transaction_date'] == bank_dailysum['date'] and bank_dailysum['count'] == bank_iterator:
+                        if b[date_type] == bank_dailysum['date'] and bank_dailysum['count'] == bank_iterator:
                             sorted_bank_data.append({
                                 'transactioncode': 'subtotal',
                                 'count': bank_dailysum['count'],
@@ -1459,8 +1468,8 @@ def transgenerate(request):
             bank_with_refno = sorted(bank_with_refno)
             bank_with_refno.sort(key=takeRefNo)
 
-            # sort by transaction_date and grouped by reference_number
-            bank_reconciled_items = sort_reconciled_items(bank_with_refno, 'transaction_date', 'reference_number')
+            # sort by date_type (transaction_date OR posting_date) and grouped by reference_number
+            bank_reconciled_items = sort_reconciled_items(bank_with_refno, date_type, 'reference_number')
 
             iterator = 0
             increment = 0
@@ -1506,6 +1515,7 @@ def transgenerate(request):
     
     context['transdfrom'] = dfrom
     context['transdto'] = dto
+    context['bankaccount_id'] = bankaccount_id
     context['record'] = record
     context['pdi_data'] = sorted_pdi_data
     context['bank_data'] = sorted_bank_data
@@ -1546,12 +1556,12 @@ def sum_daily_amount(date, pdi_data):
     }
 
 
-def bank_sum_daily_amount(date, bank_data):
+def bank_sum_daily_amount(date, date_type, bank_data):
     debit_amount = 0.00
     credit_amount = 0.00
     i = 0
     for each in bank_data:
-        if date == each['transaction_date'] and str(each['id']).isdigit():
+        if date == each[date_type] and str(each['id']).isdigit():
             i += 1
             debit_amount += float(each['debit_amount'])
             credit_amount += float(each['credit_amount'])
