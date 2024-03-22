@@ -1166,6 +1166,7 @@ def importguide(request):
     return render(request, 'bankrecon/import_guide.html', context)
 
 
+@csrf_exempt
 def transgenerate(request):
     dfrom = request.GET["dfrom"]
     dto = request.GET["dto"]
@@ -1182,20 +1183,16 @@ def transgenerate(request):
     if document_type != '':
         pdi_data = pdi_data.filter(document_type=document_type)
 
-    date_type = str()
-    if str(bankaccount_id) == '10':
-        date_type = 'posting_date'
-        bank_data = Bankrecon.objects.filter(\
-            bankaccount_id=bankaccount_id, \
-            posting_date__range=[dfrom, dto]\
-        ).values('id', 'reference_number', date_type, 'debit_amount', 'credit_amount', 'branch', 'checknumber', 'particulars', 'transactioncode').order_by('id')
-    else:
-        date_type = 'transaction_date'
-        bank_data = Bankrecon.objects.filter(\
-            bankaccount_id=bankaccount_id, \
-            transaction_date__range=[dfrom, dto]\
-        ).values('id', 'reference_number', date_type, 'debit_amount', 'credit_amount', 'branch', 'checknumber', 'particulars', 'transactioncode').order_by('id')
-    print 'bank_data', date_type, bankaccount_id, bank_data
+    date_type = 'posting_date' if str(bankaccount_id) == '10' else 'transaction_date'
+    date_kwargs = {
+        date_type + '__range': [dfrom, dto]
+    }
+
+    bank_data = Bankrecon.objects.filter(\
+        bankaccount_id=bankaccount_id, \
+        **date_kwargs \
+    ).values('id', 'reference_number', date_type, 'debit_amount', 'credit_amount', 'branch', 'checknumber', 'particulars', 'transactioncode').order_by('id')
+        
     bankdebit_total = 0
     bankcredit_total = 0
     pdidebit_total = 0
