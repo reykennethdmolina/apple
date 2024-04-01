@@ -1249,7 +1249,7 @@ class GeneratePDF(View):
                 "heading": {
                     'dates': dates,
                     'report_title': report_title,
-                    'logo': Companyparameter.objects.get(code='PDI').logo_path,
+                    'logo': 'static/images/pdi.jpg',
                 }
             }
         else:
@@ -1258,7 +1258,7 @@ class GeneratePDF(View):
                 "company": company,
                 "username": request.user,
                 "heading": {
-                    'logo': Companyparameter.objects.get(code='PDI').logo_path,
+                    'logo': 'static/images/pdi.jpg',
                 }
             }
              
