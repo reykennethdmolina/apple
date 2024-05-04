@@ -1,0 +1,220 @@
+{% load endless %}
+{% load humanize %}
+{% paginate data_list %}
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th><span>ID</span></th>
+                <th><span>Number</span></th>
+                <th><span>Date</span></th>
+                <th><span>Customer</span></th>
+                <th><span>Amount</span></th>
+                <th><span>Status</span></th>
+                <th class="text-center"><span>Approval</span></th>
+                <th class="text-center"><span>Action</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>SI{{ data.sinum }}</td>
+                <td>{{ data.sidate|date:"Y-m-d" }}</td>
+                <td>{{ data.customer.name }}</td>
+                <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
+                <td class="
+                        {% if data.sistatus == 'A' %} text-success
+                        {% elif data.sistatus == 'D' %} text-danger
+                        {% elif data.sistatus == 'F' %} text-info
+                        {% elif data.sistatus == 'R' %} text-success
+                        {% endif %}"
+                    id="status{{ data.id }}">
+                    <b> {% if data.status != 'C' %}
+                            {% if data.status == 'O' %}
+                            POSTED
+                            {% else %}
+                            {{ data.get_sistatus_display }}
+                            {% endif %}
+                        {% else %}
+                        <span class="text-danger">CANCELLED</span>
+                        {% endif %}
+                    </b>
+                </td>
+                <td>
+                    <div class="text-center">
+                    {% if data.actualapprover_id == user.id or data.designatedapprover.id == user.id or user.is_superuser %}
+                        {% if data.status == 'O' %}
+                            <button class="btn btns-icon btn-info btn-round waves-effect waves-light">
+                            <i class="icon fa-lock" aria-hidden="true"></i>
+                            </button>
+                        {% else %}
+                            {% if data.sistatus != 'R' %}
+                                {% if data.sistatus != 'A' and data.status != 'C' %}
+                                <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve" id="btnA{{ data.id }}" data-id="{{ data.id }}">
+                                <i class="icon fa-check" aria-hidden="true"></i>
+                                </button>
+                                {% endif %}
+                                {% if data.sistatus != 'D' and data.status != 'C' %}
+                                <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove" id="btnD{{ data.id }}" data-num="{{ data.sinum }}" data-id="{{ data.id }}" data-toggle='modal' data-target='#disapprovedModal'>
+                                <i class="icon fa-remove" aria-hidden="true"></i>
+                                </button>
+                                {% endif %}
+                            {% else %}
+                                {% if perms.salesinvoice.can_postjv %}
+                                <button class="btn btns-icon btn-warning btn-round waves-effect waves-light btn-removereadytopost" id="btnRP{{ data.id }}" data-num="{{ data.sinum }}" data-id="{{ data.id }}">
+                                <i class="icon fa-unlock-alt" aria-hidden="true"></i>
+                                </button>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                    </div>
+                </td>
+                <td style="width: 150px; padding-left: 30px;{% if data.status == 'C' %} background-color:red {% endif %}" class="action-btns-container">
+                    <div class="iconlist-wrap auto-0">
+                        <div class="iconlist" style="text-align: left">
+                        <a href="{% url 'salesinvoice:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% if data.enterby_id == user.id or data.designatedapprover.id == user.id or user.is_superuser %}
+
+                            {% if perms.salesinvoice.change_simain and data.isdeleted == 0 %}
+                            <a href="{% url 'salesinvoice:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                            </a>
+                            {% endif %}
+                            {% if perms.salesinvoice.delete_simain and data.isdeleted == 0 and data.status == 'A' and data.sistatus != 'A' and data.sistatus != 'I' and data.sistatus != 'R' %}
+                            <a href="{% url 'salesinvoice:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                            </a>
+                            {% endif %}
+
+                        {% endif %}
+
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination pull-right">{% show_pages %}</div>
+    <div id="disapprovedModal" class="modal fade" role="dialog">
+        <form>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" id="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Disapproved Sales Invoice</h4>
+                </div>
+                <div class="modal-body" style="overflow:hidden;">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label class="control-label">Remarks: SI# <span id="sinumbertext"></span></label>
+                            <input type="hidden" id="siid" name="siid" required>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <textarea class="form-control" rows="3" name="reason" id="reason" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" id="disapprovedSubmit">Submit</button>
+                    <button type="button" class="btn btn-default" id="disapprovedclose" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+<!-- required -->
+<a href="/{{ request.resolver_match.app_name }}/?page=1" rel="page" class="endless_page_link" id="dummy" style="display: none;">1</a>
+<script>
+    $(function () {
+        $('.shade').remove();
+        $('.panel').prepend('<div class="shade"><div class="loader two-color"></div></div>');
+        $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
+        $('.endless_page_link').on('click', function () {
+            $('.shade').fadeIn();
+        });
+
+        $('.btn-removereadytopost').on('click', function(){
+            if (confirm('Are you sure you want to reopen this transaction?')) {
+                var id = $(this).data('id');
+                console.log(id);
+                $.ajax({
+                    url: "{% url 'salesinvoice:gounpost' %}",
+                    type: "post",
+                    data: {'id': $(this).data('id')},
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
+        $('.btn-approve').on('click', function(){
+            if (confirm('Are you sure you want to approved this SI?')) {
+                var id = $(this).data('id');
+                $.ajax({
+                    url: "{% url 'salesinvoice:approve' %}",
+                    type: "post",
+                    data: {'id': $(this).data('id')},
+                    success: function(response) {
+                        if (response['status'] == 'error') {
+                            alert('Opps something is wrong');
+                            alert(response['msg']);
+                            return false;
+                        } else {
+                            $('#btnA'+id).hide();
+                            $('#btnD'+id).hide();
+                            $('#status'+id).text('Approved').addClass('success');
+                        }
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
+        $('.btn-disapprove').on('click', function(){
+            $('#reason').val('');
+            $('#siid').val('');
+            $('#siid').val($(this).data('id'));
+            $('#sinumbertext').text($(this).data('num'));
+            $('#disapprovedModal').show();
+        });
+
+        $('#disapprovedSubmit').on('click', function(){
+            var id =  $('#siid').val();
+            var reason =  $('#reason').val();
+
+            if (reason.trim() == '') {
+                alert('Fill in remarks textbox');
+            } else if (id == '') {
+                alert('Ops! Something is wrong');
+            } else {
+                $.ajax({
+                url: "{% url 'salesinvoice:disapprove' %}",
+                type: "post",
+                data: {'id': id, 'reason': reason},
+                success: function(response) {
+                    $('#btnA'+id).hide();
+                        $('#btnD'+id).hide();
+                        $('#status'+id).text('Disapproved').addClass('success');
+                        $('#close').trigger('click');
+                },
+                error: function(response) {
+                    console.debug(response);
+                }
+            });
+            }
+
+        });
+    });
+</script>

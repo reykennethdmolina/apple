@@ -30,6 +30,7 @@ from officialreceipt.models import Ormain, Ordetailtemp, Ordetailbreakdowntemp, 
 from acknowledgementreceipt.models import Armain, Ardetailtemp, Ardetailbreakdowntemp, Ardetail, Ardetailbreakdown
 from debitcreditmemo.models import Dcmain, Dcdetailtemp, Dcdetailbreakdowntemp, Dcdetail, Dcdetailbreakdown
 from annoying.functions import get_object_or_None
+from salesinvoice.models import Simain, Sidetailtemp, Sidetailbreakdowntemp, Sidetail, Sidetailbreakdown
 
 
 def validatetable(table):
@@ -109,6 +110,17 @@ def validatetable(table):
             'str_detailbreakdown': 'dcdetailbreakdown',
             'stmt_detailtemp': 'temp.dcmain, temp.dc_num, DATE(temp.dc_date) AS dcdate, ',
             'stmt_detailbreakdowntemp': 'temp.dcdetailtemp AS detailid, temp.particular, temp.item_counter, temp.dcmain, temp.dc_num, DATE(temp.dc_date) AS dcdate, ',
+        }
+    elif table == 'sidetailtemp':
+        data = {
+            'sal': 'si',
+            'str_main': 'simain',
+            'str_detailtemp': 'sidetailtemp',
+            'str_detail': 'sidetail',
+            'str_detailbreakdowntemp': 'sidetailbreakdowntemp',
+            'str_detailbreakdown': 'sidetailbreakdown',
+            'stmt_detailtemp': 'temp.simain, temp.si_num, DATE(temp.si_date) AS sidate, ',
+            'stmt_detailbreakdowntemp': 'temp.sidetailtemp AS detailid, temp.particular, temp.item_counter, temp.simain, temp.si_num, DATE(temp.si_date) AS sidate, ',
         }
 
     return data
@@ -1362,6 +1374,7 @@ def updatedetail(source, mainid, num, secretkey, by_user, ormaindate):
                 detail.cv_date = ormaindate
                 detail.jv_date = ormaindate
                 detail.ap_date = ormaindate
+                detail.si_date = ormaindate
                 detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
                 # Return None if object is empty
                 detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
@@ -1551,6 +1564,7 @@ def updatedetail(source, mainid, num, secretkey, by_user, ormaindate):
             detail.cv_date = ormaindate
             detail.jv_date = ormaindate
             detail.ap_date = ormaindate
+            detail.si_date = ormaindate
             detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
             # Return None if object is empty
             detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)

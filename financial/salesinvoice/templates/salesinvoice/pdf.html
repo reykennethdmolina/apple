@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>Sales Invoice</title>
+    <style>
+        @page {
+            size: {{ pagesize }} {{ orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 1cm;
+                height: 2cm;
+            }
+            @frame content_frame {
+                left: 1cm;
+                width: 19.5cm;
+                top: 2.5cm;
+                height: 22.5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 25cm;
+                height: 3cm;
+            }
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 65px;
+            border-bottom: 1px solid black;
+            padding-bottom: -3px;
+            margin-bottom: -3px;
+        }
+        .signature-image {
+            width: 60px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <table>
+        <tr>
+            <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
+            <td width="500px">
+                <p class="title center"><br>SALES INVOICE</p>
+            </td>
+            <td>
+                <p class="number right">SI No.&nbsp;&nbsp;&nbsp;{{ simain.sinum }}<br>SI Date&nbsp;&nbsp;{{ simain.sidate|date:'m/d/Y' }}&nbsp;</p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="footer_content">
+    <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
+        <tr>
+            <td>
+                {{ parameter.report_footer1 }}<br>
+                {{ parameter.report_footer2 }}<br>
+                {{ parameter.report_footer3 }}<br>
+                {{ parameter.report_footer4 }}<br>
+                {% comment %} <b>{{ parameter.report_footer5 }}</b><br> {% endcomment %}
+                <b>{{ parameter.report_footer6 }}</b><br>
+                
+            </td>
+            <td style="margin-left: 30px;width: 600px;">
+                <span style="font-size: 11px;"><b> Payment Terms: Please refer to Agreement. if none </b></span><br>
+                <span style="font-size: 11px;"><b> indicated, this is due within {{ parameter.si_creditterm.daysdue }} days from invoice date. </b></span><br><br>
+                {{ parameter.report_footer14 }}<br>
+                {{ parameter.report_footer7 }} {{ request.user }} on {% now 'Y-m-d' %}
+            </td>
+        </tr>
+    </table>
+    {%block page_foot%}
+        <div style="text-align: right; font-size: 8px;">
+            Page <pdf:pagenumber /> of <pdf:pagecount />
+        </div>
+    {%endblock%}
+</div>
+<table>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3" style="line-height: 15px;">
+            <span class="title">{{ parameter.description|upper }}</span><br>
+            {{ parameter.address1 }}<br>
+            {{ parameter.address2 }}<br>
+            Tel: ({{ parameter.telno1 }}, {{ parameter.telno2 }}<br>
+            VAT REG TIN: {{ parameter.tinnum }}
+        </td>
+    </tr>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3">
+            <br>
+            <table>
+                <tr>
+                    <td width="45%" style="vertical-align: top"><b>Customer Name</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ simain.customer.name }}</td>
+                    {% comment %} <td width="25%" style="vertical-align: top"><b>Type</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ simain.sitype.description }}</td> {% endcomment %}
+                </tr>
+                <tr>
+                    <td width="45%" style="vertical-align: top"><b>Bus. Name/Style</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top"></td>
+                    {% comment %} <td width="25%" style="vertical-align: top"><b>Branch</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ simain.branch.description }}</td> {% endcomment %}
+                </tr>
+                <tr>
+                    <td width="45%" style="vertical-align: top"><b>Address</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td colspan="2" style="vertical-align: top">{{ simain.customer.address1 }}&nbsp;{{ simain.customer.address2 }}&nbsp;<br>{{ simain.customer.address3 }}</td>
+                    
+                </tr>
+                <tr>
+                    <td width="45%" style="vertical-align: top"><b>TIN</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ tin }}</td>
+                </tr>
+                
+                <tr>
+                    <td width="45%" style="vertical-align: top"><b>Acct. Exec.</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ simain.accountexecutive.firstname }} {{ simain.accountexecutive.lastname }}</td>
+                    
+                </tr>
+                <tr style="background-color: red">
+                    <td width="45%" style="vertical-align: top"><b>Remarks</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td colspan="3" style="vertical-align: top">{{ simain.remarks|default:'N/A' }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr><td></td></tr>
+</table>
+<b style="color: red">Please attach BIR FORM 2307 simultaneously with your payment if you deducted expanded withholding tax.</b>
+<table style="padding-left: 5px;">
+    <tr class="left" style="border-top: 2px solid black; border-bottom: 2px solid black; padding-top: 5px;">
+        <td colspan="2" style="width: 70%; border-left: 2px solid black;" align="center;"><b><i> Particulars </i></b></td>
+        <td style="width: 20%;" align="center;"><b><i> Quantity </i></b></td>
+        <td style="width: 20%;" align="center;"><b><i> Unit Cost </i></b></td>
+        <td style="width: 30%; border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i> Total Amount </i></b></td>
+    </tr>
+    {% for detail in detail %}
+        {% if detail.balancecode == 'D' %}
+            <tr style="padding-top: 5px;">
+                <td colspan="2" >
+                    <table style="padding-bottom: -5px;">
+                        <tr>
+                            <td style="width: 110%">{{ detail.simain.particulars }}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td >
+                    <table>
+                        <tr>
+                            <td style="width: 63%; text-align: right;">1</td>
+                        </tr>
+                    </table>
+                </td>
+                <td >
+                    <table>
+                        <tr>
+                            {% if detail.simain.vatablesale > 0 %}
+                                <td style="width: 63%; text-align: right;">{{ detail.simain.vatablesale|floatformat:2|intcomma }}</td>
+                            {% else %}
+                                <td style="width: 63%; text-align: right;">{{ detail.debitamount|floatformat:2|intcomma }}</td>
+                            {% endif %}
+                        </tr>
+                    </table>
+                </td>
+                <td >
+                    <table>
+                        <tr>
+                            {% if detail.simain.vatablesale > 0 %}
+                                <td style="width: 100%; text-align: right;">{{ detail.simain.vatablesale|floatformat:2|intcomma }}</td>
+                            {% else %}
+                                <td style="width: 100%; text-align: right;">{{ detail.debitamount|floatformat:2|intcomma }}</td>
+                            {% endif %}
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    {% comment %} <tr style="padding-top: 5px;">
+        <td colspan="4" align="right"><b>TOTAL:</b></td>
+        <td>
+            <table style="padding-top: 2.5px;">
+                <tr>
+                    <td style="width: 100%; text-align: right;"><b>{{ totaldebitamount.debitamount__sum|intcomma }}</b></td>
+                </tr>
+            </table>
+        </td>
+    </tr> {% endcomment %}
+</table>
+<table style="margin-top: 30px;">
+    <tr>
+        <td width="80%">
+            
+        </td>
+        <td width="40px"></td>
+        <td width="50%">
+            <table style="font-weight: 400">
+                <tr>
+                    <td style="border-top: 2px solid black; border-left: 2px solid black; padding-top: 5px; padding-left: 3px;"><b>VATable Sale:</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-top: 2px solid black; border-right: 2px solid black; padding-top: 5px;"><b>{{ simain.vatablesale|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 2px solid black; padding-left: 3px;"><b>Plus: {% if simain.vatrate > 0 %} {{ simain.vatrate }}% {% endif %}VAT:</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black;"><b>{{ simain.vatamount|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 2px solid black; padding-left: 3px;"><b>VAT-Exempt Sale:</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black;"><b>{{ simain.vatexemptsale|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 2px solid black; padding-left: 3px;"><b>VAT Zero-Rated Sale:</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black; border-bottom: 1px solid black; padding-bottom: -3px;"><b>{{ simain.vatzeroratedsale|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 2px solid black; padding-left: 3px; padding-top: 4px;"><b>Total Amount Due:</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black; padding-top: 4px;"><b>{{ simain.totalsale|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 2px solid black; border-bottom: 2px solid black;">&nbsp;</td>
+                    <td style="border-right: 2px solid black; border-bottom: 2px solid black;">=====================</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<table>
+                
+    <tr style="padding: 5px; padding-bottom: -10px;">
+        <td width="200px" height="100px"><span>Certified correct by</span></td>
+        <td width="5%"><b>:</b></td>
+        <td align="center">
+            <img class="signature-image" src="{{ parameter.si_signimage | get64 }}" alt="Signature">
+            <div class="sign_here">
+                {{ parameter.si_signname }}
+            </div>
+            {{ parameter.si_signposition }}
+        </td>
+        <td></td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+    <tr><td>&nbsp;</td></tr>
+    <tr style="padding: 5px; padding-bottom: 0px;">
+        <td width="200px" height="100px"><span>Received by</span></td>
+        <td width="5%"><b>:</b></td>
+        <td align="center">
+            <div class="sign_here">
+                &nbsp;
+            </div>
+            <span>SIGNATURE OVER PRINTED NAME</span>
+        </td>
+        <td></td>
+    </tr>
+    
+</table>
+<table style="margin-top: 15px;">
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td style="border-top: 2px solid black; border-left: 2px solid black; border-right: 2px solid black; padding-top: 5px; padding-left: 3px;"></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 2px solid black; padding: 0 3px; border-right: 2px solid black;"><span>NOTE:&nbsp;&nbsp;For any comments/complaints regarding the above, please notify us within 30 days from receipt thereof, after which this invoice shall be considered true and correct.&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+                        <strong style="text-transform:uppercase;">PLEASE DISREGARD THIS BILLING IF PAYMENT HAS BEEN MADE.</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-bottom: 2px solid black; border-left: 2px solid black; border-right: 2px solid black; padding-left: 3px;"></td>
+                </tr>
+            </table>
+        </td>
+        <td width="60%">
+            <table>
+                <tr>
+                    <td style="border-top: 2px solid black; border-right: 2px solid black; padding-top: 1px; padding-left: 3px;"></td>
+                </tr>
+                <tr>
+                    <td style="border-right: 2px solid black; padding-left: 3px; color: maroon; text-align: center;">
+                        <span><br>CHECK SHOULD BE MADE PAYABLE TO</span>
+                        <br>
+                        <big><strong>{{ parameter.description|upper }}</strong></big><br>
+                    </td>
+                </tr>
+                    <td style="border-bottom: 2px solid black; border-right: 2px solid black; padding-bottom: 4px; padding-left: 3px;"></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

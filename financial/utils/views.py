@@ -20,7 +20,7 @@ from acknowledgementreceipt.models import Armain
 from officialreceipt.models import Ormain
 from agent.models import Agent
 from bankaccount.models import Bankaccount
-
+from salesinvoice.models import Simain
 
 @csrf_exempt
 def ajaxSelect(request):
@@ -31,28 +31,28 @@ def ajaxSelect(request):
                 or request.GET['table'] == "supplier_payee" \
                 or request.GET['table'] == "supplier_notmultiple":
             items = Supplier.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                  Q(name__icontains=request.GET['q']))
+                                                    Q(name__icontains=request.GET['q']))
 
         elif request.GET['table'] == "employee" or request.GET['table'] == "employee_notmultiple":
             items = Employee.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                  Q(firstname__icontains=request.GET['q']) |
-                                                  Q(middlename__icontains=request.GET['q']) |
-                                                  Q(lastname__icontains=request.GET['q'])).\
+                                                    Q(firstname__icontains=request.GET['q']) |
+                                                    Q(middlename__icontains=request.GET['q']) |
+                                                    Q(lastname__icontains=request.GET['q'])).\
                 exclude(Q(firstname='') | Q(lastname='') | Q(firstname=None) | Q(lastname=None)).order_by('lastname')
 
         elif request.GET['table'] == "customer" or request.GET['table'] == "customer_notmultiple":
             items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                  Q(name__icontains=request.GET['q']))
+                                                    Q(name__icontains=request.GET['q']))
 
         elif request.GET['table'] == "agency":
             items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                  Q(name__icontains=request.GET['q']))
+                                                    Q(name__icontains=request.GET['q']))
         elif request.GET['table'] == "client":
             items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                  Q(name__icontains=request.GET['q']))
+                                                    Q(name__icontains=request.GET['q']))
         elif request.GET['table'] == "agent":
             items = Agent.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                  Q(name__icontains=request.GET['q']))
+                                                    Q(name__icontains=request.GET['q']))
 
         elif request.GET['table'] == "chartofaccount":
             print 'pasok'
@@ -184,7 +184,7 @@ def ajaxSearch(request):
 
             if request.POST['cache_apnum_from'] and request.POST['cache_apnum_to']:
                 items = items.filter(apnum__range=[int(request.POST['cache_apnum_from']),
-                                                   int(request.POST['cache_apnum_to'])])
+                                                    int(request.POST['cache_apnum_to'])])
             elif request.POST['cache_apnum_from']:
                 items = items.filter(apnum__gte=int(request.POST['cache_apnum_from']))
             elif request.POST['cache_apnum_to']:
@@ -224,7 +224,7 @@ def ajaxSearch(request):
                 items = items.filter(refno__icontains=str(request.POST['cache_refno']))
             if request.POST['cache_duedate_from'] and request.POST['cache_duedate_to']:
                 items = items.filter(duedate__range=[request.POST['cache_duedate_from'],
-                                                     request.POST['cache_duedate_to']])
+                                                        request.POST['cache_duedate_to']])
             if request.POST['cache_approver']:
                 items = items.filter(designatedapprover_id=int(request.POST['cache_approver']))
 
@@ -269,7 +269,7 @@ def ajaxSearch(request):
 
             if request.POST['cache_ofnum_from'] and request.POST['cache_ofnum_to']:
                 items = items.filter(ofnum__range=[int(request.POST['cache_ofnum_from']),
-                                                   int(request.POST['cache_ofnum_to'])])
+                                                    int(request.POST['cache_ofnum_to'])])
             elif request.POST['cache_ofnum_from']:
                 items = items.filter(ofnum__gte=int(request.POST['cache_ofnum_from']))
             elif request.POST['cache_ofnum_to']:
@@ -310,7 +310,7 @@ def ajaxSearch(request):
             items = Cvmain.objects.all().filter(isdeleted=0).order_by('pk')
             if request.POST['cache_cvnum_from'] and request.POST['cache_cvnum_to']:
                 items = items.filter(cvnum__range=[int(request.POST['cache_cvnum_from']),
-                                                   int(request.POST['cache_cvnum_to'])])
+                                                    int(request.POST['cache_cvnum_to'])])
             elif request.POST['cache_cvnum_from']:
                 items = items.filter(cvnum__gte=int(request.POST['cache_cvnum_from']))
             elif request.POST['cache_cvnum_to']:
@@ -366,7 +366,7 @@ def ajaxSearch(request):
             items = Dcmain.objects.all().filter(isdeleted=0).order_by('pk')
             if request.POST['cache_dcnum_from'] and request.POST['cache_dcnum_to']:
                 items = items.filter(dcnum__range=[int(request.POST['cache_dcnum_from']),
-                                                   int(request.POST['cache_dcnum_to'])])
+                                                    int(request.POST['cache_dcnum_to'])])
             elif request.POST['cache_dcnum_from']:
                 items = items.filter(dcnum__gte=int(request.POST['cache_dcnum_from']))
             elif request.POST['cache_dcnum_to']:
@@ -399,7 +399,7 @@ def ajaxSearch(request):
             items = Armain.objects.all().filter(isdeleted=0).order_by('pk')
             if request.POST['cache_arnum_from'] and request.POST['cache_arnum_to']:
                 items = items.filter(arnum__range=[int(request.POST['cache_arnum_from']),
-                                                   int(request.POST['cache_arnum_to'])])
+                                                    int(request.POST['cache_arnum_to'])])
             elif request.POST['cache_arnum_from']:
                 items = items.filter(arnum__gte=int(request.POST['cache_arnum_from']))
             elif request.POST['cache_arnum_to']:
@@ -435,7 +435,7 @@ def ajaxSearch(request):
             items = Ormain.objects.all().filter(isdeleted=0).order_by('pk')
             if request.POST['cache_ornum_from'] and request.POST['cache_ornum_to']:
                 items = items.filter(ornum__range=[int(request.POST['cache_ornum_from']),
-                                                   int(request.POST['cache_ornum_to'])])
+                                                    int(request.POST['cache_ornum_to'])])
             elif request.POST['cache_ornum_from']:
                 items = items.filter(ornum__gte=int(request.POST['cache_ornum_from']))
             elif request.POST['cache_ornum_to']:
@@ -483,6 +483,48 @@ def ajaxSearch(request):
                 items = items.filter(product=int(request.POST['cache_product']))
             if request.POST['cache_remarks']:
                 items = items.filter(remarks__icontains=str(request.POST['cache_remarks']))
+                
+        elif request.POST['table'] == "simain":
+            items = Simain.objects.all().filter(isdeleted=0).order_by('pk')
+            if request.POST['cache_sinum_from'] and request.POST['cache_sinum_to']:
+                items = items.filter(sinum__range=[int(request.POST['cache_sinum_from']),
+                                                    int(request.POST['cache_sinum_to'])])
+            elif request.POST['cache_sinum_from']:
+                items = items.filter(sinum__gte=int(request.POST['cache_sinum_from']))
+            elif request.POST['cache_sinum_to']:
+                items = items.filter(sinum__lte=int(request.POST['cache_sinum_to']))
+            if request.POST['cache_sitype']:
+                items = items.filter(sitype=int(request.POST['cache_sitype']))
+            if request.POST['cache_sidate_from'] and request.POST['cache_sidate_to']:
+                items = items.filter(sidate__range=[request.POST['cache_sidate_from'],
+                                                    request.POST['cache_sidate_to']])
+            elif request.POST['cache_sidate_from']:
+                items = items.filter(sidate__gte=request.POST['cache_sidate_from'])
+            elif request.POST['cache_sidate_to']:
+                items = items.filter(sidate__lte=request.POST['cache_sidate_to'])
+            if request.POST['cache_amount_from'] and request.POST['cache_amount_to']:
+                items = items.filter(amount__range=[request.POST['cache_amount_from'].replace(',', ''),
+                                                    request.POST['cache_amount_to'].replace(',', '')])
+            elif request.POST['cache_amount_from']:
+                items = items.filter(amount__gte=request.POST['cache_amount_from'].replace(',', ''))
+            elif request.POST['cache_amount_to']:
+                items = items.filter(amount__lte=request.POST['cache_amount_to'].replace(',', ''))
+            if request.POST['cache_branch']:
+                items = items.filter(branch=int(request.POST['cache_branch']))
+            if request.POST['cache_accountexecutive']:
+                items = items.filter(accountexecutive=int(request.POST['cache_accountexecutive']))
+            if request.POST['cache_customer']:
+                items = items.filter(customer=int(request.POST['cache_customer']))
+            if request.POST['cache_vat']:
+                items = items.filter(vat=int(request.POST['cache_vat']))
+            if request.POST['cache_outputvattype']:
+                items = items.filter(outputvattype=int(request.POST['cache_outputvattype']))
+            if request.POST['cache_wtax']:
+                items = items.filter(wtax=int(request.POST['cache_wtax']))
+            if request.POST['cache_particulars']:
+                items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
+            if request.POST['cache_remarks']:
+                items = items.filter(remarks__icontains=str(request.POST['cache_remarks']))
 
         items = items[:500]
         listitems = []
@@ -502,6 +544,8 @@ def ajaxSearch(request):
                 listitems.append({'text': data.arnum, 'id': data.id})
             elif request.POST['table'] == "ormain":
                 listitems.append({'text': data.ornum, 'id': data.id})
+            elif request.POST['table'] == "simain":
+                listitems.append({'text': data.sinum, 'id': data.id})
 
         data = {
             'status': 'success',
@@ -518,9 +562,9 @@ def ajaxSearch(request):
 # count items in .txt file
 def wccount(filename):
     out = subprocess.Popen(['wc', '-l', filename],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT
-                         ).communicate()[0]
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT
+                        ).communicate()[0]
     return int(out.partition(b' ')[0])
 
 
