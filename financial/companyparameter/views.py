@@ -11,6 +11,7 @@ from employee.models import Employee
 from django.contrib.auth.models import User
 from ofsubtype.models import Ofsubtype
 from oftype.models import Oftype
+from creditterm.models import Creditterm
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
@@ -55,7 +56,9 @@ class CreateView(CreateView):
               'def_bankaccount',
               'last_closed_date', 'income_tax_rate',
               'budgetapprover', 'pcv_initial_approver', 'pcv_final_approver',
-              'rfv_initial_approver', 'rfv_final_approver']
+              'rfv_initial_approver', 'rfv_final_approver',
+              'coa_accruedexp', 'coa_prepaidexp', 
+              'si_creditterm', 'si_signname', 'si_signposition', 'si_signimage']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('companyparameter.add_companyparameter'):
@@ -82,6 +85,9 @@ class CreateView(CreateView):
         context['coa_unsubscribe'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
         context['coa_subsrev'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
         context['def_bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        context['coa_accruedexp'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['coa_prepaidexp'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['si_creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('code')
 
         context['budgetapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         context['pcv_initial_approver'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
@@ -124,7 +130,8 @@ class UpdateView(UpdateView):
               'budgetapprover', 'pcv_initial_approver', 'pcv_final_approver',
               'rfv_initial_approver', 'rfv_final_approver',
               'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201',
-              'logo_path']
+              'logo_path', 'coa_accruedexp', 'coa_prepaidexp', 
+              'si_creditterm', 'si_signname', 'si_signposition', 'si_signimage']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('companyparameter.change_companyparameter'):
@@ -152,6 +159,9 @@ class UpdateView(UpdateView):
         context['coa_unsubscribe'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
         context['coa_subsrev'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
         context['def_bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        context['coa_accruedexp'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['coa_prepaidexp'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['si_creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('code')
 
         context['budgetapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         context['pcv_initial_approver'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
@@ -190,7 +200,8 @@ class UpdateView(UpdateView):
                                         'budgetapprover', 'pcv_initial_approver', 'pcv_final_approver',
                                         'rfv_initial_approver', 'rfv_final_approver',
                                         'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201',
-                                        'logo_path'])
+                                        'logo_path',  'coa_accruedexp', 'coa_prepaidexp', 
+                                        'si_creditterm', 'si_signname', 'si_signposition', 'si_signimage'])
         return HttpResponseRedirect('/companyparameter')
 
 
@@ -218,12 +229,14 @@ def view(request):
 
     code = request.GET["code"]
 
-    if code == 'f8505470e5e0e434fd83008577a862cc2faf5a10f5a3b62bf69cf9697c215010':
-        data = Companyparameter.objects.filter(isdeleted=0,pk=3).values()
-        return JsonResponse({'status': 'valid', 'data': list(data)})
-    else:
+    if (
+        code
+        != 'f8505470e5e0e434fd83008577a862cc2faf5a10f5a3b62bf69cf9697c215010'
+    ):
         #return str('invalid')
         return JsonResponse({'status': 'invalid'})
+    data = Companyparameter.objects.filter(isdeleted=0,pk=3).values()
+    return JsonResponse({'status': 'valid', 'data': list(data)})
 
 @csrf_exempt
 def closed(request):
@@ -233,7 +246,7 @@ def closed(request):
     if code == 'kenmolina':
         data = Companyparameter.objects.get(pk=3)
         data.closing = 1
-        data.save();
+        data.save()
         return JsonResponse({'status': 'valid', 'data': 'list'})
     else:
         #return str('invalid')

@@ -544,6 +544,30 @@
                                     <span class="help-block form-error">{{ form.def_bankaccount.errors.as_text }}</span>
                                 </div>
                             </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_accruedexp.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_accruedexp" class="col-sm-3 control-label">Accrued Expenses</label>
+                                <div class="col-sm-9">
+                                    <select name="coa_accruedexp" class="form-control select2" id="id_coa_accruedexp">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_accruedexp %}
+                                            <option value="{{ data.id }}" {% if form.coa_accruedexp.value == data.id %} selected="selected" {% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_accruedexp.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_prepaidexp.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_prepaidexp" class="col-sm-3 control-label">Prepaid Expenses</label>
+                                <div class="col-sm-9">
+                                    <select name="coa_prepaidexp" class="form-control select2" id="id_coa_prepaidexp">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_prepaidexp %}
+                                            <option value="{{ data.id }}" {% if form.coa_prepaidexp.value == data.id %} selected="selected" {% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_prepaidexp.errors.as_text }}</span>
+                                </div>
+                            </div>
                         </div>
                         <div id="defaults" class="tabcontent">
                             <div class="form-group form-group-0 col-md-6 {{ form.pcv_meal_budget_limit.errors|yesno:'has-error,' }}">
@@ -587,7 +611,43 @@
                                     <span class="help-block form-error">{{ form.logo_path.errors.as_text }}</span>
                                 </div>
                             </div>
-                        </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.si_creditterm.errors|yesno:'has-error,' }}">
+                                <label for="id_si_creditterm" class="col-sm-3 control-label">SI Credit Term</label>
+                                <div class="col-sm-6">
+                                    <select name="si_creditterm" class="form-control select2" id="id_si_creditterm">
+                                        
+                                        <option value="">-- Select --</option>
+                                        {% for data in si_creditterm %}
+                                            <option value="{{ data.id }}" {% if form.si_creditterm.value == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.si_creditterm.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.si_signname.errors|yesno:'has-error,' }}">
+                                <label for="id_si_signname" class="col-sm-3 control-label">SI Sign (Name)</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="id_si_signname" maxlength="250" placeholder="SI Sign (Name)" name="si_signname"
+                                           value="{{ form.si_signname.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.si_signname.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.si_signposition.errors|yesno:'has-error,' }}">
+                                <label for="id_si_signposition" class="col-sm-3 control-label">SI Sign (Position)</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="id_si_signposition" maxlength="250" placeholder="SI Sign (Position)" name="si_signposition"
+                                           value="{{ form.si_signposition.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.si_signposition.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.si_signimage.errors|yesno:'has-error,' }}">
+                                <label for="id_si_signimage" class="col-sm-3 control-label">SI Sign (Image)</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="id_si_signimage" maxlength="250" placeholder="SI Sign (Image)" name="si_signimage"
+                                           value="{{ form.si_signimage.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.si_signimage.errors.as_text }}</span>
+                                </div>
+                            </div>
                         <div id="lastnumbersused" class="tabcontent">
                             <div class="form-group form-group-0 col-md-6 {{ form.last_closed_date.errors|yesno:'has-error,' }}">
                                 <label for="id_last_closed_date" class="col-sm-3 control-label">Last Monthly Closing</label>
