@@ -392,7 +392,7 @@
                             {% else %}
                                 <tr id="row_{{ forloop.counter }}" data-bank-recon="0" style="color:#444444; font-weight: 500">
                                     <td class="text-left bank-row-count"></td>
-                                    <td class="text-left pointer bank-transaction-date" style="max-width: 50px;">{{ data.transaction_date|date:"m/d/Y" }}</td>
+                                    <td class="text-left pointer bank-transaction-date" style="max-width: 50px;">{{ data.transaction_date|date:"m/d/Y" }}{{ data.posting_date|date:"m/d/Y" }}</td>
                                     <td class="text-left pointer bank-document-type" style="max-width: 50px;"></td>
                                     <td></td>
                                     {% if data.branch %}
@@ -435,7 +435,7 @@
                             {% else %}
                                 <tr class="row_{{ posted.id }}" data-bank-recon="1" style="color:#444444; font-weight: 500">
                                     <td class="text-left bank-row-count"></td>
-                                    <td class="text-left bank-transaction-date" style="max-width: 50px;">{{ posted.transaction_date|date:"m/d/Y" }}</td>
+                                    <td class="text-left bank-transaction-date" style="max-width: 50px;">{{ posted.transaction_date|date:"m/d/Y" }}{{ posted.posting_date|date:"m/d/Y" }}</td>
                                     <td></td>
                                     <td></td>
                                     <td class="text-left particulars">{{ posted.particulars }}</td>

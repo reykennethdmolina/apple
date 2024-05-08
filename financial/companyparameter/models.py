@@ -55,6 +55,10 @@ class Companyparameter(models.Model):
     coa_subsrev = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_subsrev', blank=True,
                                     null=True)
     def_bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='parameter_def_bankaccount')
+    coa_accruedexp = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_accruedexp', blank=True,
+                                    null=True)
+    coa_prepaidexp = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_prepaidexp', blank=True,
+                                    null=True)
     # defaults for accounting entries
 
     # default approvers
@@ -126,7 +130,11 @@ class Companyparameter(models.Model):
     base_url_201 = models.CharField(max_length=115, blank=True, null=True)
 
     logo_path = models.CharField(max_length=250, blank=True, null=True)
-
+    si_creditterm = models.ForeignKey('creditterm.Creditterm', related_name='param_si_creditterm',
+                                      blank=True, null=True)
+    si_signname = models.CharField(max_length=255, blank=True, null=True)
+    si_signposition = models.CharField(max_length=255, blank=True, null=True)
+    si_signimage = models.CharField(max_length=255, blank=True, null=True)
     class Meta:
         db_table = 'companyparameter'
         ordering = ['-pk']
@@ -146,4 +154,3 @@ class Companyparameter(models.Model):
     
     def get_logo(self):
         return self.logo_path
-
