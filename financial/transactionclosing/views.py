@@ -44,25 +44,30 @@ class IndexView(TemplateView):
         context['closingyearmonth'] = company.last_closed_date.month
         return context
 
-@method_decorator(login_required, name='dispatch')
-class YearEndAdjustmentView(TemplateView):
-    template_name = 'transactionclosing/index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
-        # closingdate = Companyparameter.objects.all().first()
-
-        company = Companyparameter.objects.all().first()
-        yearend_year = company.year_end_date
-        context['yearend_year'] = yearend_year.year
-        context['today_year'] = datetime.datetime.now().year
-        context['toclose_year'] = yearend_year.year + 1
-        context['count'] = datetime.datetime.now().year - company.year_end_date.year
-        context['param'] = company
-        context['closingdate'] = company.last_closed_date + relativedelta(months=1)
-        context['closingyear'] = company.last_closed_date.year
-        context['closingyearmonth'] = company.last_closed_date.month
-        return context
+# @method_decorator(login_required, name='dispatch')
+# class YearEndAdjustmentView(TemplateView):
+#     #template_name = 'transactionclosing/index.html'
+#     #template_name = 'yearendadjustmentx/index.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(IndexView, self).get_context_data(**kwargs)
+#         # closingdate = Companyparameter.objects.all().first()
+#
+#         company = Companyparameter.objects.all().first()
+#         print 'company'
+#         yearend_year = company.year_end_date
+#         context['yearend_year'] = yearend_year.year
+#         context['today_year'] = datetime.datetime.now().year
+#         context['toclose_year'] = yearend_year.year + 1
+#         print'xxxxxxxxxxxx'
+#         context['count'] = datetime.datetime.now().year - company.year_end_date.year
+#         print context['count']
+#         print 'xxxxxxxxxxxx'
+#         context['param'] = company
+#         context['closingdate'] = company.last_closed_date + relativedelta(months=1)
+#         context['closingyear'] = company.last_closed_date.year
+#         context['closingyearmonth'] = company.last_closed_date.month
+#         return context
 
 
 @csrf_exempt
