@@ -139,7 +139,11 @@
                                 <select id="id_bankaccount" class="form-control input-sm select2" name="bankaccount">
                                     <option value="">-- Select --</option>
                                     {% for bankaccount in bankaccount %}
+                                        {% if bankaccount.id == 22 %}
+                                        <option value="{{ bankaccount.id }}" selected="selected" >{{ bankaccount.code }} [{{ bankaccount.bank.description }} - {{ bankaccount.bankaccounttype.description }}, {{ bankaccount.accountnumber }}]</option>
+                                        {% else %}
                                         <option value="{{ bankaccount.id }}" {% if form.bankaccount.value|add:0 == bankaccount.id %} selected="selected" {% endif %}>{{ bankaccount.code }} [{{ bankaccount.bank.description }} - {{ bankaccount.bankaccounttype.description }}, {{ bankaccount.accountnumber }}]</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
