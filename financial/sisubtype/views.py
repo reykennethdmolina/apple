@@ -3,6 +3,7 @@ from django.views.generic import View, ListView, DetailView, CreateView, UpdateV
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
+from chartofaccount.models import Chartofaccount
 from sisubtype.models import Sisubtype
 from financial.utils import Render
 from django.utils import timezone
@@ -30,12 +31,17 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Sisubtype
     template_name = 'sisubtype/create.html'
-    fields = ['code', 'description']
+    fields = ['code', 'description', 'debit1', 'debit2', 'credit1', 'credit2']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('sisubtype.add_sisubtype'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateView, self).get_context_data(**kwargs)
+        context['chartofaccount'] = Chartofaccount.objects.all().filter(accounttype='P')
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -49,18 +55,23 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Sisubtype
     template_name = 'sisubtype/edit.html'
-    fields = ['code', 'description']
+    fields = ['code', 'description', 'debit1', 'debit2', 'credit1', 'credit2']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('sisubtype.change_sisubtype'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['chartofaccount'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'debit1', 'debit2', 'credit1', 'credit2', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/sisubtype')
 
 

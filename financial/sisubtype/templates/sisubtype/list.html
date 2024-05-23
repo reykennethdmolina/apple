@@ -111,6 +111,10 @@
                 <tr>
                     <th style="text-align:left">Code</th>
                     <th style="text-align:left">Description</th>
+                    <th style="text-align:left">Debit 1</th>
+                    <th style="text-align:left">Debit 2</th>
+                    <th style="text-align:left">Credit 1</th>
+                    <th style="text-align:left">Credit 2</th>
                 </tr>
             </thead>
         </table>
@@ -125,6 +129,10 @@
         <tr>
             <td style="text-align:left">{{ item.code|upper }}</td>
             <td style="text-align:left">{{ item.description|upper }}</td>
+            <td style="text-align:left">[{{ item.debit1.accountcode }}] {{ item.debit1.description }}</td>
+            <td style="text-align:left">[{{ item.debit2.accountcode }}] {{ item.debit2.description }}</td>
+            <td style="text-align:left">[{{ item.credit1.accountcode }}] {{ item.credit1.description }}</td>
+            <td style="text-align:left">[{{ item.credit2.accountcode }}] {{ item.credit2.description }}</td>
         </tr>
     {% endfor %}
     </tbody>

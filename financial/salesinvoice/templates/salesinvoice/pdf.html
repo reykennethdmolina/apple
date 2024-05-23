@@ -95,8 +95,9 @@
                 
             </td>
             <td style="margin-left: 30px;width: 600px;">
-                <span style="font-size: 11px;"><b> Payment Terms: Please refer to Agreement. if none </b></span><br>
-                <span style="font-size: 11px;"><b> indicated, this is due within {{ parameter.si_creditterm.daysdue }} days from invoice date. </b></span><br><br>
+                <span style="font-size: 11px;"><b> Payment Terms: This is due within {{ simain.creditterm }} days from invoice date. </b></span><br><br>
+                {% comment %} <span style="font-size: 11px;"><b> Payment Terms: Please refer to Agreement. if none </b></span><br>
+                <span style="font-size: 11px;"><b> indicated, this is due within {{ simain.creditterm }} days from invoice date. </b></span><br><br> {% endcomment %}
                 {{ parameter.report_footer14 }}<br>
                 {{ parameter.report_footer7 }} {{ request.user }} on {% now 'Y-m-d' %}
             </td>
@@ -115,7 +116,7 @@
             <span class="title">{{ parameter.description|upper }}</span><br>
             {{ parameter.address1 }}<br>
             {{ parameter.address2 }}<br>
-            Tel: ({{ parameter.telno1 }}, {{ parameter.telno2 }}<br>
+            Tel: {{ parameter.telno1 }}, {{ parameter.telno2 }}<br>
             VAT REG TIN: {{ parameter.tinnum }}
         </td>
     </tr>
@@ -152,12 +153,12 @@
                     <td style="vertical-align: top">{{ tin }}</td>
                 </tr>
                 
-                <tr>
+                {% comment %} <tr>
                     <td width="45%" style="vertical-align: top"><b>Acct. Exec.</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top">{{ simain.accountexecutive.firstname }} {{ simain.accountexecutive.lastname }}</td>
                     
-                </tr>
+                </tr> {% endcomment %}
                 <tr style="background-color: red">
                     <td width="45%" style="vertical-align: top"><b>Remarks</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
@@ -168,7 +169,7 @@
     </tr>
     <tr><td></td></tr>
 </table>
-<b style="color: red">Please attach BIR FORM 2307 simultaneously with your payment if you deducted expanded withholding tax.</b>
+<b style="color: red">Please send the corresponding BIR 2307 upon receipt of this invoice.</b>
 <table style="padding-left: 5px;">
     <tr class="left" style="border-top: 2px solid black; border-bottom: 2px solid black; padding-top: 5px;">
         <td colspan="2" style="width: 70%; border-left: 2px solid black;" align="center;"><b><i> Particulars </i></b></td>

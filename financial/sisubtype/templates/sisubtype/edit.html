@@ -23,6 +23,62 @@
                                 <textarea id="id_description" class="form-control text-area" name="description" rows="5" data-validation="required">{{ form.description.value|default:"" }}</textarea>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12">
+                                <div class="col-sm-6 col-md-6">
+                                    <div class="form-group {{ form.debit1.errors|yesno:'has-error,' }}">
+                                        <label for="id_debit1" class="control-label">Debit 1</label>
+                                        <select name="debit1" class="form-control select2" id="id_debit1">
+                                            <option value="">-- Select --</option>
+                                            {% for data in chartofaccount %}
+                                                <option value="{{ data.id }}" {% if form.debit1.value == data.id %}selected="selected"{% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.debit1.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6">
+                                    <div class="form-group {{ form.credit1.errors|yesno:'has-error,' }}">
+                                        <label for="id_credit1" class="control-label">Credit 1</label>
+                                        <select name="credit1" class="form-control select2" id="id_credit1">
+                                            <option value="">-- Select --</option>
+                                            {% for data in chartofaccount %}
+                                                <option value="{{ data.id }}" {% if form.credit1.value == data.id %}selected="selected"{% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.credit1.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12">
+                                <div class="col-sm-6 col-md-6">
+                                    <div class="form-group {{ form.debit2.errors|yesno:'has-error,' }}">
+                                        <label for="id_debit2" class="control-label">Debit 2</label>
+                                        <select name="debit2" class="form-control select2" id="id_debit2">
+                                            <option value="">-- Select --</option>
+                                            {% for data in chartofaccount %}
+                                                <option value="{{ data.id }}" {% if form.debit2.value == data.id %}selected="selected"{% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.debit2.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6">
+                                    <div class="form-group {{ form.credit2.errors|yesno:'has-error,' }}">
+                                        <label for="id_credit2" class="control-label">Credit 2</label>
+                                        <select name="credit2" class="form-control select2" id="id_credit2">
+                                            <option value="">-- Select --</option>
+                                            {% for data in chartofaccount %}
+                                                <option value="{{ data.id }}" {% if form.credit2.value == data.id %}selected="selected"{% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.credit2.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group margin-bottom-0">
                             <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
                         </div>
