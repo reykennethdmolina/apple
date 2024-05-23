@@ -20,6 +20,10 @@ class Sisubtype(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='sisubtype_modify')
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
+    debit1 = models.ForeignKey('chartofaccount.Chartofaccount', related_name='sisubtype_debit1', null=True, blank=True)
+    debit2 = models.ForeignKey('chartofaccount.Chartofaccount', related_name='sisubtype_debit2', null=True, blank=True)
+    credit1 = models.ForeignKey('chartofaccount.Chartofaccount', related_name='sisubtype_credit1', null=True, blank=True)
+    credit2 = models.ForeignKey('chartofaccount.Chartofaccount', related_name='sisubtype_credit2', null=True, blank=True)
 
     class Meta:
         db_table = 'sisubtype'

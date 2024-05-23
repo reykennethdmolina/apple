@@ -13,7 +13,7 @@ class Simain(models.Model):
     sisubtype = models.ForeignKey('sisubtype.Sisubtype', related_name='simain_sisubtype_id')
     branch = models.ForeignKey('branch.Branch', related_name='simain_branch_id')
     customer = models.ForeignKey('customer.Customer', related_name='simain_customer_id') 
-    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='simain_creditterm_id')
+    creditterm = models.IntegerField(default=0, null=True, blank=True)
     duedate = models.DateField()                    
     accountexecutive = models.ForeignKey('employee.Employee', related_name='simain_employee_id', null=True, blank=True)
     amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
