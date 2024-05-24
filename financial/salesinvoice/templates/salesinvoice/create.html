@@ -110,26 +110,21 @@
                         <div class="form-group col-sm-3 {{ form.customer.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_customer">Customer</label>
                             <select class="form-control input-sm" id="id_customer" name="customer" data-validation="required">
-                                <option value="">-- Select --</option>
-                                {% for data in customer %}
-                                    <option value="{{ data.id }}" {% if form.customer.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.name }}</option>
-                                {% endfor %}
                             </select>
                             <span class="help-block form-error">{{ form.customer.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-1 {{ form.creditterm.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_creditterm2">Credit Terms</label>
-                            <input type="text" class="form-control input-sm" id="id_creditterm2" name="creditterm2" data-validation="required" readonly="readonly" value="{{ creditterm.description }}" >
-                            <input type="hidden" class="form-control input-sm" id="id_creditterm" name="creditterm" data-validation="required" data-daysdue="{{ creditterm.daysdue }}" value="{{ creditterm.id }}" >
+                            <label class="control-label" for="id_creditterm">Credit Terms</label>
+                            <input type="text" class="form-control input-sm" id="id_creditterm" name="creditterm" data-validation="required" value="{{ form.customer.creditterm.description|default:'' }}" placeholder="Days" >
                             <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 {{ form.duedate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_duedate">Due Date</label>
-                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker closemonth" style="padding: 5px 10px; background: white;" id="id_duedate" name="duedate" data-validation="required" value="{{ form.duedate.value|default:'2024-04-12' }}" placeholder="YYYY-MM-DD" >
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker closemonth" style="padding: 5px 10px; background: white;" id="id_duedate" name="duedate" data-validation="required" value="{{ form.duedate.value|default:'' }}" placeholder="YYYY-MM-DD" >
                             <span class="help-block form-error">{{ form.duedate.errors.as_text }}</span>
                         </div>
                     </div>
-                    <div class="col-sm-12">
+                    {% comment %} <div class="col-sm-12">
                         <div class="form-group col-sm-3 {{ form.accountexecutive.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_accountexecutive">Account Executive</label>
                             <select class="form-control input-sm" id="id_accountexecutive" name="accountexecutive">
@@ -140,7 +135,7 @@
                             </select>
                             <span class="help-block form-error">{{ form.accountexecutive.errors.as_text }}</span>
                         </div>
-                    </div>
+                    </div> {% endcomment %}
                     <div class="col-sm-12">
                         <div class="col-md-12"><hr></div>
                     </div>
@@ -206,6 +201,10 @@
                                         <td class="form-group form-material"><input type="text" id="disp_vatable" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
+                                        <td><small>Plus:&nbsp;<span id="disp_addvat_percent"></span>VAT:</small></td>
+                                        <td class="form-group form-material"><input type="text" id="disp_addvat" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
                                         <td><small>VAT-Exempt&nbsp;Sale:</small></td>
                                         <td class="form-group form-material"><input type="text" id="disp_vatexempt" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
@@ -214,15 +213,7 @@
                                         <td class="form-group form-material"><input type="text" id="disp_vatzero" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
-                                        <td><small><b>Total&nbsp;Sale:</b></small></td>
-                                        <td class="form-group form-material"><input type="text" id="disp_totalsale" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
-                                    </tr>
-                                    <tr>
-                                        <td><small><b>Add&nbsp;VAT:</b></small></td>
-                                        <td class="form-group form-material"><input type="text" id="disp_addvat" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
-                                    </tr>
-                                    <tr>
-                                        <td><small><b>Total&nbsp;Payment:</b></small></td>
+                                        <td><small><b>Total&nbsp;Amount&nbsp;Due:</b></small></td>
                                         <td class="form-group form-material"><input type="text" id="disp_totalpay" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
@@ -253,16 +244,16 @@
                     <div class="col-md-12">
                         <div class="form-group col-sm-3 {{ form.refno.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_refno">Ref No.</label>
-                            <input type="text" class="form-control input-sm" id="id_refno" style="text-align: right;" data-validation="required" value="{{ form.refno.value|default:'1234' }}" name="refno">
+                            <input type="text" class="form-control input-sm" id="id_refno" style="text-align: right;" data-validation="required" value="{{ form.refno.value|default:'' }}" name="refno">
                             <span class="help-block form-error">{{ form.refno.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-5">
                             <label class="control-label" for="id_designatedapprover">Approver</label>
                             <select id="id_bankaccount" class="form-control input-sm select2" data-validation="required" name="designatedapprover">
                                 <option value="">-- Select --</option>
-                                {% for data in designatedapprover %}
-                                    <option value="{{ data.id }}" {% if form.designatedapprover.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.first_name }} {{ data.last_name }}</option>
-                                {% endfor %}
+                                {% for designatedapprover in designatedapprover %}
+                                        <option value="{{ designatedapprover.user_id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.user_id %} selected="selected" {% endif %}>{{ designatedapprover.firstname }} {{ designatedapprover.lastname }}</option>
+                                    {% endfor %}
                             </select>
                             <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
                         </div>
@@ -385,7 +376,7 @@
 <div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
 <div id="not-equal-accounting-entries-total-amount-error" class="custom-alert danger">Total amounts of items and accounting entries must be equal.</div>
 <div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
-{% include "officialreceipt/search.html" %}
+{% include "salesinvoice/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -398,13 +389,15 @@
     <script>
     $(function(){
         $('#id_sidate').datepicker('setDate', new Date());
-        var sid = new Date($('#id_sidate').val());
-        var terms = $('#id_creditterm').data('daysdue');
-        sid.setDate(sid.getDate() + parseInt(terms));
-        $('#id_duedate').datepicker('setDate', sid);
         
-        $('.select2').select2();
-        // ajaxselect2("agency", "id_agency");
+        $('input#id_creditterm').on("input", function(event) { 
+            event.preventDefault();
+            const terms = $(this).val();
+            computeDueDate(terms);
+        });
+        
+        $('.select2').select2({});
+        ajaxselect2("customer", "id_customer");
         // ajaxselect2("client", "id_client");
         // ajaxselect2("agent", "id_agent");
 
@@ -412,6 +405,27 @@
         // setPayeeOptions();
         generateTotals();
         // changeOutputVATType();
+
+        $('select#id_customer').on("change", function(event){
+            const customer_id = $(this).val();
+            console.log(customer_id);
+            $.ajax({
+                url: "{% url 'salesinvoice:getcustomercreditterm' %}",
+                type: "GET",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'id': customer_id
+                },
+                success: function(response){
+                    console.log(response.daysdue);
+                    const terms = response.daysdue;
+                    $('#id_creditterm').val(terms);
+                    computeDueDate(terms);
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+        });
 
         $("#id_amount").on('keyup', function(){
             var words = toWords($(this).val());
@@ -442,6 +456,7 @@
         $('#id_amount').on('keyup', function(){
             generateTotals();
         });
+
         $('#id_vat, #id_wtax').on('change', function(){
             generateTotals();
         });
@@ -463,29 +478,7 @@
         });
 
         $("#validateButton").on('click', function(event) {
-            // if($('#id_orsource').val() == 'A'){
-            //     if($('#id_payee_adv').val() == 'AG' && $('#id_agency').val() === null){
-            //         $('#payee_options_agency').find('.form-error').text('This Field is required');
-            //         event.preventDefault();
-            //     }
-            //     else if($('#id_payee_adv').val() == 'C' && $('#id_client').val() === null){
-            //         $('#payee_options_client').find('.form-error').text('This Field is required');
-            //         event.preventDefault();
-            //     }
-            //     else{
-            //         $('#payee_options_agency').find('.form-error').text('');
-            //         $('#payee_options_client').find('.form-error').text('');
-            //     }
-            // }
-            // else if($('#id_orsource').val() == 'C'){
-            //     if($('#id_payee_cir').val() == 'A' && $('#id_agent').val() === null){
-            //         $('#payee_options_agent').find('.form-error').text('This Field is required');
-            //         event.preventDefault();
-            //     }
-            //     else{
-            //         $('#payee_options_agent').find('.form-error').text('');
-            //     }
-            // }
+
             var total_creditamount = $("#total_creditamount").text().replace(',', '');
             var total_debitamount = $("#total_debitamount").text().replace(',', '');
             var total_itemamount = $("#id_amount").val().replace(',', '');
@@ -509,15 +502,39 @@
             }
         });
 
+        function computeDueDate(terms){
+            var sidate = new Date($('#id_sidate').val());
+            if($.isNumeric(terms)){
+                sidate.setDate(sidate.getDate() + parseInt(terms));
+                $('#id_duedate').datepicker('setDate', sidate);
+                $('#id_creditterm').val(terms);
+            } else {
+                if(terms.length > 0){
+                    alert('Please enter valid number of days');
+                } 
+                $('#id_creditterm').val('');
+                $('#id_duedate').datepicker('setDate', null);
+            } 
+        }
+
         function generateTotals(){
+            // givenAmount = parseFloat($('#id_amount').val().replace(',',''));
+            // vatRate = parseFloat($('#id_vat option:selected').data('rate'));
+            // wtaxRate = parseFloat($('#id_wtax option:selected').data('rate'));
+            // console.log($('#id_wtax option:selected').data('rate'));
+            // grossAmount = givenAmount/(1+(vatRate/100)-(wtaxRate/100));
+            // addVat = grossAmount * (vatRate/100);
+            // wtaxAmount = grossAmount * (wtaxRate/100);
+            // totalPayment = grossAmount + addVat - wtaxAmount;
+
             givenAmount = parseFloat($('#id_amount').val().replace(',',''));
             vatRate = parseFloat($('#id_vat option:selected').data('rate'));
             wtaxRate = parseFloat($('#id_wtax option:selected').data('rate'));
-            console.log($('#id_wtax option:selected').data('rate'));
-            grossAmount = givenAmount/(1+(vatRate/100)-(wtaxRate/100));
+            // console.log($('#id_wtax option:selected').data('rate'));
+            grossAmount = givenAmount/(1+(vatRate/100));
             addVat = grossAmount * (vatRate/100);
             wtaxAmount = grossAmount * (wtaxRate/100);
-            totalPayment = grossAmount + addVat - wtaxAmount;
+            totalPayment = grossAmount + addVat;
 
             $('.amount_display').val(0);
             $('#disp_note').text('');
@@ -528,6 +545,10 @@
                 else $('#disp_vatable').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
                 $('#disp_totalsale').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                if (vatRate > 0) 
+                    $('#disp_addvat_percent').text(vatRate.toString() + "% ");
+                else
+                    $('#disp_addvat_percent').text("");
                 $('#disp_addvat').val(addVat.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 $('#disp_totalpay').val(totalPayment.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 

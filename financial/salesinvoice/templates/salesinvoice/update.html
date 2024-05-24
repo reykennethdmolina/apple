@@ -155,17 +155,16 @@
                         </div>
                         <div class="form-group col-sm-1 {{ form.creditterm.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_creditterm">Credit Terms</label>
-                            <input type="text" class="form-control input-sm" id="id_creditterm2" name="creditterm2" data-validation="required" readonly="readonly" value="{{ creditterm.description }}" >
-                            <input type="hidden" class="form-control input-sm" id="id_creditterm" name="creditterm" data-validation="required" data-daysdue="{{ creditterm.daysdue }}" value="{{ creditterm.id }}" >
+                            <input type="text" class="form-control input-sm" id="id_creditterm" name="creditterm" data-validation="required" value="{{ form.creditterm.value|default:'' }}" placeholder="Days" >
                             <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 {{ form.duedate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_duedate">Due Date</label>
-                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker closemonth" style="padding: 5px 10px; background: white;" id="id_duedate" name="duedate" data-validation="required" value="{{ form.duedate.value|default:'2024-04-12' }}" placeholder="YYYY-MM-DD" >
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker closemonth" style="padding: 5px 10px; background: white;" id="id_duedate" name="duedate" data-validation="required" value="{{ form.duedate.value|date:'Y-m-d' }}" placeholder="YYYY-MM-DD" >
                             <span class="help-block form-error">{{ form.duedate.errors.as_text }}</span>
                         </div>
                     </div>
-                    <div class="col-sm-12">
+                    {% comment %} <div class="col-sm-12">
                         <div class="form-group col-sm-3 {{ form.accountexecutive.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_accountexecutive">Account Executive</label>
                             <select class="form-control input-sm select2" id="id_accountexecutive" name="accountexecutive">
@@ -176,7 +175,7 @@
                             </select>
                             <span class="help-block form-error">{{ form.accountexecutive.errors.as_text }}</span>
                         </div>
-                    </div>
+                    </div> {% endcomment %}
                     <div class="col-sm-12">
                         <!------------REQUIRE THE VISIBLE PAYEE TYPE--------------------------------------------->
                         <div class="col-md-12"><hr></div>
@@ -406,67 +405,6 @@
                 <!-- End Simple Form Validation -->
             </div>
             <div class="clearfix"></div>
-            <!-- <div id="logsModal" class="modal fade" role="dialog">
-                <div class="modal-dialog" style="width: 780px;">
-                    <div class="modal-content">
-                        <div class="shade" id="shadePRFImport"><div class="loader two-color"></div></div>
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">SI Logs from <span id="span_artype">...</span></h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="form-group col-md-12 small">
-                                    {% for data in logs_ormain %}
-                                        <div class="col-sm-1">SI&nbsp;Number:</div><div class="col-sm-3 text-right"><strong>{{ data.orno }}</strong></div>
-                                        <div class="col-sm-1">SI&nbsp;Date:</div><div class="col-sm-1"></div><div class="col-sm-6"><strong>{{ data.sidate }}</strong></div>
-                                        <div class="col-sm-12"></div>
-                                        <div class="col-sm-1">Amount:</div><div class="col-sm-3 text-right"><strong>{{ data.amount|floatformat:2|intcomma }}</strong></div>
-                                        <div class="col-sm-1">Payee:</div><div class="col-sm-1"></div><div class="col-sm-6" style="text-transform: capitalize;"><strong>{{ data.payeename }}</strong></div>
-                                        <div class="col-sm-12"></div>
-                                        <div class="col-sm-1">Bank&nbsp;Account:</div><div class="col-sm-3 text-right"><strong>{{ data.bankaccount }}</strong></div>
-                                        <div class="col-sm-1">Batch&nbsp;Key:</div><div class="col-sm-1"></div><div class="col-sm-6"><strong>{{ data.batchkey }}</strong></div>
-                                        <div class="col-sm-1">Entered&nbsp;By:</div><div class="col-sm-3 text-right"><strong>{{ data.enterby }}</strong></div>
-                                        <div class="col-sm-1">Enter&nbsp;Date:</div><div class="col-sm-1"></div><div class="col-sm-6"><strong>{{ data.enterdate }}</strong></div>
-                                    {% endfor %}
-                                    <br><br><br><br><br>
-                                    <table class="table table-bordered" id="logs_details">
-                                        {% if artype == 'A' %}
-                                        <thead>
-                                            <tr>
-                                                <th style="text-align: center"><b>Doc Num</b></th>
-                                                <th style="text-align: center"><b>Ad Type</b></th>
-                                                <th style="text-align: center"><b>Assign Amount</b></th>
-                                                <th style="text-align: center"><b>VAT Amount</b></th>
-                                                <th style="text-align: center"><b>VAT</b></th>
-                                                <th style="text-align: center"><b>Entered By</b></th>
-                                                <th style="text-align: center"><b>Enter Date</b></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for data2 in logs_ordetail %}
-                                                <tr>
-                                                    <td>{{ data2.docnum }}</td>
-                                                    <td>{{ data2.adtypedesc }}</td>
-                                                    <td align="right">{{ data2.assignamount|floatformat:2|intcomma }}</td>
-                                                    <td align="right">{{ data2.assignvatamount|floatformat:2|intcomma }}</td>
-                                                    <td align="center">{{ data2.vatcode }}</td>
-                                                    <td align="center">{{ data2.usercode }}</td>
-                                                    <td>{{ data2.userdate }}</td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                        {% endif %}
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
         </div>
     </div>
 </div>
@@ -485,37 +423,39 @@
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script>
     $(function(){
-        $('#to_html').html($('#to_html').text());
-
         $('#id_sidate').datepicker('setDate', new Date());
-        var sid = new Date($('#id_sidate').val());
-        var terms = $('#id_creditterm').data('daysdue');
-        sid.setDate(sid.getDate() + parseInt(terms));
-        $('#id_duedate').datepicker('setDate', sid);
+        
+        $('input#id_creditterm').on("input", function(event) { 
+            event.preventDefault();
+            const terms = $(this).val();
+            computeDueDate(terms);
+        });
 
         $('.select2').select2();
-        // ajaxselect2("customer", "id_customer");
-        // ajaxselect2("client", "id_client");
-        // ajaxselect2("agent", "id_agent");
-        // $('#span_artype').text($('#id_orsource option:selected').text());
-
-        // displayPayeeDropdowns();
-
-        // if($('#id_orsource').val() == 'A'){
-        //     if($('#id_agency').val() != null){
-        //         $('#id_payee_adv').val('AG');
-        //         $('#payee_options_client').hide();
-        //         $('#payee_options_agency').show();
-        //     }
-        //     else if($('#id_client').val() != null){
-        //         $('#id_payee_adv').val('C');
-        //         $('#payee_options_agency').hide();
-        //         $('#payee_options_client').show();
-        //     }
-        // }
-
-        // setPayeeOptions();
+        ajaxselect2("customer", "id_customer");
+        
         generateTotals();
+
+        $('select#id_customer').on("change", function(event){
+            const customer_id = $(this).val();
+            console.log(customer_id);
+            $.ajax({
+                url: "{% url 'salesinvoice:getcustomercreditterm' %}",
+                type: "GET",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'id': customer_id
+                },
+                success: function(response){
+                    console.log(response.daysdue);
+                    const terms = response.daysdue;
+                    $('#id_creditterm').val(terms);
+                    computeDueDate(terms);
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+        });
 
         if($("#id_vat").val() != '')    $('#vatrate').html("<strong>" + $("#id_vat").data('vatrate') + "</strong>");
         else                            showRate("#id_vat", "vatrate", "RATE");
@@ -527,16 +467,6 @@
             var words = toWords($(this).val());
             $("#id_amountinwords").val(words);
         });
-
-        // $('#id_orsource').on('change', function(){
-        //     displayPayeeDropdowns();
-        //     setPayeeOptions();
-        //     $('#span_artype').text($(this).find('option:selected').text());
-        // });
-
-        // $('.payee-type').on('change', function(){
-        //     setPayeeOptions();
-        // });
 
         $("#id_branch option").filter(function(){
             return $(this).text() == 'HEAD OFFICE';
@@ -588,29 +518,6 @@
         });
 
         $("#validateButton").on('click', function() {
-            // if($('#id_orsource').val() == 'A'){
-            //     if($('#id_payee_adv').val() == 'AG' && $('#id_agency').val() === null){
-            //         $('#payee_options_agency').find('.form-error').text('This Field is required');
-            //         event.preventDefault();
-            //     }
-            //     else if($('#id_payee_adv').val() == 'C' && $('#id_client').val() === null){
-            //         $('#payee_options_client').find('.form-error').text('This Field is required');
-            //         event.preventDefault();
-            //     }
-            //     else{
-            //         $('#payee_options_agency').find('.form-error').text('');
-            //         $('#payee_options_client').find('.form-error').text('');
-            //     }
-            // }
-            // else if($('#id_orsource').val() == 'C'){
-            //     if($('#id_payee_cir').val() == 'A' && $('#id_agent').val() === null){
-            //         $('#payee_options_agent').find('.form-error').text('This Field is required');
-            //         event.preventDefault();
-            //     }
-            //     else{
-            //         $('#payee_options_agent').find('.form-error').text('');
-            //     }
-            // }
             var total_creditamount = $("#total_creditamount").text().replace(/,/g, '');
             var total_debitamount = $("#total_debitamount").text().replace(/,/g, '');
             var total_itemamount = $("#id_amount").val().replace(/,/g, '');
@@ -635,16 +542,31 @@
             }
         });
 
+        function computeDueDate(terms){
+            var sidate = new Date($('#id_sidate').val());
+            if($.isNumeric(terms)){
+                sidate.setDate(sidate.getDate() + parseInt(terms));
+                $('#id_duedate').datepicker('setDate', sidate);
+                $('#id_creditterm').val(terms);
+            } else {
+                if(terms.length > 0){
+                    alert('Please enter valid number of days');
+                } 
+                $('#id_creditterm').val('');
+                $('#id_duedate').datepicker('setDate', null);
+            } 
+        }
+
         function generateTotals(){
             
             givenAmount = parseFloat($('#id_amount').val().replace(/,/g,''));
             vatRate = parseFloat($('#id_vat option:selected').data('rate'));
             wtaxRate = parseFloat($('#id_wtax option:selected').data('rate'));
             console.log($('#id_wtax option:selected').data('rate'));
-            grossAmount = givenAmount/(1+(vatRate/100)-(wtaxRate/100));
+            grossAmount = givenAmount/(1+(vatRate/100));
             addVat = grossAmount * (vatRate/100);
             wtaxAmount = grossAmount * (wtaxRate/100);
-            totalPayment = grossAmount + addVat - wtaxAmount;
+            totalPayment = grossAmount + addVat;
 
             $('.amount_display').val(0);
             $('#disp_note').text('');
@@ -655,7 +577,10 @@
                 else $('#disp_vatable').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
                 $('#disp_totalsale').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-                if (vatRate > 0) $('#disp_addvat_percent').text(vatRate.toString() + "% ");
+                if (vatRate > 0) 
+                    $('#disp_addvat_percent').text(vatRate.toString() + "% ");
+                else
+                    $('#disp_addvat_percent').text("");
                 $('#disp_addvat').val(addVat.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 $('#disp_totalpay').val(totalPayment.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 

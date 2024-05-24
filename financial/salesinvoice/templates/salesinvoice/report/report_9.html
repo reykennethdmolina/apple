@@ -4,24 +4,26 @@
     {% load static %}
     {% load humanize %}
     {% load pdf_filters %}
+    {% load custom %}
+    {% load custom_tags %}
     <meta charset="UTF-8">
     <title>{{ report_type }} {{ report_subtype }}</title>
     <style>
         @page {
-            size: LETTER PORTRAIT;
+            size: LETTER LANDSCAPE;
             @frame header_frame {
                 -pdf-frame-content: header_content;
                 left: 1cm;
                 right: 1cm;
                 top: 1cm;
-                height: 4.3cm;
+                height: 5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 4.5cm; left: 1cm; width: 19.5cm; height: 21cm;
+                top: 6cm; left: 1cm; width: 26cm; height: 14.7cm;
             }
         }
         body{
@@ -51,6 +53,7 @@
             vertical-align: top;
             text-align: center;
         }
+
         .table thead th {
             vertical-align: bottom;
             border-bottom: 2px solid #000;
@@ -91,50 +94,77 @@
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address1 }}</p></td>
-                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+                <td width="50%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address2 }}</p></td>
-            </tr>
-            <tr>
-                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
-            </tr>
-            <tr>
                 <td width="50%"></td>
             </tr>
             <tr>
-                <td width="75%"><p class="title">{{ title|upper }}</p></td>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="50%"></td>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="92%"><p class="title">{{ title|upper }}</p></td>
+                <td width="10%"></td>
+            </tr>
+            <tr>
+                <td width="75%"><p>for the period {{ datefrom|date:'M d, Y' }} to {{ dateto|date:'M d, Y' }}</p></td>
             </tr>
         </table>
+
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left">Code</th>
-                    <th style="text-align:left">Description</th>
-                    <th style="text-align:left">Debit 1</th>
-                    <th style="text-align:left">Debit 2</th>
-                    <th style="text-align:left">Credit 1</th>
-                    <th style="text-align:left">Credit 2</th>
+                    <th style="text-align:left;width:200px;">Payee <br> Particulars</th>
+                    <th style="text-align:left;width:100px;"><br>Type</th>
+                    <th style="text-align:right;width:110px;">Output VAT <br> Debit</th>
+                    <th style="text-align:right;width:110px;">Output VAT <br> Credit</th>
+                    <th style="text-align:right;width:100px;">VAT Rate</th>
+                    <th style="text-align:center;width:280px;"><br> Address</th>
+                    <th style="text-align:center;width:90px;"><br> TIN</th>
                 </tr>
             </thead>
         </table>
     </div>
 </div>
-
+{{ item }}
 <table id="content-data">
-
     <tbody>
-        <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
     {% for item in list %}
         <tr>
-            <td style="text-align:left">{{ item.code|upper }}</td>
-            <td style="text-align:left">{{ item.description|upper }}</td>
-            <td style="text-align:left">[{{ item.debit1.accountcode }}] {{ item.debit1.description }}</td>
-            <td style="text-align:left">[{{ item.debit2.accountcode }}] {{ item.debit2.description }}</td>
-            <td style="text-align:left">[{{ item.credit1.accountcode }}] {{ item.credit1.description }}</td>
-            <td style="text-align:left">[{{ item.credit2.accountcode }}] {{ item.credit2.description }}</td>
+            <td style="text-align:left;vertical-align:top;width:200px;">{{ item.name }}</td>
+            <td style="text-align:left;vertical-align:top;width:90px;">{{ item.sitype }}</td>
+            <td style="text-align:right;vertical-align:top;width:220px;">{{ item.outputvatdebitamount|default:"0.00"|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;vertical-align:top;width:220px;">{{ item.outputvatcreditamount|default:""|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;vertical-align:top;width:100px;">{{ item.outputvatrate|default:""|intcomma }}&nbsp;&nbsp;&nbsp;&nbsp;</td>
+            <td style="text-align:left;vertical-align:top;width:280px;">{{ item.address1 }} {{ item.address2 }} {{ item.address3 }}</td>
+            <td style="text-align:left;vertical-align:top;width:90px;">{{ item.tin|default:""|format_tin }}</td>
         </tr>
     {% endfor %}
+    <tr>
+        <td colspan="2"></td>
+        <td style="border-top:2px solid #000;padding:5px;;width:120px;"></td>
+        <td style="border-top:2px solid #000;padding:5px;;width:120px;"></td>
+        <td colspan="3"></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td style="text-align:right;vertical-align:top;margin-right:20px;"><b>Total</b></td>
+        <td style="text-align:right;width:120px;vertical-align:top;"><b>{{ total.outputdebit|floatformat:2|intcomma }}</b></td>
+        <td style="text-align:right;width:120px;vertical-align:top;"><b>{{ total.outputcredit|floatformat:2|intcomma }}</b></td>
+        <td colspan="3"></td>
+    </tr>
+    <tr>
+        <td colspan="2"></td>
+        <td style="border-top:2px solid #000;padding:5px;;width:120px;"></td>
+        <td style="border-top:2px solid #000;padding:5px;;width:120px;"></td>
+        <td colspan="3"></td>
+    </tr>
     </tbody>
 </table>
 

@@ -1,0 +1,213 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Sales Invoice Report {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Report Type</label>
+                            <select class="form-control input-sm" id="report_type">
+                                <option value="1">Invoice Register</option>
+                                <option value="2">Sales Book</option>
+                                {% comment %} <option value="3">Unposted Sales Invoice Transaction List - Summary</option>
+                                <option value="4">Unposted Sales Invoice Transaction List</option>
+                                <option value="5">Sales Invoice List (Unbalanced Cash in Bank VS Amount)</option>
+                                <option value="6">Unbalanced Sales Invoice Transaction List</option> {% endcomment %}
+                                {% comment %} <option value="7">Sales Invoice Register</option> {% endcomment %}
+                                <option value="8">Sales Invoice Output VAT</option>
+                                <option value="9">Sales Invoice Output VAT Summary</option>
+                                <option value="10">Sales Invoice Without Output VAT</option>
+                                <option value="11">Sales Invoice Without Output VAT Summary</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">SI Date</label><br>
+                            <div class="input-daterange datarange">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control input-sm datepickerfrom" id="dfrom" value="{% now 'Y-m-d' %}">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm">to</span>
+                                    <input type="text" class="form-control input-sm datepickerto" id="dto" value="{% now 'Y-m-d' %}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">SI Type</label>
+                            <select class="form-control input-sm" id="sitype">
+                                <option value="">-- Select --</option>
+                                {% for data in sitype %}
+                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">SI Subtype</label>
+                            <select class="form-control input-sm" id="sisubtype">
+                                <option value="">-- Select --</option>
+                                {% for data in sisubtype %}
+                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <a class="btn btn-info waves-effect waves-dark" id="generate" style="margin-top: 22px; width: 48%;">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;Generate
+                            </a>
+                            {% comment %} <a class="btn btn-info waves-effect waves-dark" id="generatexls" style="margin-top: 22px; width: 48%;">
+                                <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Excel
+                            </a> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Branch</label>
+                            <select class="form-control input-sm" id="branch">
+                                <option value="">-- Select --</option>
+                                {% for data in branch %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label small">Customer</label>
+                            <select class="form-control input-sm" id="customer">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">WTAX</label>
+                            <select class="form-control input-sm" id="wtax">
+                                <option value="">-- Select --</option>
+                                {% for data in wtax %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">VAT</label>
+                            <select class="form-control input-sm" id="vat">
+                                <option value="">-- Select --</option>
+                                {% for data in vat %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Output VAT Type</label>
+                            <select class="form-control input-sm" id="outputvat">
+                                <option value="">-- Select --</option>
+                                {% for data in outputvattype %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">SI Status</label>
+                            <select class="form-control input-sm" id="sistatus">
+                                <option value="">-- Select --</option>
+                                <option value="F">For Approval</option>
+                                <option value="A">Approved</option>
+                                <option value="D">Disapproved</option>
+                                <option value="I">In Process</option>
+                                <option value="R">Released / Ready for Posting</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Status</label>
+                            <select class="form-control input-sm" id="status">
+                                <option value="">-- Select --</option>
+                                <option value="A">Active</option>
+                                <option value="C">Cancelled</option>
+                                <option value="O">Posted</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="min-height: 800px;">
+                <iframe src="{% url 'salesinvoice:pdf2' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&sitype=&sisubtype=&customer=null&branch=&wtax=&vat=&outputvat=&status=&sistatus=" id="result" height="1200px" width="100%"></iframe>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+$(function(){
+    $('#generate').click(function(){
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+        var sitype = $('#sitype').val();
+        var sisubtype = $('#sisubtype').val();
+        var branch = $('#branch').val();
+        var customer = $('#customer').val();
+        var status = $('#status').val();
+        var wtax = $('#wtax').val();
+        var vat = $('#vat').val();
+        var outputvat = $('#outputvat').val();
+        var sistatus = $('#sistatus').val();
+        url = "{% url 'salesinvoice:pdf2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&sitype="+sitype+"&sisubtype="+sisubtype+"&branch="+branch+"&customer="+customer+"&status="+status+"&wtax="+wtax+"&vat="+vat+"&outputvat="+outputvat+"&sistatus="+sistatus;
+        $('#result').prop('src', url);
+    });
+
+    $('#generatexls').click(function(){
+
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+        var sitype = $('#sitype').val();
+        var sisubtype = $('#sisubtype').val();
+        var payee = $('#payee').val();
+        var branch = $('#branch').val();
+        var collector = $('#collector').val();
+        var product = $('#product').val();
+        var status = $('#status').val();
+        var adtype = $('#adtype').val();
+        var wtax = $('#wtax').val();
+        var vat = $('#vat').val();
+        var outputvat = $('#outputvat').val();
+        var bankaccount = $('#bankaccount').val();
+        var sistatus = $('#sistatus').val();
+        url = "{% url 'salesinvoice:excel2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&sitype="+sitype+"&sisubtype="+sisubtype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat+"&sistatus="+sistatus;
+        $('#result').prop('src', url);
+    });
+
+
+    $('.select2').select2({});
+
+    ajaxselect2v2("customer", "customer");
+
+});
+</script>
+{% endblock extra_js %}
