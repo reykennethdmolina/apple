@@ -657,11 +657,12 @@
                         <div class="tab-pane active" id="profiles" role="tabpanel">
                             <div class="panel top-profile skill-profile margin-bottom-25">
                                 <div class="panel-body small">
-                                    <form action="{% url 'operationalfund:upload' %}" method="post" enctype="multipart/form-data">
+                                    <form action="{% url 'operationalfund:upload' %}" method="post" id="uploadForm" name="uploadForm" enctype="multipart/form-data">
                                     {% csrf_token %}
-                                    <input type="file" name="myfile" required>
+                                    <input type="file" id="myfile" name="myfile" required>
                                     <input type="hidden" name="dataid" value="{{ object.pk }}">
                                     <button type="submit">Upload</button>
+                                        <p id="message"></p>
                                     </form>
 
                                     {% if uploaded_file_url %}
@@ -901,6 +902,36 @@
                 });
 
             }
+
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const fileInput = document.getElementById('myfile');
+            const message = document.getElementById('message');
+            const file = fileInput.files[0];
+
+
+            //const specialCharactersAndSpaces = file.name.match(/[^a-zA-Z0-9.]/g);
+            const specialCharacters = file.name.match(/[^a-zA-Z0-9.\s_]/g);
+            //const count = specialCharactersAndSpaces ? specialCharactersAndSpaces.length : 0;
+            const count = specialCharacters ? specialCharacters.length : 0;
+
+            // Display the count of special characters and spaces
+            message.textContent = `The filename contains ${count} special characters`;
+
+            if (count > 0) {
+                alert('Please remove special characters ');
+                return false;
+            } else {
+                document.getElementById("uploadForm").submit();
+            }
+
+            // Log the details for debugging
+            console.log('Filename:', file.name);
+            console.log('Special characters and spaces:', specialCharactersAndSpaces);
+            console.log('Count:', count);
 
         });
     </script>
