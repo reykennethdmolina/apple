@@ -659,7 +659,7 @@
                                 <div class="panel-body small">
                                     <form action="{% url 'operationalfund:upload' %}" method="post" enctype="multipart/form-data">
                                     {% csrf_token %}
-                                    <input type="file" name="myfile">
+                                    <input type="file" name="myfile" required>
                                     <input type="hidden" name="dataid" value="{{ object.pk }}">
                                     <button type="submit">Upload</button>
                                     </form>
