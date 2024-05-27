@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
 
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
-    # url(r'^searchforapproval/$', views.searchforapproval, name='searchforapproval'),
+    url(r'^searchforapproval/$', views.searchforapproval, name='searchforapproval'),
     url(r'^getcustomercreditterm/$', views.getcustomercreditterm, name='getcustomercreditterm'),
     # url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^goapprove/$', views.goapprove, name='goapprove'),
