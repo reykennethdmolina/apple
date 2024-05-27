@@ -530,6 +530,24 @@ class DeleteView(DeleteView):
 
 
 @csrf_exempt
+def gopost(request):
+
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        release = Simain.objects.filter(pk__in=ids).update(sistatus='R',
+                                                        releaseby=User.objects.get(pk=request.user.id),
+                                                        releasedate= str(datetime.datetime.now()),
+                                                        responsedate = str(datetime.datetime.now())
+        )
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
 def goapprove(request):
 
     if request.method == 'POST':
@@ -590,6 +608,34 @@ def searchforposting(request):
         data = {
             'status': 'success',
             'viewhtml': render_to_string('salesinvoice/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def searchforapproval(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Simain.objects.filter(isdeleted=0,status='A',sistatus='F').order_by('sidate', 'sinum')
+        if dfrom != '':
+            q = q.filter(sidate__gte=dfrom)
+        if dto != '':
+            q = q.filter(sidate__lte=dto)
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('salesinvoice/approvalresult.html', context),
         }
     else:
         data = {
