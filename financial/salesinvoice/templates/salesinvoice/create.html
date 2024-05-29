@@ -100,10 +100,8 @@
                         <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_branch">Branch</label>
                             <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
-                                <option value="">-- Select --</option>
-                                {% for data in branch %}
-                                    <option value="{{ data.id }}" {% if form.branch.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
-                                {% endfor %}
+                                <option value="" disabled>-- Select --</option>
+                                    <option value="5" selected="selected" >HEAD OFFICE</option>
                             </select>
                             <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                         </div>
@@ -124,18 +122,6 @@
                             <span class="help-block form-error">{{ form.duedate.errors.as_text }}</span>
                         </div>
                     </div>
-                    {% comment %} <div class="col-sm-12">
-                        <div class="form-group col-sm-3 {{ form.accountexecutive.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_accountexecutive">Account Executive</label>
-                            <select class="form-control input-sm" id="id_accountexecutive" name="accountexecutive">
-                                <option value="">-- Select --</option>
-                                {% for data in accountexecutive %}
-                                    <option value="{{ data.id }}" {% if form.accountexecutive.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.firstname }} {{ data.lastname }}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.accountexecutive.errors.as_text }}</span>
-                        </div>
-                    </div> {% endcomment %}
                     <div class="col-sm-12">
                         <div class="col-md-12"><hr></div>
                     </div>
@@ -244,7 +230,7 @@
                     <div class="col-md-12">
                         <div class="form-group col-sm-3 {{ form.refno.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_refno">Ref No.</label>
-                            <input type="text" class="form-control input-sm" id="id_refno" style="text-align: right;" data-validation="required" value="{{ form.refno.value|default:'' }}" name="refno">
+                            <input type="text" class="form-control input-sm" id="id_refno" data-validation="required" value="{{ form.refno.value|default:'' }}" name="refno">
                             <span class="help-block form-error">{{ form.refno.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-5">
@@ -296,6 +282,7 @@
                         </div>
                         <div class="col-sm-6 padding-top-15 padding-bottom-15">
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
+                            <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
                         </div>
 
                         <!-- Accounting entry start -->
@@ -442,9 +429,9 @@
             $('#id_outputvattype').val(sitype).change();
         });
 
-        $("#id_branch option").filter(function(){
+        {% comment %} $("#id_branch option").filter(function(){
             return $(this).text() == 'HEAD OFFICE';
-        }).attr('selected', 'selected');
+        }).attr('selected', 'selected'); {% endcomment %}
 
         $('#id_vat').on('change', function(){
             showRate("#id_vat", "vatrate", "RATE");

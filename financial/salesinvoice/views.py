@@ -1161,11 +1161,6 @@ class GenerateExcel(View):
                 q = q.filter(simain__sitype__exact=sitype)
             else:
                 q = q.filter(sitype=sitype)
-        if artype != '':
-            if report == '2' or report == '4':
-                q = q.filter(simain__orsource__exact=artype)
-            else:
-                q = q.filter(orsource=artype)
         if payee != 'null':
             if report == '2' or report == '4':
                 q = q.filter(simain__payee_code__exact=payee)
@@ -1274,10 +1269,7 @@ class GenerateExcel(View):
             totalamount = 0
             amount = 0
             for data in list:
-                if data.orsource == 'A':
-                    worksheet.write(row, col, str('OR')+data.sinum)
-                else:
-                    worksheet.write(row, col, str('CR')+data.sinum)
+                worksheet.write(row, col, data.sinum)
 
                 worksheet.write(row, col + 1, data.sidate, formatdate)
                 if data.status == 'C':
@@ -1550,10 +1542,7 @@ class GenerateExcel(View):
 
 
             for data in list:
-                if data.orsource == 'A':
-                    worksheet.write(row, col, str('OR')+data.sinum)
-                else:
-                    worksheet.write(row, col, str('CR')+data.sinum)
+                worksheet.write(row, col, data.sinum)
                 #worksheet.write(row, col, data.sinum)
                 worksheet.write(row, col + 1, data.sidate, formatdate)
                 if data.status == 'C':
@@ -1602,10 +1591,7 @@ class GenerateExcel(View):
             totalamount = 0
             amount = 0
             for data in list:
-                if data.orsource == 'A':
-                    worksheet.write(row, col, str('OR')+data.sinum)
-                else:
-                    worksheet.write(row, col, str('CR')+data.sinum)
+                worksheet.write(row, col, data.sinum)
 
                 worksheet.write(row, col + 1, data.sidate, formatdate)
                 if data.status == 'C':
@@ -1648,10 +1634,7 @@ class GenerateExcel(View):
             totalinputcredit = 0
 
             for data in list:
-                if data.orsource == 'A':
-                    worksheet.write(row, col, str('OR') + data.sinum)
-                else:
-                    worksheet.write(row, col, str('CR') + data.sinum)
+                worksheet.write(row, col, data.sinum)
                 worksheet.write(row, col + 1, data.sidate, formatdate)
                 worksheet.write(row, col + 2, data.government)
                 worksheet.write(row, col + 3, data.payee_name)
@@ -1745,10 +1728,7 @@ class GenerateExcel(View):
             totalinputcredit = 0
 
             for data in list:
-                if data.orsource == 'A':
-                    worksheet.write(row, col, str('OR') + data.sinum)
-                else:
-                    worksheet.write(row, col, str('CR') + data.sinum)
+                worksheet.write(row, col, data.sinum)
                 worksheet.write(row, col + 1, data.sidate, formatdate)
                 worksheet.write(row, col + 2, data.government)
                 worksheet.write(row, col + 3, data.payee_name)
@@ -1878,13 +1858,13 @@ def raw_query(type, company, dfrom, dto, sitype, artype, payee, collector, branc
         constatus = "AND m.status = '" + str(status) + "'"
 
     if type == 1:
-        query = "SELECT m.orsource, m.id, m.sinum, m.sidate, IF(m.status = 'C', 0, m.amount) AS amount, c.name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, m.status, " \
+        query = "SELECT m.id, m.sinum, m.sidate, IF(m.status = 'C', 0, m.amount) AS amount, c.name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, m.status, " \
                 "(m.amount - IFNULL(cash.total_amount, 0)) AS diff, (m.amount - IFNULL(ouput.total_amount,0)) AS amountdue " \
                 "FROM simain AS m " \
                 "LEFT OUTER JOIN customer AS c ON c.id = m.customer_id " \
                 "LEFT OUTER JOIN (" \
                 "   SELECT si_num, balancecode, chartofaccount_id, SUM(debitamount) AS total_amount " \
-                "   FROM sidetail WHERE balancecode = 'D' AND chartofaccount_id = "+str(company.coa_cashinbank_id)+ " " \
+                "   FROM sidetail WHERE balancecode = 'D' " \
                 "   GROUP BY si_num" \
                 ") AS cash ON cash.si_num = m.sinum " \
                 "LEFT OUTER JOIN (" \
@@ -1899,7 +1879,7 @@ def raw_query(type, company, dfrom, dto, sitype, artype, payee, collector, branc
                 "ORDER BY m.sidate,  m.sinum"
     elif type == 2:
         query = "SELECT z.*, ABS(z.detaildiff + z.diff) AS totaldiff FROM (" \
-                "SELECT m.orsource, m.id, m.sinum, m.sidate, c.name, IF(m.status = 'C', 0, m.amount) AS amount, m.status, IFNULL(debit.total_amount, 0) AS debitamount, IFNULL(credit.total_amount, 0) AS creditamount, " \
+                "SELECT m.id, m.sinum, m.sidate, c.name, IF(m.status = 'C', 0, m.amount) AS amount, m.status, IFNULL(debit.total_amount, 0) AS debitamount, IFNULL(credit.total_amount, 0) AS creditamount, " \
                 "(IFNULL(debit.total_amount, 0) - IFNULL(credit.total_amount, 0)) AS detaildiff, (m.amount - IFNULL(debit.total_amount, 0)) AS diff " \
                 "FROM simain AS m " \
                 "LEFT OUTER JOIN customer AS c ON c.id = m.customer_id " \
@@ -2152,7 +2132,7 @@ def query_sinooutputvatsummary(dfrom, dto, silist):
     if not silist:
         silist = '0'
 
-    query = "SELECT m.sinum, m.sidate, m.particulars, m.amount,sit.code AS sitype, c.code, c.name, " \
+    query = "SELECT m.sinum, m.sidate, m.particulars, m.amount, sit.code AS sitype, c.code, c.name, " \
             "CONCAT(IFNULL(c.address1, ''), ' ', IFNULL(c.address2, ''), ' ', IFNULL(c.address3, '')) AS address, c.tin, " \
             "SUM(IFNULL(outputvat.debitamount, 0)) AS outputvatdebitamount, SUM(IFNULL(outputvat.creditamount, 0)) AS outputvatcreditamount," \
             "m.vatrate AS outputvatrate " \

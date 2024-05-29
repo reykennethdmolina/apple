@@ -90,11 +90,11 @@
         <table>
             <tr>
                 <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
-                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+                <td width="50%" colspan="2"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address1 }}</p></td>
-                <td width="50%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+                <td width="50%" colspan="2"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address2 }}</p></td>
@@ -146,7 +146,7 @@
             <td style="text-align:right;vertical-align:top;width:120px;"></td>
             <td style="text-align:right;vertical-align:top;width:120px;"></td>
             <td style="text-align:right;vertical-align:top;width:70px;"></td>
-            <td style="text-align:left;vertical-align:top;width:250px;">{{ item.address|default:"" }}</td>
+            <td style="text-align:left;vertical-align:top;width:220px;">{{ item.address|default:"" }}</td>
             <td style="text-align:left;vertical-align:top;width:100px;">{{ item.tin|default:""|format_tin }}</td>
         </tr>
     {% endfor %}
