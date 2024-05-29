@@ -4,6 +4,7 @@
     {% load static %}
     {% load humanize %}
     {% load pdf_filters %}
+    {% load si_custom_tags %}
     <meta charset="UTF-8">
     <title>Sales Invoice</title>
     <style>
@@ -55,14 +56,30 @@
             vertical-align: top;
         }
         .sign_here{
+            position: relative;
             width: 65px;
             border-bottom: 1px solid black;
-            padding-bottom: -3px;
-            margin-bottom: -3px;
+        }
+
+        .sign_here_with_image{
+            position: relative;
+            width: 65px;
+            border-bottom: 1px solid black;
+            padding-bottom: 0;
+            padding: 0;
+            padding-top: -10px;
+            z-index: 0;
+        }
+        .signature-container {
+            position: relative;
+            display: inline-block;
         }
         .signature-image {
-            width: 60px;
+            position: sticky;
+            width: 45px;
             height: auto;
+            z-index: 4;
+            margin-top: 50px;
         }
     </style>
 </head>
@@ -137,9 +154,6 @@
                     <td width="45%" style="vertical-align: top"><b>Bus. Name/Style</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top"></td>
-                    {% comment %} <td width="25%" style="vertical-align: top"><b>Branch</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ simain.branch.description }}</td> {% endcomment %}
                 </tr>
                 <tr>
                     <td width="45%" style="vertical-align: top"><b>Address</b></td>
@@ -150,15 +164,9 @@
                 <tr>
                     <td width="45%" style="vertical-align: top"><b>TIN</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ tin }}</td>
+                    <td style="vertical-align: top">{{ tin|format_tin }}</td>
                 </tr>
                 
-                {% comment %} <tr>
-                    <td width="45%" style="vertical-align: top"><b>Acct. Exec.</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ simain.accountexecutive.firstname }} {{ simain.accountexecutive.lastname }}</td>
-                    
-                </tr> {% endcomment %}
                 <tr style="background-color: red">
                     <td width="45%" style="vertical-align: top"><b>Remarks</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
@@ -271,11 +279,14 @@
     <tr style="padding: 5px; padding-bottom: -10px;">
         <td width="200px" height="100px"><span>Certified correct by</span></td>
         <td width="5%"><b>:</b></td>
-        <td align="center">
-            <img class="signature-image" src="{{ parameter.si_signimage | get64 }}" alt="Signature">
-            <div class="sign_here">
-                {{ parameter.si_signname }}
+        <td align="center" style="vertical-align: top; position: relative;">
+            <div class="signature-container">
+                <img class="signature-image" src="{{ parameter.si_signimage | get64 }}" alt="Signature">
+                <div class="sign_here_with_image">
+                    {{ parameter.si_signname }}
+                </div>
             </div>
+            
             {{ parameter.si_signposition }}
         </td>
         <td></td>
