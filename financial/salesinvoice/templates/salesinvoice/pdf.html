@@ -105,16 +105,12 @@
             <td>
                 {{ parameter.report_footer1 }}<br>
                 {{ parameter.report_footer2 }}<br>
-                {{ parameter.report_footer3 }}<br>
                 {{ parameter.report_footer4 }}<br>
-                {% comment %} <b>{{ parameter.report_footer5 }}</b><br> {% endcomment %}
                 <b>{{ parameter.report_footer6 }}</b><br>
                 
             </td>
             <td style="margin-left: 30px;width: 600px;">
                 <span style="font-size: 11px;"><b> Payment Terms: This is due within {{ simain.creditterm }} days from invoice date. </b></span><br><br>
-                {% comment %} <span style="font-size: 11px;"><b> Payment Terms: Please refer to Agreement. if none </b></span><br>
-                <span style="font-size: 11px;"><b> indicated, this is due within {{ simain.creditterm }} days from invoice date. </b></span><br><br> {% endcomment %}
                 {{ parameter.report_footer14 }}<br>
                 {{ parameter.report_footer7 }} {{ request.user }} on {% now 'Y-m-d' %}
             </td>
@@ -206,9 +202,9 @@
                     <table>
                         <tr>
                             {% if detail.simain.vatablesale > 0 %}
-                                <td style="width: 63%; text-align: right;">{{ detail.simain.vatablesale|floatformat:2|intcomma }}</td>
+                                <td style="width: 70%; text-align: right;">{{ detail.simain.vatablesale|floatformat:2|intcomma }}</td>
                             {% else %}
-                                <td style="width: 63%; text-align: right;">{{ detail.debitamount|floatformat:2|intcomma }}</td>
+                                <td style="width: 70%; text-align: right;">{{ detail.debitamount|floatformat:2|intcomma }}</td>
                             {% endif %}
                         </tr>
                     </table>
