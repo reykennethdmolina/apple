@@ -93,7 +93,7 @@
                 <p class="title center"><br>SALES INVOICE</p>
             </td>
             <td>
-                <p class="number right">SI No.&nbsp;&nbsp;&nbsp;{{ simain.sinum }}<br>SI Date&nbsp;&nbsp;{{ simain.sidate|date:'m/d/Y' }}&nbsp;</p>
+                <p class="number right">SI No.&nbsp;&nbsp;&nbsp;{{ simain.sinum }}<br>&nbsp;&nbsp;&nbsp;&nbsp;SI Date:&nbsp;{{ simain.sidate|date:'m/d/Y' }}&nbsp;</p>
             </td>
         </tr>
     </table>
@@ -104,8 +104,8 @@
         <tr>
             <td>
                 {{ parameter.report_footer1 }}<br>
-                {{ parameter.report_footer2 }}<br><br>
-                {{ parameter.report_footer4 }}<br>
+                {{ parameter.report_footer2 }}<br>
+                {{ parameter.report_footer3 }}<br>
                 <b>{{ parameter.report_footer6 }}</b><br>
                 
             </td>
@@ -141,13 +141,13 @@
                 <tr>
                     <td width="45%" style="vertical-align: top"><b>Customer Name</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ simain.customer.name }}</td>
+                    <td colspan="2" style="vertical-align: top">{{ simain.customer.name }}</td>
                 </tr>
-                <tr>
+                {% comment %} <tr>
                     <td width="45%" style="vertical-align: top"><b>Bus. Name/Style</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top"></td>
-                </tr>
+                </tr> {% endcomment %}
                 <tr>
                     <td width="45%" style="vertical-align: top"><b>Address</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
@@ -253,7 +253,11 @@
                 </tr>
                 <tr>
                     <td style="border-left: 2px solid black; padding-left: 3px;"><b>VAT Zero-Rated Sale:</b></td>
-                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black; border-bottom: 1px solid black; padding-bottom: -3px;"><b>{{ simain.vatzeroratedsale|floatformat:2|intcomma }}</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black;"><b>{{ simain.vatzeroratedsale|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 2px solid black; padding-left: 3px;"><b>Withholding Tax:</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black; border-bottom: 1px solid black; padding-bottom: -3px;"><b>({{ simain.wtaxamount|floatformat:2|intcomma }})</b></td>
                 </tr>
                 <tr>
                     <td style="border-left: 2px solid black; padding-left: 3px; padding-top: 4px;"><b>Total Amount Due:</b></td>
