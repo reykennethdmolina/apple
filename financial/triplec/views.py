@@ -1067,10 +1067,9 @@ def print_cs(request):
                         if employee_level != "RANK & FILE":
                             wtax_rate = companyparameter.officer_percentage_tax
                     else:
-                        withholding_tax = get_employee_level(employeenumber.code, 'http://128.1.44.155/api')
+                        withholding_tax = get_employee_level(employeenumber.code, companyparameter.base_url_erm)
                         employee_level = withholding_tax[0].get('level', None)
-                        print 'erm', employee_level
-                        if str(employee_level) == '2':
+                        if str(employee_level) != '2':
                             wtax_rate = companyparameter.officer_percentage_tax
                             
                 if not parameter[xnum]['main'].wtax:
