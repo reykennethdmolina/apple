@@ -184,177 +184,177 @@
                     <tbody>
                         {% autoescape off %}
 
-                        {% classifications_to_options_html classifications as classifications_options_html %}
-                        {% author_codes_to_options_html authors as author_codes_options_html %}
-                        {% author_names_to_options_html authors as author_names_options_html %}
+                            {% classifications_to_options_html classifications as classifications_options_html %}
+                            {% author_codes_to_options_html authors as author_codes_options_html %}
+                            {% author_names_to_options_html authors as author_names_options_html %}
 
-                        {% for data in triplec_data %}
-                            <tr class="{{ data.status }}">
-                                <td class="c0"></td>
-                                <td class="c1">
-                                    <input type="hidden" name="data_id" value="{{ data.id }}" />
-                                    <input type="hidden" name="data_subtype_id" value="{{ data.subtype_id|default:'' }}" />
-                                    <input type="hidden" name="data_bureau_id" value="{{ data.bureau_id|default:'' }}" />
-                                    <input type="hidden" name="data_section_id" value="{{ data.section_id|default:'' }}" />
-                                    <input type="hidden" name="data_status" value="{{ data.status }}" />
-                                    <input type="hidden" name="data_status_txt" value="{{ data.get_status_display }}" />
-                                    <input type="hidden" name="data_rate_code" value="{{ data.rate_code|default:'' }}" />
-                                    <input type="hidden" name="data_amount" value="{{ data.amount }}" />
-                                    <input type="hidden" name="data_no_of_ccc" value="{{ data.no_ccc }}" />
-                                    <input type="hidden" name="data_no_of_items" value="{{ data.no_items|default:'' }}" />
-                                    <input type="hidden" name="data_length1" value="{{ data.length1 }}" />
-                                    <input type="hidden" name="data_length2" value="{{ data.length2 }}" />
-                                    <input type="hidden" name="data_length3" value="{{ data.length3 }}" />
-                                    <input type="hidden" name="data_length4" value="{{ data.length4 }}" />
-                                    <input type="hidden" name="data_width1" value="{{ data.width1 }}" />
-                                    <input type="hidden" name="data_width2" value="{{ data.width2 }}" />
-                                    <input type="hidden" name="data_width3" value="{{ data.width3 }}" />
-                                    <input type="hidden" name="data_width4" value="{{ data.width4 }}" />
-                                    <input type="hidden" name="data_total_size" value="{{ data.total_size }}" />
-                                    <input type="hidden" name="data_remarks" value="{{ data.remarks }}" />
-                                    <input type="hidden" name="data_cms_section" value="{{ data.cms_section }}" />
-                                    <input type="hidden" name="data_confirmation" value="{{ data.confirmation }}" />
-                                    <input type="hidden" name="data_date_posted" value="{{ data.date_posted }}" />
-                                    <input type="hidden" name="data_apv_no" value="{{ data.apv_no }}" />
-                                    <input type="hidden" name="data_apv_date" value="{{ data.date_apv }}" />
-                                    <input type="checkbox" class="triplec-checkbox pointer" name="chb_{{ data.id }}" id="chb_{{ data.id }}" />
-                                </td>
-
-                                <!-- ready for posting and posted entries -->
-                                {% if data.status in 'EO' %}
-
-                                    <td class="c2">{{ data.issue_date|date:'Y-m-d' }}</td>
-                                    <td class="c3">{{ data.cms_publication }}</td>
-                                    <td class="c14">{{ data.bureau.code|default:"" }}</td>
-                                    <td class="c4">{{ data.section.code }}</td>
-                                    <td class="c5">{{ data.page }}</td>
-                                    <td class="c6">{{ data.article_title }}</td>
-                                    <td class="c7">{{ data.byline|default:"" }}</td>
-                                    <td class="c8">
-                                        <select class="form-control input-sm select2" style="width: 110px;" name="code">
-                                            {% if data.code %}
-                                                {% author_codes_to_html authors data.code as author_codes_html %}
-                                                <option value="">-- Select --</option>
-                                                {{ author_codes_html }}
-                                            {% else %}
-                                                {{ author_codes_options_html }}
-                                            {% endif %}
-                                        </select>
-                                    </td>
-                                    <td class="c9">
-                                        <select class="form-control input-sm select2" style="width: 145px;" name="author_name">
-                                            {% if data.author_name %}
-                                                {% author_names_to_html authors data.author_name as author_names_html %}
-                                                <option value="">-- Select --</option>
-                                                {{ author_names_html }}
-                                            {% else %}
-                                                {{ author_names_options_html }}
-                                            {% endif %}
-                                        </select>
-                                    </td>
-                                    <td class="c10">
-                                        
-                                        <select class="form-control input-sm" style="width: 110px;" name="type">
-                                            {% if data.type %}
-                                                {% classifications_to_html classifications data.type as classifications_html %}
-                                                <option value="">-- Select --</option>
-                                                {{ classifications_html }}
-                                            {% else %}
-                                                {{ classifications_options_html }}
-                                            {% endif %}
-                                        </select>
-                                    </td>
-                                    <td class="c15">{{ data.subtype.description|default:"" }}</td>
-                                    <td class="c11">{{ data.cms_created_by }}</td>
-                                    <td class="c12">{{ data.no_of_words }}</td>
-                                    <td class="c13">{{ data.no_of_characters }}</td>
-                                    <td class="c17">{{ data.confirmation|default:"" }}</td>
-                                    <td class="c16">{{ data.get_status_display }}</td>
-                                    <td>
-                                        <div style="display:flex; flex-direction: row; justify-content: center; align-items: center; font-size: 24px;">
-                                            <div class="row nowrap">
-                                                <a class="pointer edit-transaction-entry" title="View or Edit Transaction" data-toggle="modal" data-target="#transactionEntryModal">
-                                                    <i class="icon fa-file-text" aria-hidden="true">&nbsp;&nbsp;</i>
-                                                </a>
-                                                {% if data.status == 'O' %}
-                                                    {% if not data.apv_no or data.apv_no == '' %}
-                                                        <a class="pointer revert-transaction-entry" title="Revert transaction status as Ready for Posting (Editable format).">
-                                                            <i class="icon md-refresh" aria-hidden="true">&nbsp;&nbsp;</i>
-                                                        </a>
-                                                    {% endif %}
-                                                {% endif %}
-                                            </div>
-                                        </div>
+                            {% for data in triplec_data %}
+                                <tr class="{{ data.status }}">
+                                    <td class="c0"></td>
+                                    <td class="c1">
+                                        <input type="hidden" name="data_id" value="{{ data.id }}" />
+                                        <input type="hidden" name="data_subtype_id" value="{{ data.subtype_id|default:'' }}" />
+                                        <input type="hidden" name="data_bureau_id" value="{{ data.bureau_id|default:'' }}" />
+                                        <input type="hidden" name="data_section_id" value="{{ data.section_id|default:'' }}" />
+                                        <input type="hidden" name="data_status" value="{{ data.status }}" />
+                                        <input type="hidden" name="data_status_txt" value="{{ data.get_status_display }}" />
+                                        <input type="hidden" name="data_rate_code" value="{{ data.rate_code|default:'' }}" />
+                                        <input type="hidden" name="data_amount" value="{{ data.amount }}" />
+                                        <input type="hidden" name="data_no_of_ccc" value="{{ data.no_ccc }}" />
+                                        <input type="hidden" name="data_no_of_items" value="{{ data.no_items|default:'' }}" />
+                                        <input type="hidden" name="data_length1" value="{{ data.length1 }}" />
+                                        <input type="hidden" name="data_length2" value="{{ data.length2 }}" />
+                                        <input type="hidden" name="data_length3" value="{{ data.length3 }}" />
+                                        <input type="hidden" name="data_length4" value="{{ data.length4 }}" />
+                                        <input type="hidden" name="data_width1" value="{{ data.width1 }}" />
+                                        <input type="hidden" name="data_width2" value="{{ data.width2 }}" />
+                                        <input type="hidden" name="data_width3" value="{{ data.width3 }}" />
+                                        <input type="hidden" name="data_width4" value="{{ data.width4 }}" />
+                                        <input type="hidden" name="data_total_size" value="{{ data.total_size }}" />
+                                        <input type="hidden" name="data_remarks" value="{{ data.remarks }}" />
+                                        <input type="hidden" name="data_cms_section" value="{{ data.cms_section }}" />
+                                        <input type="hidden" name="data_confirmation" value="{{ data.confirmation }}" />
+                                        <input type="hidden" name="data_date_posted" value="{{ data.date_posted }}" />
+                                        <input type="hidden" name="data_apv_no" value="{{ data.apv_no }}" />
+                                        <input type="hidden" name="data_apv_date" value="{{ data.date_apv }}" />
+                                        <input type="checkbox" class="triplec-checkbox pointer" name="chb_{{ data.id }}" id="chb_{{ data.id }}" />
                                     </td>
 
-                                <!-- active entries -->
-                                {% else %}
-                                    
-                                    <td class="c2">{{ data.cms_issue_date|date:'Y-m-d' }}</td>
-                                    <td class="c3">{{ data.cms_publication }}</td>
-                                    <td class="c14">{{ data.bureau.description|default:"" }}</td>
-                                    <td class="c4">{{ data.section.description|default:"" }}</td>
-                                    <td class="c5">{{ data.cms_page }}</td>
-                                    <td class="c6">{{ data.cms_article_title|default:"" }}</td>
-                                    <td class="c7">{{ data.cms_byline|default:"" }}</td>
-                                    <td class="c8">
-                                        <select class="form-control input-sm select2" style="width: 110px;" name="code">
-                                            {% if data.code %}
-                                                {% author_codes_to_html authors data.code as author_codes_html %}
-                                                <option value="">-- Select --</option>
-                                                {{ author_codes_html }}
-                                            {% else %}
-                                                {{ author_codes_options_html }}
-                                            {% endif %}
-                                        </select>
-                                    </td>
-                                    <td class="c9">
-                                        <select class="form-control input-sm select2" style="width: 145px;" name="author_name">
-                                            {% if data.author_name %}
-                                                {% author_names_to_html authors data.author_name as author_names_html %}
-                                                <option value="">-- Select --</option>
-                                                {{ author_names_html }}
-                                            {% else %}
-                                                {{ author_names_options_html }}
-                                            {% endif %}
-                                        </select>
-                                        
-                                    </td>
-                                    <td class="c10">
+                                    <!-- ready for posting and posted entries -->
+                                    {% if data.status in 'EO' %}
 
-                                        {% classifications_to_html classifications data.type as classifications_html %}
-                                        <select class="form-control input-sm" style="width: 110px;" name="type">
-                                            <option value="">-- Select --</option>
-                                            {{ classifications_html }}
-                                        </select>
-                                    </td>
-                                    <td class="c15">{{ data.subtype.description|default:"" }}</td>
-                                    <td class="c11">{{ data.cms_created_by|default:"" }}</td>
-                                    <td class="c12">{{ data.cms_no_of_words|default:"" }}</td>
-                                    <td class="c13">{{ data.cms_no_of_characters|default:"" }}</td>
-                                    <td class="c17">{{ data.confirmation|default:"" }}</td>
-                                    <td class="c16">{{ data.get_status_display }}</td>
-                                    <td>
-                                        <div class="iconlist-wrap auto-0">
-                                            <div class="iconlist" style="text-align: center">
-                                                
-                                                {% if not data.author_name or data.author_name == '' or data.author_name == 'None' and not data.code %}
-                                                    <a class="hidden pointer edit-transaction-entry" title="View or Edit Transaction" data-toggle="modal" data-target="#transactionEntryModal">
-                                                        <i class="icon fa-file-text" aria-hidden="true">&nbsp;&nbsp;</i>
-                                                    </a>
+                                        <td class="c2">{{ data.issue_date|date:'Y-m-d' }}</td>
+                                        <td class="c3">{{ data.cms_publication }}</td>
+                                        <td class="c14">{{ data.bureau.code|default:"" }}</td>
+                                        <td class="c4">{{ data.section.code }}</td>
+                                        <td class="c5">{{ data.page }}</td>
+                                        <td class="c6">{{ data.article_title }}</td>
+                                        <td class="c7">{{ data.byline|default:"" }}</td>
+                                        <td class="c8">
+                                            <select class="form-control input-sm select2" style="width: 110px;" name="code">
+                                                {% if data.code %}
+                                                    {% author_codes_to_html authors data.code as author_codes_html %}
+                                                    <option value="">-- Select --</option>
+                                                    {{ author_codes_html }}
                                                 {% else %}
+                                                    {{ author_codes_options_html }}
+                                                {% endif %}
+                                            </select>
+                                        </td>
+                                        <td class="c9">
+                                            <select class="form-control input-sm select2" style="width: 145px;" name="author_name">
+                                                {% if data.author_name %}
+                                                    {% author_names_to_html authors data.author_name as author_names_html %}
+                                                    <option value="">-- Select --</option>
+                                                    {{ author_names_html }}
+                                                {% else %}
+                                                    {{ author_names_options_html }}
+                                                {% endif %}
+                                            </select>
+                                        </td>
+                                        <td class="c10">
+                                            
+                                            <select class="form-control input-sm" style="width: 110px;" name="type">
+                                                {% if data.type %}
+                                                    {% classifications_to_html classifications data.type as classifications_html %}
+                                                    <option value="">-- Select --</option>
+                                                    {{ classifications_html }}
+                                                {% else %}
+                                                    {{ classifications_options_html }}
+                                                {% endif %}
+                                            </select>
+                                        </td>
+                                        <td class="c15">{{ data.subtype.description|default:"" }}</td>
+                                        <td class="c11">{{ data.cms_created_by }}</td>
+                                        <td class="c12">{{ data.no_of_words }}</td>
+                                        <td class="c13">{{ data.no_of_characters }}</td>
+                                        <td class="c17">{{ data.confirmation|default:"" }}</td>
+                                        <td class="c16">{{ data.get_status_display }}</td>
+                                        <td>
+                                            <div style="display:flex; flex-direction: row; justify-content: center; align-items: center; font-size: 24px;">
+                                                <div class="row nowrap">
                                                     <a class="pointer edit-transaction-entry" title="View or Edit Transaction" data-toggle="modal" data-target="#transactionEntryModal">
                                                         <i class="icon fa-file-text" aria-hidden="true">&nbsp;&nbsp;</i>
                                                     </a>
-                                                {% endif %}
+                                                    {% if data.status == 'O' %}
+                                                        {% if not data.apv_no or data.apv_no == '' %}
+                                                            <a class="pointer revert-transaction-entry" title="Revert transaction status as Ready for Posting (Editable format).">
+                                                                <i class="icon md-refresh" aria-hidden="true">&nbsp;&nbsp;</i>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
+                                        </td>
 
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                        {% endautoescape %}
+                                    <!-- active entries -->
+                                    {% else %}
+                                        
+                                        <td class="c2">{{ data.cms_issue_date|date:'Y-m-d' }}</td>
+                                        <td class="c3">{{ data.cms_publication }}</td>
+                                        <td class="c14">{{ data.bureau.description|default:"" }}</td>
+                                        <td class="c4">{{ data.section.description|default:"" }}</td>
+                                        <td class="c5">{{ data.cms_page }}</td>
+                                        <td class="c6">{{ data.cms_article_title|default:"" }}</td>
+                                        <td class="c7">{{ data.cms_byline|default:"" }}</td>
+                                        <td class="c8">
+                                            <select class="form-control input-sm select2" style="width: 110px;" name="code">
+                                                {% if data.code %}
+                                                    {% author_codes_to_html authors data.code as author_codes_html %}
+                                                    <option value="">-- Select --</option>
+                                                    {{ author_codes_html }}
+                                                {% else %}
+                                                    {{ author_codes_options_html }}
+                                                {% endif %}
+                                            </select>
+                                        </td>
+                                        <td class="c9">
+                                            <select class="form-control input-sm select2" style="width: 145px;" name="author_name">
+                                                {% if data.author_name %}
+                                                    {% author_names_to_html authors data.author_name as author_names_html %}
+                                                    <option value="">-- Select --</option>
+                                                    {{ author_names_html }}
+                                                {% else %}
+                                                    {{ author_names_options_html }}
+                                                {% endif %}
+                                            </select>
+                                            
+                                        </td>
+                                        <td class="c10">
+
+                                            {% classifications_to_html classifications data.type as classifications_html %}
+                                            <select class="form-control input-sm" style="width: 110px;" name="type">
+                                                <option value="">-- Select --</option>
+                                                {{ classifications_html }}
+                                            </select>
+                                        </td>
+                                        <td class="c15">{{ data.subtype.description|default:"" }}</td>
+                                        <td class="c11">{{ data.cms_created_by|default:"" }}</td>
+                                        <td class="c12">{{ data.cms_no_of_words|default:"" }}</td>
+                                        <td class="c13">{{ data.cms_no_of_characters|default:"" }}</td>
+                                        <td class="c17">{{ data.confirmation|default:"" }}</td>
+                                        <td class="c16">{{ data.get_status_display }}</td>
+                                        <td>
+                                            <div class="iconlist-wrap auto-0">
+                                                <div class="iconlist" style="text-align: center">
+                                                    
+                                                    {% if not data.author_name or data.author_name == '' or data.author_name == 'None' and not data.code %}
+                                                        <a class="hidden pointer edit-transaction-entry" title="View or Edit Transaction" data-toggle="modal" data-target="#transactionEntryModal">
+                                                            <i class="icon fa-file-text" aria-hidden="true">&nbsp;&nbsp;</i>
+                                                        </a>
+                                                    {% else %}
+                                                        <a class="pointer edit-transaction-entry" title="View or Edit Transaction" data-toggle="modal" data-target="#transactionEntryModal">
+                                                            <i class="icon fa-file-text" aria-hidden="true">&nbsp;&nbsp;</i>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            {% endautoescape %}
                     </tbody>
                 </table>
             </div>

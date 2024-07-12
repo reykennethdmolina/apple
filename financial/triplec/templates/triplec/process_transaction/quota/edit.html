@@ -32,6 +32,11 @@
                             <input type="number" class="form-control" id="id_cellcard_amount" maxlength="10" placeholder="Cellcard/Internet" name="cellcard_amount" data-validation="required" value="{{ form.cellcard_amount.value }}">
                             <span class="help-block form-error">{{ form.cellcard_amount.errors.as_text }}</span>
                         </div>
+                        <div class="form-group {{ form.cellcard2_amount.errors|yesno:'has-error,' }}">
+                            <label for="id_cellcard2_amount" class="control-label">Cellcard/Internet 2 (Photos)</label>
+                            <input type="number" class="form-control" id="id_cellcard2_amount" maxlength="10" placeholder="Cellcard/Internet 2 (Photos)" name="cellcard2_amount" data-validation="required" value="{{ form.cellcard2_amount.value }}">
+                            <span class="help-block form-error">{{ form.cellcard2_amount.errors.as_text }}</span>
+                        </div>
                         <div class="form-group margin-bottom-0">
                             <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
                         </div>

@@ -6,9 +6,9 @@
     {% load humanize %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Triple C Confirmation Sheet Printing</title>
+    <title>Confirmation Sheet</title>
     <style>
-       @page {
+        @page {
             size: Letter portrait;
             margin: 2;
             
@@ -188,6 +188,15 @@
                             <td style="padding-top: 10px; text-align: right;">{{ value.cellcard_amount|floatformat:2|intcomma }}</td>
                         </tr>
                     {% endif %}
+                    {% if value.cellcard2_amount %}
+                        <tr>
+                            <td style="padding-top: 10px;"></td>
+                            <td colspan="2" style="padding-top: 10px; text-align: left;"><b>CELL CARD/INTERNET SUBSIDY (Photos)</b></td>
+                            <td colspan="2"></td>
+                            <td style="padding-top: 10px; text-align: right;"><b>+</b></td>
+                            <td style="padding-top: 10px; text-align: right;">{{ value.cellcard2_amount|floatformat:2|intcomma }}</td>
+                        </tr>
+                    {% endif %}
                     <tr style="padding-top: 5px;">
                         <td colspan="2" style="padding-top: 10px;"><b>TOTAL AMOUNT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
                         <td colspan="3"></td>
@@ -288,8 +297,7 @@
                     <tr>
                         <td width="30%">
                             {{ info.parameter.report_footer1 }}<br>
-                            {{ info.parameter.report_footer2 }}<br>
-                            {{ info.parameter.report_footer3 }}<br>
+                            {{ info.parameter.report_footer2 }}<br><br>
                             {{ info.parameter.report_footer4 }}<br>
                             <b>{{ info.parameter.report_footer5 }}</b><br>
                             <b>{{ info.parameter.report_footer6 }}</b><br>
@@ -299,8 +307,7 @@
                             {{ info.parameter.report_footer8 }}<br>
                             {{ info.parameter.report_footer9 }}<br>
                             {{ info.parameter.report_footer10 }}<br>
-                            {{ info.parameter.report_footer11 }}<br>
-                            {{ info.parameter.report_footer12 }}<br>
+                            {{ info.parameter.report_footer11 }}<br><br>
                             {{ info.parameter.report_footer13 }}<br>
                             {{ info.parameter.report_footer14 }}
                         </td>
