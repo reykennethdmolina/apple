@@ -82,6 +82,9 @@ class Companyparameter(models.Model):
 
     # defaults iES 201 base_url
     base_url_201 = models.CharField(max_length=250, blank=True, null=True)
+    
+    # defaults ERM base_url
+    base_url_erm = models.CharField(max_length=250, blank=True, null=True)
 
     # report footers
     report_footer1 = models.CharField(max_length=250, blank=True, null=True)

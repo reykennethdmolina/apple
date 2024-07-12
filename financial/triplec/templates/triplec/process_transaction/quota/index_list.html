@@ -13,6 +13,7 @@
                 <th><span>Transportation Amount</span></th>
                 <th><span>Transportation (Photo) Amount</span></th>
                 <th><span>Cellcard/Internet Subsidy Amount</span></th>
+                <th><span>Cellcard/Internet Subsidy (Photo) Amount</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
         </thead>
@@ -30,6 +31,7 @@
                         <td class="text-right">{{ data.quota.transportation_amount|intcomma|default:"0.00" }} </td>
                         <td class="text-right">{{ data.quota.transportation2_amount|intcomma|default:"0.00" }} </td>
                         <td class="text-right">{{ data.quota.cellcard_amount|intcomma|default:"0.00" }} </td>
+                        <td class="text-right">{{ data.quota.cellcard2_amount|intcomma|default:"0.00" }} </td>
                         <td>
                             <div class="iconlist-wrap auto-0">
                                 <div class="iconlist">
@@ -57,6 +59,7 @@
                         <!-- no transpo (photos) -->
                         <td class="text-right">0.00</td>
                         <td class="text-right">{{ data.quota.cellcard_amount|intcomma|default:"0.00" }} </td>
+                        <td class="text-right">{{ data.quota.cellcard2_amount|intcomma|default:"0.00" }} </td>
                         <td>
                             <div class="iconlist-wrap auto-0">
                                 <div class="iconlist">
@@ -83,6 +86,7 @@
                         <td class="text-right">0.00</td>
                         <td class="text-right">{{ data.quota.transportation2_amount|intcomma|default:"0.00" }} </td>
                         <td class="text-right">{{ data.quota.cellcard_amount|intcomma|default:"0.00" }} </td>
+                        <td class="text-right">{{ data.quota.cellcard2_amount|intcomma|default:"0.00" }} </td>
                         <td>
                             <div class="iconlist-wrap auto-0">
                                 <div class="iconlist">
@@ -93,7 +97,7 @@
                                     <a href="{% url 'triplec:quota_update' data.quota.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                         <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                     </a>
-                                   
+                                
                                 </div>
                             </div>
                         </td>

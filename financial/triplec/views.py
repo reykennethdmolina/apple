@@ -54,7 +54,6 @@ class IndexView(AjaxListView):
     model = TripleC
     template_name = 'triplec/index.html'
     context_object_name = 'data_list'
-    # page_template = 'triplec/index_list.html'
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
@@ -231,7 +230,7 @@ def savedata(record,issue_date):
         article_title = strip_non_ascii(record['Article Title'])
         byline = strip_non_ascii(record['Byline'])
         created_by = strip_non_ascii(record['Created by'])
-       
+
         TripleC.objects.create(
             cms_issue_date=issue_date,
             cms_article_status='A',
@@ -320,7 +319,7 @@ def get_supplier_by_type(request):
             return JsonResponse({'result': 'Get supplier by type call failed'})
     else:
         return JsonResponse({'result': 'Get supplier by type call failed'})
-     
+    
 
 @csrf_exempt
 def get_supplier_by_code(request):
@@ -335,11 +334,12 @@ def get_supplier_by_code(request):
             else:
                 data={'result': False, 'message': 'Code is required'}    
         except:
-           data={'result': False, 'message': 'Get supplier by code call failed'}
+            data={'result': False, 'message': 'Get supplier by code call failed'}
     else:
         data={'result': False, 'message': 'Method not allowed'}
 
     return JsonResponse(data)
+
 
 @csrf_exempt
 def get_supplier_by_name(request):
@@ -373,8 +373,8 @@ def supplier_suggestion(request):
             else:
                 data={'result': False, 'message': 'Code is required'}    
         except Exception as e:
-           print e
-           data={'result': False, 'message': 'Supplier suggestion call failed'}
+            print e
+            data={'result': False, 'message': 'Supplier suggestion call failed'}
     else:
         data={'result': False, 'message': 'Method not allowed'}
 
@@ -668,12 +668,12 @@ class ProcessTransactionView(ListView):
         return super(ListView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-       context = super(ProcessTransactionView, self).get_context_data(**kwargs)
-       context['triplec'] = TripleC.objects.all().filter(isdeleted=0).order_by('code')
-       context['authors'] = Supplier.objects.all().filter(isdeleted=0, triplec=1)
-       context['classifications'] = Classification.objects.all().filter(isdeleted=0)
-       
-       return context
+        context = super(ProcessTransactionView, self).get_context_data(**kwargs)
+        context['triplec'] = TripleC.objects.all().filter(isdeleted=0).order_by('code')
+        context['authors'] = Supplier.objects.all().filter(isdeleted=0, triplec=1)
+        context['classifications'] = Classification.objects.all().filter(isdeleted=0)
+        
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -876,6 +876,7 @@ def process_quota(request, confirmation_numbers):
                         transpo = additional.get(code='TRANSPO').amount
                         transpo2 = additional.get(code='TRANSPO2').amount
                         cellcard = additional.get(code='TEL').amount
+                        cellcard2 = additional.get(code='TEL2').amount
 
                         # used to update existing quota
                         photo_and_article_quota = {
@@ -883,6 +884,7 @@ def process_quota(request, confirmation_numbers):
                             'transportation_amount': transpo,
                             'transportation2_amount': transpo2,
                             'cellcard_amount': cellcard,
+                            'cellcard2_amount': cellcard2,
                             'status': 'A',
                             'isdeleted': 0,
                             'modifyby_id': request.user.id,
@@ -898,11 +900,13 @@ def process_quota(request, confirmation_numbers):
                     # Photo
                     elif num_photos >= 8:
                         transpo = additional.get(code='TRANSPO2').amount
+                        cellcard = additional.get(code='TEL').amount
 
                         # used to update existing quota
                         photo_quota = {
                             'type': 'P',
                             'transportation_amount': transpo,
+                            'cellcard_amount': cellcard,
                             'status': 'A',
                             'isdeleted': 0,
                             'modifyby_id': request.user.id,
@@ -938,27 +942,27 @@ def process_quota(request, confirmation_numbers):
                             Triplecquota.objects.create(**kwargs)
 
                     # BREAKING NEWS
-                    # total_size = number of peices
-                    elif num_breaking_news > 0 and total_size >= 50:
-                        transpo3 = additional.get(code='TRANSPO3').amount
-                        cellcard = additional.get(code='TEL').amount
+                    # total_size is number of peices
+                    # elif num_breaking_news > 0 and total_size >= 50:
+                    #     transpo3 = additional.get(code='TRANSPO3').amount
+                    #     cellcard = additional.get(code='TEL').amount
                         
-                        # used to update existing quota
-                        breaking_news_quota = {
-                            'type': 'INSNB',
-                            'transportation_amount': transpo3,
-                            'cellcard_amount': cellcard,
-                            'status': 'A',
-                            'isdeleted': 0,
-                            'modifyby_id': request.user.id,
-                            'modifydate': datetime.datetime.now(),
-                        }
+                    #     # used to update existing quota
+                    #     breaking_news_quota = {
+                    #         'type': 'INSNB',
+                    #         'transportation_amount': transpo3,
+                    #         'cellcard_amount': cellcard,
+                    #         'status': 'A',
+                    #         'isdeleted': 0,
+                    #         'modifyby_id': request.user.id,
+                    #         'modifydate': datetime.datetime.now(),
+                    #     }
 
-                        if quota.exists():
-                            quota.update(**breaking_news_quota)
-                        else:
-                            kwargs.update(breaking_news_quota)
-                            Triplecquota.objects.create(**kwargs)
+                    #     if quota.exists():
+                    #         quota.update(**breaking_news_quota)
+                    #     else:
+                    #         kwargs.update(breaking_news_quota)
+                    #         Triplecquota.objects.create(**kwargs)
 
             except Exception as e:
                 has_exception = True
@@ -971,7 +975,7 @@ def process_quota(request, confirmation_numbers):
     else:
         result = 'No CS numbers to process.'
     return result
-          
+
 
 def print_cs(request):
 
@@ -1025,13 +1029,15 @@ def print_cs(request):
             transpo = has_quota.transportation_amount
             transpo2 = has_quota.transportation2_amount
             cellcard = has_quota.cellcard_amount
+            cellcard2 = has_quota.cellcard2_amount
 
-            quota_amount = transpo + transpo2 + cellcard
+            quota_amount = transpo + transpo2 + cellcard + cellcard2
             with_additional = True
 
             parameter[xnum]['transportation_amount'] = transpo
             parameter[xnum]['transportation2_amount'] = transpo2
             parameter[xnum]['cellcard_amount'] = cellcard
+            parameter[xnum]['cellcard2_amount'] = cellcard2
         
         atc_id = Supplier.objects.get(code=parameter[xnum]['main'].code).atc_id
         rate = Ataxcode.objects.get(pk=atc_id).rate
@@ -1057,10 +1063,16 @@ def print_cs(request):
                 if employeenumber:
                     withholding_tax = get_withholding_tax(employeenumber.code, companyparameter.base_url_201)
                     employee_level = withholding_tax[0].get('employee_level', None)
-
-                    if employee_level and employee_level != "RANK & FILE":
-                        wtax_rate = companyparameter.officer_percentage_tax
-                        
+                    if employee_level:
+                        if employee_level != "RANK & FILE":
+                            wtax_rate = companyparameter.officer_percentage_tax
+                    else:
+                        withholding_tax = get_employee_level(employeenumber.code, 'http://128.1.44.155/api')
+                        employee_level = withholding_tax[0].get('level', None)
+                        print 'erm', employee_level
+                        if str(employee_level) == '2':
+                            wtax_rate = companyparameter.officer_percentage_tax
+                            
                 if not parameter[xnum]['main'].wtax:
                     save_wtax(xnum, wtax_rate)
 
@@ -1111,6 +1123,23 @@ def get_withholding_tax(employeenumber, base_url):
     return [{}]
 
 
+def get_employee_level(employeenumber, base_url):
+    url = base_url + 'api/get-employee-level'
+    params = {
+        "access_key": "acf42e4acf8fe9f39e382e0a255d88ce1b59900b",
+        "employeenumber": employeenumber
+    }
+    
+    response = requests.get(url, json=params)
+    if response.status_code == 200:
+        text = response.text
+        parts = text.split('\n', 1)
+        data = json.loads(parts[0])
+        return data
+    
+    return [{}]
+
+
 def percentage(percent, whole):
     if whole:
         return (percent * whole) / 100.0
@@ -1137,7 +1166,7 @@ class ReportView(ListView):
         context['authors'] = Supplier.objects.all().filter(isdeleted=0, triplec=1)
         context['bureaus'] = Bureau.objects.all().filter(isdeleted=0).order_by('code')
         context['sections'] = Section.objects.all().filter(isdeleted=0).order_by('code')
-       
+        
         return context
     
 
@@ -1677,6 +1706,39 @@ def goposttriplec(request):
                                     )
                                     amount += has_quota.cellcard_amount
                                     has_cellcard = True
+                                    
+                            # quota - cellcard2
+                            if  has_quota.cellcard2_amount:
+                                cellcard = various_account.get(code='TEL2', type='addtl', isdeleted=0)
+                                if cellcard:
+
+                                    if expchart.accountcode == '5100000000':
+                                        cellcardexpc = cellcard.chartexpcostofsale_id
+                                    elif expchart.accountcode == '5200000000':
+                                        cellcardexpc = cellcard.chartexpgenandadmin_id
+                                    else:
+                                        cellcardexpc = cellcard.chartexpsellexp_id
+                                        
+                                    counter += 1
+                                    Apdetail.objects.create(
+                                        apmain_id = main.id,
+                                        ap_num = main.apnum,
+                                        ap_date = main.apdate,
+                                        item_counter = counter,
+                                        debitamount = has_quota.cellcard2_amount,
+                                        creditamount = '0.00',
+                                        balancecode = 'D',
+                                        amount = has_quota.cellcard2_amount,
+                                        chartofaccount_id = cellcardexpc,
+                                        department_id = department.id,
+                                        status='A',
+                                        enterby_id = request.user.id,
+                                        enterdate = datetime.datetime.now(),
+                                        modifyby_id = request.user.id,
+                                        modifydate = datetime.datetime.now()
+                                    )
+                                    amount += has_quota.cellcard2_amount
+                                    has_cellcard = True
 
                         if has_transpo and has_cellcard:
                             particulars_quota = " PLUS TRANSPO AND CELLPHONE ALLO."
@@ -1904,7 +1966,8 @@ class QuotaView(AjaxListView):
                 Q(type__icontains=query) |
                 Q(transportation_amount__icontains=query) |
                 Q(transportation2_amount__icontains=query) |
-                Q(cellcard_amount__icontains=query)
+                Q(cellcard_amount__icontains=query) |
+                Q(cellcard2_amount__icontains=query)
             )
         else:
             queryset = self.model.objects.filter(isdeleted=0)
@@ -1949,7 +2012,7 @@ class QuotaDetailView(DetailView):
 class QuotaUpdateView(UpdateView):
     model = Triplecquota
     template_name = 'triplec/process_transaction/quota/edit.html'
-    fields = ['confirmation', 'transportation_amount', 'transportation2_amount', 'cellcard_amount']
+    fields = ['confirmation', 'transportation_amount', 'transportation2_amount', 'cellcard_amount', 'cellcard2_amount']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('triplec.change_triplec_quota'):
@@ -1966,7 +2029,7 @@ class QuotaUpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['transportation_amount', 'transportation2_amount', 'cellcard_amount', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['transportation_amount', 'transportation2_amount', 'cellcard_amount', 'cellcard2_amount', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/triplec/quota')
 
 
@@ -1975,8 +2038,8 @@ class BatchPrintCsView(IndexView):
     template_name = 'triplec/print_cs/index.html'
     
     def get_context_data(self, **kwargs):
-       context = super(BatchPrintCsView, self).get_context_data(**kwargs)
-       return context
+        context = super(BatchPrintCsView, self).get_context_data(**kwargs)
+        return context
     
 
 def retrieve_cs(request):
@@ -2065,13 +2128,15 @@ def startprint(request):
                 transpo = has_quota.transportation_amount
                 transpo2 = has_quota.transportation2_amount
                 cellcard = has_quota.cellcard_amount
+                cellcard2 = has_quota.cellcard2_amount
 
-                quota_amount = transpo + transpo2 + cellcard
+                quota_amount = transpo + transpo2 + cellcard + cellcard2
                 with_additional = True
 
                 parameter[xno]['transportation_amount'] = transpo
                 parameter[xno]['transportation2_amount'] = transpo2
                 parameter[xno]['cellcard_amount'] = cellcard
+                parameter[xno]['cellcard2_amount'] = cellcard2
             
             atc_id = Supplier.objects.get(code=parameter[xno]['main'].code).atc_id
             rate = Ataxcode.objects.get(pk=atc_id).rate
@@ -2097,8 +2162,15 @@ def startprint(request):
                     if employeenumber:
                         withholding_tax = get_withholding_tax(employeenumber.code, companyparameter.base_url_201)
                         employee_level = withholding_tax[0].get('employee_level', None)
-                        if employee_level and employee_level != "RANK & FILE":
-                            wtax_rate = companyparameter.officer_percentage_tax
+                        if employee_level:
+                            if employee_level != "RANK & FILE":
+                                wtax_rate = companyparameter.officer_percentage_tax
+                        else:
+                            withholding_tax = get_employee_level(employeenumber.code, companyparameter.base_url_erm)
+                            employee_level = withholding_tax.get('level', None)
+                            
+                            if str(employee_level) != '2':
+                                wtax_rate = companyparameter.officer_percentage_tax
                             
                     if not parameter[xno]['main'].wtax:
                         save_wtax(xno, wtax_rate)

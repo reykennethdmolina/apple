@@ -127,6 +127,7 @@ class Triplecquota(models.Model):
     transportation_amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
     transportation2_amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
     cellcard_amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    cellcard2_amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
