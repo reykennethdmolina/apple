@@ -1059,7 +1059,7 @@ def print_cs(request):
             is_ewt = False
             if parameter[xnum]['main'].supplier_id is not None:
 
-                employeenumber = get_object_or_None(Employee, supplier=parameter[xnum]['main'].supplier_id)
+                employeenumber = Employee.objects.filter(supplier=parameter[xnum]['main'].supplier_id).first()
                 if employeenumber:
                     withholding_tax = get_withholding_tax(employeenumber.code, companyparameter.base_url_201)
                     employee_level = withholding_tax[0].get('employee_level', None)
@@ -1281,7 +1281,7 @@ class GeneratePDF(View):
                 }
             }
         else:
-             context = {
+            context = {
                 "today": timezone.now(),
                 "company": company,
                 "username": request.user,
@@ -1289,7 +1289,7 @@ class GeneratePDF(View):
                     'logo': 'static/images/pdi.jpg',
                 }
             }
-             
+            
         return Render.render('triplec/report/pdf.html', context)
         
 
@@ -2040,29 +2040,166 @@ class BatchPrintCsView(IndexView):
         context = super(BatchPrintCsView, self).get_context_data(**kwargs)
         return context
     
+    
+class PrintPDFCsView(View):
+    def get(self, request):
+        try:
+            companyparameter = Companyparameter.objects.get(code='PDI')
+            if request.method == 'GET' and request.GET['blank'] != '1':
+                
+                csfrom = request.GET['csfrom']
+                    
+                triplec = TripleC.objects.filter(status='O', isdeleted=0)
+                confirmation = ''
+                if csfrom != '':
+                    confirmation = csfrom
+                else:
+                    dfrom = request.GET['from']
+                    dto = request.GET['to']
+                    author_code = request.GET['author']
+                    
+                    q = triplec
+                    if author_code != '':
+                        q = q.filter(code=author_code)
+                    if dfrom != '':
+                        q = q.filter(issue_date__gte=dfrom)
+                    if dto != '':
+                        q = q.filter(issue_date__lte=dto)
+                        
+                    confirmation = q.first().confirmation
+                
+                data = triplec.filter(confirmation=confirmation)
 
+                parameter = {}
+
+                has_quota = get_object_or_None(Triplecquota, confirmation=confirmation, status='A', isdeleted=0)
+                
+                quota_amount = 0
+                with_additional = False
+                if has_quota:
+                    transpo = has_quota.transportation_amount
+                    transpo2 = has_quota.transportation2_amount
+                    cellcard = has_quota.cellcard_amount
+                    cellcard2 = has_quota.cellcard2_amount
+
+                    quota_amount = transpo + transpo2 + cellcard + cellcard2
+                    with_additional = True
+
+                    parameter['transportation_amount'] = transpo
+                    parameter['transportation2_amount'] = transpo2
+                    parameter['cellcard_amount'] = cellcard
+                    parameter['cellcard2_amount'] = cellcard2
+                
+                atc_id = Supplier.objects.get(code=data.first().code).atc_id
+                rate = Ataxcode.objects.get(pk=atc_id).rate
+                # print 'rate', rate, csno
+                subtotal = data.aggregate(subtotal=Sum('amount'))
+                subtotal = float(subtotal['subtotal'])
+                total = subtotal + float(quota_amount)
+
+                ewt = 0
+                is_ewt = True
+                tax = 0
+                wtax = 0
+                # RANK & FILE or default to 25% wtax
+                wtax_rate = companyparameter.ranknfile_percentage_tax
+                if rate:
+                    ewt = percentage(float(rate), total)
+                    tax = ewt
+                else:
+                    is_ewt = False
+                    
+                    if data.first().supplier_id is not None:
+
+                        employeenumber = Employee.objects.filter(supplier=data.first().supplier_id).first()
+                        if employeenumber:
+                            withholding_tax = get_withholding_tax(employeenumber.code, companyparameter.base_url_201)
+                            employee_level = withholding_tax[0].get('employee_level', None)
+                            if employee_level:
+                                if employee_level != "RANK & FILE":
+                                    wtax_rate = companyparameter.officer_percentage_tax
+                            else:
+                                withholding_tax = get_employee_level(employeenumber.code, companyparameter.base_url_erm)
+                                employee_level = withholding_tax.get('level', None)
+                                
+                                if str(employee_level) != '2':
+                                    wtax_rate = companyparameter.officer_percentage_tax
+                                
+                        if not data.first().wtax:
+                            save_wtax(confirmation, wtax_rate)
+
+                    wtax = percentage(float(wtax_rate), total)
+                    tax = wtax
+
+                net = total - tax
+
+                parameter['main'] = data.first()
+                parameter['size'] = data.aggregate(total_size=Sum('total_size'))
+                parameter['with_additional'] = with_additional
+                parameter['ataxrate'] = rate
+                parameter['wtax_rate'] = wtax_rate
+                parameter['subtotal'] = subtotal
+                parameter['total'] = total
+                parameter['is_ewt'] = is_ewt
+                parameter['ewt'] = ewt
+                parameter['wtax'] = wtax
+                parameter['net'] = net
+                
+                parameter['details'] = data
+
+                context = {
+                    "today": timezone.now(),
+                    "companyparameter": companyparameter,
+                    "data_list": data,
+                    "data": parameter,
+                    "request": request,
+                    "logo": companyparameter.logo_path
+                }
+                return Render.render('triplec/print_cs/pdf.html', context)
+            else:
+                context = {
+                    "today": timezone.now(),
+                    "companyparameter": companyparameter,
+                    "request": request,
+                    "logo": companyparameter.logo_path
+                }
+            
+        except:
+            context = {
+                "today": timezone.now(),
+                "companyparameter": companyparameter,
+                "request": request,
+                "logo": companyparameter.logo_path
+            }
+        return Render.render('triplec/print_cs/pdfblank.html', context)
+        
+    
 def retrieve_cs(request):
     dfrom = request.GET["dfrom"]
     dto = request.GET["dto"]
     csno_from = request.GET["csno_from"]
     csno_to = request.GET["csno_to"]
-
+    author_code = request.GET['author']
+    
     try:
         triplec = TripleC.objects.filter(~Q(confirmation__isnull=True) & ~Q(confirmation=''))
-        if dfrom and dto and csno_from and csno_to:
-            result = triplec.filter(issue_date__range=[dfrom, dto], confirmation__range=[csno_from, csno_to])
-        elif dfrom and dto:
-            result = triplec.filter(issue_date__range=[dfrom, dto])
-        elif csno_from and csno_to:
-            result = triplec.filter(confirmation__range=[csno_from, csno_to])
+        if author_code == '' and csno_from == '' and csno_to == '' and dfrom == '' and dto == '':
+            triplec = None
         else:
-            result = None
+            if dfrom and dto:
+                triplec = triplec.filter(issue_date__range=[dfrom, dto])
+            if author_code:
+                triplec = triplec.filter(code=author_code)
+            if csno_from and csno_to:
+                triplec = triplec.filter(confirmation__range=[csno_from, csno_to])
+        
     except:
-        result = None
+        triplec = None
 
-    if result:
+    result = []
+    if triplec:
         confirmations = (
-            result.values('confirmation', 'issue_date', 'type', 'author_name')
+            triplec.values('confirmation', 'issue_date', 'type', 'author_name')
             .annotate(total_size=Sum('total_size'))
             .annotate(total_no_of_items=Sum('no_items'))
             .annotate(amount=Sum('amount'))
@@ -2157,7 +2294,7 @@ def startprint(request):
                 is_ewt = False
                 if parameter[xno]['main'].supplier_id is not None:
 
-                    employeenumber = get_object_or_None(Employee, supplier=parameter[xno]['main'].supplier_id)
+                    employeenumber = Employee.objects.filter(supplier=parameter[xno]['main'].supplier_id).first()
                     if employeenumber:
                         withholding_tax = get_withholding_tax(employeenumber.code, companyparameter.base_url_201)
                         employee_level = withholding_tax[0].get('employee_level', None)

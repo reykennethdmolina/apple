@@ -39,7 +39,7 @@
                         <tr id="{{ data.confirmation }}">
                             <!-- checkbox -->
                             <td><input type="checkbox" class="cs-checkbox pointer" title="Tick to include CS {{ data.confirmation }}" checked /></td>
-                            <td>{{ data.confirmation }}</td>
+                            <td><a href="#{{ data.confirmation }}" onclick="printcs({{ data.confirmation }})">{{ data.confirmation }}</a></td>
                             <td>{{ data.issue_date|date:'Y-m-d' }}</td>
                             <td>{{ data.type }}</td>
                             <td>{{ data.author_name }}</td>
@@ -64,19 +64,30 @@
             $('.cs-checkbox').prop("checked", this.checked);
         });
 
-        $('#print').click(function(){
+        $('#print').click(function(e){
+            event.preventDefault();
             
-            var count = 0;
             var cs_nums = [];
             $('#cs_table').find('tbody tr').each(function () {
                 if ($(this).find('input[type="checkbox"]').is(':checked')) {
-                    count++;
-                    cs_nums.push($(this).attr('id'));
+                    if(!cs_nums.includes($(this).attr('id'))){
+                        cs_nums.push($(this).attr('id'));
+                    }
                 }
             });
             setCookie('csbatchprint_triplec', encodeURIComponent(JSON.stringify(cs_nums)));
             $("#trigger_print").attr("href", "{% url 'triplec:startprint' %}" );
             $('#trigger_print')[0].click();
+
+            return false;
         });
+
     });
+
+    function printcs(csno){
+        $('#csno_from').val(csno);
+        $('#csno_to').val(csno);
+
+        $('#pdf').click();
+    }
 </script>
