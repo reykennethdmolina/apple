@@ -40,4 +40,5 @@ urlpatterns = [
     url(r'^confirmation_sheet/batchprint/$', views.BatchPrintCsView.as_view(), name='batchprint_cs'),
     url(r'^confirmation_sheet/retrieve/$', views.retrieve_cs, name='retrieve_cs'),
     url(r'^confirmation_sheet/batchprint/a/$', views.startprint, name='startprint'),
+    url(r'^confirmation_sheet/pdf/$', views.PrintPDFCsView.as_view(), name='pdf_cs'),
 ]
