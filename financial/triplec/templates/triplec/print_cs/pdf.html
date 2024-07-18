@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    {% load si_custom_tags %}
+    <meta charset="UTF-8">
+    <title>Confirmation Sheet</title>
+    <style>
+        @page {
+            size: {{ pagesize }} {{ orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 1cm;
+                height: 8cm;
+            }
+            @frame content_frame {
+                left: 1cm;
+                width: 19.5cm;
+                top: 8.5cm;
+                height: 14cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 22cm;
+                height: 7cm;
+            }
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 165px;
+            border-bottom: 1px solid black;
+            padding-bottom: -5px;
+            margin-bottom: -15px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <table>
+        <tr>
+            <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
+            <td width="500px">
+                <p class="title center"><br>CONFIRMATION SHEET</p>
+            </td>
+            <td>
+                <p class="number right">CS No.&nbsp;&nbsp;&nbsp;{{ data.main.confirmation }}<br>&nbsp;&nbsp;&nbsp;&nbsp;CS Date:&nbsp;{{ data.main.transaction_date|date:'m/d/Y' }}&nbsp;</p>
+            </td>
+        </tr>
+    </table>
+    <table>
+        <tr><td colspan="3"></td></tr>
+        <tr>
+            <td colspan="3" style="line-height: 15px;">
+                <span class="title">{{ companyparameter.description|upper }}</span><br>
+                {{ companyparameter.address1 }}<br>
+                {{ companyparameter.address2 }}<br>
+                Tel: {{ companyparameter.telno1 }}, {{ companyparameter.telno2 }}<br>
+                VAT REG TIN: {{ companyparameter.tinnum }}
+            </td>
+        </tr>
+        <tr><td colspan="3"></td></tr>
+        <tr>
+            <td colspan="3">
+                <br>
+                <table>
+                    <tr>
+                        <td width="5%" style="vertical-align: top"><b>To</b></td>
+                        <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                        <td width="70%" style="vertical-align: top;">ACCOUNTING DEPARTMENT</td>
+                    </tr>
+                    <tr>
+                        <td width="5%" style="vertical-align: top"><b>From</b></td>
+                        <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                        <td width="70%" style="vertical-align: top;">PAYMENT REQUEST</td>
+                    </tr>
+                    <tr>
+                        <td width="15%" style="vertical-align: top"><b>Processing Date</b></td>
+                        <td width="5%" style="vertical-align: top; padding-right: 40px;"><b>:</b></td>
+                        <td width="70%" style="vertical-align: top;">{{ data.main.date_posted|date:"m/d/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <td ></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        
+    </table>
+</div>
+
+<div id="footer_content">
+    <table style="border-collapse: collapse; border: 2px solid #000;">
+        <tr style="border: none">
+            <td width="20%" style="padding: 14px 0px 3px 3px; white-space: nowrap;"><b>Prepared by</b></td>
+            <td width="1%" style="padding: 14px 0px 3px 0px; text-align: right;"><b>:</b></td>
+            <td align="center" style="padding: 25px 0px 10px 0px;">
+                <div class="sign_here">
+                    {{ request.user.first_name|upper }}&nbsp;{{ request.user.last_name|upper }}
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+            <td width="1%"></td>
+            <td width="20%" style="padding: 14px 0px 3px 3px; white-space: nowrap;"><b>Approved by</b></td>
+            <td width="1%" style="padding: 14px 0px 3px 0px; text-align: right;"><b>:</b></td>
+            <td align="center" style="padding: 25px 0px 10px 0px;">
+                <div class="sign_here">
+                    &nbsp;
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+            <td width="1%"></td>
+            <td width="20%" style="padding: 14px 0px 3px 3px; white-space: nowrap;"><b>Checked by</b></td>
+            <td width="1%" style="padding: 14px 0px 3px 0px; text-align: right;"><b>:</b></td>
+            <td align="center" style="padding: 25px 3px 10px 0px;">
+                <div class="sign_here">
+                    &nbsp;
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+        </tr>
+        
+        <tr style="border: none">
+            <td style="padding: 5px 0px 0px 3px; padding-top: 0; white-space: nowrap;"><b>Date prepared</b></td>
+            <td style="padding: 0; text-align: right;"><b>:</b></td>
+            <td align="center" style="padding: 5px 0px 5px 0; padding-top: 0;">
+                <div class="sign_here">{% now "m/d/Y" %}</div>
+            </td>
+            <td width="2%"></td>
+            <td style="padding: 5px 0px 0px 3px; padding-top: 0; white-space: nowrap;"><b>Date approved</b></td>
+            <td style="padding: 0; text-align: right;"><b>:</b></td>
+            <td align="center" style="padding: 5px 0 5px 0; padding-top: 0;">
+                <div class="sign_here">
+                    &nbsp;
+                </div>
+            </td>
+            <td width="2%"></td>
+            <td style="padding: 5px 0px 0px 3px; padding-top: 0; white-space: nowrap;"><b>Date checked</b></td>
+            <td style="padding: 0; text-align: right;"><b>:</b></td>
+            <td align="center" style="padding: 5px 10px 5px 0; padding-top: 0;">
+                <div class="sign_here">
+                    &nbsp;
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table class="arial" style="font-size: 9px; margin-top: 10px;">
+        <tr>
+            <td width="50%" style="margin-right: 80px;">
+                {{ companyparameter.report_footer1 }}<br>
+                {{ companyparameter.report_footer2 }}<br>
+                {{ companyparameter.report_footer4 }}<br>
+                <b>{{ companyparameter.report_footer5 }}</b><br>
+                <b>{{ companyparameter.report_footer6 }}</b><br>
+                {{ companyparameter.report_footer7 }} {{ request.user.username }} on {% now 'Y-m-d' %}
+            </td>
+            <td width="60%" style="margin-left: 70px;">
+                {{ companyparameter.report_footer8 }}<br>
+                {{ companyparameter.report_footer9 }}<br>
+                {{ companyparameter.report_footer10 }}<br>
+                {{ companyparameter.report_footer11 }}<br><br>
+                {{ companyparameter.report_footer13 }}<br>
+                {{ companyparameter.report_footer14 }}
+            </td>
+        </tr>
+    </table>
+    
+    {%block page_foot%}
+        <div style="text-align: right; font-size: 8px;">
+            Page <pdf:pagenumber /> of <pdf:pagecount />
+        </div>
+    {%endblock%}
+</div>
+
+<table>
+    <tr>
+        <td colspan="6">
+            <h4>
+                This is to auhorize the payment to &nbsp;&nbsp;&nbsp; {{ data.main.code }}&nbsp;&nbsp;-&nbsp;&nbsp;{{ data.main.author_name }}
+                <br>
+                <br>
+                for the following ARTICLES / ILLUSTRATIONS / PHOTOS / EDITORIAL CARTOONS / COMICS STRIPS / EDITING FEE
+            </h4>
+        </td>
+    </tr>
+    <tr class="left" style="border-top: 2px solid black; border-bottom: 2px solid black; padding-top: 5px; padding-left:2px">
+        <td style="width: 12%; border-left: 2px solid black;" align="center;"><b><i> Issue Date </i></b></td>
+        <td style="width: 10%;" align="center;"><b><i> Type </i></b></td>
+        <td style="width: 64%;" align="center;"><b><i> Title </i></b></td>
+        <td style="width: 10%;" align="center;"><b><i> Page </i></b></td>
+        <td style="width: 10%;" align="center;"><b><i> Size </i></b></td>
+        <td style="width: 10%;" align="center;"><b><i> Code </i></b></td>
+        <td style="width: 12%; border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i> Amount </i></b></td>
+    </tr>
+    {% for i in data_list %}
+        
+        <tr style="padding-top: 10px;">
+            <td style="width: 10%; vertical-align: top; padding-top: 10px;">{{ i.issue_date|date:"m/d/Y" }}</td>
+            <td style="width: 10%; vertical-align: top; padding-top: 10px;">{{ i.subtype.code }}</td>
+            <td style="width: 50%; vertical-align: top; padding-top: 10px;">{{ i.article_title }}</td>
+            <td style="width: 8%; vertical-align: top; padding-top: 10px;">{{ i.page }}</td>
+            <td align="center" style="width: 10%; vertical-align: top; padding-top: 10px;">{{ i.total_size|floatformat:2 }}</td>
+            <td style="width: 10%; vertical-align: top; padding-top: 10px;">{{ i.rate_code }}</td>
+            <td style="width: 11%; vertical-align: top; padding-top: 10px;" align="right">{{ i.amount|floatformat:2|intcomma }}
+        </tr>
+        
+    {% endfor %}
+
+    {% if data.with_additional %}
+        <tr style="padding-top: 5px;">
+            <td style="padding-top: 5px;"><b>TOTALS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+            <td colspan="3"></td>
+            <td colspan="1" align="center" style="border-top: 2px solid #000; padding-top: 5px;">{{ data.size.total_size|default:"0" }}</td>
+            <td colspan="1"></td>
+            <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 5px;">{{ data.subtotal|floatformat:2|intcomma }}</td>
+        </tr>
+        <tr>
+            <td style="padding-top: 5px; padding-right: 2px;"><b>ADDITIONAL:</b></td>
+            {% if data.transportation_amount %}
+                <td style="padding-top: 5px; text-align: left;"><b>&nbsp;&nbsp;&nbsp;&nbsp;TRANSPORTATION</b></td>
+                <td colspan="3"></td>
+                <td style="padding-top: 5px; text-align: right;"><b>+</b></td>
+                <td style="padding-top: 5px; text-align: right;">{{ data.transportation_amount|floatformat:2|intcomma }}</td>
+            {% endif %}
+        </tr>
+        {% if data.transportation2_amount %}
+            <tr>
+                <td style="padding-top: 5px;"></td>
+                <td colspan="2" style="padding-top: 5px; text-align: left;"><b>&nbsp;&nbsp;&nbsp;&nbsp;TRANSPO (Photos)</b></td>
+                <td colspan="2"></td>
+                <td style="padding-top: 5px; text-align: right;"><b>+</b></td>
+                <td style="padding-top: 5px; text-align: right;">{{ data.transportation2_amount|floatformat:2|intcomma }}</td>
+            </tr>
+        {% endif %}
+        {% if data.cellcard_amount %}
+            <tr>
+                <td style="padding-top: 5px;"></td>
+                <td colspan="2" style="padding-top: 5px; text-align: left;"><b>&nbsp;&nbsp;&nbsp;&nbsp;CELL CARD/INTERNET SUBSIDY</b></td>
+                <td colspan="2"></td>
+                <td style="padding-top: 5px; text-align: right;"><b>+</b></td>
+                <td style="padding-top: 5px; text-align: right;">{{ data.cellcard_amount|floatformat:2|intcomma }}</td>
+            </tr>
+        {% endif %}
+        {% if data.cellcard2_amount %}
+            <tr>
+                <td style="padding-top: 5px;"></td>
+                <td colspan="2" style="padding-top: 5px; text-align: left;"><b>&nbsp;&nbsp;&nbsp;&nbsp;CELL CARD/INTERNET SUBSIDY (Photos)</b></td>
+                <td colspan="2"></td>
+                <td style="padding-top: 5px; text-align: right;"><b>+</b></td>
+                <td style="padding-top: 5px; text-align: right;">{{ data.cellcard2_amount|floatformat:2|intcomma }}</td>
+            </tr>
+        {% endif %}
+        <tr style="padding-top: 5px;">
+            <td colspan="2" style="padding-top: 5px;"><b>TOTAL AMOUNT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+            <td colspan="3"></td>
+            <td colspan="1"></td>
+            <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 5px;">{{ data.total|floatformat:2|intcomma }}</td>
+        </tr>
+    {% else %}
+        <!-- <tr style="padding-top: 5px;">
+            <td style="padding-top: 5px;"></td>
+            <td colspan="4"></td>
+            <td colspan="1"></td>
+            <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 5px;">{{ data.total|floatformat:2|intcomma }}</td>
+        </tr> -->
+        <tr style="padding-top: 5px;">
+            <td style="padding-top: 5px;"><b>TOTALS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+            <td colspan="3"></td>
+            <td colspan="1" align="center" style="border-top: 2px solid #000; padding-top: 5px;">{{ data.size.total_size|default:'0' }}</td>
+            <td colspan="1"></td>
+            <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 5px;">{{ data.subtotal|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endif %}
+    {% if data.is_ewt and data.ataxrate %}
+        <tr>
+            <td colspan="3" style="padding-top: 5px;"><b>LESS {{ data.ataxrate }}% EXPANDED WITHHOLDING TAX</b></td>
+            <td colspan="3" style="padding-top: 5px; text-align: right;"><b>-</b></td>
+            <td style="padding-top: 5px; text-align: right;">{{ data.ewt|floatformat:2|intcomma }}</td>
+        </tr>
+    {% elif not data.is_ewt and data.wtax_rate %}
+        <tr>
+            <td colspan="3" style="padding-top: 5px;"><b>LESS {{ data.wtax_rate }}% WITHHOLDING TAX</b></td>
+            <td colspan="3" style="padding-top: 5px; text-align: right;"><b>-</b></td>
+            <td style="padding-top: 5px; text-align: right;">{{ data.wtax|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endif %}
+    <tr>
+        <td style="padding-top: 5px;"><b>NET</b></td>
+        <td colspan="5"></td>
+        <td style="border-top: 2px solid #000; border-bottom: 6px double #000; padding-top: 5px; text-align: right;">{{ data.net|floatformat:2|intcomma }}</td>
+    </tr>
+</table>
+
+</body>
+</html>

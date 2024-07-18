@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    {% load si_custom_tags %}
+    <meta charset="UTF-8">
+    <title>Confirmation Sheet</title>
+    <style>
+        @page {
+            size: {{ pagesize }} {{ orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 1cm;
+                height: 2cm;
+            }
+            @frame content_frame {
+                left: 1cm;
+                width: 19.5cm;
+                top: 2.5cm;
+                height: 15.5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 22cm;
+                height: 10cm;
+            }
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 165px;
+            border-bottom: 1px solid black;
+            padding-bottom: -5px;
+            margin-bottom: -15px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <table>
+        <tr>
+            <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
+            <td width="500px">
+                <p class="title center"><br>CONFIRMATION SHEET</p>
+            </td>
+            <td>
+                <p class="number center">&nbsp;CS No&nbsp;&nbsp;&nbsp;{{ simain.sinum }}<br>&nbsp;&nbsp;&nbsp;&nbsp;CS Date&nbsp;{{ simain.sidate|date:'m/d/Y' }}&nbsp;</p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<table>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3" style="line-height: 15px;">
+            <span class="title">{{ companyparameter.description|upper }}</span><br>
+            {{ companyparameter.address1 }}<br>
+            {{ companyparameter.address2 }}<br>
+            Tel: {{ companyparameter.telno1 }}, {{ companyparameter.telno2 }}<br>
+            VAT REG TIN: {{ companyparameter.tinnum }}
+        </td>
+    </tr>
+    <tr><td colspan="3"></td></tr>
+    <tr><td></td></tr>
+</table>
+
+</body>
+</html>
