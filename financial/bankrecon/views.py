@@ -31,6 +31,7 @@ from string import digits
 from decimal import Decimal
 import json
 import xlwt
+import numbers
 
 
 upload_size = 3
@@ -751,8 +752,8 @@ def UnionBank(request, columnlength):
         transactionid = fields[2] if fields[2] != '' else ''
         transactiondescription = fields[3] if fields[3] != '' else ''
         checknumber = fields[4] if fields[4] != '' else ''
-        debit = fields[5] if fields[5] else '0.00'
-        credit = fields[6] if fields[6] else '0.00'
+        debit = fields[5] if fields[5].isnumeric() else '0.00'
+        credit = fields[6] if fields[6].isnumeric() else '0.00'
         endingbalance = fields[7] if fields[7] != '' else '0.00'
         referencenumber = fields[8] if fields[8] != '' else ''
         remarks = fields[9] if fields[9] != '' else ''
@@ -798,7 +799,7 @@ def UnionBank(request, columnlength):
                     successdata.append([posteddate, branch, transactiondescription, debit, credit])
                     successcount += 1
                 except Exception as e:
-                    # print e.message
+                    print e.message
                     if debit.replace(' ', '').isalpha() or credit.replace(' ', '').isalpha() or endingbalance.replace(' ', '').isalpha():
                         faileddata.append([posteddate, branch, transactiondescription, '', '', catchheader, bggrey])
                         headorfootcount += 1
