@@ -27,7 +27,7 @@
                 -pdf-frame-content: footer_content;
                 left: 1cm;
                 width: 19.5cm;
-                top: 22cm;
+                top: 22.5cm;
                 height: 7cm;
             }
         }
@@ -246,8 +246,8 @@
         <tr>
             <td style="padding-top: 5px; padding-right: 2px;"><b>ADDITIONAL:</b></td>
             {% if data.transportation_amount %}
-                <td style="padding-top: 5px; text-align: left;"><b>&nbsp;&nbsp;&nbsp;&nbsp;TRANSPORTATION</b></td>
-                <td colspan="3"></td>
+                <td colspan="2" style="padding-top: 5px; text-align: left;"><b>&nbsp;&nbsp;&nbsp;&nbsp;TRANSPORTATION</b></td>
+                <td colspan="2"></td>
                 <td style="padding-top: 5px; text-align: right;"><b>+</b></td>
                 <td style="padding-top: 5px; text-align: right;">{{ data.transportation_amount|floatformat:2|intcomma }}</td>
             {% endif %}
@@ -286,12 +286,6 @@
             <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 5px;">{{ data.total|floatformat:2|intcomma }}</td>
         </tr>
     {% else %}
-        <!-- <tr style="padding-top: 5px;">
-            <td style="padding-top: 5px;"></td>
-            <td colspan="4"></td>
-            <td colspan="1"></td>
-            <td colspan="1" align="right" style="border-top: 2px solid #000; padding-top: 5px;">{{ data.total|floatformat:2|intcomma }}</td>
-        </tr> -->
         <tr style="padding-top: 5px;">
             <td style="padding-top: 5px;"><b>TOTALS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
             <td colspan="3"></td>
