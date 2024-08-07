@@ -843,10 +843,10 @@ def exportsave(request):
                     else:
                         payeetype_payeetype = temp_ormain.payeetype
 
-                    if temp_ormain.payeecode.upper() == 'WI':
-                        temp_remarks = temp_ormain.payeename
-                    else:
-                        temp_remarks = ''
+                    # if temp_ormain.payeecode.upper() == 'WI':
+                    #     temp_remarks = temp_ormain.payeename
+                    # else:
+                    #     temp_remarks = ''
                     print 'dito ako'
                     Ormain.objects.create(
                         ornum=temp_ormain.orno,
