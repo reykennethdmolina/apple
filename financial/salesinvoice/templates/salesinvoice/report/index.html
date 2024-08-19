@@ -9,6 +9,38 @@
             border: none;
             border-bottom: 1px solid #e0e0e0;
         }
+        .panel-title{
+            padding: 12px;
+        }
+        .panel-actions{
+            margin-right: -29px;
+        }
+        .panel-actions a{
+            margin-right: -1px;
+        }
+        #iframe, #iframe_cash_in_bank{
+            width: 100%;
+            height: 900px;
+            position: relative;
+            z-index: 100;
+        }
+        #iframe2, #iframe3{
+            width: 100%;
+            height: 450px;
+            position: relative;
+            z-index: 100;
+        }
+        .iframe_preview{
+            padding: 10px;
+            margin: auto;
+        }
+        .shade{
+            margin-left: -40px;
+            margin-top: -40px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -21,17 +53,16 @@
                         <div class="form-group col-sm-3">
                             <label class="control-label small">Report Type</label>
                             <select class="form-control input-sm" id="report_type">
-                                <option value="1">Invoice Register</option>
-                                <option value="2">Sales Book</option>
-                                {% comment %} <option value="3">Unposted Sales Invoice Transaction List - Summary</option>
-                                <option value="4">Unposted Sales Invoice Transaction List</option>
-                                <option value="5">Sales Invoice List (Unbalanced Cash in Bank VS Amount)</option>
-                                <option value="6">Unbalanced Sales Invoice Transaction List</option> {% endcomment %}
-                                {% comment %} <option value="7">Sales Invoice Register</option> {% endcomment %}
-                                <option value="8">Sales Invoice Output VAT</option>
-                                <option value="9">Sales Invoice Output VAT Summary</option>
-                                <option value="10">Sales Invoice Without Output VAT</option>
-                                <option value="11">Sales Invoice Without Output VAT Summary</option>
+                                <option value="1" data-cashinbank="0">Invoice Register</option>
+                                <option value="2" data-cashinbank="0">Sales Book</option>
+                                <option value="3" data-cashinbank="0">Sales Book Summary</option>
+                                <option value="4" data-cashinbank="1">Sales Book - Summary Entries</option>
+                                <option value="5" data-cashinbank="0">Aging of Nontrade Receivable</option>
+                                <option value="8" data-cashinbank="0">Sales Invoice Output VAT</option>
+                                <option value="9" data-cashinbank="0">Sales Invoice Output VAT Summary</option>
+                                <option value="10" data-cashinbank="0">Sales Invoice Without Output VAT</option>
+                                <option value="11" data-cashinbank="0">Sales Invoice Without Output VAT Summary</option>
+                                <option value="12" data-cashinbank="0">Audit Trail</option>
                             </select>
                         </div>
                         <div class="form-group col-sm-3">
@@ -149,8 +180,36 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12" style="min-height: 800px;">
+            {% comment %} <div class="col-md-12" style="min-height: 800px;">
                 <iframe src="{% url 'salesinvoice:pdf2' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&sitype=&sisubtype=&customer=null&branch=&wtax=&vat=&outputvat=&status=&sistatus=" id="result" height="1200px" width="100%"></iframe>
+            </div> {% endcomment %}
+            <div class="col-md-6" style="text-align: center" id="report_container">
+                <div class="iframe_preview panel">
+                    <div class="shade" style="display: block; z-index: 99; background-color: transparent">
+                        <div class="loader two-color" style="margin-top: 200px;"></div>
+                    </div>
+                    <iframe id="iframe" src="{% url 'salesinvoice:pdf2' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&sitype=&sisubtype=&customer=null&branch=&wtax=&vat=&outputvat=&status=&sistatus=" width="100%" height="100%" frameborder="0" scrolling="yes"></iframe>
+                </div>
+            </div>
+            <div class="col-md-6" id="report_container2">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="iframe_preview panel">
+                            <div class="shade" style="display: block; z-index: 99; background-color: transparent">
+                                <div class="loader two-color" style="margin-top: 200px;"></div>
+                            </div>
+                            <iframe id="iframe2" src="{% url 'salesinvoice:pdf2cashinbank' %}?report=0&from=&to=" width="100%" height="100%" border="0" frameborder="0" scrolling="yes"></iframe>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="iframe_preview panel">
+                            <div class="shade" style="display: block; z-index: 99; background-color: transparent">
+                                <div class="loader two-color" style="margin-top: 200px;"></div>
+                            </div>
+                            <iframe id="iframe3" src="{% url 'salesinvoice:pdf2department' %}?report=0&from=&to=" width="100%" height="100%" border="0" frameborder="0" scrolling="yes"></iframe>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -177,6 +236,39 @@ $(function(){
         var vat = $('#vat').val();
         var outputvat = $('#outputvat').val();
         var sistatus = $('#sistatus').val();
+
+        
+        if($('#report_type option:selected').data('cashinbank') == '0'){
+            $('#report_container2').hide();
+            $('#report_container').removeClass('col-md-6');
+            $('#report_container').addClass('col-md-12');
+        }
+        else if($('#report_type option:selected').data('cashinbank') == '1'){
+            $('#report_container2').show();
+            $('#report_container').removeClass('col-md-12');
+            $('#report_container').addClass('col-md-6');
+        }
+
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+
+        if($('#report_type option:selected').data('cashinbank') == '0'){
+            url = "{% url 'salesinvoice:pdf2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&sitype="+sitype+"&sisubtype="+sisubtype+"&branch="+branch+"&customer="+customer+"&status="+status+"&wtax="+wtax+"&vat="+vat+"&outputvat="+outputvat+"&sistatus="+sistatus;
+            $('#iframe').prop('src', url);
+        }
+        else if($('#report_type option:selected').data('cashinbank') == '1'){
+
+            url = "{% url 'salesinvoice:pdf2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&sitype="+sitype+"&sisubtype="+sisubtype+"&branch="+branch+"&customer="+customer+"&status="+status+"&wtax="+wtax+"&vat="+vat+"&outputvat="+outputvat+"&sistatus="+sistatus;
+            $('#iframe').prop('src', url);
+
+            url2 = "{% url 'salesinvoice:pdf2cashinbank' %}"+"?report="+report+"&from="+date_from+"&to="+date_to;
+            $('#iframe2').prop('src', url2);
+
+            url3 = "{% url 'salesinvoice:pdf2department' %}"+"?report="+report+"&from="+date_from+"&to="+date_to;
+            $('#iframe3').prop('src', url3);
+        }
+
         url = "{% url 'salesinvoice:pdf2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&sitype="+sitype+"&sisubtype="+sisubtype+"&branch="+branch+"&customer="+customer+"&status="+status+"&wtax="+wtax+"&vat="+vat+"&outputvat="+outputvat+"&sistatus="+sistatus;
         $('#result').prop('src', url);
     });
@@ -193,7 +285,6 @@ $(function(){
         var collector = $('#collector').val();
         var product = $('#product').val();
         var status = $('#status').val();
-        var adtype = $('#adtype').val();
         var wtax = $('#wtax').val();
         var vat = $('#vat').val();
         var outputvat = $('#outputvat').val();
@@ -207,7 +298,16 @@ $(function(){
     $('.select2').select2({});
 
     ajaxselect2v2("customer", "customer");
-
+    if($('#report_type option:selected').data('cashinbank') == '0'){
+        $('#report_container2').hide();
+        $('#report_container').removeClass('col-md-6');
+        $('#report_container').addClass('col-md-12');
+    }
+    else if($('#report_type option:selected').data('cashinbank') == '1'){
+        $('#report_container2').show();
+        $('#report_container').removeClass('col-md-12');
+        $('#report_container').addClass('col-md-6');
+    }
 });
 </script>
 {% endblock extra_js %}

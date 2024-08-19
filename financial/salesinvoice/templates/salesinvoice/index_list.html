@@ -19,7 +19,7 @@
             {% for data in data_list %}
             <tr>
                 <td>{{ data.id }}</td>
-                <td>SI{{ data.sinum }}</td>
+                <td>{{ data.sinum }}</td>
                 <td>{{ data.sidate|date:"Y-m-d" }}</td>
                 <td>{{ data.customer.name }}</td>
                 <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
