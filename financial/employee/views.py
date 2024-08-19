@@ -57,9 +57,12 @@ class CreateView(CreateView):
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        today = datetime.datetime.today()
+        previous_year = datetime.datetime(today.year -1, 1, 1)
+        
         self.object = form.save(commit=False)
-        self.object.anti_dep_date = datetime.date.today()
-        self.object.eyeglass_date = datetime.date.today()
+        self.object.anti_dep_date = previous_year
+        self.object.eyeglass_date = previous_year
         self.object.multiplestatus = 'N'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
