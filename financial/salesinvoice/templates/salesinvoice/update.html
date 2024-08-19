@@ -292,7 +292,7 @@
                         </div>
                         <div class="form-group col-sm-5">
                             <label class="control-label" for="id_designatedapprover">Approver</label>
-                            <select id="id_bankaccount" class="form-control input-sm select2" data-validation="required" name="designatedapprover">
+                            <select id="id_approver" class="form-control input-sm select2" data-validation="required" name="designatedapprover">
                                 <option value="4">-- Select --</option>
                                 {% for data in designatedapprover %}
                                     <option value="{{ data.id }}" {% if form.designatedapprover.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.first_name }} {{ data.last_name }}</option>

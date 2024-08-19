@@ -49,6 +49,36 @@
                             </button>
                         </a>
                     </div>
+                    {% if object.actualapprover_id == user.id or object.designatedapprover.id == user.id or user.is_superuser %}
+                        {% if object.sistatus != 'R' %}
+
+                            {% if object.sistatus == 'A' or object.sistatus == 'F' %}
+                            <a href="#" class="floatright">
+                                <button type="button" id="trandisapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-check" aria-hidden="true"></i>&nbsp; Disapproved
+                                </button>
+                            </a>
+                            {% endif %}
+                            {% if object.sistatus == 'A' %}
+                            <a href="#" class="floatright">
+                                <button type="button" id="tranposting" class="btn btn-round btn-warning btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-unlock-alt" aria-hidden="true"></i>&nbsp; Ready for Posting
+                                </button>
+                            </a>
+                            {% endif %}
+
+                            {% if object.sistatus == 'D' or object.sistatus == 'F' %}
+                            <a href="#" class="floatright">
+                                <button type="button" id="tranapproved" class="btn btn-round btn-success btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-check" aria-hidden="true"></i>&nbsp; Approved
+                                </button>
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
                 </div>
                 <ul class="nav nav-tabs nav-profile">
                     <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
@@ -109,7 +139,7 @@
                                         <div class="first-name-profile">
                                             <span class="text-info row col-md-2 text-nowrap margin-right-90"><b>Credit Term</b></span>
                                             <span class="text-info row col-md-3"><b>: </b></span>
-                                            <span class="row col-md-6">{{ object.creditterm.daysdue }}&nbsp; Days</span>
+                                            <span class="row col-md-6">{{ object.customer.creditterm.daysdue }}&nbsp; Days</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -378,10 +408,67 @@
                     console.debug(response);
                 }
             });
-
         }
+    });
+    
+    $("#trandisapproved").on('click', function() {
+        console.log('hoyyy');
+        var con = confirm('Are you sure you want to disapproved this transaction?');
 
+        if (con) {
+            var id = {{ object.pk }};
+            $.ajax({
+                url: "{% url 'salesinvoice:disapprove' %}",
+                type: "post",
+                data: {'id': id, 'reason': 'Transaction disapproved'},
+                success: function(response) {
+                    location.reload();
+                },
+                error: function(response) {
+                    console.debug(response);
+                }
+            });
+        }
     });
 
+    $("#tranapproved").on('click', function() {
+
+        var con = confirm('Are you sure you want to approve this transaction?');
+
+        if (con) {
+            var id = {{ object.pk }};
+            $.ajax({
+                url: "{% url 'salesinvoice:approve' %}",
+                type: "post",
+                data: {'id': id, 'reason': 'Transaction approved'},
+                success: function(response) {
+                    location.reload();
+                },
+                error: function(response) {
+                    console.debug(response);
+                }
+            });
+        }
+    });
+
+    $("#tranposting").on('click', function() {
+
+        var con = confirm('Are you sure you want to set this transaction ready for posting?');
+
+        if (con) {
+            var id = {{ object.pk }};
+            $.ajax({
+                url: "{% url 'salesinvoice:posting' %}",
+                type: "post",
+                data: {'id': id, 'reason': 'Transaction approved'},
+                success: function(response) {
+                    location.reload();
+                },
+                error: function(response) {
+                    console.debug(response);
+                }
+            });
+        }
+    });
 </script>
 {% endblock extra_js %}

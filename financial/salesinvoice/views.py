@@ -1,68 +1,47 @@
-from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView
+from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Case, Value, When, F
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.utils.decorators import method_decorator
-from adtype.models import Adtype
-from ataxcode.models import Ataxcode
-from bankbranchdisburse.models import Bankbranchdisburse
+# from ataxcode.models import Ataxcode
 from branch.models import Branch
 from companyparameter.models import Companyparameter
 from module.models import Activitylogs
-from cvsubtype.models import Cvsubtype
-from operationalfund.models import Ofmain, Ofitem, Ofdetail
-from replenish_pcv.models import Reppcvmain, Reppcvdetail
-from supplier.models import Supplier
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from endless_pagination.views import AjaxListView
-from . models import Simain, Sidetail, Sidetailtemp, Sidetailbreakdown, Sidetailbreakdowntemp, Siupload
+from . models import Simain, Sidetail, Sidetailtemp, Sidetailbreakdown, Sidetailbreakdowntemp, Siupload, Silogs
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
     validatetable, deleteallquery
-# from bankaccount.models import Bankaccount
-from currency.models import Currency
 from customer.models import Customer
 from sitype.models import Sitype
 from sisubtype.models import Sisubtype
-from creditterm.models import Creditterm
+from subledger.models import Subledger
 from outputvattype.models import Outputvattype
-from paytype.models import Paytype
 # from processing_or.models import Logs_simain, Logs_sidetail
 from vat.models import Vat
 from wtax.models import Wtax
 from django.template.loader import render_to_string
 from easy_pdf.views import PDFTemplateView
-from dateutil.relativedelta import relativedelta
-import datetime
-from pprint import pprint
-from django.utils.dateformat import DateFormat
-from utils.mixins import ReportContentMixin
-from agent.models import Agent
+from datetime import datetime as dt
 from product.models import Product
 from department.models import Department
-from unit.models import Unit
-from inputvat.models import Inputvat
-from outputvat.models import Outputvat
-from ataxcode.models import Ataxcode
 from employee.models import Employee
 from chartofaccount.models import Chartofaccount
-from annoying.functions import get_object_or_None
-import decimal
+from journalvoucher.models import Jvmain, Jvdetail
 import pandas as pd
-from django.utils.dateformat import DateFormat
 from financial.utils import Render
 from financial.context_processors import namedtuplefetchall
 from django.utils import timezone
-from django.template.loader import get_template
 from django.http import HttpResponse
-from datetime import timedelta
-import io
-import xlsxwriter
-import datetime
 from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
+import io
+import decimal
+import datetime
+import xlsxwriter
 
 
 @method_decorator(login_required, name='dispatch')
@@ -81,6 +60,7 @@ class IndexView(AjaxListView):
                                     Q(sidate__icontains=keysearch) |
                                     Q(payee_name__icontains=keysearch) |
                                     Q(amount__icontains=keysearch))
+            
         return query
 
     def get_context_data(self, **kwargs):
@@ -118,8 +98,8 @@ class CreateView(CreateView):
         context['secretkey'] = generatekey(self)
 
         # data for lookup
-        context['sitype'] = Sitype.objects.filter(isdeleted=0).order_by('pk')
-        context['sisubtype'] = Sisubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['sitype'] = Sitype.objects.filter(isdeleted=0).order_by('code')
+        context['sisubtype'] = Sisubtype.objects.filter(isdeleted=0).order_by('code')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['customer'] = Customer.objects.filter(isdeleted=0).order_by('code')
         # context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('code')
@@ -148,7 +128,7 @@ class CreateView(CreateView):
         sinum = year
         
         last = str(int(latestsinum) + 1)
-        print last
+        
         zero_addon = 6 - len(last)
         for num in range(zero_addon):
             sinum += '0'
@@ -170,10 +150,7 @@ class CreateView(CreateView):
         self.object.modifyby = self.request.user
         self.object.save()
 
-        non_vat_amount = decimal.Decimal(self.object.amount) / (1 + (decimal.Decimal(self.object.vatrate) /
-                                                                        decimal.Decimal(100)) -
-                                                                (decimal.Decimal(self.object.wtaxrate) /
-                                                                    decimal.Decimal(100)))
+        non_vat_amount = decimal.Decimal(self.object.amount) / (1 + (decimal.Decimal(self.object.vatrate) / decimal.Decimal(100)) - (decimal.Decimal(self.object.wtaxrate) / decimal.Decimal(100)))
 
         if self.object.vatrate > 0:
             self.object.vatablesale = non_vat_amount
@@ -211,6 +188,15 @@ class CreateView(CreateView):
 
         simaindate = self.object.sidate
         savedetail(source, mainid, num, secretkey, self.request.user, simaindate)
+        
+        # save si logs
+        Silogs.objects.create(
+            user=self.request.user,
+            username=self.request.user,
+            action_type='create',
+            action_datetime=datetime.datetime.now(),
+            remarks="SI create ID: "+str(self.object.id)+", SI #"+str(sinum)
+        )
 
         return HttpResponseRedirect('/salesinvoice/' + str(self.object.id) + '/update')
     
@@ -255,25 +241,16 @@ class UpdateView(UpdateView):
             detail.item_counter = drow.item_counter
             detail.si_date = drow.si_date
             detail.chartofaccount = drow.chartofaccount_id
-            # detail.bankaccount = drow.bankaccount_id
-            detail.employee = drow.employee_id
-            detail.supplier = drow.supplier_id
             detail.customer = drow.customer_id
             detail.department = drow.department_id
             detail.unit = drow.unit_id
             detail.branch = drow.branch_id
-            detail.product = drow.product_id
-            detail.inputvat = drow.inputvat_id
             detail.outputvat = drow.outputvat_id
             detail.vat = drow.vat_id
             detail.wtax = drow.wtax_id
-            detail.ataxcode = drow.ataxcode_id
             detail.debitamount = drow.debitamount
             detail.creditamount = drow.creditamount
             detail.balancecode = drow.balancecode
-            detail.customerbreakstatus = drow.customerbreakstatus
-            detail.supplierbreakstatus = drow.supplierbreakstatus
-            detail.employeebreakstatus = drow.employeebreakstatus
             detail.isdeleted = 0
             detail.modifyby = self.request.user
             detail.enterby = self.request.user
@@ -302,8 +279,6 @@ class UpdateView(UpdateView):
                     breakdown.department = brow.department_id
                     breakdown.unit = brow.unit_id
                     breakdown.branch = brow.branch_id
-                    breakdown.product = brow.product_id
-                    breakdown.inputvat = brow.inputvat_id
                     breakdown.outputvat = brow.outputvat_id
                     breakdown.vat = brow.vat_id
                     breakdown.wtax = brow.wtax_id
@@ -311,9 +286,6 @@ class UpdateView(UpdateView):
                     breakdown.creditamount = brow.creditamount
                     breakdown.balancecode = brow.balancecode
                     breakdown.datatype = brow.datatype
-                    breakdown.customerbreakstatus = brow.customerbreakstatus
-                    breakdown.supplierbreakstatus = brow.supplierbreakstatus
-                    breakdown.employeebreakstatus = brow.employeebreakstatus
                     breakdown.isdeleted = 0
                     breakdown.modifyby = self.request.user
                     breakdown.enterby = self.request.user
@@ -337,17 +309,10 @@ class UpdateView(UpdateView):
                             #   self.object.closeby.first_name + " " + self.object.closeby.last_name if self.object.closeby else '',
                             #   self.object.closedate,
                             ]
-        # context['logs'] = self.object.logs
-
-        # if Logs_simain.objects.filter(orno=self.object.sinum, importstatus='P'):
-        #     context['logs_simain'] = Logs_simain.objects.filter(orno=self.object.sinum, importstatus='P')
-        #     context['logs_sidetail'] = Logs_sidetail.objects.filter(orno=self.object.sinum, importstatus='P',
-        #                                                             batchkey=context['logs_simain'].first().batchkey)
-        #     context['logs_sistatus'] = context['logs_simain'].first().status if context['logs_simain'] else ''
 
         # data for lookup
-        context['sitype'] = Sitype.objects.filter(isdeleted=0).order_by('pk')
-        context['sisubtype'] = Sisubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['sitype'] = Sitype.objects.filter(isdeleted=0).order_by('code')
+        context['sisubtype'] = Sisubtype.objects.filter(isdeleted=0).order_by('code')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['customer'] = Customer.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
@@ -389,10 +354,7 @@ class UpdateView(UpdateView):
                                         'branch', 'sitype', 'vat', 'wtax', 'outputvattype', 'particulars', 'remarks', 
                                         'modifyby', 'modifydate', 'acctentry_incomplete'])
 
-        non_vat_amount = decimal.Decimal(self.object.amount) / (1 + (decimal.Decimal(self.object.vatrate) /
-                                                                    decimal.Decimal(100)) -
-                                                                (decimal.Decimal(self.object.wtaxrate) /
-                                                                decimal.Decimal(100)))
+        non_vat_amount = decimal.Decimal(self.object.amount) / (1 + (decimal.Decimal(self.object.vatrate) / decimal.Decimal(100)))
 
         if self.object.vatrate > 0:
             self.object.vatablesale = non_vat_amount
@@ -439,6 +401,15 @@ class UpdateView(UpdateView):
             username=self.request.user,
             remarks='Update SI Transaction #' + self.object.sinum
         )
+        
+        # save si logs
+        Silogs.objects.create(
+            user=self.request.user,
+            username=self.request.user,
+            action_type='update',
+            action_datetime=datetime.datetime.now(),
+            remarks="SI update ID: "+str(self.object.id)+", SI #"+str(num)
+        )
 
         return HttpResponseRedirect('/salesinvoice/'+str(self.object.id)+'/update')
 
@@ -458,6 +429,15 @@ class DetailView(DetailView):
             filter(simain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
 
         context['uploadlist'] = Siupload.objects.filter(simain_id=self.object.pk).order_by('enterdate')
+        
+        # save si logs
+        Silogs.objects.create(
+            user=self.request.user,
+            username=self.request.user,
+            action_type='view',
+            action_datetime=datetime.datetime.now(),
+            remarks="SI view detail ID: "+str(self.kwargs['pk'])
+        )
 
         return context
     
@@ -484,24 +464,32 @@ class Pdf(PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(PDFTemplateView, self).get_context_data(**kwargs)
+        
+        main = Simain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        net_of_vat = float(main.amount) - float(main.vatamount)
 
-        context['simain'] = Simain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['simain'] = main
         context['tin'] = format_tin(context['simain'].customer.tin)
-        print 'result tin', context['tin']
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         context['detail'] = Sidetail.objects.filter(isdeleted=0). \
             filter(simain_id=self.kwargs['pk']).order_by('item_counter')
-        # context['totaldebitamount'] = Sidetail.objects.filter(isdeleted=0). \
-        #     filter(simain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
-        # context['totalcreditamount'] = Sidetail.objects.filter(isdeleted=0). \
-        #     filter(simain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+        context['computed'] = {'net_of_vat': net_of_vat}
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
         context['logo'] = Companyparameter.objects.get(code='PDI').logo_path
 
-        printedor = Simain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
-        printedor.print_ctr += 1
-        printedor.save()
+        main.print_ctr += 1
+        main.save()
+        
+        # save si logs
+        Silogs.objects.create(
+            user=self.request.user,
+            username=self.request.user,
+            action_type='view',
+            action_datetime=datetime.datetime.now(),
+            remarks="SI view PDF invoice ID: "+str(self.kwargs['pk'])
+        )
+        
         return context
 
 
@@ -525,6 +513,15 @@ class DeleteView(DeleteView):
         self.object.status = 'C'
         self.object.sistatus = 'D'
         self.object.save()
+        
+        # save si logs
+        Silogs.objects.create(
+            user=self.request.user,
+            username=self.request.user,
+            action_type='delete',
+            action_datetime=datetime.datetime.now(),
+            remarks="SI delete ID: "+str(self.kwargs['pk'])
+        )
 
         return HttpResponseRedirect('/salesinvoice')
 
@@ -535,12 +532,19 @@ def gopost(request):
     if request.method == 'POST':
         ids = request.POST.getlist('ids[]')
         release = Simain.objects.filter(pk__in=ids).update(sistatus='R',
-                                                        releaseby=User.objects.get(pk=request.user.id),
-                                                        releasedate= str(datetime.datetime.now()),
                                                         responsedate = str(datetime.datetime.now())
         )
 
         data = {'status': 'success'}
+        
+        # save si logs
+        Silogs.objects.create(
+            user=request.user,
+            username=request.user,
+            action_type='post',
+            action_datetime=datetime.datetime.now(),
+            remarks="SI post IDs: "+str(ids)
+        )
     else:
         data = { 'status': 'error' }
 
@@ -558,7 +562,14 @@ def goapprove(request):
                                                         actualapprover = User.objects.get(pk=request.user.id),
                                                         designatedapprover = User.objects.get(pk=request.user.id)
         )
-
+        # save si logs
+        Silogs.objects.create(
+            user=request.user,
+            username=request.user,
+            action_type='approve',
+            action_datetime=datetime.datetime.now(),
+            remarks="SI approve IDs: "+str(ids)
+        )
         data = {'status': 'success'}
     else:
         data = { 'status': 'error' }
@@ -580,6 +591,15 @@ def gounpost(request):
                 user_id=request.user.id,
                 username=request.user,
                 remarks='Unpost SI Transaction #' + str(approval.sinum)
+            )
+            
+            # save si logs
+            Silogs.objects.create(
+                user=request.user,
+                username=request.user,
+                action_type='unpost',
+                action_datetime=datetime.datetime.now(),
+                remarks="SI unpost ID: "+str(request.POST['id'])
             )
         else:
             data = {'status': 'error'}
@@ -652,7 +672,6 @@ def approve(request):
         approval = Simain.objects.get(pk=request.POST['id'])
 
         details = Sidetail.objects.filter(simain_id=approval.id).order_by('item_counter')
-        print details
 
         msg = ""
         msgchartname = ""
@@ -762,11 +781,19 @@ def approve(request):
                     username=request.user,
                     remarks='Aproved SI Transaction #' + str(approval.sinum)
                 )
+                
+                # save si logs
+                Silogs.objects.create(
+                    user=request.user,
+                    username=request.user,
+                    action_type='approve',
+                    action_datetime=datetime.datetime.now(),
+                    remarks="SI approve ID: "+str(request.POST['id'])
+                )
             else:
                 data = {'status': 'error'}
 
             return JsonResponse(data)
-
 
     else:
         data = { 'status': 'error' }
@@ -792,8 +819,38 @@ def disapprove(request):
                 username=request.user,
                 remarks='Disaproved SI Transaction #' + str(approval.sinum)
             )
+            
+            # save si logs
+            Silogs.objects.create(
+                user=request.user,
+                username=request.user,
+                action_type='disapprove',
+                action_datetime=datetime.datetime.now(),
+                remarks="SI disapprove ID: "+str(request.POST['id'])
+            )
         else:
             data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def posting(request):
+    if request.method == 'POST':
+        Simain.objects.filter(pk=request.POST['id']).update(sistatus='R')
+
+        data = {'status': 'success'}
+        
+        # save si logs
+        Silogs.objects.create(
+            user=request.user,
+            username=request.user,
+            action_type='posting',
+            action_datetime=datetime.datetime.now(),
+            remarks="SI posting ID: "+str(request.POST['id'])
+        )
     else:
         data = { 'status': 'error' }
 
@@ -810,6 +867,15 @@ def upload(request):
 
     upl = Siupload(simain_id=dataid, filename=filename, enterby=request.user, modifyby=request.user)
     upl.save()
+    
+    # save si logs
+    Silogs.objects.create(
+        user=request.user,
+        username=request.user,
+        action_type='file upload',
+        action_datetime=datetime.datetime.now(),
+        remarks="SI file upload ID: "+str(dataid)+", File ID: "+str(upl.pk)
+    )
 
     uploaded_file_url = fs.url(filename)
     return HttpResponseRedirect('/salesinvoice/' + str(dataid) )
@@ -824,6 +890,15 @@ def filedelete(request):
         fileid = request.POST['fileid']
 
         Siupload.objects.filter(pk=fileid).delete()
+        
+        # save si logs
+        Silogs.objects.create(
+            user=request.user,
+            username=request.user,
+            action_type='file delete',
+            action_datetime=datetime.datetime.now(),
+            remarks="SI file delete ID: "+str(pk)+", File ID: "+str(fileid)
+        )
 
         return HttpResponseRedirect('/salesinvoice/' + str(pk) )
 
@@ -835,7 +910,7 @@ def getcustomercreditterm(request):
     if request.method == 'GET':
         pk = request.GET['id']
         daysdue = Customer.objects.get(pk=pk).creditterm.daysdue
-        print 'daysdue', daysdue
+        
         data = {'daysdue': daysdue}
     else: data = {'status': 'error'}
     
@@ -893,19 +968,32 @@ class GeneratePDF(View):
                 q = q.filter(sidate__lte=dto)
         elif report == '2':
             title = "Sales Book"
-            # q = Sidetail.objects.select_related('simain').filter(isdeleted=0).order_by('si_date', 'si_num', 'item_counter')
+            
             q = Simain.objects.filter(isdeleted=0).order_by('sidate', 'sinum')
             if dfrom != '':
                 q = q.filter(sidate__gte=dfrom)
             if dto != '':
                 q = q.filter(sidate__lte=dto)
-        # elif report == '7':
-        #     title = "Sales Invoice Register"
-        #     q = Simain.objects.filter(isdeleted=0).order_by('sidate', 'sinum')
-        #     if dfrom != '':
-        #         q = q.filter(sidate__gte=dfrom)
-        #     if dto != '':
-        #         q = q.filter(sidate__lte=dto)
+        elif report == '3':
+            title = "Sales Book Summary"
+            
+            silist = getSIList(dfrom, dto)
+
+            query = query_salesbooksummary(dfrom, dto, silist)
+        elif report == '4':
+            title = "Sales Book - Summary Entries"
+            q = Sidetail.objects.all().filter(isdeleted=0,simain__sistatus='R').exclude(simain__status='C')
+            if dfrom != '':
+                q = q.filter(si_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(si_date__lte=dto)
+            q = q.values('chartofaccount__accountcode','chartofaccount__description') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                            debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                                default=Sum('debitamount') - Sum('creditamount')),
+                            creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('chartofaccount__accountcode')
         elif report == '8':
             title = "Sales Invoice Output VAT"
             silist = getSIList(dfrom, dto)
@@ -913,7 +1001,6 @@ class GeneratePDF(View):
 
             query = query_siwithoutputvat(dfrom, dto, silist, arr)
 
-            q = Simain.objects.filter(isdeleted=0).order_by('sidate', 'sinum')
         elif report == '9':
             title = "Sales Invoice Output VAT Summary"
             silist = getSIList(dfrom, dto)
@@ -921,72 +1008,27 @@ class GeneratePDF(View):
 
             query = query_siwithoutputvatsummary(dfrom, dto, silist, arr)
 
-            q = Simain.objects.filter(isdeleted=0).order_by('sidate', 'sinum')
         elif report == '10':
             title = "Sales Invoice Without Output VAT"
             silist = getSINoOutputVatList(dfrom, dto)
 
             query = query_sinooutputvat(dfrom, dto, silist)
 
-            q = Simain.objects.filter(isdeleted=0).order_by('sidate', 'sinum')
         elif report == '11':
             title = "Sales Invoice Without Output VAT Summary"
             silist = getSINoOutputVatList(dfrom, dto)
 
             query = query_sinooutputvatsummary(dfrom, dto, silist)
-            q = Simain.objects.filter(isdeleted=0).order_by('sidate', 'sinum')
+            
+        elif report == '12':
+            title = "Sales Invoice Audit Trail"
+            query = Silogs.objects.all()
+            if dfrom != '':
+                query = query.filter(action_datetime__gte=dfrom)
+            if dto != '':
+                query = query.filter(action_datetime__lte=dto)
 
-        if sitype != '':
-            q = q.filter(sitype=sitype)
-            print 'sitype'
-        if sisubtype != '':
-            q = q.filter(sisubtype=sisubtype)
-            print 'sisubtype'
-        if customer != 'null':
-            q = q.filter(customer__code=customer)
-            print 'payee'
-        if branch != '':
-            q = q.filter(branch=branch)
-            print branch
-        if wtax != '':
-            q = q.filter(wtax=wtax)
-            print 'wtax'
-        if vat != '':
-            q = q.filter(vat=vat)
-            print 'vat'
-        if outputvat != '':
-            q = q.filter(outputvattype=outputvat)
-            print 'outputvat'
-        if status != '':
-            q = q.filter(status=status)
-            print 'status'
-        if sistatus != '':
-            q = q.filter(sistatus=sistatus)
-            print 'sistatus'
-
-        # if report == '5':
-        #     list = raw_query(1, company, dfrom, dto, sitype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status)
-        #     dataset = pd.DataFrame(list)
-        #     total = {}
-        #     total['amount'] = dataset['amount'].sum()
-        #     total['cashinbank'] = dataset['cashinbank'].sum()
-        #     total['diff'] = dataset['diff'].sum()
-        #     total['outputvat'] = dataset['outputvat'].sum()
-        #     total['amountdue'] = dataset['amountdue'].sum()
-        # elif report == '6':
-        #     list = raw_query(2, company, dfrom, dto, sitype, artype, payee, collector, branch, product, adtype, wtax,vat, outputvat, bankaccount, status)
-        #     dataset = pd.DataFrame(list)
-        #     total = {}
-        #     #total['amount'] = dataset['amount'].sum()
-        #     if list:
-        #         total['debitamount'] = dataset['debitamount'].sum()
-        #         total['creditamount'] = dataset['creditamount'].sum()
-        #     else:
-        #         total['debitamount'] = 0
-        #         total['creditamount'] = 0
-        #     #total['diff'] = dataset['totaldiff'].sum()
         if report == '8' or report == '9' or report == '10' or report == '11':
-            print 'pasok'
             list = query
             outputcredit = 0
             outputdebit = 0
@@ -998,17 +1040,64 @@ class GeneratePDF(View):
                 
                 if report == '10' or report == '11':
                     amount = df['amount'].sum()
+        elif report == '3':
+            list = query
+            total_amount = 0
+            total_discountamount = 0
+            total_vatamount = 0
+            total_netsale = 0
+            if list:
+                df = pd.DataFrame(query)
+                total_amount = df['vatablesale'].sum()
+                total_discountamount = df['discountamount'].sum()
+                total_vatamount = df['vatamount'].sum()
+                total_netsale = df['amount'].sum()
+        elif report == '12':
+            list = query
         else:
+            if sitype != '':
+                q = q.filter(sitype=sitype)
+                print 'sitype'
+            if sisubtype != '':
+                q = q.filter(sisubtype=sisubtype)
+                print 'sisubtype'
+            if customer != 'null':
+                q = q.filter(customer__code=customer)
+                print 'payee'
+            if branch != '':
+                q = q.filter(branch=branch)
+                print branch
+            if wtax != '':
+                q = q.filter(wtax=wtax)
+                print 'wtax'
+            if vat != '':
+                q = q.filter(vat=vat)
+                print 'vat'
+            if outputvat != '':
+                q = q.filter(outputvattype=outputvat)
+                print 'outputvat'
+            if status != '':
+                q = q.filter(status=status)
+                print 'status'
+            if sistatus != '':
+                q = q.filter(sistatus=sistatus)
+                print 'sistatus'
+                
             list = q
-
+            
         if list:
 
-            if report == '2' or report == '4':
+            if report == '2':
                 total = list.aggregate(total_amount=Sum('vatablesale'), total_discountamount=Sum('discountamount'), total_vatamount=Sum('vatamount'), total_netsale=Sum('amount'))
             elif report == '8' or report == '9' or report == '10' or report == '11':
                 total = {'outputcredit': outputcredit, 'outputdebit': outputdebit, 'amount': amount}
-        #     elif report == '5' or report == '6':
-        #         print 'do nothing'
+            elif report == '3':
+                total = {'total_amount': total_amount, 'total_discountamount': total_discountamount, 'total_vatamount': total_vatamount, 'total_netsale': total_netsale }
+            elif report == '4':
+                total = list.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+            elif report == '12':
+                # do nothing
+                print 'audit trail'
             else:
                 total = list.filter(~Q(status='C')).aggregate(total_amount=Sum('amount'))
 
@@ -1029,16 +1118,10 @@ class GeneratePDF(View):
             return Render.render('salesinvoice/report/report_1.html', context)
         elif report == '2':
             return Render.render('salesinvoice/report/report_2.html', context)
-        # elif report == '3':
-        #     return Render.render('salesinvoice/report/report_3.html', context)
-        # elif report == '4':
-        #     return Render.render('salesinvoice/report/report_4.html', context)
-        # elif report == '5':
-        #     return Render.render('salesinvoice/report/report_5.html', context)
-        # elif report == '6':
-        #     return Render.render('salesinvoice/report/report_6.html', context)
-        # elif report == '7':
-        #     return Render.render('salesinvoice/report/report_7.html', context)
+        elif report == '3':
+            return Render.render('salesinvoice/report/report_3.html', context)
+        elif report == '4':
+            return Render.render('salesinvoice/report/report_4.html', context)
         elif report == '8':
             return Render.render('salesinvoice/report/report_8.html', context)
         elif report == '9':
@@ -1047,10 +1130,110 @@ class GeneratePDF(View):
             return Render.render('salesinvoice/report/report_10.html', context)
         elif report == '11':
             return Render.render('salesinvoice/report/report_11.html', context)
+        elif report == '12':
+            return Render.render('salesinvoice/report/report_12.html', context)
         else:
             return Render.render('salesinvoice/report/report_1.html', context)
         
         
+@method_decorator(login_required, name='dispatch')
+class GeneratePDFCashInBank(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = ''
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        title = "SALES BOOK - SUMMARY ENTRIES"
+        subtitle = ""
+
+        cashinbank = Companyparameter.objects.first().coa_cashinbank_id
+        if report == '4':
+            title = "SALES BOOK - SUMMARY ENTRIES"
+            subtitle = "Summary of Cash In Bank"
+            q = Sidetail.objects.all().filter(isdeleted=0,chartofaccount=cashinbank).exclude(simain__status='C')
+            if dfrom != '':
+                q = q.filter(si_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(si_date__lte=dto)
+            q = q.values('bankaccount__code',
+                            'bankaccount__bank__code',
+                            'bankaccount__bankaccounttype__code') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                            debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                                default=Sum('debitamount') - Sum('creditamount')),
+                            creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('bankaccount__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        else:
+            q = Sidetail.objects.filter(isdeleted=0).order_by('si_date', 'si_num')[:0]
+
+        list = q
+        context = {
+            "title": title,
+            "subtitle": subtitle,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "datefrom": dfrom,
+            "dateto": dto,
+            "username": request.user,
+        }
+        return Render.render('salesinvoice/report/summary_cashinbank.html', context)
+
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDFDepartment(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = ''
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        title = "SALES BOOK - SUMMARY ENTRIES"
+        subtitle = ""
+
+        if report == '4':
+            title = "SALES BOOK - SUMMARY ENTRIES"
+            subtitle = "Summary of Department"
+            q = Sidetail.objects.all().filter(isdeleted=0,department__isnull=False).exclude(simain__status='C')
+            if dfrom != '':
+                q = q.filter(si_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(si_date__lte=dto)
+            q = q.values('department__code',
+                            'department__departmentname',
+                            'department__sectionname', 'department__branchstatus') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                            debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                                default=Sum('debitamount') - Sum('creditamount')),
+                            creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('department__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        else:
+            q = Sidetail.objects.filter(isdeleted=0).order_by('si_date', 'si_num')[:0]
+
+        list = q
+        context = {
+            "title": title,
+            "subtitle": subtitle,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "report": report,
+            "datefrom": dfrom,
+            "dateto": dto,
+            "username": request.user,
+        }
+        return Render.render('salesinvoice/report/summary_department.html', context)
+
+
 @method_decorator(login_required, name='dispatch')
 class GenerateExcel(View):
     def get(self, request):
@@ -1411,8 +1594,8 @@ class GenerateExcel(View):
             totaldebit = 0
             totalcredit = 0
             list = list.values('simain__sinum', 'simain__sidate', 'simain__particulars', 'simain__payee_name',
-                               'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
-                               'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
+                                'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
+                                'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
             dataset = pd.DataFrame.from_records(list)
 
             for sinum, detail in dataset.fillna('NaN').groupby(
@@ -1924,9 +2107,6 @@ def getSIList(dfrom, dto):
             "ORDER BY m.sinum"
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
-    print query
-    print 'hoy'
-
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
@@ -1958,6 +2138,31 @@ def getARR():
     return list[:-1]
 
 
+def query_salesbooksummary(dfrom, dto, silist):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+    
+    if not silist:
+        silist = '0'
+
+    query = "SELECT c.name, c.tin, " \
+            "CONCAT(IFNULL(c.address1, ''), ' ', IFNULL(c.address2, ''), ' ', IFNULL(c.address3, '')) AS address, " \
+            "SUM(IFNULL(m.vatablesale, 0)) AS vatablesale, SUM(IFNULL(m.discountamount, 0)) AS discountamount, SUM(IFNULL(m.vatamount, 0)) AS vatamount, SUM(IFNULL(m.amount, 0)) AS amount " \
+            "FROM simain AS m " \
+            "LEFT OUTER JOIN customer AS c ON c.id = m.customer_id " \
+            "WHERE DATE(m.sidate) >= '"+str(dfrom)+"' AND DATE(m.sidate) <= '"+str(dto)+"' " \
+            "AND m.status != 'C' " \
+            "GROUP BY c.code ORDER BY c.name, m.sinum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    print 'query', query
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+
 def query_siwithoutputvatsummary(dfrom, dto, silist, arr):
     # print "Summary"
     ''' Create query '''
@@ -1967,11 +2172,10 @@ def query_siwithoutputvatsummary(dfrom, dto, silist, arr):
     if not silist:
         silist = '0'
 
-    query = "SELECT m.sinum, m.sidate, m.particulars, sit.code AS sitype, c.name, c.address1, c.address2, c.address3, c.tin, " \
+    query = "SELECT m.sinum, m.sidate, m.particulars, c.name, c.address1, c.address2, c.address3, c.tin, " \
             "SUM(IFNULL(outputvat.debitamount, 0)) AS outputvatdebitamount, SUM(IFNULL(outputvat.creditamount, 0)) AS outputvatcreditamount," \
             "m.vatrate AS outputvatrate " \
             "FROM simain AS m " \
-            "LEFT OUTER JOIN sitype AS sit ON sit.id = m.sitype_id " \
             "LEFT OUTER JOIN customer AS c ON c.id = m.customer_id " \
             "LEFT OUTER JOIN ( " \
             "SELECT d.simain_id, d.si_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
@@ -1993,7 +2197,7 @@ def query_siwithoutputvatsummary(dfrom, dto, silist, arr):
             "AND m.sistatus IN ('R') " \
             "AND m.status != 'C' " \
             "AND m.id IN ("+str(silist)+") " \
-            "GROUP BY c.code, c.name ORDER BY c.name, sit.code, m.sinum"
+            "GROUP BY c.code, c.name ORDER BY c.name, m.sinum"
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
     
@@ -2165,3 +2369,434 @@ def query_sinooutputvatsummary(dfrom, dto, silist):
     result = namedtuplefetchall(cursor)
 
     return result
+
+
+@csrf_exempt
+def generatedefaultentries(request):
+    if request.method == 'POST':
+        data_table = validatetable(request.POST['table'])
+        subtype_id = request.POST['sisubtype']
+        amount = float(request.POST['amount'])
+        vat_id = int(request.POST['vat'])
+        vatable = float(request.POST['vatable'])
+        vatexempt = float(request.POST['vatexempt'])
+        vatzero = float(request.POST['vatzero'])
+        addvat = float(request.POST['addvat'])
+        itemcounter =1
+        
+        try:
+            entries = Sisubtype.objects.get(pk=subtype_id)
+            
+            if entries.debit1:
+                print entries.debit1.description, entries.debit1.customer_enable
+                debit1entry = Sidetailtemp()
+                debit1entry.item_counter = itemcounter
+                debit1entry.secretkey = request.POST['secretkey']
+                if entries.debit1.customer_enable == 'Y':
+                    debit1entry.customer = request.POST['customer'] # add validation if required in coa
+                debit1entry.si_num = ''
+                debit1entry.si_date = datetime.date.today()
+                debit1entry.chartofaccount = entries.debit1.id
+                debit1entry.debitamount = amount
+                debit1entry.balancecode = 'D'
+                debit1entry.enterby = request.user
+                debit1entry.modifyby = request.user
+                debit1entry.isautogenerated = 1
+                debit1entry.save()
+                itemcounter += 1
+            elif entries.debit2:
+                print entries.debit2.description, entries.debit2.customer_enable
+                debit2entry = Sidetailtemp()
+                debit2entry.item_counter = itemcounter
+                debit2entry.secretkey = request.POST['secretkey']
+                if entries.debit2.customer_enable == 'Y':
+                    debit2entry.customer = request.POST['customer']
+                debit2entry.si_num = ''
+                debit2entry.si_date = datetime.date.today()
+                debit2entry.chartofaccount = entries.debit2.id
+                debit2entry.debitamount = amount
+                debit2entry.balancecode = 'D'
+                debit2entry.enterby = request.user
+                debit2entry.modifyby = request.user
+                debit2entry.isautogenerated = 1
+                debit2entry.save()
+                itemcounter += 1
+                
+            if entries.credit1:
+                accountcode = entries.credit1.accountcode
+                firstfourdigits = str(accountcode)[0:4]
+                print 'vatrate', Vat.objects.get(pk=int(request.POST['vat'])).rate, firstfourdigits
+                if firstfourdigits == '2146':
+                    # outputvat
+                    if Vat.objects.get(pk=vat_id).rate > 0:
+                        print 'ddi'
+                        creditamount = addvat
+                    else:
+                        creditamount = 0
+                else:
+                    if vatable > 0:
+                        creditamount = vatable
+                    elif Vat.objects.get(pk=vat_id).code == 'VE':
+                        creditamount = vatexempt
+                    elif Vat.objects.get(pk=vat_id).code == 'ZE' or Vat.objects.get(pk=vat_id).code == 'VATNA':
+                        creditamount = vatzero
+                    print 'credit1 other income', creditamount
+                print entries.credit1.description
+                if creditamount:
+                    credit1entry = Sidetailtemp()
+                    credit1entry.item_counter = itemcounter
+                    credit1entry.secretkey = request.POST['secretkey']
+                    credit1entry.si_num = ''
+                    credit1entry.si_date = datetime.date.today()
+                    credit1entry.chartofaccount = entries.credit1.id
+                    credit1entry.creditamount = creditamount
+                    credit1entry.balancecode = 'C'
+                    credit1entry.enterby = request.user
+                    credit1entry.modifyby = request.user
+                    credit1entry.isautogenerated = 1
+                    credit1entry.save()
+                    itemcounter += 1
+                
+            if entries.credit2:
+                accountcode = entries.credit2.accountcode
+                firstfourdigits = str(accountcode)[0:4]
+                print 'vatrate', Vat.objects.get(pk=int(request.POST['vat'])).rate, firstfourdigits
+                if firstfourdigits == '2146':
+                    # outputvat
+                    if Vat.objects.get(pk=vat_id).rate > 0:
+                        print 'ddi'
+                        creditamount = addvat
+                    else:
+                        creditamount = 0
+                    print 'creditamount2 outputvat', creditamount
+                else:
+                    # other income
+                    if vatable > 0:
+                        creditamount = vatable
+                    elif Vat.objects.get(pk=vat_id).code == 'VE':
+                        creditamount = vatexempt
+                    elif Vat.objects.get(pk=vat_id).code == 'ZE' or Vat.objects.get(pk=vat_id).code == 'VATNA':
+                        creditamount = vatzero
+                    print 'credit2 other income', creditamount
+                print entries.credit2.description
+                if creditamount:
+                    credit2entry = Sidetailtemp()
+                    credit2entry.item_counter = itemcounter
+                    credit2entry.secretkey = request.POST['secretkey']
+                    credit2entry.si_num = ''
+                    credit2entry.si_date = datetime.date.today()
+                    credit2entry.chartofaccount = entries.credit2.id
+                    credit2entry.creditamount = creditamount
+                    credit2entry.balancecode = 'C'
+                    credit2entry.enterby = request.user
+                    credit2entry.modifyby = request.user
+                    credit2entry.isautogenerated = 1
+                    credit2entry.save()
+                    itemcounter += 1
+
+            context = {
+                'tabledetailtemp': data_table['str_detailtemp'],
+                'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+                'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+                'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            }
+
+            data = {
+                'datatable': render_to_string('acctentry/datatable.html', context),
+                'status': 'success'
+            }
+        except Exception as e:
+            print 'error', e
+            data = {
+                'message': str(e),
+                'status': 'exception',
+            }
+    else:        
+        data = {
+                'status': 'error',
+            }
+
+    return JsonResponse(data)
+        
+
+@csrf_exempt
+def searchforpostingJV(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Simain.objects.filter(isdeleted=0, status='A', sistatus='R').exclude(jvmain_id__isnull=False).order_by('sinum', 'sidate')
+        if dfrom != '':
+            q = q.filter(sidate__gte=dfrom)
+        if dto != '':
+            q = q.filter(sidate__lte=dto)
+        print 'main', q
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('salesinvoice/jvpostingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+def lastJVNumber(param):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT SUBSTRING(jvnum, 5) AS num FROM jvmain ORDER BY id DESC LIMIT 1"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result[0]
+
+
+@csrf_exempt
+def gopostjv(request):
+
+    if request.method == 'POST':
+        from django.db.models import CharField
+        from django.db.models.functions import Length
+
+        CharField.register_lookup(Length, 'length')
+
+        ids = request.POST.getlist('ids[]')
+        pdate = request.POST['postdate']
+
+        # data = Simain.objects.filter(pk__in=ids).filter(isdeleted=0,status='A',sistatus='R')
+        entries = Sidetail.objects.all().filter(isdeleted=0, simain_id__in=ids).exclude(simain__status='C')
+        
+        entries = entries.values('chartofaccount__accountcode','chartofaccount__description', 'balancecode', \
+                'ataxcode_id', 'bankaccount_id', 'branch_id', 'chartofaccount_id', 'customer_id', 'department_id', \
+                    'employee_id', 'inputvat_id', 'outputvat_id', 'product_id', 'unit_id', 'vat_id', 'wtax_id') \
+            .annotate(Sum('debitamount'), Sum('creditamount'),
+                        debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                            default=Sum('debitamount') - Sum('creditamount')),
+                        creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                            default=Sum('creditamount') - Sum('debitamount'))) \
+            .order_by('chartofaccount__accountcode')
+        
+        if entries:
+            jvnumlast = lastJVNumber('true')
+            latestjvnum = str(jvnumlast[0])
+            jvnum = pdate[:4]
+            last = str(int(latestjvnum) + 1)
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                jvnum += '0'
+            jvnum += last
+
+            print 'hoy'
+            print 'jvnum', jvnum
+            strpdate = dt.strptime(pdate, '%Y-%m-%d')
+            billingremarks = ''
+            
+            main = Jvmain.objects.create(
+                jvnum = jvnum,
+                jvdate = pdate,
+                jvtype_id = 1, # No JV Type - CHANGE THIS
+                jvsubtype_id = 2, # Manual JV - CHANGE THIS
+                branch_id = 5, # Head Office
+                # department_id = si.department_id,
+                refnum = jvnum,
+                particular = 'SI for the month of '+strpdate.strftime('%B %Y'),
+                currency_id = 1,
+                fxrate = 1,
+                designatedapprover_id = 339, # Janna De Jesus
+                actualapprover_id = 339, # Janna De Jesus
+                approverremarks = 'Auto approved from SI Posting',
+                responsedate = datetime.datetime.now(),
+                jvstatus = 'A',
+                enterby_id = request.user.id,
+                enterdate = datetime.datetime.now(),
+                modifyby_id = request.user.id,
+                modifydate = datetime.datetime.now()
+            )
+            
+            counter = 1
+            amount = 0
+            
+            for entry in entries:
+                amount += entry['debitdifference']
+                Jvdetail.objects.create(
+                    jvmain_id = main.id,
+                    jv_num = main.jvnum,
+                    jv_date = main.jvdate,
+                    item_counter = counter,
+                    debitamount = entry['debitdifference'],
+                    creditamount = entry['creditdifference'],
+                    balancecode = entry['balancecode'],
+                    ataxcode_id = entry['ataxcode_id'],
+                    bankaccount_id = entry['bankaccount_id'],
+                    branch_id = entry['branch_id'],
+                    chartofaccount_id = entry['chartofaccount_id'],
+                    customer_id = entry['customer_id'],
+                    department_id = entry['department_id'],
+                    employee_id = entry['employee_id'],
+                    inputvat_id = entry['inputvat_id'],
+                    outputvat_id = entry['outputvat_id'],
+                    product_id = entry['product_id'],
+                    unit_id = entry['unit_id'],
+                    vat_id = entry['vat_id'],
+                    wtax_id = entry['wtax_id'],
+                    status='A',
+                    enterby_id = request.user.id,
+                    enterdate = datetime.datetime.now(),
+                    modifyby_id = request.user.id,
+                    modifydate = datetime.datetime.now()
+                )
+                counter += 1
+            
+            main.amount = amount
+            main.save()
+
+            simain = Simain.objects.filter(id__in=ids).update(
+                jvmain_id = main.id,
+                remarks = 'Sales Invoice - JV '+str(jvnum)
+            )
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+
+@method_decorator(login_required, name='dispatch')
+class TaggingIndexView(AjaxListView):
+    model = Simain
+    template_name = 'salesinvoice/tagging/index.html'
+    page_template = 'salesinvoice/tagging/index_list.html'
+    context_object_name = 'data_list'
+
+    def get_context_data(self, **kwargs):
+        context = super(AjaxListView, self).get_context_data(**kwargs)
+
+        # data for lookup
+        context['sitype'] = Sitype.objects.filter(isdeleted=0).order_by('pk')
+        context['customer'] = Customer.objects.filter(isdeleted=0).order_by('code')
+        context['chart'] = Chartofaccount.objects.filter(isdeleted=0, accounttype='P', nontrade='Y').order_by('accountcode')
+        # end data for lookup
+
+        return context
+
+
+@csrf_exempt
+def transgenerate(request):
+    dfrom = request.GET["dfrom"]
+    dto = request.GET["dto"]
+    document_type = request.GET["document_type"]
+    chartofaccount = request.GET["chartofaccount"]
+    report = request.GET["report"] 
+    payeecode = request.GET["payeecode"]
+    payeename = request.GET["payeename"]
+    
+    subs_filter_kwargs = {
+        'document_date__range': [dfrom, dto]
+    }
+    si_filter_kwargs = {
+        'sidate__range': [dfrom, dto]
+    }
+    
+    # if payeecode:
+        # subs_filter_kwargs['customer__code'] = payeecode
+        # si_filter_kwargs['customer__code'] = payeecode
+    if payeename:
+        subs_filter_kwargs['customer__name'] = payeename
+        si_filter_kwargs['customer__name'] = payeename
+    if chartofaccount:
+        subs_filter_kwargs['chartofaccount_id'] = chartofaccount
+    if document_type:
+        subs_filter_kwargs['document_type'] = document_type
+        
+    transaction = 1
+    subs_data = queryLedger(dto, dfrom, transaction, chartofaccount, payeecode, payeename)
+    
+    # subs_data = Subledger.objects.filter(\
+    #     **subs_filter_kwargs
+    # ).values('id', 'reference_number', 'document_type', 'document_num', 'document_date', 'document_payee', 'customer_id', 'balancecode', 'amount', 'particulars').order_by('document_date', 'customer__code')
+
+    si_data = Simain.objects.filter(\
+        **si_filter_kwargs
+    ).values('id', 'sinum', 'amount', 'customer_id', 'particulars').order_by('id')
+
+    viewhtml = ''
+    context = {}
+    print 'subs_data', subs_data
+    print 'si_data', si_data
+    context['transdfrom'] = dfrom
+    context['transdto'] = dto
+    context['subledger_data'] = subs_data
+    context['si_data'] = si_data
+    context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+    viewhtml = render_to_string('salesinvoice/tagging/index_list.html', context)
+    
+    data = {
+        'status': 'success',
+        'viewhtml': viewhtml
+    }
+    
+    return JsonResponse(data)
+
+
+def queryLedger(dto, dfrom, transaction, chartofaccount, payeecode, payeename):
+    
+    conchart = ""
+    orderby = "ORDER BY document_date ASC, FIELD(a.document_type, 'AP','CV','JV','OR')"
+    conpayeecode = ""
+    conpayeename = ""
+
+    if chartofaccount:
+        conchart = "SELECT id FROM chartofaccount WHERE id = '"+str(chartofaccount)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
+    else:
+        conchart  = "SELECT id FROM chartofaccount WHERE main = '"+str(transaction)+"' AND isdeleted=0 AND accounttype='P' AND nontrade='Y' ORDER BY accountcode"
+
+    if payeecode:
+        conpayeecode = "AND IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) = '"+str(payeecode)+"'"
+
+    if payeename:
+        conpayeename = "AND IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) LIKE '%"+str(payeename)+"%'"
+
+    print conchart
+    
+    ''' Create query '''
+    cursor = connection.cursor()
+    try:
+        query = "SELECT a.id, a.document_type, a.document_id, a.document_num, a.document_date, a.subtype, a.particulars, a.chartofaccount_id, a.document_reftype, a.document_refnum, a.document_refdate, " \
+                "a.balancecode, IF (a.balancecode = 'C', a.amount, 0) AS creditamount, IF (a.balancecode = 'D', a.amount, 0) AS debitamount, " \
+                "a.document_customer_id, a.document_supplier_id,  " \
+                "b.accountcode, b.description, b.customer_enable, b.supplier_enable, b.nontrade, b.setup_customer, b.setup_supplier, " \
+                "IF (b.customer_enable = 'Y', dcust.code, IF (b.supplier_enable = 'Y', dsup.code, IF (b.setup_customer != '', scust.code, ssup.code))) AS pcode,  " \
+                "IF (b.customer_enable = 'Y', dcust.name, IF (b.supplier_enable = 'Y', dsup.name, IF (b.setup_customer != '', scust.name, ssup.name))) AS pname, " \
+                "IF (b.customer_enable = 'Y', dcust.tin, IF (b.supplier_enable = 'Y', dsup.tin, IF (b.setup_customer != '', scust.tin, ssup.tin))) AS ptin, om.orsource   " \
+                "FROM subledger AS a " \
+                "LEFT OUTER JOIN chartofaccount AS b ON b.id = a.chartofaccount_id " \
+                "LEFT OUTER JOIN customer AS dcust ON dcust.id = a.customer_id " \
+                "LEFT OUTER JOIN customer AS scust ON scust.id =  b.setup_customer " \
+                "LEFT OUTER JOIN supplier AS dsup ON dsup.id = a.document_supplier_id " \
+                "LEFT OUTER JOIN supplier AS ssup ON ssup.id = b.setup_supplier " \
+                "left outer join ordetail as od on (od.id = a.document_id and a.document_type = 'OR') " \
+                "left outer join ormain as om on om.id = od.ormain_id " \
+                "WHERE a.chartofaccount_id IN ("+str(conchart)+") " \
+                ""+str(conpayeecode)+" "+str(conpayeename)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby)
+
+        ##"LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id "
+        print query
+        print '****'
+
+        cursor.execute(query)
+        result = namedtuplefetchall(cursor)
+        
+        return result
+    finally:
+        cursor.close()
+        

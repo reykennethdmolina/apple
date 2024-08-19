@@ -30,15 +30,15 @@
                         <div class="form-group col-sm-12 margin-bottom-10">
                             <div class="row">
                                 <div class="form-group col-sm-8 margin-bottom-0">
-                                    <label class="control-label small">SI Num</label><br>
+                                    <label class="control-label small">SI Number</label><br>
                                     <div class="input-daterange">
 										<div class="input-group">
 											<span class="input-group-addon input-sm">from</span>
-											<input type="number" class="form-control input-sm" id="cache_sinum_from" min="2017000000" max="2020000000">
+											<input type="number" class="form-control input-sm" id="cache_sinum_from" min="2017000000" max="2050000000">
 										</div>
 										<div class="input-group">
 											<span class="input-group-addon input-sm">to</span>
-											<input type="number" class="form-control input-sm" id="cache_sinum_to" min="2017000000" max="2020000000">
+											<input type="number" class="form-control input-sm" id="cache_sinum_to" min="2017000000" max="2050000000">
 										</div>
 									</div>
                                 </div>
@@ -68,14 +68,6 @@
 										</div>
 									</div>
                                 </div>
-                                {% comment %} <div class="form-group col-sm-4 margin-bottom-0">
-                                    <label class="control-label small">AR Type</label>
-                                    <select class="form-control input-sm" id="cache_artype">
-                                        <option value="">-- Select --</option>
-                                        <option value="A">Advertising</option>
-                                        <option value="C">Circulation</option>
-                                    </select>
-                                </div> {% endcomment %}
                             </div>
                         </div>
                         <div class="form-group col-sm-12 margin-bottom-10">
@@ -106,15 +98,6 @@
                         </div>
                         <div class="form-group col-sm-12 margin-bottom-10">
                             <div class="row">
-                                {% comment %} <div class="form-group col-sm-6 margin-bottom-0">
-                                    <label class="control-label small">Account Executive</label>
-                                    <select class="form-control input-sm select2" id="cache_accountexecutive">
-                                        <option value="">-- Select --</option>
-                                        {% for data in accountexecutive %}
-                                            <option value="{{ data.id }}">{{ data.firstname }} {{ data.lastname }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div> {% endcomment %}
                                 <div class="form-group col-sm-6 margin-bottom-0">
                                     <label class="control-label small">Customer</label>
                                     <select class="form-control input-sm select2" id="cache_customer">
@@ -218,20 +201,14 @@
                         JSON.parse(retrieveFilters)[0]['fil_sitype'],
                         JSON.parse(retrieveFilters)[0]['fil_sidate_from'],
                         JSON.parse(retrieveFilters)[0]['fil_sidate_to'],
-                        // JSON.parse(retrieveFilters)[0]['fil_artype'],
                         JSON.parse(retrieveFilters)[0]['fil_amount_from'],
                         JSON.parse(retrieveFilters)[0]['fil_amount_to'],
                         JSON.parse(retrieveFilters)[0]['fil_branch'],
-                        JSON.parse(retrieveFilters)[0]['fil_accountexecutive'],
                         JSON.parse(retrieveFilters)[0]['fil_customer'],
                         JSON.parse(retrieveFilters)[0]['fil_vat'],
                         JSON.parse(retrieveFilters)[0]['fil_outputvattype'],
-                        // JSON.parse(retrieveFilters)[0]['fil_deferredvat'],
                         JSON.parse(retrieveFilters)[0]['fil_wtax'],
-                        // JSON.parse(retrieveFilters)[0]['fil_bankaccount'],
-                        // JSON.parse(retrieveFilters)[0]['fil_government'],
                         JSON.parse(retrieveFilters)[0]['fil_particulars'],
-                        // JSON.parse(retrieveFilters)[0]['fil_product'],
                         JSON.parse(retrieveFilters)[0]['fil_remarks']
                 );
                 cachednavlink();
@@ -251,20 +228,14 @@
                     'cache_sitype': $("#cache_sitype").val(),
                     'cache_sidate_from': $("#cache_sidate_from").val(),
                     'cache_sidate_to': $("#cache_sidate_to").val(),
-                    // 'cache_artype': $("#cache_artype").val(),
                     'cache_amount_from': $("#cache_amount_from").val(),
                     'cache_amount_to': $("#cache_amount_to").val(),
                     'cache_branch': $("#cache_branch").val(),
-                    'cache_accountexecutive': $("#cache_accountexecutive").val(),
                     'cache_customer': $("#cache_customer").val(),
                     'cache_vat': $("#cache_vat").val(),
                     'cache_outputvattype': $("#cache_outputvattype").val(),
-                    // 'cache_deferredvat': $("#cache_deferredvat").val(),
                     'cache_wtax': $("#cache_wtax").val(),
-                    // 'cache_bankaccount': $("#cache_bankaccount").val(),
-                    // 'cache_government': $("#cache_government").val(),
                     'cache_particulars': $("#cache_particulars").val(),
-                    // 'cache_product': $("#cache_product").val(),
                     'cache_remarks': $("#cache_remarks").val(),
                     'table': main_table
                 },
@@ -285,20 +256,14 @@
                                 fil_sitype: $('#cache_sitype').val(),
                                 fil_sidate_from: $('#cache_sidate_from').val(),
                                 fil_sidate_to: $('#cache_sidate_to').val(),
-                                // fil_artype: $('#cache_artype').val(),
                                 fil_amount_from: $('#cache_amount_from').val(),
                                 fil_amount_to: $('#cache_amount_to').val(),
                                 fil_branch: $('#cache_branch').val(),
-                                fil_accountexecutive: $('#cache_accountexecutive').val(),
                                 fil_customer: $('#cache_customer').val(),
                                 fil_vat: $('#cache_vat').val(),
                                 fil_outputvattype: $('#cache_outputvattype').val(),
-                                // fil_deferredvat: $('#cache_deferredvat').val(),
                                 fil_wtax: $('#cache_wtax').val(),
-                                // fil_bankaccount: $('#cache_bankaccount').val(),
-                                // fil_government: $('#cache_government').val(),
                                 fil_particulars: $('#cache_particulars').val(),
-                                // fil_product: $('#cache_product').val(),
                                 fil_remarks: $('#cache_remarks').val()
                             });
                         localStorage.setItem('si_cachedItems', JSON.stringify(si_cachedItems));
@@ -321,29 +286,22 @@
 
         // fill form from cache function
         function cachedfillform(fil_sinum_from, fil_sinum_to, fil_sitype, fil_sidate_from, fil_sidate_to, 
-                                fil_amount_from, fil_amount_to, fil_branch, fil_accountexecutive, fil_customer, fil_vat,
+                                fil_amount_from, fil_amount_to, fil_branch, fil_customer, fil_vat,
                                 fil_outputvattype,fil_wtax,  fil_particulars, fil_remarks,
-                                // fil_deferredvat, fil_artype, fil_government, fil_bankaccount, fil_product,
                                 ){
             $('#cache_sinum_from').val(fil_sinum_from);
             $('#cache_sinum_to').val(fil_sinum_to);
             $('#cache_sitype').val(fil_sitype);
             $('#cache_sidate_from').val(fil_sidate_from);
             $('#cache_sidate_to').val(fil_sidate_to);
-            // $('#cache_artype').val(fil_artype);
             $('#cache_amount_from').val(fil_amount_from);
             $('#cache_amount_to').val(fil_amount_to);
             $('#cache_branch').val(fil_branch);
-            $('#cache_accountexecutive').val(fil_accountexecutive);
             $('#cache_customer').val(fil_customer);
             $('#cache_vat').val(fil_vat);
             $('#cache_outputvattype').val(fil_outputvattype);
-            // $('#cache_deferredvat').val(fil_deferredvat);
             $('#cache_wtax').val(fil_wtax);
-            // $('#cache_bankaccount').val(fil_bankaccount);
-            // $('#cache_government').val(fil_government);
             $('#cache_particulars').val(fil_particulars);
-            // $('#cache_product').val(fil_product);
             $('#cache_remarks').val(fil_remarks);
         }
 

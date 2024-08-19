@@ -30,7 +30,7 @@
                         </div>
                     </div>
                     <!-- pagination and search end -->
-                    {% if perms.salesinvoice.can_postor %}
+                    {% if perms.salesinvoice.can_postsi %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="approval" data-target='#approvalModal'>
                             <i class="icon fa-lock" aria-hidden="true"></i> Batch Approval
                         </button>
@@ -38,12 +38,15 @@
                             <i class="icon fa-lock" aria-hidden="true"></i> Ready For Posting
                         </button>
                     {% endif %}
-                    {% if perms.salesinvoice.change_ormain %}
+                    {% if perms.salesinvoice.change_simain %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
                             <i class="icon fa-search" aria-hidden="true"></i> Lookup
                         </button>
+                        <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#postJVModal'>
+                            <i class="icon fa-file" aria-hidden="true"></i> Auto JV
+                        </button>
                     {% endif %}
-                    {% if perms.salesinvoice.add_ormain %}
+                    {% if perms.salesinvoice.add_simain %}
                         <a href="{% url 'salesinvoice:create' %}"><button type="button" class="btn btn-success btn-sm waves-effect waves-light">
                             <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;New Sales Invoice
                         </button></a>
@@ -66,6 +69,7 @@
 {% include "salesinvoice/search.html" %}
 {% include "salesinvoice/posting.html" %}
 {% include "salesinvoice/approval.html" %}
+{% include "salesinvoice/jvposting.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}

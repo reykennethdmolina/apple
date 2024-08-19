@@ -67,7 +67,7 @@
             border-bottom: 1px solid black;
             padding-bottom: 0;
             padding: 0;
-            padding-top: -10px;
+            padding-top: -7px;
             z-index: 0;
         }
         .signature-container {
@@ -233,39 +233,72 @@
 </table>
 <table style="margin-top: 30px;">
     <tr>
-        <td width="80%">
-            
-        </td>
-        <td width="40px"></td>
-        <td width="50%">
+        <td width="35%">
             <table style="font-weight: 400">
                 <tr>
-                    <td style="border-top: 2px solid black; border-left: 2px solid black; padding-top: 5px; padding-left: 3px;"><b>VATable Sale:</b></td>
-                    <td style="margin-right: 5px; text-align: right; border-top: 2px solid black; border-right: 2px solid black; padding-top: 5px;"><b>{{ simain.vatablesale|floatformat:2|intcomma }}</b></td>
+                    <td style="border-top: 1px solid black; border-left: 1px solid black; padding-top: 5px; padding-left: 3px;"><b>VATable Sales</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-top: 1px solid black; border-right: 1px solid black; padding-top: 5px;"><b>{{ simain.vatablesale|floatformat:2|intcomma }}</b></td>
                 </tr>
                 <tr>
-                    <td style="border-left: 2px solid black; padding-left: 3px;"><b>Plus: {% if simain.vatrate > 0 %} {{ simain.vatrate }}% {% endif %}VAT:</b></td>
-                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black;"><b>{{ simain.vatamount|floatformat:2|intcomma }}</b></td>
+                    <td style="border-left: 1px solid black; padding-left: 3px;"><b>VAT</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 1px solid black;"><b>{{ simain.vatamount|floatformat:2|intcomma }}</b></td>
                 </tr>
                 <tr>
-                    <td style="border-left: 2px solid black; padding-left: 3px;"><b>VAT-Exempt Sale:</b></td>
-                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black;"><b>{{ simain.vatexemptsale|floatformat:2|intcomma }}</b></td>
+                    <td style="border-left: 1px solid black; padding-left: 3px;"><b>VAT Zero Rated</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 1px solid black; "><b>{{ simain.vatzeroratedsale|floatformat:2|intcomma }}</b></td>
                 </tr>
                 <tr>
-                    <td style="border-left: 2px solid black; padding-left: 3px;"><b>VAT Zero-Rated Sale:</b></td>
-                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black;"><b>{{ simain.vatzeroratedsale|floatformat:2|intcomma }}</b></td>
+                    <td style="border-left: 1px solid black; border-bottom: 1px solid black; padding-left: 3px;"><b>VAT-Exempt Sales</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 1px solid black; border-bottom: 1px solid black;"><b>{{ simain.vatexemptsale|floatformat:2|intcomma }}</b></td>
                 </tr>
                 <tr>
-                    <td style="border-left: 2px solid black; padding-left: 3px;"><b>Withholding Tax:</b></td>
-                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black; border-bottom: 1px solid black; padding-bottom: -3px;"><b>({{ simain.wtaxamount|floatformat:2|intcomma }})</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td style="border-left: 2px solid black; padding-left: 3px; padding-top: 4px;"><b>Total Amount Due:</b></td>
-                    <td style="margin-right: 5px; text-align: right; border-right: 2px solid black; padding-top: 4px;"><b>{{ simain.totalsale|floatformat:2|intcomma }}</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td style="border-left: 2px solid black; border-bottom: 2px solid black;">&nbsp;</td>
-                    <td style="border-right: 2px solid black; border-bottom: 2px solid black;">=====================</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </td>
+        <td width="25%"></td>
+        <td width="40%">
+            <table style="font-weight: 400">
+                <tr>
+                    <td style="border-top: 1px solid black; border-left: 1px solid black; padding-top: 5px; padding-left: 3px;"><b>Total Sales (VAT Inclusive)</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-top: 1px solid black; border-right: 1px solid black; padding-top: 5px;"><b>{{ simain.amount|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 1px solid black; padding-left: 3px;"><b>Less: VAT</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 1px solid black; border-bottom: 1px solid black;"><b>{{ simain.vatamount|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 1px solid black; padding-left: 3px; padding-top: 4px;"><b>Amount: Net of VAT</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 1px solid black; padding-top: 4px;"><b>{{ computed.net_of_vat|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 1px solid black; padding-left: 3px;"><b>Less: Discount</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 1px solid black;"><b>0.00</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 1px solid black; padding-left: 3px;"><b>Add: VAT</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 1px solid black;"><b>{{ simain.vatamount|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 1px solid black; padding-left: 3px;"><b>Less: Withholding Tax</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 1px solid black; border-bottom: 1px solid black; padding-bottom: -3px;"><b>{{ simain.wtaxamount|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 1px solid black; padding-left: 3px; padding-top: 5px;"><b>TOTAL AMOUNT DUE</b></td>
+                    <td style="margin-right: 5px; text-align: right; border-right: 1px solid black; padding-top: 4px;"><b>{{ simain.totalsale|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td style="border-left: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+                    <td style="border-right: 1px solid black; border-bottom: 1px solid black;"><b>=======================</b></td>
                 </tr>
             </table>
         </td>

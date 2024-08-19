@@ -4,13 +4,11 @@
     {% load static %}
     {% load humanize %}
     {% load pdf_filters %}
-    {% load custom %}
-    {% load si_custom_tags %}
     <meta charset="UTF-8">
     <title>{{ report_type }} {{ report_subtype }}</title>
     <style>
         @page {
-            size: LETTER LANDSCAPE;
+            size: LETTER PORTRAIT;
             @frame header_frame {
                 -pdf-frame-content: header_content;
                 left: 1cm;
@@ -23,7 +21,7 @@
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 6cm; left: 1cm; width: 26cm; height: 14.7cm;
+                top: 6cm; left: 1cm; width: 19.5cm; height: 21cm;
             }
         }
         body{
@@ -90,77 +88,60 @@
         <table>
             <tr>
                 <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
-                <td width="50%" colspan="2"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address1 }}</p></td>
-                <td width="50%" colspan="2"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address2 }}</p></td>
-                <td width="50%"></td>
             </tr>
             <tr>
                 <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
-                <td width="50%"></td>
             </tr>
             <tr>
                 <td width="50%"></td>
-                <td width="50%"></td>
             </tr>
             <tr>
-                <td width="92%"><p class="title">{{ title|upper }}</p></td>
-                <td width="10%"></td>
+                <td width="75%"><p class="title">{{ title|upper }}</p></td>
             </tr>
             <tr>
-                <td width="75%"><p>for the period {{ datefrom|date:'M d, Y' }} to {{ dateto|date:'M d, Y' }}</p></td>
+                <td width="75%"><p class="title">{{ subtitle|upper }}</p></td>
+            </tr>
+            <tr>
+                <td width="75%"><p class="subtitle">for the period {{ datefrom }} to {{ dateto }}</p></td>
             </tr>
         </table>
 
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:200px;">Payee <br> Particulars</th>
-                    <th style="text-align:right;width:110px;">Output VAT <br> Debit</th>
-                    <th style="text-align:right;width:110px;">Output VAT <br> Credit</th>
-                    <th style="text-align:right;width:100px;">VAT Rate</th>
-                    <th style="text-align:center;width:280px;"><br> Address</th>
-                    <th style="text-align:center;width:90px;"><br> TIN</th>
+                    <th style="text-align:left;width:180px">Bank Account</th>
+                    <th style="text-align:left;width:450px">Bank Description</th>
+                    <th style="text-align:center;width:180px">Debit</th>
+                    <th style="text-align:center;width:180px">Credit</th>
                 </tr>
             </thead>
         </table>
     </div>
 </div>
-{{ item }}
+
 <table id="content-data">
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;vertical-align:top;width:200px;">{{ item.name }}</td>
-            <td style="text-align:right;vertical-align:top;width:50px;">{{ item.outputvatdebitamount|default:"0.00"|floatformat:2|intcomma }}</td>
-            <td style="text-align:right;vertical-align:top;width:50px;">{{ item.outputvatcreditamount|default:""|floatformat:2|intcomma }}</td>
-            <td style="text-align:right;vertical-align:top;width:80px;">{{ item.outputvatrate|default:""|intcomma }}&nbsp;&nbsp;&nbsp;&nbsp;</td>
-            <td style="text-align:left;vertical-align:top;width:280px;">{{ item.address1 }} {{ item.address2 }} {{ item.address3 }}</td>
-            <td style="text-align:left;vertical-align:top;width:120px;">{{ item.tin|default:""|format_tin }}</td>
+            <td style="text-align:left;width:180px">{{ item.bankaccount__code|upper }}</td>
+            <td style="text-align:left;width:450px">{{ item.bankaccount__bank__code|default:'' }} {{ item.bankaccount__bankaccounttype__code|default:'' }}{% if item.bankaccount__code %}A{% endif %}</td>
+            <td style="text-align:right;width:180px">{{ item.debitdifference|default:''|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:180px">{{ item.creditdifference|default:''|floatformat:2|intcomma }}</td>
         </tr>
     {% endfor %}
     <tr>
-        <td colspan="1"></td>
-        <td style="border-top:2px solid #000;padding:5px;;width:120px;"></td>
-        <td style="border-top:2px solid #000;padding:5px;;width:120px;"></td>
-        <td colspan="3"></td>
-    </tr>
-    <tr>
-        <td style="text-align:right;vertical-align:top;margin-right:20px;"><b>Total</b></td>
-        <td style="text-align:right;width:120px;vertical-align:top;"><b>{{ total.outputdebit|floatformat:2|intcomma }}</b></td>
-        <td style="text-align:right;width:120px;vertical-align:top;"><b>{{ total.outputcredit|floatformat:2|intcomma }}</b></td>
-        <td colspan="3"></td>
-    </tr>
-    <tr>
-        <td colspan="1"></td>
-        <td style="border-top:2px solid #000;padding:5px;;width:120px;"></td>
-        <td style="border-top:2px solid #000;padding:5px;;width:120px;"></td>
-        <td colspan="3"></td>
+        <td style="text-align:left;width:180px"></td>
+        <td style="text-align:right;width:400px"><b>TOTAL</b></td>
+        <td style="text-align:right;width:180px"><b><u>{{ total.debitdifference__sum|default:''|floatformat:2|intcomma }}</u></b></td>
+        <td style="text-align:right;width:180px"><b><u>{{ total.creditdifference__sum|default:''|floatformat:2|intcomma }}</u></b></td>
     </tr>
     </tbody>
 </table>
