@@ -137,7 +137,7 @@
             <td style="text-align:left;width:300px;vertical-align:top;">{{ item.name|upper }}</td>
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.tin|format_tin }}</td>
             <td style="text-align:left;width:350px;vertical-align:top;">{{ item.address }}</td>
-            <td style="text-align:right;width:130px;vertical-align:top;">{{ item.vatablesale|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:130px;vertical-align:top;">{{ item.total_vatsale|floatformat:2|intcomma }}</td>
             <td style="text-align:right;width:130px;vertical-align:top;">{{ item.discountamount|default:""|floatformat:2|intcomma }}</td>
             <td style="text-align:right;width:130px;vertical-align:top;">{{ item.vatamount|floatformat:2|intcomma }}</td>
             <td style="text-align:right;width:130px;vertical-align:top;">{{ item.amount|floatformat:2|intcomma }}</td>

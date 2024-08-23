@@ -147,8 +147,9 @@
                             <label class="control-label" for="id_customer">Customer</label>
                             <select class="form-control input-sm" id="id_customer" name="customer" data-validation="required">
                                 <option value="">-- Select --</option>
+                                <option value="{{ form.customer.value }}" >{{ form.customer.name }}</option>
                                 {% for data in customer %}
-                                    <option value="{{ data.id }}" {% if form.customer.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.name }}</option>
+                                    <option value="{{ data.id }}" {% if form.customer.value == data.id %} selected="selected" {% endif %}>{{ data.name }}</option>
                                 {% endfor %}
                             </select>
                             <span class="help-block form-error">{{ form.customer.errors.as_text }}</span>
@@ -164,18 +165,6 @@
                             <span class="help-block form-error">{{ form.duedate.errors.as_text }}</span>
                         </div>
                     </div>
-                    {% comment %} <div class="col-sm-12">
-                        <div class="form-group col-sm-3 {{ form.accountexecutive.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_accountexecutive">Account Executive</label>
-                            <select class="form-control input-sm select2" id="id_accountexecutive" name="accountexecutive">
-                                <option value="">-- Select --</option>
-                                {% for data in accountexecutive %}
-                                    <option value="{{ data.id }}" {% if form.accountexecutive.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.firstname }} {{ data.lastname }}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.accountexecutive.errors.as_text }}</span>
-                        </div>
-                    </div> {% endcomment %}
                     <div class="col-sm-12">
                         <!------------REQUIRE THE VISIBLE PAYEE TYPE--------------------------------------------->
                         <div class="col-md-12"><hr></div>

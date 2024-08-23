@@ -36,7 +36,7 @@
                     <table class="table table-sm">
                         <thead>
                         <tr>
-                            <th scope="row"><input type="checkbox" id="checkAll"></th>
+                            <td scope="row"><input type="checkbox" id="checkAll"></td>
                             <td scope="row">SI Number</td>
                             <td scope="row">SI Date</td>
                             <td scope="row">Creator</td>
@@ -58,7 +58,11 @@
 <script>
     $(function() {
         $('#siposting_search').on('click', function() {
-            loadData();
+            if($('#posting_sidate_from').val() !== '' && $('#posting_sidate_to').val() !== ''){
+                loadData();
+            } else {
+                alert('Sales Invoice Date range is required.');
+            }
         });
 
         function loadData()
@@ -71,7 +75,11 @@
                         'dto': $('#posting_sidate_to').val(),
                     },
                 success: function(response){
-                    $("#postingresult").html(response['viewhtml']);
+                    if(response['viewhtml'] == ''){
+                        $("#postingresult").html('<tr><td colspan="5" class="text-center"><br><br><b>No data found.</b></td></tr>');
+                    } else {
+                        $("#postingresult").html(response['viewhtml']);
+                    }
                 }, error: function(response) {
                     console.debug(response);
                 }

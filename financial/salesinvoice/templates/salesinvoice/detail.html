@@ -252,10 +252,37 @@
                                             </tr>
                                             <tr>
                                                 <td><small><b>Total&nbsp;Amount&nbsp;Due:</b></small></td>
-                                                <td class="form-group form-material"><input type="text" id="disp_totalpay" class="form-control input-sm amount amount_display" disabled="disabled" value="{{ object.totalsale|floatformat:2|intcomma }}"></td>
+                                                <td class="form-group form-material"><input type="text" id="disp_totalpay" class="form-control input-sm amount amount_display" disabled="disabled" value="{{ object.amount|floatformat:2|intcomma }}"></td>
                                             </tr>
                                             <tr>
                                                 <td colspan="2" style="text-align: right; padding-right: 0px; padding-top: 10px;"><code id="disp_note">Noted: {{ object.wtaxrate }}% w/tax -------> {{ object.wtaxamount|floatformat:2|intcomma }}</code></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row col-md-4">
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Reference Transaction</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body">
+                                    <div class="master-degree">
+                                        <table class="vattable">
+                                            <tr>
+                                                <td>Journal Voucher</td>
+                                                {% if object.jvmain_id %}
+                                                <td class="form-group form-material"><a href="{% url 'journalvoucher:detail' object.jvmain.id %}" target="_blank">JV{{ object.jvmain.jvnum }}</a></td>
+                                                {% endif %}
                                             </tr>
                                         </table>
                                     </div>

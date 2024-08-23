@@ -19,7 +19,7 @@
             {% for data in data_list %}
             <tr>
                 <td>{{ data.id }}</td>
-                <td>{{ data.sinum }}</td>
+                <td id="si{{ data.id }}">{{ data.sinum }}</td>
                 <td>{{ data.sidate|date:"Y-m-d" }}</td>
                 <td>{{ data.customer.name }}</td>
                 <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
@@ -61,7 +61,7 @@
                                 </button>
                                 {% endif %}
                             {% else %}
-                                {% if perms.salesinvoice.can_postjv %}
+                                {% if perms.salesinvoice.can_postsitojv %}
                                 <button class="btn btns-icon btn-warning btn-round waves-effect waves-light btn-removereadytopost" id="btnRP{{ data.id }}" data-num="{{ data.sinum }}" data-id="{{ data.id }}">
                                 <i class="icon fa-unlock-alt" aria-hidden="true"></i>
                                 </button>
@@ -158,8 +158,9 @@
         });
 
         $('.btn-approve').on('click', function(){
-            if (confirm('Are you sure you want to approved this SI?')) {
-                var id = $(this).data('id');
+            var id = $(this).data('id');
+            var sinum = $('#si'+id).text();
+            if (confirm('Are you sure you want to approve SI#'+sinum+'?')) {
                 $.ajax({
                     url: "{% url 'salesinvoice:approve' %}",
                     type: "post",

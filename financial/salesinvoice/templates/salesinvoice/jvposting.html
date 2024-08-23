@@ -37,10 +37,10 @@
                     <table class="table table-sm">
                         <thead>
                             <tr>
-                            <th scope="row"><input type="checkbox" id="checkAllJV"></th>
-                            <td scope="row">SI Num</td>
-                            <td scope="row">SI Date</td>
-                            <td scope="row">Customer</td>
+                                <td scope="row"><input type="checkbox" id="checkAllJV"></td>
+                                <td scope="row">SI Num</td>
+                                <td scope="row">SI Date</td>
+                                <td scope="row">Customer</td>
                             </tr>
                         </thead>
                         <tbody class="postingresult">
@@ -58,7 +58,11 @@
 <script>
     $(function() {
         $('#posting_search').on('click', function() {
-            loadData();
+            if($('#jvposting_date_from').val() !== '' && $('#jvposting_date_to').val() !== ''){
+                loadData();
+            } else {
+                alert('SI Date range is required.');
+            }
         });
 
         function loadData()
@@ -71,11 +75,10 @@
                         'dto': $('#jvposting_date_to').val(),
                     },
                 success: function(response){
-                    console.log(response)
-                    if(response.status == 'success' && response['viewhtml'] !== ""){
+                    if(response['viewhtml']){
                         $(".postingresult").html(response['viewhtml']);
                     } else {
-                        alert('No results found.');
+                        $(".postingresult").html('<tr><td colspan="4" class="text-center"><br><br><b>No data found.</b></td></tr>');
                     }
                 }, error: function(response) {
                     console.debug(response);

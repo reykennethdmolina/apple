@@ -30,9 +30,9 @@
                         </div>
                     </div>
                     <!-- pagination and search end -->
-                    {% if perms.salesinvoice.can_postsi %}
+                    {% if perms.salesinvoice.can_postsimain %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="approval" data-target='#approvalModal'>
-                            <i class="icon fa-lock" aria-hidden="true"></i> Batch Approval
+                            <i class="icon fa-check" aria-hidden="true"></i> Batch Approval
                         </button>
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="posting" data-target='#postingModal'>
                             <i class="icon fa-lock" aria-hidden="true"></i> Ready For Posting

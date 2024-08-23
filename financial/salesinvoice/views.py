@@ -58,7 +58,7 @@ class IndexView(AjaxListView):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
             query = query.filter(Q(sinum__icontains=keysearch) |
                                     Q(sidate__icontains=keysearch) |
-                                    Q(payee_name__icontains=keysearch) |
+                                    Q(customer__name__icontains=keysearch) |
                                     Q(amount__icontains=keysearch))
             
         return query
@@ -150,7 +150,7 @@ class CreateView(CreateView):
         self.object.modifyby = self.request.user
         self.object.save()
 
-        non_vat_amount = decimal.Decimal(self.object.amount) / (1 + (decimal.Decimal(self.object.vatrate) / decimal.Decimal(100)) - (decimal.Decimal(self.object.wtaxrate) / decimal.Decimal(100)))
+        non_vat_amount = decimal.Decimal(self.object.amount) / (1 + (decimal.Decimal(self.object.vatrate) / decimal.Decimal(100)))
 
         if self.object.vatrate > 0:
             self.object.vatablesale = non_vat_amount
@@ -210,8 +210,12 @@ def lastNumber(param):
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
+    print 'result', result
+    if result:
+        return result[0]
+    else:
+        return ['000000']
 
-    return result[0]
 
 @method_decorator(login_required, name='dispatch')
 class UpdateView(UpdateView):
@@ -383,8 +387,7 @@ class UpdateView(UpdateView):
         #     self.object.circulationproduct_code = self.object.circulationproduct.code
         #     self.object.circulationproduct_name = self.object.circulationproduct.description
 
-        self.object.save(update_fields=['vatamount', 'wtaxamount', 'vatablesale', 'vatexemptsale', 'vatzeroratedsale',
-                                        'totalsale'])
+        self.object.save(update_fields=['vatamount', 'wtaxamount', 'vatablesale', 'vatexemptsale', 'vatzeroratedsale', 'totalsale'])
 
         # save sidetailtemp to sidetail
         source = 'sidetailtemp'
@@ -431,13 +434,13 @@ class DetailView(DetailView):
         context['uploadlist'] = Siupload.objects.filter(simain_id=self.object.pk).order_by('enterdate')
         
         # save si logs
-        Silogs.objects.create(
-            user=self.request.user,
-            username=self.request.user,
-            action_type='view',
-            action_datetime=datetime.datetime.now(),
-            remarks="SI view detail ID: "+str(self.kwargs['pk'])
-        )
+        # Silogs.objects.create(
+        #     user=self.request.user,
+        #     username=self.request.user,
+        #     action_type='view',
+        #     action_datetime=datetime.datetime.now(),
+        #     remarks="SI view detail ID: "+str(self.kwargs['pk'])
+        # )
 
         return context
     
@@ -482,13 +485,13 @@ class Pdf(PDFTemplateView):
         main.save()
         
         # save si logs
-        Silogs.objects.create(
-            user=self.request.user,
-            username=self.request.user,
-            action_type='view',
-            action_datetime=datetime.datetime.now(),
-            remarks="SI view PDF invoice ID: "+str(self.kwargs['pk'])
-        )
+        # Silogs.objects.create(
+        #     user=self.request.user,
+        #     username=self.request.user,
+        #     action_type='view',
+        #     action_datetime=datetime.datetime.now(),
+        #     remarks="SI view PDF invoice ID: "+str(self.kwargs['pk'])
+        # )
         
         return context
 
@@ -615,20 +618,20 @@ def searchforposting(request):
 
         dfrom = request.POST['dfrom']
         dto = request.POST['dto']
-
-        q = Simain.objects.filter(isdeleted=0,status='A',sistatus='A').order_by('sinum', 'sidate')
-        if dfrom != '':
-            q = q.filter(sidate__gte=dfrom)
-        if dto != '':
-            q = q.filter(sidate__lte=dto)
-
-        context = {
-            'data': q
-        }
-        data = {
-            'status': 'success',
-            'viewhtml': render_to_string('salesinvoice/postingresult.html', context),
-        }
+        if dfrom != '' and dto != '':
+            q = Simain.objects.filter(sidate__gte=dfrom, sidate__lte=dto, isdeleted=0,status='A',sistatus='A').order_by('sinum', 'sidate')
+            
+            context = {
+                'data': q
+            }
+            data = {
+                'status': 'success',
+                'viewhtml': render_to_string('salesinvoice/postingresult.html', context),
+            }
+        else:
+            data = {
+                'status': 'error',
+            }
     else:
         data = {
             'status': 'error',
@@ -779,7 +782,7 @@ def approve(request):
                 Activitylogs.objects.create(
                     user_id=request.user.id,
                     username=request.user,
-                    remarks='Aproved SI Transaction #' + str(approval.sinum)
+                    remarks='Approved SI Transaction #' + str(approval.sinum)
                 )
                 
                 # save si logs
@@ -958,7 +961,7 @@ class GeneratePDF(View):
         sistatus = request.GET['sistatus']
         title = "Sales Invoice List"
         list = Simain.objects.filter(isdeleted=0).order_by('sinum')[:0]
-
+        
         if report == '1':
             title = "Invoice Register"
             q = Simain.objects.all().filter(isdeleted=0).order_by('sidate', 'sinum')
@@ -969,7 +972,7 @@ class GeneratePDF(View):
         elif report == '2':
             title = "Sales Book"
             
-            q = Simain.objects.filter(isdeleted=0).order_by('sidate', 'sinum')
+            q = Simain.objects.filter(isdeleted=0).annotate(total_vatsale=F('vatablesale') + F('vatexemptsale') + F('vatzeroratedsale')).order_by('sidate', 'sinum')
             if dfrom != '':
                 q = q.filter(sidate__gte=dfrom)
             if dto != '':
@@ -1048,7 +1051,7 @@ class GeneratePDF(View):
             total_netsale = 0
             if list:
                 df = pd.DataFrame(query)
-                total_amount = df['vatablesale'].sum()
+                total_amount = df['total_vatsale'].sum()
                 total_discountamount = df['discountamount'].sum()
                 total_vatamount = df['vatamount'].sum()
                 total_netsale = df['amount'].sum()
@@ -1088,7 +1091,7 @@ class GeneratePDF(View):
         if list:
 
             if report == '2':
-                total = list.aggregate(total_amount=Sum('vatablesale'), total_discountamount=Sum('discountamount'), total_vatamount=Sum('vatamount'), total_netsale=Sum('amount'))
+                total = list.aggregate(total_amount=Sum('total_vatsale'), total_discountamount=Sum('discountamount'), total_vatamount=Sum('vatamount'), total_netsale=Sum('amount'))
             elif report == '8' or report == '9' or report == '10' or report == '11':
                 total = {'outputcredit': outputcredit, 'outputdebit': outputdebit, 'amount': amount}
             elif report == '3':
@@ -2148,7 +2151,8 @@ def query_salesbooksummary(dfrom, dto, silist):
 
     query = "SELECT c.name, c.tin, " \
             "CONCAT(IFNULL(c.address1, ''), ' ', IFNULL(c.address2, ''), ' ', IFNULL(c.address3, '')) AS address, " \
-            "SUM(IFNULL(m.vatablesale, 0)) AS vatablesale, SUM(IFNULL(m.discountamount, 0)) AS discountamount, SUM(IFNULL(m.vatamount, 0)) AS vatamount, SUM(IFNULL(m.amount, 0)) AS amount " \
+            "SUM(IFNULL(m.vatablesale, 0) + IFNULL(m.vatexemptsale, 0) + IFNULL(m.vatzeroratedsale, 0)) AS total_vatsale, " \
+            "SUM(IFNULL(m.discountamount, 0)) AS discountamount, SUM(IFNULL(m.vatamount, 0)) AS vatamount, SUM(IFNULL(m.amount, 0)) AS amount " \
             "FROM simain AS m " \
             "LEFT OUTER JOIN customer AS c ON c.id = m.customer_id " \
             "WHERE DATE(m.sidate) >= '"+str(dfrom)+"' AND DATE(m.sidate) <= '"+str(dto)+"' " \
@@ -2425,11 +2429,10 @@ def generatedefaultentries(request):
             if entries.credit1:
                 accountcode = entries.credit1.accountcode
                 firstfourdigits = str(accountcode)[0:4]
-                print 'vatrate', Vat.objects.get(pk=int(request.POST['vat'])).rate, firstfourdigits
+                
                 if firstfourdigits == '2146':
                     # outputvat
                     if Vat.objects.get(pk=vat_id).rate > 0:
-                        print 'ddi'
                         creditamount = addvat
                     else:
                         creditamount = 0
@@ -2440,8 +2443,7 @@ def generatedefaultentries(request):
                         creditamount = vatexempt
                     elif Vat.objects.get(pk=vat_id).code == 'ZE' or Vat.objects.get(pk=vat_id).code == 'VATNA':
                         creditamount = vatzero
-                    print 'credit1 other income', creditamount
-                print entries.credit1.description
+                
                 if creditamount:
                     credit1entry = Sidetailtemp()
                     credit1entry.item_counter = itemcounter
@@ -2460,15 +2462,14 @@ def generatedefaultentries(request):
             if entries.credit2:
                 accountcode = entries.credit2.accountcode
                 firstfourdigits = str(accountcode)[0:4]
-                print 'vatrate', Vat.objects.get(pk=int(request.POST['vat'])).rate, firstfourdigits
+                
                 if firstfourdigits == '2146':
                     # outputvat
                     if Vat.objects.get(pk=vat_id).rate > 0:
-                        print 'ddi'
                         creditamount = addvat
                     else:
                         creditamount = 0
-                    print 'creditamount2 outputvat', creditamount
+                    
                 else:
                     # other income
                     if vatable > 0:
@@ -2477,8 +2478,7 @@ def generatedefaultentries(request):
                         creditamount = vatexempt
                     elif Vat.objects.get(pk=vat_id).code == 'ZE' or Vat.objects.get(pk=vat_id).code == 'VATNA':
                         creditamount = vatzero
-                    print 'credit2 other income', creditamount
-                print entries.credit2.description
+                
                 if creditamount:
                     credit2entry = Sidetailtemp()
                     credit2entry.item_counter = itemcounter
@@ -2517,7 +2517,7 @@ def generatedefaultentries(request):
             }
 
     return JsonResponse(data)
-        
+    
 
 @csrf_exempt
 def searchforpostingJV(request):
@@ -2525,20 +2525,20 @@ def searchforpostingJV(request):
 
         dfrom = request.POST['dfrom']
         dto = request.POST['dto']
+        if dfrom and dto:
+            q = Simain.objects.filter(sidate__gte=dfrom, sidate__lte=dto, isdeleted=0, status='A', sistatus='R').exclude(jvmain_id__isnull=False).order_by('sinum', 'sidate')
 
-        q = Simain.objects.filter(isdeleted=0, status='A', sistatus='R').exclude(jvmain_id__isnull=False).order_by('sinum', 'sidate')
-        if dfrom != '':
-            q = q.filter(sidate__gte=dfrom)
-        if dto != '':
-            q = q.filter(sidate__lte=dto)
-        print 'main', q
-        context = {
-            'data': q
-        }
-        data = {
-            'status': 'success',
-            'viewhtml': render_to_string('salesinvoice/jvpostingresult.html', context),
-        }
+            context = {
+                'data': q
+            }
+            data = {
+                'status': 'success',
+                'viewhtml': render_to_string('salesinvoice/jvpostingresult.html', context),
+            }
+        else:
+            data = {
+                'status': 'error',
+            }
     else:
         data = {
             'status': 'error',
@@ -2571,11 +2571,14 @@ def gopostjv(request):
 
         ids = request.POST.getlist('ids[]')
         pdate = request.POST['postdate']
-
-        # data = Simain.objects.filter(pk__in=ids).filter(isdeleted=0,status='A',sistatus='R')
-        entries = Sidetail.objects.all().filter(isdeleted=0, simain_id__in=ids).exclude(simain__status='C')
+            
+        counter = 1
+        amount = 0
+            
+        for id in ids:
+            entries = Sidetail.objects.filter(simain_id=id, isdeleted=0).exclude(simain__status='C')
         
-        entries = entries.values('chartofaccount__accountcode','chartofaccount__description', 'balancecode', \
+            entries = entries.values('si_num', 'simain__particulars', 'chartofaccount__accountcode','chartofaccount__description', 'balancecode', \
                 'ataxcode_id', 'bankaccount_id', 'branch_id', 'chartofaccount_id', 'customer_id', 'department_id', \
                     'employee_id', 'inputvat_id', 'outputvat_id', 'product_id', 'unit_id', 'vat_id', 'wtax_id') \
             .annotate(Sum('debitamount'), Sum('creditamount'),
@@ -2584,8 +2587,7 @@ def gopostjv(request):
                         creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
                                             default=Sum('creditamount') - Sum('debitamount'))) \
             .order_by('chartofaccount__accountcode')
-        
-        if entries:
+            
             jvnumlast = lastJVNumber('true')
             latestjvnum = str(jvnumlast[0])
             jvnum = pdate[:4]
@@ -2595,24 +2597,22 @@ def gopostjv(request):
                 jvnum += '0'
             jvnum += last
 
-            print 'hoy'
-            print 'jvnum', jvnum
-            strpdate = dt.strptime(pdate, '%Y-%m-%d')
-            billingremarks = ''
+            # strpdate = dt.strptime(pdate, '%Y-%m-%d')
+            sinum = entries[0]['si_num']
+            # billingremarks = ''
             
             main = Jvmain.objects.create(
                 jvnum = jvnum,
                 jvdate = pdate,
                 jvtype_id = 1, # No JV Type - CHANGE THIS
-                jvsubtype_id = 2, # Manual JV - CHANGE THIS
+                jvsubtype_id = 20, # Manual JV - CHANGE THIS
                 branch_id = 5, # Head Office
-                # department_id = si.department_id,
-                refnum = jvnum,
-                particular = 'SI for the month of '+strpdate.strftime('%B %Y'),
+                refnum = sinum,
+                particular = '[SI'+str(sinum)+ '] '+ entries[0]['simain__particulars'],
                 currency_id = 1,
                 fxrate = 1,
-                designatedapprover_id = 339, # Janna De Jesus
-                actualapprover_id = 339, # Janna De Jesus
+                designatedapprover_id = 356, # Edsa Lanuza
+                actualapprover_id = 356, # Edsa Lanuza
                 approverremarks = 'Auto approved from SI Posting',
                 responsedate = datetime.datetime.now(),
                 jvstatus = 'A',
@@ -2621,9 +2621,6 @@ def gopostjv(request):
                 modifyby_id = request.user.id,
                 modifydate = datetime.datetime.now()
             )
-            
-            counter = 1
-            amount = 0
             
             for entry in entries:
                 amount += entry['debitdifference']
@@ -2656,13 +2653,16 @@ def gopostjv(request):
                 )
                 counter += 1
             
+            Simain.objects.filter(pk=id).update(
+                jvmain_id = main.id,
+                remarks = 'Sales Invoice ['+str(sinum)+']'
+            )
+            
             main.amount = amount
             main.save()
-
-            simain = Simain.objects.filter(id__in=ids).update(
-                jvmain_id = main.id,
-                remarks = 'Sales Invoice - JV '+str(jvnum)
-            )
+            
+            amount = 0
+            counter = 0
 
         data = {'status': 'success'}
     else:
