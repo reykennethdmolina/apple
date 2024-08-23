@@ -29,14 +29,14 @@
                         <button type="button" class="btn btn-info btn-sm" id="siapproval_search"><i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search</button>
                     </div>
                 </div>
-                <br><strong>Sales Invoice Ready for Posting</strong>
+                <br><strong>Sales Invoice Approval</strong>
                 <button type="button" class="btn btn-round btn-success btn-sm" id="goapprove">Batch Approved</button>
                 <br><br>
                 <div class="well well-sm pre-scrollable" style="margin-bottom: 0px;min-height:400px;">
                     <table class="table table-sm">
                         <thead>
                             <tr>
-                            <th scope="row"><input type="checkbox" id="checkAllAPP"></th>
+                            <td scope="row"><input type="checkbox" id="checkAllAPP"></td>
                             <td scope="row">SI Number</td>
                             <td scope="row">SI Date</td>
                             <td scope="row">Creator</td>
@@ -71,7 +71,11 @@
                         'dto': $('#approval_sidate_to').val(),
                     },
                 success: function(response){
-                    $("#approvalresult").html(response['viewhtml']);
+                    if(response['viewhtml'].replace(/(\r\n|\n|\r)/gm, "") === ""){
+                        $("#approvalresult").html('<tr><td colspan="5" class="text-center"><br><br><b>No data found.</b></td></tr>');
+                    } else {
+                        $("#approvalresult").html(response['viewhtml']);
+                    }
                 }, error: function(response) {
                     console.debug(response);
                 }
@@ -98,7 +102,7 @@
                         },
                     success: function(response){
                         loadData();
-                        alert('Data set for posting is success. This window will reload!');
+                        alert('Data set for approval has been successful! This window will reload.');
                         location.reload().delay(800);
                     }, error: function(response) {
                         console.debug(response);
