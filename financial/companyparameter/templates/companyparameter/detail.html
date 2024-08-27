@@ -397,6 +397,30 @@
                             </div>
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">Accounts Receivable Suspense&nbsp;: </span>
+                                    <span class="detail-profile">[{{ object.coa_receivablesuspense.accountcode }}] - {{ object.coa_receivablesuspense.description }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">Accounts Receivable Suspense&nbsp;: </span>
+                                    <span class="detail-profile">[{{ object.coa_receivablesuspense.accountcode }}] - {{ object.coa_receivablesuspense.description }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">Prepaid Expense&nbsp;: </span>
+                                    <span class="detail-profile">[{{ object.coa_prepaidexp.accountcode }}] - {{ object.coa_prepaidexp.description }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">Accrued Expense&nbsp;: </span>
+                                    <span class="detail-profile">[{{ object.coa_accruedexp.accountcode }}] - {{ object.coa_accruedexp.description }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
                                     <span class="text-name-profile text-info">Bank Account&nbsp;: </span>
                                     <span class="detail-profile">{% if object.def_bankaccount %}{{ object.def_bankaccount.code }} [{{ object.def_bankaccount.bank.description }} - {{ object.def_bankaccount.bankaccounttype.description }}, {{ object.def_bankaccount.bankbranch.description }}]{% else %}N/A{% endif %}</span>
                                 </div>

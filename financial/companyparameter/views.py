@@ -58,7 +58,8 @@ class CreateView(CreateView):
               'budgetapprover', 'pcv_initial_approver', 'pcv_final_approver',
               'rfv_initial_approver', 'rfv_final_approver',
               'coa_accruedexp', 'coa_prepaidexp', 
-              'si_creditterm', 'si_signname', 'si_signposition', 'si_signimage']
+              'si_creditterm', 'si_signname', 'si_signposition', 'si_signimage',
+              'coa_receivablesuspense']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('companyparameter.add_companyparameter'):
@@ -70,23 +71,25 @@ class CreateView(CreateView):
         context['company'] = Company.objects.filter(isdeleted=0).order_by('description')
 
         # context['pcv_meal_expenses'] = Ofsubtype.objects.all().filter(code='ME').order_by('code')
+        coa_data = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['coa_retainedearnings'] = coa_data
+        context['coa_currentearnings'] = coa_data
+        context['coa_incometaxespayable'] = coa_data
+        context['coa_provisionincometax'] = coa_data
 
-        context['coa_retainedearnings'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_currentearnings'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_incometaxespayable'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_provisionincometax'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-
-        context['coa_cashinbank'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_aptrade'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_inputvat'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_deferredinputvat'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_outputvat'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_ewtax'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_unsubscribe'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_subsrev'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['coa_cashinbank'] = coa_data
+        context['coa_aptrade'] = coa_data
+        context['coa_inputvat'] = coa_data
+        context['coa_deferredinputvat'] = coa_data
+        context['coa_outputvat'] = coa_data
+        context['coa_ewtax'] = coa_data
+        context['coa_wtax'] = coa_data
+        context['coa_unsubscribe'] = coa_data
+        context['coa_subsrev'] = coa_data
+        context['coa_arsuspense'] = coa_data
         context['def_bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
-        context['coa_accruedexp'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_prepaidexp'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['coa_accruedexp'] = coa_data
+        context['coa_prepaidexp'] = coa_data
         context['si_creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('code')
 
         context['budgetapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
@@ -131,7 +134,8 @@ class UpdateView(UpdateView):
               'rfv_initial_approver', 'rfv_final_approver',
               'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201',
               'logo_path', 'coa_accruedexp', 'coa_prepaidexp', 
-              'si_creditterm', 'si_signname', 'si_signposition', 'si_signimage']
+              'si_creditterm', 'si_signname', 'si_signposition', 'si_signimage',
+              'coa_receivablesuspense']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('companyparameter.change_companyparameter'):
@@ -143,24 +147,25 @@ class UpdateView(UpdateView):
         context['company'] = Company.objects.filter(isdeleted=0).order_by('description')
 
         # context['pcv_meal_expenses'] = Ofsubtype.objects.all().filter(code='ME').order_by('code')
+        coa_data = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['coa_retainedearnings'] = coa_data
+        context['coa_currentearnings'] = coa_data
+        context['coa_incometaxespayable'] = coa_data
+        context['coa_provisionincometax'] = coa_data
 
-        context['coa_retainedearnings'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_currentearnings'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_incometaxespayable'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_provisionincometax'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-
-        context['coa_cashinbank'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_aptrade'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_inputvat'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_deferredinputvat'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_outputvat'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_ewtax'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_wtax'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_unsubscribe'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_subsrev'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['coa_cashinbank'] = coa_data
+        context['coa_aptrade'] = coa_data
+        context['coa_inputvat'] = coa_data
+        context['coa_deferredinputvat'] = coa_data
+        context['coa_outputvat'] = coa_data
+        context['coa_ewtax'] = coa_data
+        context['coa_wtax'] = coa_data
+        context['coa_unsubscribe'] = coa_data
+        context['coa_subsrev'] = coa_data
+        context['coa_receivablesuspense'] = coa_data
         context['def_bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
-        context['coa_accruedexp'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
-        context['coa_prepaidexp'] = Chartofaccount.objects.all().filter(accounttype='P').order_by('accountcode')
+        context['coa_accruedexp'] = coa_data
+        context['coa_prepaidexp'] = coa_data
         context['si_creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('code')
 
         context['budgetapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
@@ -201,7 +206,8 @@ class UpdateView(UpdateView):
                                         'rfv_initial_approver', 'rfv_final_approver',
                                         'ranknfile_percentage_tax', 'officer_percentage_tax', 'base_url_201',
                                         'logo_path',  'coa_accruedexp', 'coa_prepaidexp', 
-                                        'si_creditterm', 'si_signname', 'si_signposition', 'si_signimage'])
+                                        'si_creditterm', 'si_signname', 'si_signposition', 'si_signimage',
+                                        'coa_receivablesuspense'])
         return HttpResponseRedirect('/companyparameter')
 
 
