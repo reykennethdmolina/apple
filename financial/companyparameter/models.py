@@ -37,19 +37,19 @@ class Companyparameter(models.Model):
 
     # defaults for accounting entries
     coa_cashinbank = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_cashinbank',
-                                       blank=True, null=True)
+                                    blank=True, null=True)
     coa_unsubscribe = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_unsubscribe',
-                                       blank=True, null=True)
+                                    blank=True, null=True)
     coa_inputvat = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_inputvat',
-                                     blank=True, null=True)
+                                    blank=True, null=True)
     coa_deferredinputvat = models.ForeignKey('chartofaccount.Chartofaccount',
-                                             related_name='parameter_coa_deferredinputvat', blank=True, null=True)
+                                            related_name='parameter_coa_deferredinputvat', blank=True, null=True)
     coa_outputvat = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_outputvat',
-                                      blank=True, null=True)
+                                    blank=True, null=True)
     coa_ewtax = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_ewtax', blank=True,
-                                  null=True)
+                                null=True)
     coa_wtax = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_wtax', blank=True,
-                                  null=True)
+                                null=True)
     coa_aptrade = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_aptrade', blank=True,
                                     null=True)
     coa_subsrev = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_subsrev', blank=True,
@@ -72,7 +72,7 @@ class Companyparameter(models.Model):
 
     # petty cash meal expenses defaults
     pcv_meal_expenses = models.ForeignKey('ofsubtype.Ofsubtype', related_name='companyparameter_pcv_meal_expenses',
-                                          null=True, blank=True)
+                                        null=True, blank=True)
     pcv_meal_budget_limit = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     # petty cash meal expenses defaults
 
@@ -108,13 +108,13 @@ class Companyparameter(models.Model):
     year_end_date = models.DateField(null=True)
     income_tax_rate = models.IntegerField(null=True)
     coa_provisionincometax = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_provisionincometax',
-                                               blank=True, null=True)
+                                            blank=True, null=True)
     coa_incometaxespayable = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_incometaxespayable',
-                                               blank=True, null=True)
+                                            blank=True, null=True)
     coa_retainedearnings = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_coa_retainedearnings',
-                                               blank=True, null=True)
+                                            blank=True, null=True)
     coa_currentearnings = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_coa_currentearnings',
-                                             blank=True, null=True)
+                                            blank=True, null=True)
 
     enable_manual_jv = models.IntegerField(default=0)
     enable_manual_cv = models.IntegerField(default=0)
@@ -134,10 +134,12 @@ class Companyparameter(models.Model):
 
     logo_path = models.CharField(max_length=250, blank=True, null=True)
     si_creditterm = models.ForeignKey('creditterm.Creditterm', related_name='param_si_creditterm',
-                                      blank=True, null=True)
+                                    blank=True, null=True)
     si_signname = models.CharField(max_length=255, blank=True, null=True)
     si_signposition = models.CharField(max_length=255, blank=True, null=True)
     si_signimage = models.CharField(max_length=255, blank=True, null=True)
+    coa_receivablesuspense = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_coa_receivablesuspense',
+                                            blank=True, null=True)
     class Meta:
         db_table = 'companyparameter'
         ordering = ['-pk']

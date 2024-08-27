@@ -544,16 +544,16 @@
                                     <span class="help-block form-error">{{ form.def_bankaccount.errors.as_text }}</span>
                                 </div>
                             </div>
-                            <div class="form-group form-group-0 col-md-6 {{ form.coa_accruedexp.errors|yesno:'has-error,' }}">
-                                <label for="id_coa_accruedexp" class="col-sm-3 control-label">Accrued Expenses</label>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_receivablesuspense.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_receivablesuspense" class="col-sm-3 control-label">Accounts Receivable Suspense</label>
                                 <div class="col-sm-9">
-                                    <select name="coa_accruedexp" class="form-control select2" id="id_coa_accruedexp">
+                                    <select name="coa_receivablesuspense" class="form-control select2" id="id_coa_receivablesuspense">
                                         <option value="">-- Select --</option>
-                                        {% for data in coa_accruedexp %}
-                                            <option value="{{ data.id }}" {% if form.coa_accruedexp.value == data.id %} selected="selected" {% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% for data in coa_receivablesuspense %}
+                                            <option value="{{ data.id }}" {% if form.coa_receivablesuspense.value == data.id %} selected="selected" {% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
                                         {% endfor %}
                                     </select>
-                                    <span class="help-block form-error">{{ form.coa_accruedexp.errors.as_text }}</span>
+                                    <span class="help-block form-error">{{ form.coa_receivablesuspense.errors.as_text }}</span>
                                 </div>
                             </div>
                             <div class="form-group form-group-0 col-md-6 {{ form.coa_prepaidexp.errors|yesno:'has-error,' }}">
@@ -566,6 +566,18 @@
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.coa_prepaidexp.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_accruedexp.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_accruedexp" class="col-sm-3 control-label">Accrued Expenses</label>
+                                <div class="col-sm-9">
+                                    <select name="coa_accruedexp" class="form-control select2" id="id_coa_accruedexp">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_accruedexp %}
+                                            <option value="{{ data.id }}" {% if form.coa_accruedexp.value == data.id %} selected="selected" {% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_accruedexp.errors.as_text }}</span>
                                 </div>
                             </div>
                         </div>
