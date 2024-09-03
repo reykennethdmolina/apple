@@ -762,12 +762,13 @@ def exportsave(request):
 
                         # accounttype = 'S' (subscription) and sub type is 1
                         elif temp_ormain.subscription == '1':
+
                             Temp_ordetail.objects.create(
                                 orno=data.orno,
                                 ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
                                 creditamount=data.amount,
                                 balancecode='C',
-                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_unsubscribe.pk,
+                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_receivablesuspense.pk,
                                 batchkey=data.batchkey,
                                 postingremarks='Processing...',
                             ).save()
@@ -1053,7 +1054,7 @@ def exportsave(request):
                                 ordate=temp_ordate,
                                 creditamount=data.amount,
                                 balancecode='C',
-                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_unsubscribe.pk,
+                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_receivablesuspense.pk,
                                 batchkey=data.batchkey,
                                 postingremarks='Processing...',
                             ).save()
