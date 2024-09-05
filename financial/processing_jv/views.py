@@ -54,6 +54,7 @@ adv_vod = [adv_headers[0] + "vod", adv_headers[1] + "vod"]
 adv_si = [adv_headers[0] + "si", adv_headers[1] + "si"]
 
 cir_headers = ["pjv_m", "pjv_a"]
+cir_si = ["csi_m", "csi_a"]
 
 sub_headers = ["jv_main_", "jv_detail_"]
 sub_regular = [sub_headers[0] + "regular", sub_headers[1] + "regular"]
@@ -82,6 +83,7 @@ class IndexView(TemplateView):
         context['adv_vod'] = adv_vod
         context['adv_si'] = adv_si
         context['cir_all'] = cir_headers
+        context['cir_si'] = cir_si
         context['sub_regular'] = sub_regular
         context['sub_complimentary'] = sub_complimentary
         context['oth_payroll'] = oth_payroll
@@ -441,7 +443,7 @@ def fileupload(request):
                 if storeupload(request.FILES['jv_file'], sequence, 'dbf', upload_directory)\
                         and storeupload(request.FILES['jv_d_file'], sequence, 'dbf', upload_d_directory):    # 2
                     jvcount = 0
-                    if request.POST['upload_type'] == 'CIR-CTR' or request.POST['upload_type'] == 'CIR-DR' or \
+                    if request.POST['upload_type'] == 'CIR-CTR' or request.POST['upload_type'] == 'CIR-DR' or request.POST['upload_type'] == 'CIR-SI' or \
                         request.POST['upload_type'] == 'CIR-INCS' or request.POST['upload_type'] == 'CIR-REIM' or \
                             request.POST['upload_type'] == 'CIR-RS':  # 6
                         for data in DBF(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
@@ -617,7 +619,7 @@ def exportsave(request):
                         request.POST['upload_type'] == 'ADV-RAR' or request.POST['upload_type'] == 'ADV-TAX' or \
                         request.POST['upload_type'] == 'ADV-VOD' or request.POST['upload_type'] == 'ADV-USI' or \
                         request.POST['upload_type'] == 'OTH-PAY' or request.POST['upload_type'] == 'CIR-CTR' or \
-                        request.POST['upload_type'] == 'CIR-DR' or request.POST['upload_type'] == 'CIR-INCS' or \
+                        request.POST['upload_type'] == 'CIR-DR' or request.POST['upload_type'] == 'CIR-SI' or request.POST['upload_type'] == 'CIR-INCS' or \
                         request.POST['upload_type'] == 'CIR-REIM' or request.POST['upload_type'] == 'CIR-RS':
             jvmain = Logs_jvmain.objects.filter(importstatus='S', batchkey=request.POST['batchkey'])
             jvmain_list = []
@@ -630,7 +632,7 @@ def exportsave(request):
                 temp_jvmain = Temp_jvmain.objects.create(
                     importedjvnum=data.jvnum,
                     jvdate=data.jvdate,
-                    particulars=data.particulars + '; ' + data.remarks + '; ' + data.comments,
+                    particulars=data.particulars + ' ' + data.remarks + ' ' + data.comments,
                     importby=data.importby,
                     batchkey=data.batchkey,
                     postingremarks='Processing...',
@@ -660,11 +662,11 @@ def exportsave(request):
                     temp_jvdetail.save()
 
                 if request.POST['upload_type'] == 'OTH-PAY' or request.POST['upload_type'] == 'CIR-CTR' or \
-                        request.POST['upload_type'] == 'CIR-DR' or request.POST['upload_type'] == 'CIR-INCS' or \
+                        request.POST['upload_type'] == 'CIR-DR'  or request.POST['upload_type'] == 'CIR-SI'  or request.POST['upload_type'] == 'CIR-INCS' or \
                         request.POST['upload_type'] == 'CIR-REIM' or request.POST['upload_type'] == 'CIR-RS':
 
                     # generate jvnum, get jvyear
-                    if request.POST['upload_type'] == 'CIR-CTR' or request.POST['upload_type'] == 'CIR-DR' \
+                    if request.POST['upload_type'] == 'CIR-CTR' or request.POST['upload_type'] == 'CIR-DR'or request.POST['upload_type'] == 'CIR-SI' \
                             or request.POST['upload_type'] == 'CIR-INCS' or request.POST['upload_type'] == 'CIR-REIM' \
                             or request.POST['upload_type'] == 'CIR-RS':
                         dt = datetime.datetime.strptime(data.jvdate, '%Y-%m-%d')
@@ -856,6 +858,7 @@ def exportsave(request):
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='OTH-PAY')) |
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='CIR-CTR')) |
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='CIR-DR')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='CIR-SI')) |
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='CIR-INCS')) |
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='CIR-REIM')) |
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='CIR-RS'))).order_by('jvnum')
