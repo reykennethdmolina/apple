@@ -214,15 +214,7 @@
                             <span class="help-block form-error">{{ form.wtax.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 padding-top-30"><span id="wtaxrate" class="text-success small small"><strong>RATE: 00.00%</strong></span></div>
-                        <!-- <div class="form-group col-sm-3 {{ form.deferredvat.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_deferredvat">Deferred VAT</label>
-                            <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
-                                {% for id,name in form.fields.deferredvat.choices %}
-                                    <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
-                        </div> -->
+                        
                     </div>
                     <div class="col-md-4">
                         <div class="widgett widgett-article widgett-shadow">
@@ -412,7 +404,7 @@
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script>
     $(function(){
-        $('#id_sidate').datepicker('setDate', new Date());
+        $('#id_sidate').datepicker();
         
         $('input#id_creditterm').on("input", function(event) { 
             event.preventDefault();
@@ -427,7 +419,7 @@
 
         $('select#id_customer').on("change", function(event){
             const customer_id = $(this).val();
-            console.log(customer_id);
+            // console.log(customer_id);
             $.ajax({
                 url: "{% url 'salesinvoice:getcustomercreditterm' %}",
                 type: "GET",
@@ -436,7 +428,7 @@
                     'id': customer_id
                 },
                 success: function(response){
-                    console.log(response.daysdue);
+                    // console.log(response.daysdue);
                     const terms = response.daysdue;
                     $('#id_creditterm').val(terms);
                     computeDueDate(terms);
@@ -510,9 +502,7 @@
             var total_creditamount = $("#total_creditamount").text().replace(/,/g, '');
             var total_debitamount = $("#total_debitamount").text().replace(/,/g, '');
             var total_itemamount = $("#id_amount").val().replace(/,/g, '');
-            console.log(total_debitamount);
-            console.log(total_creditamount);
-            console.log(total_itemamount);
+            
             if (parseFloat(total_creditamount) != '0.00' || parseFloat(total_debitamount) != '0.00') {
                 if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
                     customAlert($('#not-equal-debit-credit-error'));
@@ -578,52 +568,6 @@
                 }
             }
         }
-
-        // function displayPayeeDropdowns(){
-        //     if($('#id_orsource').val() == 'A'){
-        //         $('.class-adv').not('.class-agency').show();
-        //         $('.class-adv').not('.class-client').show();
-        //         $('.class-cir').hide();
-        //     }
-        //     else if($('#id_orsource').val() == 'C'){
-        //         $('.class-cir').not('.class-agent').show();
-        //         $('.class-adv').hide();
-        //     }
-        // }
-
-        // function setPayeeOptions(){
-        //     $('.payee_options').hide();
-        //     if($('#id_orsource').val() == 'A'){
-        //         e = $('#id_payee_adv');
-        //         $('.class-cir').hide();
-        //     }
-        //     else if($('#id_orsource').val() == 'C'){
-        //         e = $('#id_payee_cir');
-        //         $('.class-adv').hide();
-        //     }
-
-        //     if(e.val() == 'AG'){
-        //         $('#payee_options_agency').show();
-        //         $('#id_agent').val(null);
-        //         $('#id_client').val(null);
-        //         ajaxselect2("client", "id_client");
-        //         ajaxselect2("agent", "id_agent");
-        //     }
-        //     else if(e.val() == 'C'){
-        //         $('#payee_options_client').show();
-        //         $('#id_agent').val(null);
-        //         $('#id_agency').val(null);
-        //         ajaxselect2("agent", "id_agent");
-        //         ajaxselect2("agency", "id_agency");
-        //     }
-        //     else if(e.val() == 'A'){
-        //         $('#payee_options_agent').show();
-        //         $('#id_agency').val(null);
-        //         $('#id_client').val(null);
-        //         ajaxselect2("agency", "id_agency");
-        //         ajaxselect2("client", "id_client");
-        //     }
-        // }
 
         function showRate(field, rateSpan, defaultText){
             var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
