@@ -525,13 +525,14 @@
 
         function generateTotals(){
 
-            givenAmount = parseFloat($('#id_amount').val().replace(',',''));
+            givenAmount = parseFloat($('#id_amount').val().replace(/,/g,''));
             vatRate = parseFloat($('#id_vat option:selected').data('rate'));
             wtaxRate = parseFloat($('#id_wtax option:selected').data('rate'));
             grossAmount = givenAmount/(1+(vatRate/100));
             addVat = grossAmount * (vatRate/100);
             wtaxAmount = grossAmount * (wtaxRate/100);
             totalPayment = grossAmount + addVat;
+            console.log('tots',givenAmount,grossAmount);
             
             $('.amount_display').val(0);
             $('#disp_note').text('');
