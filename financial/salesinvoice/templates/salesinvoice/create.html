@@ -525,7 +525,7 @@
 
         function generateTotals(){
 
-            givenAmount = parseFloat($('#id_amount').val().replace(',',''));
+            givenAmount = parseFloat($('#id_amount').val().replace(/,/g,''));
             vatRate = parseFloat($('#id_vat option:selected').data('rate'));
             wtaxRate = parseFloat($('#id_wtax option:selected').data('rate'));
             grossAmount = givenAmount/(1+(vatRate/100));
