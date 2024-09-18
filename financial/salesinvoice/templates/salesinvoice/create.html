@@ -485,9 +485,9 @@
 
         $("#validateButton").on('click', function(event) {
 
-            var total_creditamount = $("#total_creditamount").text().replace(',', '');
-            var total_debitamount = $("#total_debitamount").text().replace(',', '');
-            var total_itemamount = $("#id_amount").val().replace(',', '');
+            var total_creditamount = $("#total_creditamount").text().replace(/,/g, '');
+            var total_debitamount = $("#total_debitamount").text().replace(/,/g, '');
+            var total_itemamount = $("#id_amount").val().replace(/,/g, '');
             if (parseFloat(total_creditamount) != '0.00' || parseFloat(total_debitamount) != '0.00') {
                 if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
                     customAlert($('#not-equal-debit-credit-error'));
@@ -572,13 +572,13 @@
                     data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                             'secretkey': $('#secretkey').val(),
                             'sisubtype': $('#id_sisubtype').val(),
-                            'amount': $('#id_amount').val().replace(",", ""),
+                            'amount': $('#id_amount').val().replace(/,/g,''),
                             'vat': $('#id_vat').val(),
-                            'vatable': $('#disp_vatable').val().replace(",", ""),
-                            'vatexempt': $('#disp_vatexempt').val().replace(",", ""),
-                            'vatzero': $('#disp_vatzero').val().replace(",", ""),
-                            'addvat': $('#disp_addvat').val().replace(",", ""),
-                            'totalamountdue': $('#disp_totalamountdue').val().replace(",", ""),
+                            'vatable': $('#disp_vatable').val().replace(/,/g,''),
+                            'vatexempt': $('#disp_vatexempt').val().replace(/,/g,''),
+                            'vatzero': $('#disp_vatzero').val().replace(/,/g,''),
+                            'addvat': $('#disp_addvat').val().replace(/,/g,''),
+                            'totalamountdue': $('#disp_totalamountdue').val().replace(/,/g,''),
                             'customer': $('#id_customer').val(),
                             'table': "sidetailtemp"},
                     success: function(response){
