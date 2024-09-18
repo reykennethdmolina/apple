@@ -712,8 +712,8 @@ def queryLedger(dto, dfrom, transaction, chartofaccount, payeecode, payeename, i
             ""+str(conpayeecode)+" "+str(conpayeename)+" "+str(conisclosed)+" "+str(conclosedonly)+" AND DATE(document_date) >= '"+str(dfrom)+"' AND DATE(document_date) <= '"+str(dto)+"' "+str(orderby)
 
     ##"LEFT OUTER JOIN customer AS dcust ON dcust.id = a.document_customer_id "
-    print query
-    print '****'
+    # print query
+    # print '****'
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)

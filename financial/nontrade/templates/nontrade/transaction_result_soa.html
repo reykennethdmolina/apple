@@ -72,7 +72,7 @@
 <script>
     $(function () {
 
-        $('.tagbutton').on('click', function(e) {
+        {% comment %} $('.tagbutton').on('click', function(e) {
             var id = $(this).data('id');
             var reftype = $('#reftype'+id).val();
             var refnum = $('#refnum'+id).val();
@@ -100,7 +100,7 @@
                     }
                 }
             });
-        });
+        }); {% endcomment %}
 
 
     });
