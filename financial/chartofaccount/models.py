@@ -97,6 +97,11 @@ class Chartofaccount(models.Model):
     year_to_date_date = models.DateTimeField(null=True, blank=True)
     # added for subledgersummary
 
+    # added for prepaidaccrual
+    prepaid_enable = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
+    accrual_enable = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
+    # added for prepaidaccrual
+    
     class Meta:
         db_table = 'chartofaccount'
         ordering = ['-pk']
