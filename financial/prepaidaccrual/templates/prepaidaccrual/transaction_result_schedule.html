@@ -1,0 +1,655 @@
+{% load humanize %}
+{% load mathfilters %}
+{% load custom %}
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<style>
+    .pointer{
+        cursor: pointer;
+    }
+    .form-group{
+        margin-bottom: 5px;
+    }
+</style>
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="page-wrap">
+
+        {% if transaction == '1' %}
+            <h3>Schedule of Prepaid Expenses Amortization</h3>
+        {% elif transaction == '2' %}
+            <h3>Schedule of Accrued Expenses Amortization</h3>
+        {% endif %}
+
+        {% if data %}
+            <div class="row" style="margin-right: 0;">
+                {% if import_count > 1%}
+                    <a href="{% url 'prepaidaccrual:importprepaidschedule' %}?from={{ dfrom }}&to={{ dto }}" target="_blank" title="{{ import_count }} transactions pending for import." class="btn btn-primary waves-effect waves-dark floatright" id="import-schedule" style="margin: 10px 0">
+                        <i class="icon fa-file" aria-hidden="true"></i>&nbsp;&nbsp;Import {{ import_count }} new transactions
+                    </a>
+                {% elif import_count == 1 %}
+                    <a href="{% url 'prepaidaccrual:importprepaidschedule' %}?from={{ dfrom }}&to={{ dto }}" target="_blank" title="{{ import_count }} transaction pending for import." class="btn btn-primary waves-effect waves-dark floatright" id="import-schedule" style="margin: 10px 0">
+                        <i class="icon fa-file" aria-hidden="true"></i>&nbsp;&nbsp;Import {{ import_count }} new transaction
+                    </a>
+                {% endif %}
+                <a title="Post to JV" class="btn btn-primary waves-effect waves-dark floatright" id="post-jv" style="margin: 10px 4px" data-toggle="modal" data-target="#postJV">
+                    <i class="icon fa-file-text-o" aria-hidden="true"></i>&nbsp;&nbsp;Post to JV
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered" style="font-size:12px">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Reference</th>
+                            <th>Date</th>
+                            <th>Payee</th>
+                            <th>Particulars</th>
+                            <th>Beginning Balance</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Total Amortization</th>
+                            <th>Ending Balance</th>
+                            <th>Expense Account</th>
+                            <th>Expense Description</th>
+                            <th>Department</th>
+                            <th>Branch</th>
+                            <th>Remarks</th>
+                            <th>JV No.</th>
+                            <th>JV Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in data %}
+                        <tr {% if item.main.supplier.code == None %} class="text-danger" {% endif %}>
+                            <td class="text-left">{{ item.main.transaction_type }}</td>
+                            <td class="text-left">{{ item.main.transaction_number }}</td>
+                            <td class="text-left">{{ item.date|date:'Y-m-d' }}</td>
+                            <td class="text-left ">{{ item.main.supplier.name|default:"NO PAYEE/SUPPLIER" }} - {{ item.main.supplier.code|default:"N/A" }}</td>
+                            <td class="text-left">{{ item.main.particulars }}</td>
+                            <td class="text-right">{{ item.main.amount|intcomma }}</td>
+                            {% if item.main.code == 'D' %}
+                                <td class="text-right">{{ item.amount|floatformat:2|intcomma }}</td>
+                                <td class="text-right"></td>
+                            {% elif item.main.code == 'C' %}
+                                <td class="text-right"></td>
+                                <td class="text-right">{{ item.amount|floatformat:2|intcomma }}</td>
+                            {% else %}
+                                <td class="text-right"></td>
+                                <td class="text-right"></td>
+                            {% endif %}
+                            <td class="text-right">{{ item.total_amortization|floatformat:2|intcomma }}</td>
+                            <td class="text-right">{{ item.ending_balance|floatformat:2|intcomma }}</td>
+                            <td class="text-left">{{ item.main.expense_account.accountcode }}</td>
+                            <td class="text-left">{{ item.main.expense_account.description }}</td>
+                            <td class="text-left">{{ item.main.department.code }}</td>
+                            <td class="text-left">{{ item.main.branch.code }}</td>
+                            <td class="text-left">{{ item.main.remarks }}</td>
+                            <td class="text-left">{{ item.jvnum|default:'' }}</td>
+                            <td class="text-left">{{ item.postdate|date:'Y-m-d' }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="6" class="text-right">Total</td>
+                        <td class="text-right">{{ total|floatformat:2|intcomma }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+        <br>
+            {% if transaction == '1' %}
+                <span>No Prepaid Expense Schedule data found. 
+                    
+                        <a href="{% url 'prepaidaccrual:importprepaidschedule' %}?from={{ dfrom }}&to={{ dto }}" target="_blank">
+                            {% if import_count > 1 %}
+                                Import {{ import_count }} transactions for data entry here.
+                            {% else %}
+                                Import {{ import_count }} transaction for data entry here.
+                            {% endif %}
+                        </a> 
+                    </span>
+            {% elif transaction == '2' %}
+                <span>No Accrued Expense Schedule data found. </span>
+            {% endif %}
+        {% endif %}
+        <input type="hidden" id="duplicate_entry_id">
+    </div>
+
+    <!-- data entry modal -->
+    <div id="dataEntryModal" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title text-left">Prepaid Expense Transaction Entry</h4>
+                    <input type="hidden" id="datamodal_id">
+                </div>
+                <div class="modal-body" style="overflow:hidden;">
+                    <br>
+                    <div class="col-md-12 text-primary">
+                        <div class="row">
+                            <div class="form-group col-md-12 extra-field">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Supplier:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control" id="datamodal_suppliercode" readonly>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <input type="text" class="form-control" id="datamodal_suppliername" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Account Code:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control" id="datamodal_accountcode" readonly>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <input type="text" class="form-control" id="datamodal_accountname" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Date:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control" id="datamodal_date" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Reference:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control" id="datamodal_transactiontype" readonly>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <input type="text" class="form-control" id="datamodal_transactionnumber" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Code:</label>
+                                </div>
+                                <div class="form-group col-md-2 text-left" style="color: #333;">
+                                    <span id="text_datamodal_code"></span>
+                                </div>
+                                <div class="form-group col-md-2 text-left">
+                                    <label class="control-label">Amount:</label>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input type="text" class="form-control text-right" id="datamodal_amount">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group col-md-12 extra-field" style="margin-top: 20px;">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Number of Months:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control text-right" id="datamodal_numberofmonth">
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="text-left">
+                                        <button type="button" class="btn btn-sm btn-default" id="compute_btn">Compute</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Start & End Date:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control text-left" placeholder="yyyy-mm-dd" id="datamodal_startdate">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control text-left" placeholder="yyyy-mm-dd" id="datamodal_enddate" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-right">
+                                        <button type="button" class="btn btn-sm btn-default" style="display: none;" id="duplicate_btn" title="Duplicate Transaction Entry">Duplicate Entry</button>
+                                        <input type="hidden" id="is_duplicate" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Computed Amortization:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control text-right" id="datamodal_computedamortization" placeholder="0.00" readonly>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Actual Amortization:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control text-right" id="datamodal_actualamortization" placeholder="0.00">
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-left">
+                                        <button type="button" class="btn btn-sm btn-default" id="recompute_btn" title="Click recompute when Computed Amortization is different from Actual Amortization.">Recompute</button>
+                                        <button type="button" class="btn btn-sm btn-default" id="show_detail_btn">Show Detail</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field" style="margin-top: 20px;">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Expense Account:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control" id="datamodal_expenseaccountcode">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <select class="form-control input-sm" required style="width: 100%" id="datamodal_expenseaccount">
+                                        <option value="" disabled selected>-- Select --</option>
+                                        {% for exp in expense_accounts %}
+                                            <option value="{{ exp.id }}" data-expenseaccountcode="{{ exp.accountcode }}">[{{ exp.accountcode }}] - {{ exp.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <!-- <input type="text" class="form-control" id="datamodal_expenseaccountdescription"> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Department:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control" id="datamodal_departmentcode">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <select class="form-control input-sm" required style="width: 100%" id="datamodal_department">
+                                        <option value="" disabled selected>-- Select --</option>
+                                        {% for dep in departments %}
+                                            <option value="{{ dep.id }}" data-departmentcode="{{ dep.code }}">[{{ dep.code }}] - {{ dep.departmentname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <!-- <input type="text" class="form-control" id="datamodal_departmentname"> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Branch:</label>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <input type="text" class="form-control" id="datamodal_branchcode">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <select class="form-control input-sm" required style="width: 100%" id="datamodal_branch">
+                                        <option disabled selected>-- Select --</option>
+                                        {% for bra in branches %}
+                                            <option value="{{ bra.id }}" data-branchcode="{{ bra.code }}">[{{ bra.code }}] - {{ bra.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <!-- <input type="text" class="form-control" id="datamodal_branchdescription"> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Remarks:</label>
+                                </div>
+                                <div class="form-group col-md-8">
+                                    <input type="text" class="form-control" id="datamodal_remarks">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Particulars:</label>
+                                </div>
+                                <div class="form-group col-md-8">
+                                    <input type="text" class="form-control" id="datamodal_particulars">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-left">
+                                    <label class="control-label">Status:</label>
+                                </div>
+                                <div class="form-group col-md-4 text-left">
+                                    <span id="text_datamodal_status"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
+                    <div id="results"></div>
+                   
+                </div>
+                <div class="modal-footer">
+                    <div align="center">
+                        <button type="button" class="btn btn-info" id="save_transaction" title="This will be saved permanently.">Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end data entry modal -->
+
+    <!-- post to jv modal -->
+    <div id="postJV" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 750px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title text-left">Post Prepaid Expenses to JV</h4>
+                </div>
+                <div class="modal-body" style="overflow:hidden;">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <div class="form-group col-md-6">
+                                <div class="col-md-4">
+                                    <label class="control-label" for="jvdate"><b>JV Date:</b></label>
+                                </div>
+                                <div class="form-group col-md-8">
+                                    <input type="text" class="form-control datepickerto" id="jvdate" style="width:150px;" placeholder="JV Date">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                    <div class="well well-sm pre-scrollable" style="margin-bottom: 0px;min-height:400px;">
+                        <table class="table table-sm" id="postingresult">
+                            <thead>
+                                <tr>
+                                <th scope="row"><input type="checkbox" class="pointer" name="chb_all" id="chb_all" title="Select to process all." checked="Tick" /></th>
+                                <td scope="row"><b>Type</b></td>
+                                <td scope="row"><b>Number</b></td>
+                                <td scope="row"><b>Date</b></td>
+                                <td scope="row"><b>Payee Name</b></td>
+                                <td scope="row"><b>Department</b></td>
+                                <td scope="row"><b>Amount</b></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if data %}
+                                    {% for item in data %}
+                                        <tr class="transaction_row" data-id="{{ item.id }}">
+                                            <td class="text-left"><input type="checkbox" class="transaction-checkbox pointer" name="chb_{{ item.id }}" id="chb_{{ item.id }}" title="Tick to include transaction" checked /></td>
+                                            <td class="text-left">{{ item.main.transaction_type }}</td>
+                                            <td class="text-left">{{ item.main.transaction_number }}</td>
+                                            <td class="text-left text-nowrap"><b>{{ item.date|date:'Y-m-d' }}</b></td>
+                                            <td class="text-left">{{ item.main.supplier.name|default:"NO PAYEE/SUPPLIER" }} - {{ item.main.supplier.code|default:"N/A" }}</td>
+                                            <td class="text-left">{{ item.main.department.code }}</td>
+                                            <td class="text-right">{{ item.amount|floatformat:2|intcomma }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div align="center">
+                        <button type="button" class="btn btn-sm btn-info" id="post_transaction">Go</button>
+                        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end post to jv modal -->
+</div>
+<div class="clearfix"></div>
+
+<script>
+    function resetModalFields(){
+        $('#datamodal_id').val('');
+        $('#datamodal_suppliercode').val('');
+        $('#datamodal_suppliername').val('');
+        $('#datamodal_accountcode').val('');
+        $('#datamodal_accountname').val('');
+        $('#datamodal_date').val('');
+        $('#datamodal_transactiontype').val('');
+        $('#datamodal_transactionnumber').val('');
+        $('#text_datamodal_code').text('');
+        $('#datamodal_amount').val('');
+        $('#datamodal_numberofmonth').val('');
+        $('#datamodal_startdate').val('');
+        $('#datamodal_enddate').val('');
+        $('#datamodal_computedamortization').val('');
+        $('#datamodal_actualamortization').val('');
+        $('#datamodal_expenseaccountcode').val('');
+        $('#datamodal_expenseaccount').val('');
+        $('#datamodal_departmentcode').val('');
+        $('#datamodal_department').val('');
+        $('#datamodal_branchcode').val('');
+        $('#datamodal_branchdescription').val('');
+        $('#datamodal_remarks').val('');
+        $('#datamodal_particulars').val('');
+        $('#text_datamodal_status').text('');
+
+        $('#results').html('');
+        
+    }
+    
+    function editTransaction(id, is_duplicate) {
+
+        resetModalFields();
+        $('#duplicate_entry_id').val(id);
+
+        $.ajax({
+            url: "{% url 'prepaidaccrual:getprepaiddata' %}",
+            type: "GET",
+            data: {
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                id: id,
+            },
+            success: function (response){
+                $('#datamodal_id').val(id);
+                $('#datamodal_suppliercode').val(response.suppliercode);
+                $('#datamodal_suppliername').val(response.suppliername);
+                $('#datamodal_accountcode').val(response.accountcode);
+                $('#datamodal_accountname').val(response.accountname);
+                $('#datamodal_date').val(response.date);
+                $('#datamodal_transactiontype').val(response.transactiontype);
+                $('#datamodal_transactionnumber').val(response.transactionnumber);
+                $('#text_datamodal_code').text(response.code);
+                $('#datamodal_amount').val(response.amount);
+                $('#datamodal_numberofmonth').val(response.numberofmonth);
+                $('#datamodal_startdate').val(response.startdate);
+                $('#datamodal_startdate').attr('min', response.startdate);
+                $('#datamodal_computedamortization').val(response.computedamortization);
+                if (response.actualamortization > 0){
+                    $('#datamodal_actualamortization').val(response.actualamortization);
+                }
+                $('select#datamodal_expenseaccount').val(response.expenseaccountid).change();
+                $('#datamodal_expenseaccountcode').val($('#datamodal_expenseaccount').find(':selected').data('expenseaccountcode'));
+                
+                if(is_duplicate){
+                    $('select#datamodal_department').val('').change();
+                    $('#datamodal_departmentcode').val('');
+                    $('#datamodal_remarks').fadeIn('slow').val('Duplicate entry for '+response.transactiontype+' #'+response.transactionnumber);
+                    $('#is_duplicate').val('1');
+                } else {
+                    $('select#datamodal_department').val(response.departmentid).change();
+                    $('#datamodal_departmentcode').val($('#datamodal_department').find(':selected').data('departmentcode'));
+                    $('#datamodal_remarks').val(response.remarks);
+                    $('#duplicate_btn').show();
+                    $('#is_duplicate').val('0');
+                }
+                
+                $('select#datamodal_branch').val(response.branchid).change();
+                $('#datamodal_branchcode').val($('#datamodal_branch').find(':selected').data('branchcode'));
+                
+                $('#datamodal_particulars').val(response.particulars);
+                $('#text_datamodal_status').text(response.status);
+
+                if(response.status === 'Active'){
+                    $('#text_datamodal_status').addClass('text-success');
+                } else if(response.status === 'Inactive'){
+                    $('#text_datamodal_status').addClass('text-danger');
+                }
+            },
+            error: function (response) {
+                console.log("err "+JSON.stringify(response))
+            }
+        });
+    }
+
+    function calculateAmortization(principalAmount, numberOfMonths, startDate) {
+        const monthlyAmortization = parseFloat((principalAmount / numberOfMonths).toFixed(2));
+
+        // Distribute the monthly amortization across the specified number of months
+        const amortizationArray = new Array(numberOfMonths).fill(monthlyAmortization);
+
+        // Adjust the last month's amount to ensure no centavo is missed
+        const totalAmortization = principalAmount;
+        const remainingCents = parseFloat((totalAmortization - amortizationArray.reduce((sum, amount) => sum + amount, 0)).toFixed(2));
+        amortizationArray[numberOfMonths - 1] += remainingCents;
+        
+        const scheduleStartDate = new Date(startDate);
+        const amortizationSchedule = [];
+
+        for (let i = 0; i < numberOfMonths; i++) {
+            const currentMonth = new Date(scheduleStartDate.getFullYear(), scheduleStartDate.getMonth() + i);
+
+            // Calculate the number of days in the current month
+            const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+
+            // Set the day of the month, considering edge cases
+            const dayOfMonth = Math.min(scheduleStartDate.getDate(), daysInMonth);
+            currentMonth.setDate(dayOfMonth);
+
+            const dateParts = currentMonth.toLocaleDateString('en-US').split("/");
+            amortizationSchedule.push({
+                date: `${dateParts[2]}-${dateParts[0].padStart(2, '0')}-${dateParts[1].padStart(2, '0')}`,
+                month: currentMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' }),
+                amount: amortizationArray[i]
+            });
+        }
+        
+        // for (let i = 0; i < numberOfMonths; i++) {
+        //     const currentMonth = new Date(scheduleStartDate.getFullYear(), scheduleStartDate.getMonth() + i);
+
+        //     if (currentMonth.getMonth() !== 1) { // Not February
+        //         currentMonth.setDate(scheduleStartDate.getDate());
+        //     } else { // February
+
+        //         let dayOfMonth = scheduleStartDate.getDate();
+        //         console.log(dayOfMonth)
+        //         const isLeapYear = (currentMonth.getFullYear() % 4 === 0 && currentMonth.getFullYear() % 100 !== 0) || currentMonth.getFullYear() % 400 === 0;
+        //         currentMonth.setMonth(1); // Set to February
+        //         if ([29, 30, 31].includes(dayOfMonth)) {
+        //             currentMonth.setDate(isLeapYear ? 29 : 28);
+        //         } else {
+        //             currentMonth.setDate(scheduleStartDate.getDate());
+        //         }
+        //     }
+        //     const dateParts = currentMonth.toLocaleDateString('en-US').split("/");
+        //     amortizationSchedule.push({
+        //         date: `${dateParts[2]}-${dateParts[0].padStart(2, '0')}-${dateParts[1].padStart(2, '0')}`,
+        //         month: currentMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' }),
+        //         amount: amortizationArray[i]
+        //     });
+        // }
+
+        return amortizationSchedule;
+    }
+
+    $(function(){
+
+        $('#jvdate').datepicker('setDate', 'now');
+        
+        $(document).on('change', 'input[name="chb_all"]', function() {
+            $('.transaction-checkbox').prop("checked", this.checked);
+        });
+
+        $(document).on('change', '.transaction-checkbox', function() {
+            if($('.transaction-checkbox').length === $('.transaction-checkbox:checked').length){
+                $('input[name="chb_all"]').prop("checked", true);
+            } else if (this.checked == false) {
+                $('input[name="chb_all"]').prop("checked", false);
+            }
+        });
+
+        $('#post_transaction').click(function(e){
+            e.preventDefault();
+
+            const issue_date = $('#dto').val();
+            var ids = [];
+            $('tr.transaction_row').each(function () {
+                if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                    var pk = $(this).data('id');
+
+                    ids.push(pk);
+                }
+            });
+            
+            if(ids.length){
+                if (confirm("Confirm posting the selected transactions?")) {
+
+                    const postdate = $('#jvdate').val();
+
+                    $.ajax({
+                        url: "{% url 'prepaidaccrual:gopostprepaid' %}",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: {
+                            'csrfmiddlewaretoken': "{{ csrf_token }}",
+                            'ids': ids,
+                            'postdate': postdate,
+                            'issue_date': issue_date
+                        },
+                        success: function(response) {
+                            if(response.result == 'success'){
+                                // $('#generate').trigger('click');
+                                alert('Posting successful!');
+                                // confirmation_numbers = response.confirmation_numbers;
+                                // if(confirm("Transaction posting has been processed successfully. Would you like to view the Confirmation Sheets?")){
+                                //     $("#trigger_cs").attr("href", "{% url 'triplec:print_cs' %}" + "?batch=1&q=" + encodeURIComponent(JSON.stringify(confirmation_numbers)));
+                                //     $('#trigger_cs')[0].click();
+                                // }
+                            } else if(response.result == 'failed'){
+                                alert(response.message);
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            console.log(xhr, textStatus, errorThrown);
+                            alert("An error occured "+ textStatus);
+                        }
+                    });
+                }
+            } else {
+                alert('No selected transaction.');
+            } 
+        });
+    });
+
+</script>

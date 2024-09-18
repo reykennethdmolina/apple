@@ -1,0 +1,337 @@
+{% load humanize %}
+{% load mathfilters %}
+{% load custom %}
+<style>
+    .pointer{
+        cursor: pointer;
+    }
+    .table-fix-head { overflow: auto; height: 700px; }
+
+    /* Just common table stuff. Really. */
+    table  { border-collapse: collapse; width: 100%; }
+    th, td { padding: 8px 16px; }
+    th     { background:#fff; }
+
+    .float-right {
+        float: right;
+        margin-right: 8px;
+    }
+</style>
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="page-wrap">
+        <div>
+            <h3>Accrued Expenses</h3>
+        </div>
+        <div class="table-fix-head">
+            <table class="table table-striped table-bordered table-hover" style="font-size:12px;">
+                <thead style="position: sticky; top: 0; z-index: 1; background-color: ghostwhite;">
+                    <tr>
+                        <th>#</th>
+                        <th>Doc. Type</th>
+                        <th>Doc. No.</th>
+                        <th>Date</th>
+                        <th>Payee</th>
+                        <th>Particulars</th>
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Remaining Balance</th>
+                        <th>Ref Type</th>
+                        <th>Ref No.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in data %}
+                    {% ifchanged item.tag_id %}
+                        <tr >
+                            {% if not forloop.first %}
+                                <td colspan="11" style="padding: 0;">
+                                    <div style="border-top: 2px solid #ccc;">
+                                        
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endifchanged %}
+                    <tr {% if item.name == None %} class="text-danger" {% endif %}>
+                        <td class="text-left">{{ forloop.counter }}</td>
+                        <td class="text-left">{{ item.document_type }}</td>
+                        <td class="text-left">{{ item.document_num }}</td>
+                        <td class="text-left" style="width: 100px;">{{ item.document_date|date:'Y-m-d' }}</td>
+                        <td class="text-left supname"> 
+                            {{ item.name|default:"NO PAYEE/SUPPLIER" }} - {{ item.code|default:"N/A" }} 
+                            <!-- &nbsp;&nbsp;&nbsp;&nbsp; <span class="text-info pointer" title="Untag" onclick="untag(`{{ item.id }}`)"><i class="fa fa-undo" aria-hidden="true"></i></span> -->
+                        </td>
+                        <td class="text-left">{{ item.particulars }}</td>
+                        
+                        {% if item.balancecode == 'D' %}
+                            <td class="text-right">{{ item.amount|floatformat:2|intcomma }}</td>
+                            <td class="text-right">0.00</td>
+                        {% elif item.balancecode == 'C' %}
+                            <td class="text-right">0.00</td>
+                            <td class="text-right">{{ item.amount|floatformat:2|intcomma }}</td>
+                        {% else %}
+                            <td class="text-right">0.00</td>
+                            <td class="text-right">0.00</td>
+                        {% endif %}
+
+                        {% if item.document_refamount == 0 or item.document_refamount == None %}
+                            <td class="text-right remaining-balance"></td>
+                        {% elif item.document_refamount < 0 %}
+                        <!-- negative amount -->
+                            <td class="text-right remaining-balance">({{ item.document_refamount|abs|floatformat:2|intcomma }})</td>
+                        {% else %}
+                        <!-- postive amount -->
+                            <td class="text-right remaining-balance">{{ item.document_refamount|floatformat:2|intcomma }}</td>
+                        {% endif %}
+
+                        {% if item.document_num == item.document_refnum %}
+                            <td class="text-left reftype pointer" style="background-color: #fcf8e3;" title="double click to see details."
+                            ondblclick="edit(
+                                `{{ item.tag_id }}`,
+                                `{{ item.name }}`,
+                                `{{ item.code }}`,
+                                `{{ item.document_reftype }}`,
+                                `{{ item.document_refnum }}`,
+                                `{{ item.balancecode }}`,
+                                `{{ item.amount }}`,
+                                `{{ item.document_refamount }}`
+                            )">
+                                {{ item.document_reftype|default:'' }}
+                            </td>
+                        {% else %}
+                            <td class="text-left reftype tagid_{{ item.tag_id }}" 
+                                data-id="{{ item.id }}"
+                                data-name="{{ item.name }}"
+                                data-code="{{ item.code }}"
+                                data-reftype="{{ item.document_reftype }}"
+                                data-refnum="{{ item.document_refnum }}"
+                                data-balancecode="{{ item.balancecode }}"
+                                data-amount="{{ item.amount }}"
+                            >
+                                {{ item.document_reftype|default:'' }}
+                            </td>
+                        {% endif %}
+
+                        <td class="text-left docnum">{{ item.document_refnum|default:'' }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center"><span>No data found.</span></td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="6" class="text-right">Total</td>
+                    <td class="text-right">{{ tdebit|floatformat:2|intcomma }}</td>
+                    <td class="text-right">{{ tcredit|floatformat:2|intcomma }}</td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+</div>
+<div class="clearfix"></div>
+<!-- modal -->
+<div id="showModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 550px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-left">Manage Accrued Expense</h4>
+            </div>
+            <div class="modal-body" style="overflow:hidden;">
+                <div class="form-group col-md-12">
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_payee_name">Payee:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm"
+                                       style="padding: 5px 10px" id="tag_payee_name" name="tag_payee_name" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_ref_type">Ref Type:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm"
+                                       style="padding: 5px 10px" id="tag_ref_type" name="tag_ref_type" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_ref_number">Ref No.:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm"
+                                       style="padding: 5px 10px" id="tag_ref_number" name="tag_ref_number">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_balance_code">Code:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm"
+                                       style="padding: 5px 10px" id="tag_balance_code" name="tag_balance_code" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_amount">Amount:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm text-right"
+                                       style="padding: 5px 10px" id="tag_amount" name="tag_amount" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="remaining-balance-area" style="display: none;">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_remaining_balance">Remaining Balance:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm text-right"
+                                       style="padding: 5px 10px" id="tag_remaining_balance" name="tag_remaining_balance" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="payments"></div>
+                    <br><br>
+                    <p class="text-danger"><b class="warning-message"></b></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div align="center">
+                    <button type="button" class="btn btn-sm btn-info" id="tag_btn" title="Click to edit" style="display: none;">Edit</button>
+                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end modal edit -->
+<script>
+    function formatCurrency(value) {
+        return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function clearFormModal(){
+        $('.payments').html('');
+        $('#tag_payee_name').val('');
+        $('#tag_ref_number').val('');
+        $('#tag_ref_type').val('');
+        $('#tag_amount').val('');
+        $('#tag_remaining_balance').val();
+        $('#remaining-balance-area').hide();
+
+        return true;
+    }
+
+    function edit(tag_id, payeename, payeecode, reftype, refnum, balancecode, amount, refamount){
+        clearFormModal();
+        const details = [];
+        $('td.tagid_'+tag_id).each(function () {
+            details.push({
+                'id': String($(this).data('id')),
+                'name': String($(this).data('name')),
+                'code': String($(this).data('code')),
+                'reftype': String($(this).data('reftype')),
+                'refnum': String($(this).data('refnum')),
+                'balancecode': String($(this).data('balancecode')),
+                'amount': String($(this).data('amount')),
+            });
+        });
+        
+        if(tag_id && details){
+            let bCode = balancecode === 'D' ? 'Debit' : 'Credit';
+            $('#tag_payee_name').val(payeename+" - "+payeecode);
+            $('#tag_ref_type').val(reftype);
+            $('#tag_ref_number').val(refnum);
+            $('#tag_balance_code').val(bCode);
+            $('#tag_amount').val(formatCurrency(parseFloat(amount)));
+            console.log(details);
+
+            let total = 0;
+            let resultHtml = '<div class="row"> <br> <p class="text-left"> Breakdown: </p></div> <hr> ';
+            resultHtml += '<div class="col-md-12">';
+
+            details.forEach(function(item, index){
+                total += parseFloat(item.amount);
+                let balCode = item.balancecode === 'D' ? 'Debit' : 'Credit';
+                resultHtml += '<div class="row" style="background-color: #fcf8e3; padding: 8px 4px">';
+                resultHtml += `<div class="col-sm-1 text-left"><b>${index+1}.</b></div>`;
+                resultHtml += `<div class="col-md-2 text-left"><b>${item.reftype}</b></div>`;
+                resultHtml += `<div class="col-md-3 text-left"><b>${item.refnum}</b></div>`;
+                resultHtml += `<div class="col-md-2 text-left"><b>${balCode}</b></div>`;
+                resultHtml += `<div class="col-md-3 text-right"><b>${formatCurrency(parseFloat(item.amount))}</b></div>`;
+                resultHtml += `<div class="col-md-1 text-left"><a href="#untag" onclick="untag('${item.id}', '${item.reftype}', '${item.refnum}')">Untag</a></div>`;
+                resultHtml += '</div>';
+            });
+
+            resultHtml += '<div class="row"> <hr> ';
+            resultHtml += '<div class="col-md-4 text-left"></div>';
+            resultHtml += '<div class="col-md-4 text-left">Total:</div>';
+            resultHtml += `<div class="col-md-3 text-right">${formatCurrency(parseFloat(total))}</div>`;
+            resultHtml += '</div>';
+
+            resultHtml += '</div>';
+
+            $('.payments').html(resultHtml);
+
+            if(parseFloat(refamount) !== 0){
+                $('#tag_remaining_balance').val(formatCurrency(parseFloat(refamount)));
+                $('#remaining-balance-area').show();
+            }
+            
+            $('#showModal').modal('show');
+
+        } else {
+            alert('Data not found.');
+        }
+
+    }
+
+    function untag(id, doctype, refnum){
+        if(confirm("Confirm the untagging action for "+ doctype +" "+ refnum +"?")){
+            
+            $.ajax({
+                url: "{% url 'prepaidaccrual:untagaccruedexpense' %}",
+                type: "POST",
+                data: {
+                    'csrfmiddlewaretoken': "{{ csrf_token }}",
+                    'id': id,
+                },
+                success: function (response){
+                    if (response.status == 'success'){
+                        $('#showModal').modal('hide');
+                        setTimeout(function(){
+                            $('#retrieve')[0].click();
+                        }, 1000);
+                    } else {
+                        alert(response.message);
+                    }
+                    
+                },
+                error: function (response) {
+                    console.log("err "+JSON.stringify(response));
+                    alert('An internal error occured.');
+                }
+            });
+        }
+        
+        return;
+    }
+</script>

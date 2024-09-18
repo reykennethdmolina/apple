@@ -1,0 +1,104 @@
+{% extends 'base-form.html' %}
+{% load endless %}
+{% load humanize %}
+{% load staticfiles %}
+{% block page-title %}<div style="margin-top: 15px; line-height: 25px;">Prepaid Expenses</div>{% endblock page-title %}
+
+{% block page-content %}
+<div class="panel-body container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-bordered">
+                <div class="panel-body" style="padding: 20px;">
+                    <div class="text-center">
+                        <h3>Prepaid Transaction Listing</h3>
+                        <strong>For the month of {{ month }} {{ year }}</strong>
+                    </div>
+                    {% if data %}
+                        <a class="btn btn-primary waves-effect waves-dark floatright" id="import-schedule" style="margin: 10px 0">
+                            <i class="icon fa-play" aria-hidden="true"></i>&nbsp;&nbsp;Start Import
+                        </a>
+                        <table class="table table-striped table-bordered" style="font-size:12px">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Reference</th>
+                                    <th>Payee</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in data %}
+                                <tr {% if item.payeecode == None %} class="text-danger" {% endif %}>
+                                    <td class="text-left"> {{ item.document_type }}</td>
+                                    <td class="text-left"> {{ item.document_num }}</td>
+                                    <td class="text-left"> {{ item.payeename|default:"NO PAYEE/SUPPLIER" }} - {{ item.payeecode|default:"N/A" }}</td>
+                                    <td class="text-right">{{ item.debitamount|floatformat:2|intcomma }}</td>
+                                    <td class="text-right">{{ item.creditamount|floatformat:2|intcomma }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td class="text-right" colspan="3">Total</td>
+                                <td class="text-right">{{ tdebit|floatformat:2|intcomma }}</td>
+                                <td class="text-right">{{ tcredit|floatformat:2|intcomma }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <input type="hidden" id="dfrom" value="{{ dfrom }}" />
+                        <input type="hidden" id="dto" value="{{ dto }}" />
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    
+</div>
+
+{% endblock page-content %}
+{% block extra_js %}
+    
+<script>
+    $(function () {
+        $('#import-schedule').on('click', function() {
+            $('#import-schedule').removeClass('btn-danger').addClass('btn-primary');
+            $(this).text('Importing data...');
+            var dfrom = $('#dfrom').val();
+            var dto = $('#dto').val();
+            
+            $.ajax({
+                url: "{% url 'prepaidaccrual:importprepaidschedule' %}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'dfrom': dfrom,
+                    'dto': dto,
+                },
+                success: function(response) {
+                    if (response.status === 'success'){
+                        $('#import-schedule').text('Imported successfuly!');
+                        $('#import-schedule').attr("disabled","disabled");
+                        setTimeout(function () {
+                            if (response.existing > 0){
+                                if(confirm('Import successful with '+response.existing+' existing records. Click Ok to close the tab.')){
+                                    window.close();
+                                }
+                            } else {
+                                if(confirm('Import successful. Click Ok to close the tab.')){
+                                    window.close();
+                                }
+                            }
+                        }, 1000);
+                    } else {
+                        $('#import-schedule').removeClass('btn-primary').addClass('btn-danger');
+                        $('#import-schedule').text('Import failed! Retry?');
+                        alert(response.message);
+                    }
+                }
+            });
+        });
+	});
+
+    </script>
+{% endblock extra_js %}
