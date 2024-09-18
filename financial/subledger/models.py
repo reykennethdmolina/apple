@@ -110,6 +110,8 @@ class Subledger(models.Model):
     isdeleted = models.IntegerField(default=0)
     breakdownsource_id = models.IntegerField(null=True, blank=True)
     reference_number = models.CharField(max_length=50, null=True)
+    tag_id = models.IntegerField(null=True, blank=True)
+    is_closed = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'subledger'
