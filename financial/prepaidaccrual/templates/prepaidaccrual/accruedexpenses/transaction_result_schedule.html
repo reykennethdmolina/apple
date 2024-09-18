@@ -1,0 +1,76 @@
+{% load humanize %}
+{% load mathfilters %}
+{% load custom %}
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<style>
+    .pointer{
+        cursor: pointer;
+    }
+    .form-group{
+        margin-bottom: 5px;
+    }
+</style>
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="page-wrap">
+        <h3>Schedule of Accrued Expenses</h3>
+
+        {% if data %}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered" style="font-size:12px">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Type</th>
+                            <th>Number</th>
+                            <th>Date</th>
+                            <th>Payee</th>
+                            <th>Particulars</th>
+                            <th>Account Code</th>
+                            <th>Chart of Account</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Amount</th>
+                            <th>Remaining Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in data %}
+                        <tr {% if item.code == None %} class="text-danger" {% endif %}>
+                            <td class="text-left">{{ forloop.counter }}</td>
+                            <td class="text-left">{{ item.document_type }}</td>
+                            <td class="text-left">{{ item.document_num }}</td>
+                            <td class="text-left">{{ item.document_date|date:'Y-m-d' }}</td>
+                            <td class="text-left">{{ item.name|default:"NO PAYEE/SUPPLIER" }} - {{ item.code|default:"N/A" }} </td>
+                            <td class="text-left">{{ item.particulars }}</td>
+                            <td class="text-left">{{ item.accountcode }}</td>
+                            <td class="text-left">{{ item.coa_description }}</td>
+                            <td class="text-right">{{ item.debitamount|floatformat:2|intcomma }}</td>
+                            <td class="text-right">{{ item.creditamount|floatformat:2|intcomma }}</td>
+                            <td class="text-right">{{ item.amount|intcomma }}</td>
+                            <td class="text-right">{{ item.document_refamount|default:''|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="6" class="text-right">Total</td>
+                        <td class="text-right">{{ total|floatformat:2|intcomma }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+        <br>
+            {% if transaction == '1' %}
+                <span>No Prepaid Expense Schedule data found. {% if import_count %}<a href="{% url 'prepaidaccrual:importprepaidschedule' %}?from={{ dfrom }}&to={{ dto }}" target="_blank">Import {{ import_count }} transactions for manual entry here.</a> {% endif %}</span>
+            {% elif transaction == '2' %}
+                <span>No Accrued Expense Schedule data found. </span>
+            {% endif %}
+        {% endif %}
+        <input type="hidden" id="duplicate_entry_id">
+    </div>
+
+    
+</div>
+<div class="clearfix"></div>
