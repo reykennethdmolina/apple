@@ -1,68 +1,472 @@
 {% load humanize %}
 {% load mathfilters %}
 {% load custom %}
+<style>
+    .pointer{
+        cursor: pointer;
+    }
+    .table-fix-head { overflow: auto; height: 700px; }
+
+    /* Just common table stuff. Really. */
+    table  { border-collapse: collapse; width: 100%; }
+    th, td { padding: 8px 16px; }
+    th     { background:#fff; }
+
+    .float-right {
+        float: right;
+        margin-right: 8px;
+    }
+</style>
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="page-wrap">
-        <h3>RESULTS</h3>
-        <table class="table table-striped table-bordered" style="font-size:12px">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Number</th>
-                    <th style="width:250px;">Customer / Supplier</th>
-                    <th style="width:300px;">Remarks</th>
-                    <th>Debit Amount</th>
-                    <th>Credit Amount</th>
-                    <th>Ref Type</th>
-                    <th>Ref No</th>
-                    <th>Ref Date</th>
-                    <th>Action</th>
+        <div>
+            <h3>{{ transaction }} - {{ reporttype }}<button class="btn btn-warning float-right" id="tag">Tag</button></h3>
+        </div>
+        <div class="table-fix-head">
+            <table class="table table-striped table-bordered" style="font-size:12px">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Number</th>
+                        <th style="width:250px;">Customer / Supplier</th>
+                        <th style="width:300px;">Remarks</th>
+                        <th>Debit Amount</th>
+                        <th>Credit Amount</th>
+                        <th>Remaining Balance</th>
+                        <th>Ref Type</th>
+                        <th>Ref No</th>
+                        <th>Ref Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in data %}
+                <tr {% if item.pcode == None %} class="text-danger" {% endif %}>
+                    <td class="text-left">{{ item.document_date|date:'Y-m-d' }}</td>
+                    <td class="text-left">{{ item.document_type }}</td>
+                    <td class="text-left">{% if item.orsource == 'A'%}OR{% elif item.orsource == 'C' %}CR{% endif %}{{ item.document_num }}</td>
+                    <td class="text-left supname" >
+                        {% if item.document_refnum %}
+                            {{ item.pname|default:"NO PAYEE/SUPPLIER" }} - {{ item.pcode|default:"N/A" }} 
+                        {% else %}
+                            <label for="chbx_{{ item.id }}" class="pointer">{{ item.pcode|default:"N/A" }} - {{ item.pname|default:"NO CUSTOMER/SUPPLIER" }}</label>        
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="checkbox" id="chbx_{{ item.id }}" class="pointer chbx" 
+                                    data-sl_id="{{ item.id }}" 
+                                    data-customername="{{ item.pname }}" 
+                                    data-documenttype="{{ item.document_type }}" 
+                                    data-documentnum="{{ item.document_num }}" 
+                                    data-balancecode="{{ item.balancecode }}" 
+                                    data-amount="{{ item.amount }}" 
+                                    data-remainingbalance="{{ item.document_refamount }}"> 
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                        {% endif %}
+                    <td class="text-left">{{ item.particulars }}</td>
+                    <td class="text-right">{{ item.debitamount|floatformat:2|intcomma }}</td>
+                    <td class="text-right">{{ item.creditamount|floatformat:2|intcomma }}</td>
+
+                    {% if item.document_refamount == 0 or item.document_refamount == None %}
+                        <td class="text-right remaining-balance"></td>
+                    {% elif item.document_refamount < 0 %}
+                    <!-- negative amount -->
+                        <td class="text-right remaining-balance">({{ item.document_refamount|abs|floatformat:2|intcomma }})</td>
+                    {% else %}
+                    <!-- postive amount -->
+                        <td class="text-right remaining-balance">{{ item.document_refamount|floatformat:2|intcomma }}</td>
+                    {% endif %}
+
+                    <td class="text-left reftype" {% if item.document_num == item.document_refnum %} style="background-color: #fcf8e3;" {% endif %}>{{ item.document_reftype|default:'' }}</td>
+                    <td class="text-left docnum" class="refnum">{{ item.document_refnum|default:'' }}</td>
+                    <td class="text-left"><span  id="refdate{{ item.id }}">{{ item.document_refdate|date:'Y-m-d'|default:'' }}</span></td>
+                    {% comment %} <td><button data-id="{{ item.id }}" class="tagbutton">Tag</button></td> {% endcomment %}
+
                 </tr>
-            </thead>
-            <tbody>
-            {% for item in data %}
-            <tr {% if item.pcode == None %} class="text-danger" {% endif %}>
-                <td class="text-left">{{ item.document_date|date:'Y-m-d' }}</td>
-                <td class="text-left">{{ item.document_type }}</td>
-                <td class="text-left">{% if item.orsource == 'A'%}OR{% elif item.orsource == 'C' %}CR{% endif %}{{ item.document_num }}</td>
-                <td class="text-left" >{{ item.pcode|default:"N/A" }} - {{ item.pname|default:"NO CUSTOMER/SUPPLIER" }}</td>
-                <td class="text-left">{{ item.particulars }}</td>
-                <td class="text-right">{{ item.debitamount|floatformat:2|intcomma }}</td>
-                <td class="text-right">{{ item.creditamount|floatformat:2|intcomma }}</td>
-                <td class="text-left">
-                    <select id="reftype{{ item.id }}" class="reftype">
-                        <option value="">--</option>
-                        <option value="AP" {% if item.document_reftype = 'AP' %} selected="selected" {% endif %}>AP</option>
-                        <option value="CV" {% if item.document_reftype = 'CV' %} selected="selected" {% endif %}>CV</option>
-                        <option value="JV" {% if item.document_reftype = 'JV' %} selected="selected" {% endif %}>JV</option>
-                        <option value="OR" {% if item.document_reftype = 'OR' %} selected="selected" {% endif %}>OR</option>
-                    </select>
-                </td>
-                <td class="text-left" class="refnum">
-                    <input type="text" style="width:80px"  id="refnum{{ item.id }}" value="{{ item.document_refnum|default:'' }}"></td>
-                <td class="text-left"><span  id="refdate{{ item.id }}">{{ item.document_refdate|date:'Y-m-d'|default:'' }}</span></td>
-                <td><button data-id="{{ item.id }}" class="tagbutton">Tag</button></td>
-
-            </tr>
-            {% endfor %}
-            <tr>
-                <td colspan="5" class="text-right">Total</td>
-                <td class="text-right">{{ tdebit|floatformat:2|intcomma }}</td>
-                <td class="text-right">{{ tcredit|floatformat:2|intcomma }}</td>
-                <td colspan="3" class="text-right"></td>
-            </tr>
-            </tbody>
-        </table>
-
+                {% endfor %}
+                <tr>
+                    <td colspan="5" class="text-right">Total</td>
+                    <td class="text-right">{{ tdebit|floatformat:2|intcomma }}</td>
+                    <td class="text-right">{{ tcredit|floatformat:2|intcomma }}</td>
+                    <td colspan="3" class="text-right"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row float-right" style="margin-top: 25px;">
+            <a href="{% url 'nontrade:managearnontradeview' %}" target="_blank">Tagged Transactions</a>
+        </div>
     </div>
 </div>
 <div class="clearfix"></div>
-
+<!-- modal tag -->
+<div id="tagModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 550px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title text-left">Tagging Details</h4>
+            </div>
+            <div class="modal-body" style="overflow:hidden;">
+                <div class="form-group col-md-12">
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_customer_name">Customer/Supplier:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm"
+                                    style="padding: 5px 10px" id="tag_customer_name" name="tag_customer_name" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_ref_type">Ref Type:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm"
+                                    style="padding: 5px 10px" id="tag_ref_type" name="tag_ref_type" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_ref_number">Ref No.:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm"
+                                    style="padding: 5px 10px" id="tag_ref_number" name="tag_ref_number">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_balance_code">Code:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm"
+                                    style="padding: 5px 10px" id="tag_balance_code" name="tag_balance_code" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_amount">Amount:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm text-right"
+                                    style="padding: 5px 10px" id="tag_amount" name="tag_amount" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="remaining-balance-area" style="display: none;">
+                        <div class="form-group col-md-12 extra-field">
+                            <div class="form-group col-md-4 text-left">
+                                <label class="control-label" for="tag_remaining_balance">Remaining Balance:</label>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control input-sm text-right"
+                                    style="padding: 5px 10px" id="tag_remaining_balance" name="tag_remaining_balance" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="payments"></div>
+                    <br><br>
+                    <p class="text-danger"><b class="warning-message"></b></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div align="center">
+                    <button type="button" class="btn btn-sm btn-info" id="tag_btn" title="Click to tag">Tag</button>
+                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end modal tag -->
 <script>
     $(function () {
 
-        $('.tagbutton').on('click', function(e) {
+        let arNonTrade = [];
+        let current_setup_docnum = '';
+        let computed_balance = 0;
+        let continue_tagging = true;
+
+        function clearFormTagModal(){
+            $('#tag_btn').text('Tag');
+            $('.payments').html('');
+            $('#tag_customer_name').val('');
+            $('#tag_ref_number').val('');
+            $('#tag_ref_type').val('');
+            $('#tag_amount').val('');
+            $('#tag_remaining_balance').val();
+            $('#remaining-balance-area').hide();
+            $('.warning-message').text('');
+
+            arNonTrade = [];
+            current_setup_docnum = '';
+            computed_balance = 0;
+            continue_tagging = true;
+
+            return true;
+        }
+
+        function formatCurrency(value) {
+            return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function validateOneCustomerOnly(arr){
+            var x = arr[0];
+            return arr.every(function(item){
+                return item === x;
+            });
+        }
+
+        $('#tag').click(function(e){
+            e.preventDefault();
+            clearFormTagModal();
+            arNonTrade = [];
+
+            let wdebit = false;
+            let wcredit = false;
+            let customername = '', reftype = '', bCode = '';
+            let remainingBalance = 0, jvamount = 0;
+            var oneCreditOnly = 0;
+            const payments = [];
+            const oneCustomerOnly = [];
+
+            $('input[type=checkbox].chbx:checked').filter(function() {
+                // Filter out checkboxes whose parent row is hidden
+                return $(this).closest('tr').is(':visible');
+            }).each(function() {
+                tempCustomername = $(this).data('customername');
+                tempReftype = $(this).data('documenttype');
+
+                oneCustomerOnly.push(tempCustomername);
+                
+                balanceCode = $(this).data('balancecode');
+                documentType = $(this).data('documenttype');
+
+                documentNum = $(this).data('documentnum');
+                amount = $(this).data('amount');
+
+                textRemainingBalance = $(this).closest('tr').find('td.remaining-balance').text();
+                if (textRemainingBalance.includes('(')){
+                    tempRemainingBalance = -1 * parseFloat(textRemainingBalance.replace(/[,()]/g, ''));
+                } else {
+                    tempRemainingBalance = parseFloat(textRemainingBalance.replace(/,/g, ''));
+                }
+
+                const sl_id = $(this).data('sl_id');
+                let balCode = balanceCode === 'D' ? 'Debit' : 'Credit';
+
+                if(balanceCode === 'C'){
+                    wcredit = true;
+                    oneCreditOnly += 1;
+                    jvnum = documentNum;
+                    bCode = balCode;
+                    jvamount = amount;
+                    remainingBalance = isNaN(tempRemainingBalance) ? 0 : tempRemainingBalance;
+                    
+                    arNonTrade.push({
+                        'main': {
+                            'sl_id': sl_id,
+                            'documentType': documentType,
+                            'documentNum': documentNum,
+                            'balanceCode': balCode,
+                            'amount': amount,
+                            'remainingBalance': remainingBalance
+                        }
+                    });
+
+                    customername = tempCustomername;
+                    reftype = tempReftype;
+                    current_setup_docnum = jvnum;
+                    
+                } else {
+                    wdebit = true;
+                    payments.push({
+                        'sl_id': sl_id,
+                        'documentType': documentType,
+                        'documentNum': documentNum,
+                        'balanceCode': balCode,
+                        'amount': amount
+                    });
+                }
+            });
+
+            if(!validateOneCustomerOnly(oneCustomerOnly)){
+                alert('Please select the same Customer/Supplier name.');
+                return;
+            }
+
+            if (oneCreditOnly > 1){
+                alert('Please select one (Credit) setup only.');
+                return;
+            }
+            
+            if(wdebit && wcredit) {
+                $('#tag_customer_name').val(customername);
+                $('#tag_ref_number').val(jvnum);
+                $('#tag_ref_type').val(reftype);
+                $('#tag_balance_code').val(bCode);
+                $('#tag_amount').val(formatCurrency(parseFloat(jvamount)));
+
+                let total = 0;
+                let resultHtml = '<div class="row"> <br> <p class="text-left"> Breakdown: </p></div> <hr> ';
+                resultHtml += '<div class="col-md-12">';
+                
+                payments.forEach(function (item, index) {
+                    total += parseFloat(item.amount);
+
+                    resultHtml += '<div class="row" style="background-color: #fcf8e3; padding: 8px 4px">';
+                    resultHtml += `<div class="col-md-1 text-left"><b>${index+1}.</b></div>`;
+                    resultHtml += `<div class="col-md-2 text-left"><b>${item.documentType}</b></div>`;
+                    resultHtml += `<div class="col-md-3 text-left"><b>${item.documentNum}</b></div>`;
+                    resultHtml += `<div class="col-md-2 text-left"><b>${item.balanceCode}</b></div>`;
+                    resultHtml += `<div class="col-md-4 text-right"><b>${formatCurrency(parseFloat(item.amount))}</b></div>`;
+                    resultHtml += '</div>';
+                });
+
+                resultHtml += '<div class="row"> <hr> ';
+                resultHtml += '<div class="col-md-4 text-left"></div>';
+                resultHtml += '<div class="col-md-4 text-right"><b>Total:</b></div>';
+                resultHtml += `<div class="col-md-4 text-right"><b>${formatCurrency(parseFloat(total))}</b></div>`;
+                resultHtml += '</div>';
+
+                resultHtml += '</div>';
+
+                $('.payments').html(resultHtml);
+                $('#tagModal').modal('show');
+
+                if(remainingBalance === 0){
+                    console.log(parseFloat(total), parseFloat(jvamount));
+                    if(parseFloat(total) > parseFloat(jvamount)){
+                        continue_tagging = false;
+                    } else if(parseFloat(total) !== parseFloat(jvamount)){
+                        $('.warning-message').text("Warning: Credit Amount and Total Amount are unmatched!");
+                    }
+
+                } else {
+                    $('#tag_remaining_balance').val(formatCurrency(remainingBalance));
+                    $('#remaining-balance-area').show();
+                    if(parseFloat(total) !== parseFloat(remainingBalance)){
+                        $('.warning-message').text("Warning: Remaining Balance and Total Amount are unmatched!");
+                    }
+                }
+                
+                arNonTrade.push({
+                    'breakdown': payments,
+                });
+
+                arNonTrade.push({
+                    'total': total.toFixed(2),
+                });
+                console.log('geh', jvamount, parseFloat(remainingBalance), total);
+                if(parseFloat(remainingBalance) === 0){
+                    computed_balance = parseFloat(jvamount) - parseFloat(total);
+                } else if(parseFloat(remainingBalance) < 0){
+                    // for negative remainingBalance
+                    computed_balance = parseFloat(remainingBalance) + parseFloat(total);
+                } else {
+                    computed_balance = parseFloat(remainingBalance) - parseFloat(total);
+                }
+                console.log('computed_balance', computed_balance);
+                arNonTrade.push({
+                    'computed_balance': computed_balance.toFixed(2)
+                });
+
+            } else {
+                alert('No matching transactions');
+                return;
+            }
+        });
+
+        $('#tag_btn').click(function(e){
+            e.preventDefault();
+
+            if(!continue_tagging){
+                alert('The outstanding balance exceeds the total amount.');
+                $('#tagModal').modal('hide');
+                return false;
+            }
+
+            $(this).text('Saving...');
+            if(arNonTrade){
+                console.log('tot', arNonTrade, parseFloat(arNonTrade[2]['total']));
+                $.ajax({
+                    url: "{% url 'nontrade:tagarnontrade' %}",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: {
+                        'csrfmiddlewaretoken': "{{ csrf_token }}",
+                        'ar_nontrade': JSON.stringify(arNonTrade),
+                    },
+                    success: function(response) {
+                        if(response.status == 'success'){
+                            $('#tag_btn').text('Tagging successful!');
+
+                            $('input[type=checkbox].chbx:checked').filter(function() {
+                                // Filter out checkboxes whose parent row is hidden
+                                return $(this).closest('tr').is(':visible');
+                            }).each(function() {
+                                const isCredit = $(this).data('balancecode') === 'C' ? true : false;
+                                
+                                if(isCredit && computed_balance > 0){
+                                    $(this).closest('tr').find('td.remaining-balance').text(formatCurrency(computed_balance));
+                                } else if(isCredit && computed_balance < 0){
+                                    $(this).closest('tr').find('td.remaining-balance').text(`(${formatCurrency(Math.abs(computed_balance))})`);
+                                }
+
+                                $(this).closest('tr').find('.reftype').text(arNonTrade[0]['main']['documentType']);
+                                $(this).closest('tr').find('.docnum').text(current_setup_docnum);
+
+                                if(isCredit){
+                                    $(this).closest('tr').find('.reftype').css('background-color', '#fcf8e3');
+                                    if(computed_balance === 0){
+                                        $(this).closest('tr').find('.remaining-balance').text('');
+
+                                        let sup_label = $(this).closest('td.supname');
+                                        const supname = sup_label.find('label').text();
+                                        sup_label.text(supname);
+                                    } else {
+                                        $(this).attr('data-remainingbalance', computed_balance);
+                                        $(this).prop('checked', false);
+                                    }
+                                } else {
+                                    let sup_label = $(this).closest('td.supname');
+                                    const supname = sup_label.find('label').text();
+                                    sup_label.text(supname);
+                                }
+                            });
+
+                            setTimeout(function(){
+                                $('#tagModal').modal('hide');
+                            }, 1000);
+                        } else if(response.status == 'failed'){
+                            alert(response.message);
+                            $('#tag_btn').text('Tag');
+                        } else {
+                            $('#tag_btn').text('Tag');
+                            alert(response.message);
+                        }
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        console.log(xhr, textStatus, errorThrown);
+                        alert("An error occured "+ textStatus);
+                        $('#tag_btn').text('Tag');
+                    }
+                });
+            } else {
+                alert('Empty tag data.');
+            }
+        });
+
+        {% comment %} $('.tagbutton').on('click', function(e) {
             var id = $(this).data('id');
             var reftype = $('#reftype'+id).val();
             var refnum = $('#refnum'+id).val();
@@ -90,7 +494,7 @@
                     }
                 }
             });
-        });
+        }); {% endcomment %}
 
 
     });
