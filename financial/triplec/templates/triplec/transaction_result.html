@@ -1442,9 +1442,6 @@
                 if (span.length > 1) {
                     span.slice(1).remove();
                 }
-                // if (span.length === 0) {
-                //     bureau_label.append('<span class="text-danger">*</span>');
-                // }
 
             } else {
                 $("#select_bureau").removeClass("required-field");
@@ -1553,7 +1550,7 @@
                 row.find("select[name=author_name]").val('').change();
                 row.find("select[name=type]").val('').change();
             }
-           
+        
         });
 
         // cancel modal
@@ -1967,4 +1964,5 @@
     });
 
 </script>
+
 {% endblock extra_js %}
