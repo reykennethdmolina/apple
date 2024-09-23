@@ -156,7 +156,7 @@ def fileprocess(request):
     df = pandas.read_excel(request.FILES['data_file'])
 
     # filter article status as 'Archived' only
-    filtered = df[df['article status'] == 'Archived']
+    filtered = df[df['Status'] == 'Archived']
     records = filtered.to_json(orient='records')
     records = json.loads(records)
 
@@ -187,7 +187,7 @@ def upload(request):
                         successcount += 1
                     else:
                         failedcount += 1
-                        faileddata.append([issue_date, record['Article ID'], record['Article Title'], record['Number Of words'], record['NumberofCharacters'], errorsavingdata, textwarning])
+                        faileddata.append([issue_date, record['Article ID'], record['Article Title'], record['Numberofwords'], record['NumberofCharacters'], errorsavingdata, textwarning])
                 
                 if successcount == records_count:
                     result = 1 
@@ -227,23 +227,23 @@ def strip_non_ascii(string):
 
 def savedata(record,issue_date):
     try:
-        article_title = strip_non_ascii(record['Article Title'])
-        byline = strip_non_ascii(record['Byline'])
-        created_by = strip_non_ascii(record['Created by'])
+        article_title = strip_non_ascii(record['Article Title']) if record['Article Title'] else ''
+        # byline = strip_non_ascii(record['Byline'])
+        created_by = strip_non_ascii(record['Created by']) if record['Created by'] else ''
 
         TripleC.objects.create(
             cms_issue_date=issue_date,
             cms_article_status='A',
-            cms_publication=str(record['Publication']),
-            cms_section=str(record['Section']),
-            cms_page=str(record['Page']),
-            cms_article_id=str(record['Article ID']),
+            cms_publication=str(record['Publication']) if record['Publication'] else '',
+            cms_section=str(record['Section']) if record['Section'] else '',
+            cms_page=str(record['Page']) if record['Page'] else '',
+            cms_article_id=str(record['Article ID']) if record['Article ID'] else '',
             cms_article_title=article_title,
-            cms_byline=byline,
+            cms_byline='',
             cms_author_name=str(record['Author name']),
             cms_created_by=created_by,
-            cms_no_of_words=int(record['Number Of words']),
-            cms_no_of_characters=int(record['NumberofCharacters'])
+            cms_no_of_words=int(record['Numberofwords']) if record['Numberofwords'] else 0,
+            cms_no_of_characters=int(record['NumberofCharacters']) if record['NumberofCharacters'] else 0
         )
         return True
     except Exception as e:
