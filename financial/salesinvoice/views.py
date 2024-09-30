@@ -85,7 +85,7 @@ class CreateView(CreateView):
     model = Simain
     template_name = 'salesinvoice/create.html'
     fields = ['sidate', 'sitype', 'sisubtype', 'branch', 'creditterm', 'duedate', 
-                'amount', 'amountinwords', 'customer', 'vat', 'vatrate', 'outputvattype', 'wtaxrate', 'refno', 'designatedapprover',
+                'amount', 'amountinwords', 'customer', 'vat', 'vatrate', 'outputvattype', 'wtaxrate', 'wtaxamount', 'refno', 'designatedapprover',
                 'particulars']
     
     def dispatch(self, request, *args, **kwargs):
@@ -170,10 +170,8 @@ class CreateView(CreateView):
             self.object.vatablesale = 0
 
         self.object.vatamount = non_vat_amount * (decimal.Decimal(self.object.vatrate) / decimal.Decimal(100))
-        self.object.wtaxamount = non_vat_amount * (decimal.Decimal(self.object.wtaxrate) / decimal.Decimal(100))
-        self.object.totalsale = non_vat_amount + self.object.vatamount - self.object.wtaxamount
-        # self.object.collector_code = self.object.collector.code
-        # self.object.collector_name = self.object.collector.name
+        # self.object.wtaxamount = non_vat_amount * (decimal.Decimal(self.object.wtaxrate) / decimal.Decimal(100))
+        self.object.totalsale = non_vat_amount + self.object.vatamount - decimal.Decimal(self.object.wtaxamount)
 
         self.object.save()
 
@@ -222,7 +220,7 @@ class UpdateView(UpdateView):
     model = Simain
     template_name = 'salesinvoice/update.html'
     fields = ['sinum', 'sidate', 'sitype', 'sisubtype', 'branch', 'customer', 'creditterm', 'duedate',
-                'amount', 'amountinwords', 'vat', 'vatrate', 'outputvattype', 'wtax', 'wtaxrate', 'refno', 'designatedapprover',
+                'amount', 'amountinwords', 'vat', 'vatrate', 'outputvattype', 'wtax', 'wtaxrate', 'wtaxamount', 'refno', 'designatedapprover',
                 'particulars', 'remarks']
 
     def dispatch(self, request, *args, **kwargs):
@@ -317,7 +315,7 @@ class UpdateView(UpdateView):
         # data for lookup
         context['sitype'] = Sitype.objects.filter(isdeleted=0).order_by('code')
         context['sisubtype'] = Sisubtype.objects.filter(isdeleted=0).order_by('code')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        # context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['customer'] = Customer.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
@@ -355,7 +353,7 @@ class UpdateView(UpdateView):
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['sidate', 'creditterm', 'duedate', 'amount', 'amountinwords', 'customer', 'vatrate', 'wtaxrate',
-                                        'branch', 'sitype', 'vat', 'wtax', 'outputvattype', 'particulars', 'remarks', 
+                                        'wtaxamount', 'sitype', 'vat', 'wtax', 'outputvattype', 'particulars', 'remarks', 
                                         'modifyby', 'modifydate', 'acctentry_incomplete'])
 
         non_vat_amount = decimal.Decimal(self.object.amount) / (1 + (decimal.Decimal(self.object.vatrate) / decimal.Decimal(100)))
@@ -378,14 +376,8 @@ class UpdateView(UpdateView):
             self.object.vatablesale = 0
 
         self.object.vatamount = non_vat_amount * (decimal.Decimal(self.object.vatrate) / decimal.Decimal(100))
-        self.object.wtaxamount = non_vat_amount * (decimal.Decimal(self.object.wtaxrate) / decimal.Decimal(100))
-        self.object.totalsale = non_vat_amount + self.object.vatamount - self.object.wtaxamount
-        # self.object.collector_code = self.object.collector.code
-        # self.object.collector_name = self.object.collector.name
-
-        # if self.object.circulationproduct:
-        #     self.object.circulationproduct_code = self.object.circulationproduct.code
-        #     self.object.circulationproduct_name = self.object.circulationproduct.description
+        # self.object.wtaxamount = non_vat_amount * (decimal.Decimal(self.object.wtaxrate) / decimal.Decimal(100))
+        self.object.totalsale = non_vat_amount + self.object.vatamount - decimal.Decimal(self.object.wtaxamount)
 
         self.object.save(update_fields=['vatamount', 'wtaxamount', 'vatablesale', 'vatexemptsale', 'vatzeroratedsale', 'totalsale'])
 

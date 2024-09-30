@@ -76,6 +76,11 @@
                     </div>
                 </h3>
                 <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
+                    <a href="{% url 'salesinvoice:create' %}" class="floatright">
+                        <button type="button" class="btn btn-success btn-sm waves-effect waves-light">
+                            <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;New Sales Invoice
+                        </button>
+                    </a>
                     {% if perms.salesinvoice.delete_simain and object.sistatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                     <a href="{% url 'salesinvoice:delete' object.id %}" class="floatright">
                         <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
@@ -96,6 +101,7 @@
                             <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
                         </button>
                     </a>
+                    
                 </div>
                 <form autocomplete="off" id="form-b" method="post">
                     {% csrf_token %}
@@ -136,10 +142,7 @@
                         <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_branch">Branch</label>
                             <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
-                                <option value="4">Sample-- Select --</option>
-                                {% for data in branch %}
-                                    <option value="{{ data.id }}" {% if form.branch.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
-                                {% endfor %}
+                                <option value="{{ form.branch.value }}" selected>HEAD OFFICE</option>
                             </select>
                             <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                         </div>
@@ -149,7 +152,7 @@
                                 <option value="">-- Select --</option>
                                 <option value="{{ form.customer.value }}" >{{ form.customer.name }}</option>
                                 {% for data in customer %}
-                                    <option value="{{ data.id }}" {% if form.customer.value == data.id %} selected="selected" {% endif %}>{{ data.name }}</option>
+                                    <option value="{{ data.id }}" {% if form.customer.value == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.name }}</option>
                                 {% endfor %}
                             </select>
                             <span class="help-block form-error">{{ form.customer.errors.as_text }}</span>
@@ -214,7 +217,11 @@
                             <span class="help-block form-error">{{ form.wtax.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 padding-top-30"><span id="wtaxrate" class="text-success small small"><strong>RATE: 00.00%</strong></span></div>
-                        
+                        <div class="form-group col-sm-3 {{ form.wtaxamount.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_wtaxamount">WTAX Amount</label>
+                            <input type="text" class="form-control input-sm amount" id="id_wtaxamount" style="text-align: right;" data-validation="required" value="{{ form.wtaxamount.value|default:'' }}" name="wtaxamount">
+                            <span class="help-block form-error">{{ form.wtaxamount.errors.as_text }}</span>
+                        </div>
                     </div>
                     <div class="col-md-4">
                         <div class="widgett widgett-article widgett-shadow">
@@ -403,6 +410,7 @@
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script>
+    
     $(function(){
         $('#id_sidate').datepicker();
         
@@ -413,7 +421,6 @@
         });
 
         $('.select2').select2();
-        ajaxselect2("customer", "id_customer");
         
         generateTotals();
 
@@ -438,20 +445,20 @@
             });
         });
 
-        if($("#id_vat").val() != '')    $('#vatrate').html("<strong>" + $("#id_vat").data('vatrate') + "</strong>");
-        else                            showRate("#id_vat", "vatrate", "RATE");
+        if($("#id_vat").val() != '') $('#vatrate').html("<strong>" + $("#id_vat").data('vatrate') + "</strong>");
+        else showRate("#id_vat", "vatrate", "RATE");
 
-        if($("#id_wtax").val() != '')    $('#wtaxrate').html("<strong>" + $("#id_wtax").data('wtaxrate') + "</strong>");
-        else                            showRate("#id_wtax", "wtaxrate", "RATE");
+        if($("#id_wtax").val() != '') $('#wtaxrate').html("<strong>" + $("#id_wtax").data('wtaxrate') + "</strong>");
+        else showRate("#id_wtax", "wtaxrate", "RATE");
 
         $("#id_amount").on('keyup', function(){
             var words = toWords($(this).val());
             $("#id_amountinwords").val(words);
         });
 
-        $("#id_branch option").filter(function(){
+        {% comment %} $("#id_branch option").filter(function(){
             return $(this).text() == 'HEAD OFFICE';
-        }).attr('selected', 'selected');
+        }).attr('selected', 'selected'); {% endcomment %}
 
         $('#id_vat').on('change', function(){
             showRate("#id_vat", "vatrate", "RATE");
@@ -537,11 +544,10 @@
         }
 
         function generateTotals(){
-            
             givenAmount = parseFloat($('#id_amount').val().replace(/,/g,''));
             vatRate = parseFloat($('#id_vat option:selected').data('rate'));
             wtaxRate = parseFloat($('#id_wtax option:selected').data('rate'));
-            console.log($('#id_wtax option:selected').data('rate'));
+            
             grossAmount = givenAmount/(1+(vatRate/100));
             addVat = grossAmount * (vatRate/100);
             wtaxAmount = grossAmount * (wtaxRate/100);
@@ -551,23 +557,32 @@
             $('#disp_note').text('');
 
             if($('#id_vat').val() != ''){
-                if($('#id_vat option:selected').data('code') == 'VE') $('#disp_vatexempt').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-                else if ($('#id_vat option:selected').data('code') == 'ZE') $('#disp_vatzero').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-                else $('#disp_vatable').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-
-                $('#disp_totalsale').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-                if (vatRate > 0) 
-                    $('#disp_addvat_percent').text(vatRate.toString() + "% ");
-                else
-                    $('#disp_addvat_percent').text("");
+                let textGrossAmount = grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                if($('#id_vat option:selected').data('code') == 'VE') $('#disp_vatexempt').val(textGrossAmount);
+                else if ($('#id_vat option:selected').data('code') == 'ZE') $('#disp_vatzero').val(textGrossAmount);
+                else $('#disp_vatable').val(textGrossAmount);
+                
+                $('#disp_totalsale').val(textGrossAmount);
+                if (vatRate > 0) $('#disp_addvat_percent').text(vatRate.toString() + "% ");
+                else $('#disp_addvat_percent').text("");
                 $('#disp_addvat').val(addVat.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 $('#disp_totalpay').val(totalPayment.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
+                let textWtaxAmount = wtaxAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                 if($('#id_wtax').val() != ''){
-                    $('#disp_note').text('Noted: ' + wtaxRate + '% w/tax -------> ' + wtaxAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                    $('#disp_note').text('Noted: ' + wtaxRate + '% w/tax -------> ' + $('#id_wtaxamount').val());
+                }
+
+                if($('#id_wtaxamount').val() == '' || $('#id_wtaxamount').val() == '0.00'){
+                    $('#id_wtaxamount').val(textWtaxAmount);
                 }
             }
         }
+
+        $("#id_wtaxamount").on('change keyup paste', function () {
+            wtaxRate = $('#id_wtax option:selected').data('rate');
+            $('#disp_note').text('Noted: ' + wtaxRate + '% w/tax -------> ' + $(this).val());
+        });
 
         function showRate(field, rateSpan, defaultText){
             var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
