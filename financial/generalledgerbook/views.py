@@ -1006,7 +1006,7 @@ def query_trial_balance(type, retained_earnings, current_earnings, year, month, 
     # print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
-
+    cursor.close()
     return result
 
 def query_balance_sheet(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth):
@@ -1210,7 +1210,7 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
     #print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
-
+    cursor.close()
     return result
 
 def query_income_statement(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth):
@@ -1360,7 +1360,7 @@ def query_income_statement(type, retained_earnings, current_earnings, year, mont
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
-
+    cursor.close()
     return result
 
 def namedtuplefetchall(cursor):
