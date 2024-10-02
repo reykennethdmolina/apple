@@ -456,9 +456,10 @@
             $("#id_amountinwords").val(words);
         });
 
-        {% comment %} $("#id_branch option").filter(function(){
-            return $(this).text() == 'HEAD OFFICE';
-        }).attr('selected', 'selected'); {% endcomment %}
+        $('#id_sitype').on('change', function(){
+            var sitype = $(this).val();
+            $('#id_outputvattype').val(sitype).change();
+        });
 
         $('#id_vat').on('change', function(){
             showRate("#id_vat", "vatrate", "RATE");
@@ -473,7 +474,6 @@
         $('#id_vat, #id_wtax').on('change', function(){
             generateTotals();
         });
-
 
         // Accounting entry start
         $.ajax({

@@ -208,7 +208,7 @@ def lastNumber(param):
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
-    print 'result', result
+    cursor.close()
     if result:
         return result[0]
     else:
@@ -300,7 +300,6 @@ class UpdateView(UpdateView):
 
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        # context['accountexecutive'] = Employee.objects.filter(status='A', isdeleted=0).exclude(firstname='').order_by('firstname')
         context['sinum'] = self.object.sinum
         context['footers'] = [self.object.enterby.first_name + " " + self.object.enterby.last_name if self.object.enterby else '',
                                 self.object.enterdate,
@@ -308,8 +307,6 @@ class UpdateView(UpdateView):
                                 self.object.modifydate, 
                                 self.object.postby.first_name + " " + self.object.postby.last_name if self.object.postby else '',
                                 self.object.postdate,
-                            #   self.object.closeby.first_name + " " + self.object.closeby.last_name if self.object.closeby else '',
-                            #   self.object.closedate,
                             ]
 
         # data for lookup
@@ -347,12 +344,12 @@ class UpdateView(UpdateView):
             self.object.wtaxrate = Wtax.objects.get(pk=int(self.request.POST['wtax'])).rate
 
         self.object.vatrate = Vat.objects.get(pk=int(self.request.POST['vat'])).rate
-        # self.object.accountexecutive_id = self.object.accountexecutive.id if self.object.accountexecutive else None
+        
         self.object.customer_id =  self.object.customer.id or None
         self.object.acctentry_incomplete = 0
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['sidate', 'creditterm', 'duedate', 'amount', 'amountinwords', 'customer', 'vatrate', 'wtaxrate',
+        self.object.save(update_fields=['sidate', 'sisubtype', 'creditterm', 'duedate', 'amount', 'amountinwords', 'customer', 'vatrate', 'wtaxrate',
                                         'wtaxamount', 'sitype', 'vat', 'wtax', 'outputvattype', 'particulars', 'remarks', 
                                         'modifyby', 'modifydate', 'acctentry_incomplete'])
 
