@@ -676,9 +676,10 @@ def exportsave(request):
                                         orno=data_d.orno,
                                         ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
                                         adtypecode=data_d.adtype,
-                                        amount=data_d.assignamount,
-                                        vatamount=data_d.assignvatamount,
-                                        creditamount=data_d.assignamount,
+                                        amount=data.amount,
+                                        #vatamount=data_d.assignvatamount,
+                                        vatamount=0,
+                                        creditamount=data.amount,
                                         balancecode='C',
                                         chartofaccountcode=Adtype.objects.get(code=data_d.adtype).chartofaccount_arcode.pk,
                                         payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
@@ -695,19 +696,19 @@ def exportsave(request):
                                         vatzerorated = float(vatzerorated) + float(data_d.assignamount)
 
                                     # do vat here
-                                    Temp_ordetail.objects.create(
-                                        orno=data_d.orno,
-                                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                                        creditamount=data_d.assignvatamount,
-                                        balancecode='C',
-                                        chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
-                                        vatrate=float(data_d.vatrate),
-                                        vatcode=data_d.vatcode,
-                                        outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
-                                        payeecode=temp_ormain.payeecode,
-                                        batchkey=data.batchkey,
-                                        postingremarks='Processing...',
-                                    ).save()
+                                    # Temp_ordetail.objects.create(
+                                    #     orno=data_d.orno,
+                                    #     ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    #     creditamount=data_d.assignvatamount,
+                                    #     balancecode='C',
+                                    #     chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                                    #     vatrate=float(data_d.vatrate),
+                                    #     vatcode=data_d.vatcode,
+                                    #     outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
+                                    #     payeecode=temp_ormain.payeecode,
+                                    #     batchkey=data.batchkey,
+                                    #     postingremarks='Processing...',
+                                    # ).save()
 
                                     vatamount = float(vatamount) + float(data_d.assignvatamount)
 
@@ -724,11 +725,11 @@ def exportsave(request):
                                         orno=data.orno,
                                         ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
                                         adtypecode=data.adtype,
-                                        amount=leftover_amount,
-                                        vatamount=leftover_vatamount,
-                                        creditamount=leftover_amount,
+                                        amount=data.amount,
+                                        vatamount=0,
+                                        creditamount=data.amount,
                                         balancecode='C',
-                                        chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_arcode.pk,
+                                        chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_arcode.id,
                                         payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
                                         payeename=data.payeename,
                                         batchkey=data.batchkey,
@@ -742,19 +743,19 @@ def exportsave(request):
                                         vatzerorated = float(vatzerorated) + float(leftover_amount)
 
                                     # do vat here
-                                    Temp_ordetail.objects.create(
-                                        orno=data.orno,
-                                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                                        creditamount=leftover_vatamount,
-                                        balancecode='C',
-                                        chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
-                                        vatrate=data.vatrate,
-                                        vatcode=data.vatcode,
-                                        outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
-                                        payeecode=temp_ormain.payeecode,
-                                        batchkey=data.batchkey,
-                                        postingremarks='Processing...',
-                                    ).save()
+                                    # Temp_ordetail.objects.create(
+                                    #     orno=data.orno,
+                                    #     ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    #     creditamount=leftover_vatamount,
+                                    #     balancecode='C',
+                                    #     chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                                    #     vatrate=data.vatrate,
+                                    #     vatcode=data.vatcode,
+                                    #     outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
+                                    #     payeecode=temp_ormain.payeecode,
+                                    #     batchkey=data.batchkey,
+                                    #     postingremarks='Processing...',
+                                    # ).save()
                                     vatamount = float(vatamount) + float(leftover_vatamount)
 
                                 else:
@@ -792,17 +793,18 @@ def exportsave(request):
                         log_remarks = "Has fully applied: <b>" + str(format(remainingamount, ',')) + "</b><br>"
 
                         # (r/e)
+
                         re_amount = float(format(remainingamount / (1 + (float(data.vatrate) * 0.01)), '.2f'))
                         re_vatamount = float(format(re_amount * (float(data.vatrate) * 0.01), '.2f'))
                         Temp_ordetail.objects.create(
                             orno=data.orno,
                             ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
                             adtypecode=data.adtype,
-                            amount=re_amount,
-                            vatamount=re_vatamount,
-                            creditamount=re_amount,
+                            amount=data.amount,
+                            vatamount=0,
+                            creditamount=data.amount,
                             balancecode='C',
-                            chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_revcode.pk,
+                            chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_arcode.pk,
                             productcode=data.product,
                             batchkey=data.batchkey,
                             postingremarks='Processing...',
@@ -816,19 +818,19 @@ def exportsave(request):
                             vatzerorated = float(vatzerorated) + float(re_amount)
 
                         # do vat here
-                        Temp_ordetail.objects.create(
-                            orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                            creditamount=re_vatamount,
-                            balancecode='C',
-                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
-                            vatrate=data.vatrate,
-                            vatcode=data.vatcode,
-                            outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
-                            payeecode=temp_ormain.payeecode,
-                            batchkey=data.batchkey,
-                            postingremarks='Processing...',
-                        ).save()
+                        # Temp_ordetail.objects.create(
+                        #     orno=data.orno,
+                        #     ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                        #     creditamount=re_vatamount,
+                        #     balancecode='C',
+                        #     chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                        #     vatrate=data.vatrate,
+                        #     vatcode=data.vatcode,
+                        #     outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
+                        #     payeecode=temp_ormain.payeecode,
+                        #     batchkey=data.batchkey,
+                        #     postingremarks='Processing...',
+                        # ).save()
                         vatamount = float(vatamount) + float(re_vatamount)
 
                     # temp ormain to ormain
