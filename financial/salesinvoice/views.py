@@ -948,11 +948,11 @@ class GeneratePDF(View):
         outputvat = request.GET['outputvat']
         status = request.GET['status']
         sistatus = request.GET['sistatus']
-        title = "Sales Invoice List"
+        title = "Sales Invoice Non Trade List"
         list = Simain.objects.filter(isdeleted=0).order_by('sinum')[:0]
         
         if report == '1':
-            title = "Invoice Register"
+            title = "Invoice Non Trade Register"
             q = Simain.objects.all().filter(isdeleted=0).order_by('sidate', 'sinum')
             if dfrom != '':
                 q = q.filter(sidate__gte=dfrom)
@@ -987,33 +987,33 @@ class GeneratePDF(View):
                                                 default=Sum('creditamount') - Sum('debitamount'))) \
                 .order_by('chartofaccount__accountcode')
         elif report == '8':
-            title = "Sales Invoice Output VAT"
+            title = "Sales Invoice Non Trade Output VAT"
             silist = getSIList(dfrom, dto)
             arr = getARR()
 
             query = query_siwithoutputvat(dfrom, dto, silist, arr)
 
         elif report == '9':
-            title = "Sales Invoice Output VAT Summary"
+            title = "Sales Invoice Non Trade Output VAT Summary"
             silist = getSIList(dfrom, dto)
             arr = getARR()
 
             query = query_siwithoutputvatsummary(dfrom, dto, silist, arr)
 
         elif report == '10':
-            title = "Sales Invoice Without Output VAT"
+            title = "Sales Invoice Non Trade Without Output VAT"
             silist = getSINoOutputVatList(dfrom, dto)
 
             query = query_sinooutputvat(dfrom, dto, silist)
 
         elif report == '11':
-            title = "Sales Invoice Without Output VAT Summary"
+            title = "Sales Invoice Non Trade Without Output VAT Summary"
             silist = getSINoOutputVatList(dfrom, dto)
 
             query = query_sinooutputvatsummary(dfrom, dto, silist)
             
         elif report == '12':
-            title = "Sales Invoice Audit Trail"
+            title = "Sales Invoice Non Trade Audit Trail"
             query = Silogs.objects.all()
             if dfrom != '':
                 query = query.filter(action_datetime__gte=dfrom)
@@ -1049,32 +1049,23 @@ class GeneratePDF(View):
         else:
             if sitype != '':
                 q = q.filter(sitype=sitype)
-                print 'sitype'
             if sisubtype != '':
                 q = q.filter(sisubtype=sisubtype)
-                print 'sisubtype'
             if customer != 'null':
                 q = q.filter(customer__code=customer)
-                print 'payee'
             if branch != '':
                 q = q.filter(branch=branch)
-                print branch
             if wtax != '':
                 q = q.filter(wtax=wtax)
-                print 'wtax'
             if vat != '':
                 q = q.filter(vat=vat)
-                print 'vat'
             if outputvat != '':
                 q = q.filter(outputvattype=outputvat)
-                print 'outputvat'
             if status != '':
                 q = q.filter(status=status)
-                print 'status'
             if sistatus != '':
                 q = q.filter(sistatus=sistatus)
-                print 'sistatus'
-                
+            
             list = q
             
         if list:

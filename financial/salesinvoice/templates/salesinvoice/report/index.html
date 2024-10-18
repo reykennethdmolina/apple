@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %} Sales Invoice Report {% endblock page-title %}
+{% block page-title %} Sales Invoice Non Trade Report {% endblock page-title %}
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
@@ -53,15 +53,15 @@
                         <div class="form-group col-sm-3">
                             <label class="control-label small">Report Type</label>
                             <select class="form-control input-sm" id="report_type">
-                                <option value="1" data-cashinbank="0">Invoice Register</option>
+                                <option value="1" data-cashinbank="0">Invoice Non Trade Register</option>
                                 <option value="2" data-cashinbank="0">Sales Book</option>
                                 <option value="3" data-cashinbank="0">Sales Book Summary</option>
                                 <option value="4" data-cashinbank="1">Sales Book - Summary Entries</option>
-                                <option value="5" data-cashinbank="0">Aging of Nontrade Receivable</option>
-                                <option value="8" data-cashinbank="0">Sales Invoice Output VAT</option>
-                                <option value="9" data-cashinbank="0">Sales Invoice Output VAT Summary</option>
-                                <option value="10" data-cashinbank="0">Sales Invoice Without Output VAT</option>
-                                <option value="11" data-cashinbank="0">Sales Invoice Without Output VAT Summary</option>
+                                {% comment %} <option value="5" data-cashinbank="0">Aging of Non Trade Receivable</option> {% endcomment %}
+                                <option value="8" data-cashinbank="0">Sales Invoice Non Trade Output VAT</option>
+                                <option value="9" data-cashinbank="0">Sales Invoice Non Trade Output VAT Summary</option>
+                                <option value="10" data-cashinbank="0">Sales Invoice Non Trade Without Output VAT</option>
+                                <option value="11" data-cashinbank="0">Sales Invoice Non Trade Without Output VAT Summary</option>
                                 <option value="12" data-cashinbank="0">Audit Trail</option>
                             </select>
                         </div>
