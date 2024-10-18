@@ -50,6 +50,11 @@ class IndexView(AjaxListView):
     template_name = 'salesinvoice/index.html'
     page_template = 'salesinvoice/index_list.html'
     context_object_name = 'data_list'
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('salesinvoice.view_salesinvoice'):
+            raise Http404
+        return super(AjaxListView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         query = Simain.objects.all().filter(isdeleted=0)
@@ -913,6 +918,11 @@ def getcustomercreditterm(request):
 class ReportView(ListView):
     model = Simain
     template_name = 'salesinvoice/report/index.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('salesinvoice.view_salesinvoicereport'):
+            raise Http404
+        return super(ListView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
