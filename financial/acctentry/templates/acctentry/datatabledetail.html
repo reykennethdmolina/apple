@@ -80,7 +80,11 @@
                                                         {% if detail.customer %}
                                                         <td style="vertical-align: top">
                                                             <small><b>Customer</b></small><br>
+                                                            {% if object.payee_code == 'WI' %}
+                                                            {{ object.payee_name }}
+                                                            {% else %}
                                                             {{ detail.customer.name }}
+                                                            {% endif %}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.unit %}

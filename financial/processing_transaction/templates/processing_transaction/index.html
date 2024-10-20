@@ -106,6 +106,7 @@
                                             <th><span>Input VAT Type</span></th>
                                             <th class="text-right"><span>Amount</span></th>
                                             <th class="text-right"><span>Final Amount</span></th>
+                                            <th class="text-right"><span>Check #</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -188,12 +189,16 @@
                                                        po_dynamic" maxlength="26" value="{% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}{{ data.netamount|sub:data.apvtotalamount|floatformat:2|intcomma }}{% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}{{ data.amount|sub:data.cvamount|floatformat:2|intcomma }}{% endif %}">
                                                 {% endif %}
                                             </td>
+                                            <td align="right" class="actual-check">
+                                                <input type="text" name="temp_actualcheck" style="width: 120px;" class="form-control input-sm text-right po_dynamic" maxlength="26">
+                                            </td>
                                             {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                 <td align="right" class="po-actual-amount">
                                                     <input type="text" name="temp_actualamount" style="width: 120px;" disabled="disabled"
                                                            class="form-control input-sm amount text-right input-amount
                                                            po_dynamic" maxlength="26" value="{% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}{{ data.netamount|sub:data.apvtotalamount|floatformat:2|intcomma }}{% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}{{ data.amount|sub:data.cvamount|floatformat:2|intcomma }}{% endif %}">
                                                 </td>
+
                                             {% endif %}
                                         </tr>
                                         {% endfor %}
@@ -373,8 +378,9 @@
                     allVats.push($(this).parent().parent().parent().find('.po-vat-apv-inputvattype').text().trim());
                 }
                 else if($('#id_selectprocess').val() == 'apvtocv' || $('#id_selectprocess').val() == 'apvtoapv') {
-                    allSuppliers.push($(this).parent().parent().parent().find('.po-item-apv-supplier').text().trim());
-                    allVats.push($(this).parent().parent().parent().find('.po-supplier-apv-vat').text().trim());
+
+<!--                    allSuppliers.push($(this).parent().parent().parent().find('.po-item-apv-supplier').text().trim());-->
+<!--                    allVats.push($(this).parent().parent().parent().find('.po-supplier-apv-vat').text().trim());-->
                 }
             });
 
@@ -430,11 +436,11 @@
                     valid = false;
                 }
             }
-            if(valid){
-                setTimeout(function(){
-                    location.reload();
-                }, 5000);
-            }
+<!--            if(valid){-->
+<!--                setTimeout(function(){-->
+<!--                    location.reload();-->
+<!--                }, 5000);-->
+<!--            }-->
         });
 
         $('#id_selectprocess').on('change', function(){

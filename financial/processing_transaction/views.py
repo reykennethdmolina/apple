@@ -511,7 +511,152 @@ def importtransdata(request):
             elif request.POST['transtype'] == 'potocv':
                 return redirect('/checkvoucher/' + str(newapv.id) + '/update')
 
-        elif request.POST['transtype'] == 'apvtocv' or request.POST['transtype'] == 'apvtoapv':
+        #elif request.POST['transtype'] == 'apvtocv' or request.POST['transtype'] == 'apvtoapv':
+        #enhancement in apv to cv one is to many
+        elif request.POST['transtype'] == 'apvtocv':
+            #print 'hoyes'
+            checkbox = request.POST.getlist('trans_checkbox')
+            i = 0
+            for check in checkbox:
+                #print check
+                #print float(request.POST.getlist('temp_actualamount')[i].replace(',', ''))
+
+                referenceap = Apmain.objects.get(pk=int(check))
+                allaps = Apmain.objects.filter(pk=check).order_by('payeename','vat_id','apnum')
+
+                ap_nums = allaps.values_list('apnum', flat=True)
+                cvrefnum = ' '.join(ap_nums)
+                ap_particulars = allaps.values_list('particulars', flat=True)
+                cvparticulars = ' '.join(ap_particulars)
+
+                if request.POST['transtype'] == 'apvtocv':
+                    year = str(datetime.date.today().year)
+                    yearqs = Cvmain.objects.filter(cvnum__startswith=year)
+
+                    cvnumlast = lastCVNumber('true')
+                    latestcvnum = str(cvnumlast[0])
+
+                    cvnum = year
+                    # print str(int(latestapnum[4:]))
+                    last = str(int(latestcvnum) + 1)
+
+                    zero_addon = 6 - len(last)
+                    for num in range(0, zero_addon):
+                        cvnum += '0'
+                    cvnum += last
+
+                    newapv = Cvmain()
+                    newapv.cvtype = Cvtype.objects.get(description='AP')
+                    newapv.cvsubtype = Cvsubtype.objects.get(code='IAP')
+                    newapv.cvnum = cvnum
+                    newapv.cvdate = datetime.date.today()
+                    newapv.cvstatus = 'F'
+                    newapv.payee = Supplier.objects.get(pk=referenceap.payee_id)
+                    newapv.payee_code = newapv.payee.code
+                    newapv.payee_name = newapv.payee.name
+                    print 'xxx'
+                    print request.POST['temp_actualcheck'] #request.POST.getlist('temp_actualcheck')[i]
+                    print 'zzz'
+                    newapv.checkdate = datetime.date.today()
+                    newapv.atc = referenceap.atax
+                    newapv.atcrate = referenceap.ataxrate
+                    newapv.deferredvat = referenceap.deferred
+                    newapv.refnum = 'APV No.(s) ' + cvrefnum
+                    newapv.bankaccount = referenceap.bankaccount
+                    newapv.disbursingbranch = referenceap.bankbranchdisburse
+                    newapv.amountinwords = request.POST['hdnamountinwords']
+
+                newapv.vat = referenceap.vat
+                newapv.vatrate = referenceap.vatrate
+                newapv.designatedapprover_id = '225' ## Arlene Astapan
+                newapv.inputvattype = referenceap.inputvattype
+                newapv.fxrate = referenceap.fxrate
+                newapv.particulars = cvparticulars
+                newapv.branch = referenceap.branch
+                newapv.currency = referenceap.currency
+                newapv.enterby = request.user
+                newapv.modifyby = request.user
+                newapv.save()
+
+                total_amount = 0
+                #i = 0
+                aptrade_debit_amount = 0
+                inputvat_debit_amount = 0
+                deferredinputvat_credit_amount = 0
+                cashinbank_credit_amount = 0
+
+                for data in allaps:
+                    newapvcvtrans = Apvcvtransaction()
+                    newapvcvtrans.apmain = data
+                    newapvcvtrans.cvamount = float(request.POST.getlist('temp_actualamount')[i].replace(',', ''))
+                    if request.POST['transtype'] == 'apvtoapv':
+                        newapvcvtrans.new_apmain = newapv
+                    elif request.POST['transtype'] == 'apvtocv':
+                        newapvcvtrans.cvmain = newapv
+                    total_amount += newapvcvtrans.cvamount
+
+                    newapv.checknum = 'xx' #request.POST.getlist('temp_actualcheck')[i] #request.POST['temp_actualcheck'][i]
+                    newapvcvtrans.save()
+                    updateapv = Apmain.objects.get(pk=newapvcvtrans.apmain.id)
+                    updateapv.cvamount = newapvcvtrans.cvamount
+                    if updateapv.cvamount == updateapv.amount:
+                        updateapv.isfullycv = 1
+                    updateapv.save()
+
+                    apv_detail = Apdetail.objects.filter(apmain=data)
+                    for detail in apv_detail:
+                        if detail.balancecode == 'C' and detail.chartofaccount.id == Companyparameter.objects.get(
+                                code='PDI').coa_aptrade_id:
+                            aptrade_debit_amount += detail.creditamount
+                            cashinbank_credit_amount += detail.creditamount
+                i += 1
+
+
+                #newapv.amount = cashinbank_credit_amount
+                newapv.amount = total_amount
+                newapv.save()
+
+                cvdetail_item_counter = 1
+
+                # APV/CV accounting entries
+                # 1st entry: Accounts Payable Trade
+                if request.POST['transtype'] == 'apvtocv':
+                    aptrade_cv_entry = Cvdetail()
+                    aptrade_cv_entry.cvmain = newapv
+                    aptrade_cv_entry.cv_num = newapv.cvnum
+                    aptrade_cv_entry.cv_date = newapv.cvdate
+                    aptrade_cv_entry.supplier = newapv.payee
+                aptrade_cv_entry.item_counter = cvdetail_item_counter
+                aptrade_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_aptrade
+                aptrade_cv_entry.balancecode = 'D'
+                aptrade_cv_entry.debitamount = aptrade_debit_amount
+                aptrade_cv_entry.enterby = request.user
+                aptrade_cv_entry.modifyby = request.user
+                aptrade_cv_entry.save()
+                cvdetail_item_counter += 1
+                if request.POST['transtype'] == 'apvtocv':
+                    cashinbank_cv_entry = Cvdetail()
+                    cashinbank_cv_entry.cvmain = newapv
+                    cashinbank_cv_entry.cv_num = newapv.cvnum
+                    cashinbank_cv_entry.cv_date = newapv.cvdate
+                    cashinbank_cv_entry.bankaccount = newapv.bankaccount
+                cashinbank_cv_entry.item_counter = cvdetail_item_counter
+                cashinbank_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_cashinbank
+                cashinbank_cv_entry.balancecode = 'C'
+                cashinbank_cv_entry.creditamount = cashinbank_credit_amount
+                cashinbank_cv_entry.enterby = request.user
+                cashinbank_cv_entry.modifyby = request.user
+                cashinbank_cv_entry.save()
+
+                print "APV/CV successfully generated."
+
+
+
+            if request.POST['transtype'] == 'apvtocv':
+                #return redirect('/checkvoucher/' + str(newapv.id) + '/update')
+                return redirect('/checkvoucher')
+
+        elif request.POST['transtype'] == 'apvtoapv':
             referenceap = Apmain.objects.get(pk=int(request.POST.getlist('trans_checkbox')[0]))
             allaps = Apmain.objects.filter(id__in=request.POST.getlist('trans_checkbox')).order_by('payeename',
                                                                                                    'vat_id', 'apnum')
@@ -779,7 +924,7 @@ def importtransdata(request):
     else:
         print "Something went wrong in saving APV/CV."
 
-    return redirect('/processing_transaction/')
+    ######return redirect('/processing_transaction/')
 
 
 def lastCVNumber(param):
