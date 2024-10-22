@@ -555,7 +555,9 @@ def importtransdata(request):
                     newapv.payee_code = newapv.payee.code
                     newapv.payee_name = newapv.payee.name
                     print 'xxx'
-                    print request.POST['temp_actualcheck'] #request.POST.getlist('temp_actualcheck')[i]
+                    #print request.POST['temp_actualcheck'+check] #request.POST.getlist('temp_actualcheck')[i]
+                    newapv.checknum = request.POST['temp_actualcheck'+check] #request.POST.getlist('temp_actualcheck')[i]
+                    #print request.POST['temp_actualcheck'] #request.POST.getlist('temp_actualcheck')[i]
                     print 'zzz'
                     newapv.checkdate = datetime.date.today()
                     newapv.atc = referenceap.atax
@@ -595,7 +597,7 @@ def importtransdata(request):
                         newapvcvtrans.cvmain = newapv
                     total_amount += newapvcvtrans.cvamount
 
-                    newapv.checknum = 'xx' #request.POST.getlist('temp_actualcheck')[i] #request.POST['temp_actualcheck'][i]
+                    #newapv.checknum = 'xx' #request.POST.getlist('temp_actualcheck')[i] #request.POST['temp_actualcheck'][i]
                     newapvcvtrans.save()
                     updateapv = Apmain.objects.get(pk=newapvcvtrans.apmain.id)
                     updateapv.cvamount = newapvcvtrans.cvamount
